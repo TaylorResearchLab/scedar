@@ -12,3 +12,5 @@ dist
 .pytest_cache
 
 build
+
+.tox

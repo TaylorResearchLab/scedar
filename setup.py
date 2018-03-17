@@ -1,17 +1,5 @@
 from setuptools import setup, find_packages
 
-dep_lst = [
-    'pytest-runner', 
-    'numpy',
-    'scipy',
-    'matplotlib',
-    'pandas',
-    'seaborn',
-    'sklearn',
-    'xgboost',
-    'networkx',
-    'fa2',
-]
 
 setup(
     name='scxplit',
@@ -33,8 +21,29 @@ setup(
     ],
     packages=find_packages(exclude=['contrib', 'docs', 'tests*']),
     python_requires='~=3.5',
-    install_requires=dep_lst,
-    setup_requires=dep_lst,
+    install_requires=[
+        'numpy',
+        'scipy',
+        'matplotlib',
+        'pandas',
+        'seaborn',
+        'sklearn',
+        'xgboost',
+        'networkx',
+        'fa2',
+    ],
+    setup_requires=[
+        'pytest-runner', 
+        'numpy',
+        'scipy',
+        'matplotlib',
+        'pandas',
+        'seaborn',
+        'sklearn',
+        'xgboost',
+        'networkx',
+        'fa2',
+    ],
     tests_require=[
         'pytest'
     ],
