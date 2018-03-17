@@ -1,5 +1,6 @@
 import pickle
 import multiprocessing as mp
+import numpy as np
 import gzip
 import os
 
@@ -50,6 +51,7 @@ def num_correct_dist_mat(dmat, upper_bound = None):
 
 
 # Validate scipy hierarchical clustering cut tree
+# Number of clusters should decrease from n to 1
 def is_valid_full_cut_tree_mat(cmat):
     col_unique_vals = [len(np.unique(x)) for x in cmat.T]
     return col_unique_vals == list(range(cmat.shape[0], 0, -1))
