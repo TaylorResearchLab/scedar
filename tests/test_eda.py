@@ -163,8 +163,93 @@ class TestSampleFeatureMatrix(object):
 
 class TestSampleDistanceMatrix(object):
     """docstring for TestSampleDistanceMatrix"""
+    x_3x2 = [[0, 0], [1, 1], [2, 2]]
+    x_2x4_arr = np.array([[0, 1, 2, 3], [1, 2, 0, 6]])
+    
     def test_valid_init(self):
-        pass
+        sdm = eda.SampleDistanceMatrix(self.x_3x2, metric='euclidean')
+        dist_mat = np.array([[0, np.sqrt(2), np.sqrt(8)],
+                             [np.sqrt(2), 0, np.sqrt(2)],
+                             [np.sqrt(8), np.sqrt(2), 0]])
+        np.testing.assert_allclose(sdm.get_d(), dist_mat)
+
+        sdm2 = eda.SampleDistanceMatrix(self.x_2x4_arr, metric='euclidean', nprocs=5)
+        sdm2_d1 = np.sqrt(np.power(self.x_2x4_arr[0] - self.x_2x4_arr[1], 2).sum())
+        np.testing.assert_allclose(sdm2.get_d(), 
+                                   np.array([[0, sdm2_d1], [sdm2_d1, 0]]))
+
+        sdm3 = eda.SampleDistanceMatrix(self.x_2x4_arr, metric='correlation', nprocs=5)
+        sdm3_corr_d = (1 - np.dot(self.x_2x4_arr[0] - self.x_2x4_arr[0].mean(), 
+                                  self.x_2x4_arr[1] - self.x_2x4_arr[1].mean())
+                       / (np.linalg.norm(self.x_2x4_arr[0] - self.x_2x4_arr[0].mean(), 2)
+                          * np.linalg.norm(self.x_2x4_arr[1] - self.x_2x4_arr[1].mean(), 2)))
+        np.testing.assert_allclose(sdm3.get_d(), 
+                                   np.array([[0, 0.3618551], 
+                                             [0.3618551, 0]]))
+
+        np.testing.assert_allclose(sdm3.get_d(), 
+                                   np.array([[0, sdm3_corr_d], 
+                                             [sdm3_corr_d, 0]]))
+
+        sdm4 = eda.SampleDistanceMatrix(self.x_3x2, dist_mat)
+        sdm5 = eda.SampleDistanceMatrix(self.x_3x2, dist_mat, metric='euclidean')
+
+    def test_init_wrong_metric(self):
+        with pytest.raises(Exception) as excinfo:
+            eda.SampleDistanceMatrix(self.x_3x2)
+
+        with pytest.raises(Exception) as excinfo:
+            eda.SampleDistanceMatrix(self.x_3x2, metric=1)
+
+        with pytest.raises(Exception) as excinfo:
+            eda.SampleDistanceMatrix(self.x_3x2, metric=1.)
+
+        with pytest.raises(Exception) as excinfo:
+            eda.SampleDistanceMatrix(self.x_3x2, metric=('euclidean', ))
+
+        with pytest.raises(Exception) as excinfo:
+            eda.SampleDistanceMatrix(self.x_3x2, metric=['euclidean'])
+
+    def test_init_wrong_d_type(self):
+        d_3x3 = np.array([[0, np.sqrt(2), np.sqrt(8)],
+                          ['1a1', 0, np.sqrt(2)],
+                          [np.sqrt(8), np.sqrt(2), 0]])
+
+        with pytest.raises(Exception) as excinfo:
+            eda.SampleDistanceMatrix(self.x_3x2, d_3x3)
+
+    def test_init_wrong_d_size(self):
+        d_2x2 = np.array([[0, np.sqrt(2)],
+                          [np.sqrt(2), 0]])
+
+        d_2x2 = np.array([[0, np.sqrt(2)],
+                          [np.sqrt(2), 0]])
+
+        d_1x6 = np.arange(6)
+
+        d_3x2 = np.array([[0, np.sqrt(2)],
+                          [np.sqrt(2), 0],
+                          [1, 2]])
+
+        with pytest.raises(Exception) as excinfo:
+            eda.SampleDistanceMatrix(self.x_3x2, d_2x2)
+
+        with pytest.raises(Exception) as excinfo:
+            eda.SampleDistanceMatrix(self.x_3x2, d_2x3)
+
+        with pytest.raises(Exception) as excinfo:
+            eda.SampleDistanceMatrix(self.x_3x2, d_3x2)
+
+        with pytest.raises(Exception) as excinfo:
+            eda.SampleDistanceMatrix(self.x_3x2, d_1x6)
+
+    def test_getter(self):
+        sdm = eda.SampleDistanceMatrix(self.x_3x2, metric='euclidean')
+        dist_mat = np.array([[0, np.sqrt(2), np.sqrt(8)],
+                             [np.sqrt(2), 0, np.sqrt(2)],
+                             [np.sqrt(8), np.sqrt(2), 0]])
+        np.testing.assert_allclose(sdm.get_d(), dist_mat)
+        assert sdm.get_d() is not sdm._d
     
     def test_num_correct_dist_mat(self):
         tdmat = np.array([[0, 1, 2],
@@ -174,7 +259,9 @@ class TestSampleDistanceMatrix(object):
         ref_cdmat = np.array([[0, 0.5, 1],
                               [0.5, 0, 1.6],
                               [1, 1.6, 0]])
-        cdmat = eda.SampleDistanceMatrix.num_correct_dist_mat(tdmat)
+        with pytest.warns(UserWarning):
+            cdmat = eda.SampleDistanceMatrix.num_correct_dist_mat(tdmat)
+
         np.testing.assert_equal(cdmat, ref_cdmat)
 
         ref_cdmat2 = np.array([[0, 0.5, 1],
@@ -183,6 +270,17 @@ class TestSampleDistanceMatrix(object):
         # with upper bound
         cdmat2 = eda.SampleDistanceMatrix.num_correct_dist_mat(tdmat, 1)
         np.testing.assert_equal(cdmat2, ref_cdmat2)
+
+        # wrong shape
+        tdmat3 = np.array([[0, 0.5],
+                            [0.5, 0],
+                            [1, 1]])
+        # with upper bound
+        with pytest.raises(Exception) as excinfo:
+            eda.SampleDistanceMatrix.num_correct_dist_mat(tdmat3, 1)
+
+        with pytest.raises(Exception) as excinfo:
+            eda.SampleDistanceMatrix.num_correct_dist_mat(tdmat3)
 
         
 class TestSingleLabelClassifiedSamples(object):

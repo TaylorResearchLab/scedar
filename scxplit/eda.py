@@ -11,6 +11,8 @@ import seaborn as sns
 import sklearn as skl
 import sklearn.metrics
 
+import warnings
+
 from . import utils
 
 class SampleFeatureMatrix(object):
@@ -161,7 +163,6 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
 
             d = skl.metrics.pairwise.pairwise_distances(x, metric=metric, 
                                                         n_jobs=nprocs)
-            d = self.num_correct_dist_mat(d)
         else:
             try:
                 d = np.array(d, dtype="float64")
@@ -173,21 +174,46 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
                 or (d.shape[0] != self._x.shape[0])):
                 raise ValueError("d should have shape (n_samples, n_samples)")
         
+        d = self.num_correct_dist_mat(d)
         self._d = d
         self._metric = metric
 
     # numerically correct dmat
     @staticmethod
     def num_correct_dist_mat(dmat, upper_bound=None):
-        assert dmat.shape[0] == dmat.shape[1]
+        if ((not isinstance(dmat, np.ndarray))
+            or (dmat.ndim != 2)
+            or (dmat.shape[0] != dmat.shape[1])):
+            raise ValueError("dmat must be a 2D (n_samples, n_samples)"
+                             " np array")
+
+        try:
+            # Distance matrix diag vals should be close to 0.
+            np.testing.assert_allclose(dmat[np.diag_indices(dmat.shape[0])], 0,
+                                       atol=1e-10)
+        except AssertionError as e:
+            warnings.warn("distance matrix might not be numerically "
+                          "correct. diag vals should be close to 0. {}".format(e))
+        
+        try:
+            # distance matrix should be approximately symmetric
+            np.testing.assert_allclose(dmat[np.triu_indices_from(dmat)], 
+                                       dmat.T[np.triu_indices_from(dmat)])
+        except AssertionError as e:
+            warnings.warn("distance matrix might not be numerically "
+                          "correct. should be approximately symmetric. {}".format(e))
         
         dmat[dmat < 0] = 0
         dmat[np.diag_indices(dmat.shape[0])] = 0
-        if upper_bound:
+        if upper_bound is not None:
+            upper_bound = float(upper_bound)
             dmat[dmat > upper_bound] = upper_bound
-        
+
         dmat[np.triu_indices_from(dmat)] = dmat.T[np.triu_indices_from(dmat)]
         return dmat
+
+    def get_d(self):
+        return self._d.copy()
       
 
 class SingleLabelClassifiedSamples(SampleFeatureMatrix):
