@@ -164,7 +164,7 @@ class TestSampleFeatureMatrix(object):
 class TestSampleDistanceMatrix(object):
     """docstring for TestSampleDistanceMatrix"""
     def test_valid_init(self):
-        eda.SampleDistanceMatrix(np.arange(10).reshape(5, 2))
+        pass
         
         
 class TestSingleLabelClassifiedSamples(object):

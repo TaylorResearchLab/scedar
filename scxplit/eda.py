@@ -14,6 +14,27 @@ class SampleFeatureMatrix(object):
     SampleFeatureMatrix is a (n_samples, n_features) matrix. 
     In this package, we are only interested in float features as measured
     expression levels. 
+    Parameters
+    ----------
+    x : ndarray or list
+        data matrix (n_samples, n_features)
+    sids : homogenous list of int or string
+        sample ids. Should not contain duplicated elements. 
+    fids : homogenous list of int or string
+        feature ids. Should not contain duplicated elements. 
+
+    Attributes:
+    -----------
+    _x : ndarray
+        data matrix (n_samples, n_features)
+    _d : ndarray
+        distance matrix (n_samples, n_samples)
+    _sids : ndarray
+        sample ids.
+    _fids : ndarray
+        sample ids.
+
+    Methods defined here:
     """
     def __init__(self, x, sids=None, fids=None):
         super(SampleFeatureMatrix, self).__init__()
@@ -50,31 +71,31 @@ class SampleFeatureMatrix(object):
         self._fids = np.array(fids)
 
     @staticmethod
-    def is_valid_sfid(sid):
-        return (type(sid) == str) or (type(sid) == int)
+    def is_valid_sfid(sfid):
+        return (type(sfid) == str) or (type(sfid) == int)
 
     @staticmethod
-    def check_is_valid_sfids(sids):
-        if sids is None:
+    def check_is_valid_sfids(sfids):
+        if sfids is None:
             raise ValueError("[sf]ids cannot be None")
 
-        if type(sids) != list:
+        if type(sfids) != list:
             raise ValueError("[sf]ids must be a homogenous list of int or str")
 
-        if len(sids) == 0:
+        if len(sfids) == 0:
             raise ValueError("[sf]ids must have >= 1 values")
 
-        sid_types = tuple(map(type, sids))
+        sid_types = tuple(map(type, sfids))
         if len(set(sid_types)) != 1:
             raise ValueError("[sf]ids must be a homogenous list of int or str")
 
-        if not SampleFeatureMatrix.is_valid_sfid(sids[0]):
+        if not SampleFeatureMatrix.is_valid_sfid(sfids[0]):
             raise ValueError("[sf]ids must be a homogenous list of int or str")
 
-        sids = np.array(sids)
-        assert sids.ndim == 1
-        assert sids.shape[0] > 0
-        if not utils.is_uniq_np1darr(sids):
+        sfids = np.array(sfids)
+        assert sfids.ndim == 1
+        assert sfids.shape[0] > 0
+        if not utils.is_uniq_np1darr(sfids):
             raise ValueError("[sf]ids must not contain duplicated values")
 
     def get_sids(self):
@@ -88,10 +109,45 @@ class SampleFeatureMatrix(object):
 
 
 class SampleDistanceMatrix(SampleFeatureMatrix):
-    """docstring for SampleDistanceMatrix"""
-    def __init__(self, x, d=None, sids=None, fids=None, metric=None, nprocs=1):
+    """
+    SampleDistanceMatrix: data with pairwise distance matrix
+
+    Parameters
+    ----------
+    x : ndarray or list
+        data matrix (n_samples, n_features)
+    d : ndarray or list or None
+        distance matrix (n_samples, n_samples)
+        If is None, d will be computed with x, metric, and nprocs.
+    metric : string
+        distance metric
+    sids : homogenous list of int or string
+        sample ids. Should not contain duplicated elements. 
+    fids : homogenous list of int or string
+        feature ids. Should not contain duplicated elements. 
+    nprocs : int
+        the number of processes for computing pairwise distance matrix
+
+    Attributes:
+    -----------
+    _x : ndarray
+        data matrix (n_samples, n_features)
+    _d : ndarray
+        distance matrix (n_samples, n_samples)
+    _metric : string
+        distance metric
+    _sids : ndarray
+        sample ids.
+    _fids : ndarray
+        sample ids.
+    """
+    def __init__(self, x, d=None, metric=None, sids=None, fids=None, nprocs=1):
         super(SampleDistanceMatrix, self).__init__(x=x, sids=sids, fids=fids)
-        
+
+        if d is None:
+            if (metric is None):
+                raise ValueError("If d is None, metric must be provided.")
+
         
 
 class SingleLabelClassifiedSamples(SampleFeatureMatrix):
