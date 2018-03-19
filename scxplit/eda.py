@@ -9,71 +9,141 @@ import seaborn as sns
 
 from . import utils
 
-class SingleLabelClassifiedSamples(object):
+class SampleFeatureMatrix(object):
+    """
+    SampleFeatureMatrix is a (n_samples, n_features) matrix. 
+    In this package, we are only interested in float features as measured
+    expression levels. 
+    """
+    def __init__(self, x, sids=None, fids=None):
+        super(SampleFeatureMatrix, self).__init__()
+        if x is None:
+            raise ValueError("x cannot be None")
+        else:
+            try:
+                x = np.array(x, dtype="float64")
+            except ValueError as e:
+                raise ValueError("Features must be float. {}".format(e))
+            
+            if x.ndim != 2:
+                raise ValueError("x has shape (n_samples, n_features)")
+
+            if x.size == 0:
+                raise ValueError("size of x cannot be 0")
+
+        if sids is None:
+            sids = list(range(x.shape[0]))
+        else:
+            self.check_is_valid_sfids(sids)
+            if len(sids) != x.shape[0]:
+                raise ValueError("x has shape (n_samples, n_features)")
+
+        if fids is None:
+            fids = list(range(x.shape[1]))
+        else:
+            self.check_is_valid_sfids(fids)
+            if len(fids) != x.shape[1]:
+                raise ValueError("x has shape (n_samples, n_features)")
+
+        self._x = x
+        self._sids = np.array(sids)
+        self._fids = np.array(fids)
+
+    @staticmethod
+    def is_valid_sfid(sid):
+        return (type(sid) == str) or (type(sid) == int)
+
+    @staticmethod
+    def check_is_valid_sfids(sids):
+        if sids is None:
+            raise ValueError("[sf]ids cannot be None")
+
+        if type(sids) != list:
+            raise ValueError("[sf]ids must be a homogenous list of int or str")
+
+        if len(sids) == 0:
+            raise ValueError("[sf]ids must have >= 1 values")
+
+        sid_types = tuple(map(type, sids))
+        if len(set(sid_types)) != 1:
+            raise ValueError("[sf]ids must be a homogenous list of int or str")
+
+        if not SampleFeatureMatrix.is_valid_sfid(sids[0]):
+            raise ValueError("[sf]ids must be a homogenous list of int or str")
+
+        sids = np.array(sids)
+        assert sids.ndim == 1
+        assert sids.shape[0] > 0
+        if not utils.is_uniq_np1darr(sids):
+            raise ValueError("[sf]ids must not contain duplicated values")
+
+    def get_sids(self):
+        return self._sids.copy()
+
+    def get_fids(self):
+        return self._fids.copy()
+
+    def get_x(self):
+        return self._x.copy()
+
+
+
+class SampleDistanceMatrix(object):
+    """docstring for SampleDistanceMatrix"""
+    def __init__(self, x, is_dist_mat=False, sids=None, nprocs=1):
+        super(SampleDistanceMatrix, self).__init__()
+        
+
+class SingleLabelClassifiedSamples(SampleFeatureMatrix):
     """docstring for SingleLabelClassifiedSamples"""
-    def __init__(self, sids, labs, x=None):
+    # sid, lab, fid, x
+    def __init__(self, x, labs, sids=None, fids=None):
         # sids: sample IDs. String or int.
         # labs: sample classified labels. String or int. 
         # x: (n_samples, n_features)
-        super(SingleLabelClassifiedSamples, self).__init__()
-        self.assert_is_valid_sids(sids)
-        self.assert_is_valid_labs(labs)
-        sids = np.array(sids)
+        super(SingleLabelClassifiedSamples, self).__init__(x=x, sids=sids, 
+                                                           fids=fids)
+        self.check_is_valid_labs(labs)
         labs = np.array(labs)
-        assert sids.shape[0] == labs.shape[0]
-        if x is not None:
-            x = np.array(x)
-            assert len(x.shape) == 2
-            assert x.shape[0] == sids
-
-        self._n = sids.shape[0]
-        self._sids = sids
+        if self._sids.shape[0] != labs.shape[0]:
+            raise ValueError("sids must have the same length as labs")
         self._labs = labs
-        self._x = x
 
         sid_lut = {}
         for uniq_lab in np.unique(labs):
-            sid_lut[uniq_lab] = sids[labs == uniq_lab]
+            sid_lut[uniq_lab] = self._sids[labs == uniq_lab]
         self._sid_lut = sid_lut
 
         lab_lut = {}
         # sids only contain unique values
-        for i in range(sids.shape[0]):
-            lab_lut[sids[i]] = labs[i]
+        for i in range(self._sids.shape[0]):
+            lab_lut[self._sids[i]] = labs[i]
         self._lab_lut = lab_lut
         return
-
-    @staticmethod
-    def is_valid_sid(sid):
-        return (type(sid) == str) or (type(sid) == int)
-
-    @staticmethod
-    def assert_is_valid_sids(sids):
-        assert sids is not None
-        assert type(sids) == list
-        assert len(sids) > 0
-        sid_types = tuple(map(type, sids))
-        assert len(set(sid_types)) == 1
-        assert SingleLabelClassifiedSamples.is_valid_sid(sids[0])
-        sids = np.array(sids)
-        assert sids.ndim == 1
-        assert sids.shape[0] > 0
-        assert utils.is_uniq_np1darr(sids), 'Sample IDs must be 1D uniq array'
 
     @staticmethod
     def is_valid_lab(lab):
         return (type(lab) == str) or (type(lab) == int)
 
     @staticmethod
-    def assert_is_valid_labs(labs):
-        assert labs is not None
-        assert type(labs) == list
-        assert len(labs) > 0
-        lab_types = tuple(map(type, labs))
-        assert len(set(lab_types)) == 1
-        assert SingleLabelClassifiedSamples.is_valid_lab(labs[0])
+    def check_is_valid_labs(labs):
+        if labs is None:
+            raise ValueError("labs cannot be None")
+
+        if type(labs) != list:
+            raise ValueError("labs must be a homogenous list of int or str")
+        
+        if len(labs) == 0:
+            raise ValueError("labs cannot be empty")
+
+        if len(set(map(type, labs))) != 1:
+            raise ValueError("labs must be a homogenous list of int or str")
+
+        if not SingleLabelClassifiedSamples.is_valid_lab(labs[0]):
+            raise ValueError("labs must be a homogenous list of int or str")
+
         labs = np.array(labs)
-        assert labs.ndim == 1, 'Labels must be 1D'
+        assert labs.ndim == 1, "Labels must be 1D"
         assert labs.shape[0] > 0
         
     def filter_min_class_n(self, min_class_n):
@@ -82,20 +152,14 @@ class SingleLabelClassifiedSamples(object):
                              (uniq_lab_cnts[0])[uniq_lab_cnts[1] >= min_class_n])
         return (self._sids[nf_sid_ind], self._labs[nf_sid_ind])
 
-    def labs_to_sids(labs):
-        return np.array([self._sid_lut[y].copy() for y in labs])
+    def labs_to_sids(self, labs):
+        return tuple(tuple(self._sid_lut[y].copy()) for y in labs)
 
-    def sids_to_labs(sids):
-        return np.array([self._lab_lut[x] for x in labs])
+    def sids_to_labs(self, sids):
+        return np.array([self._lab_lut[x] for x in sids])
     
-    def get_sids(self):
-        return self._sids.copy()
-
     def get_labs(self):
         return self._labs.copy()
-
-    def get_x(self):
-        return self._x.copy()
 
     # Sort the clustered sample_ids with the reference order of another. 
     # 
@@ -111,7 +175,7 @@ class SingleLabelClassifiedSamples(object):
             sep_lab_list.append(np.repeat(iter_lab, len(iter_sid_arr)))
 
         if ref_sid_order is not None:
-            self.assert_is_valid_sids(ref_sid_order)
+            self.check_is_valid_sfids(ref_sid_order)
             ref_sid_order = np.array(ref_sid_order)
             # sort r according to q
             # assumes:
@@ -147,28 +211,26 @@ class SingleLabelClassifiedSamples(object):
     # See how two clustering criteria match with each other.
     # When given q_slc_samples is not None, sids and labs are ignored. 
     # When q_slc_samples is None, sids and labs must be provided
-    def cross_labs(self, q_slc_samples=None, qsids=None, qlabs=None):
-        if q_slc_samples is None:
-            q_slc_samples = SingleLabelClassifiedSamples(qsids, qlabs)
-            
+    def cross_labs(self, q_slc_samples):
         if not isinstance(q_slc_samples, SingleLabelClassifiedSamples):
-            raise TypeError('Query should be an instance of '
-                            'SingleLabelClassifiedSamples')
+            raise TypeError("Query should be an instance of "
+                            "SingleLabelClassifiedSamples")
         
         try:
             ref_labs = np.array([self._lab_lut[x] 
                                  for x in q_slc_samples.get_sids()])
         except KeyError as e:
-            raise ValueError('query sid {} is not in ref sids.'.format(e))
+            raise ValueError("query sid {} is not in ref sids.".format(e))
 
         query_labs = q_slc_samples.get_labs()
         
         uniq_rlabs, uniq_rlab_cnts = np.unique(ref_labs, return_counts=True)
         cross_lab_lut = {}
         for i in range(len(uniq_rlabs)):
-            ref_ci_quniq = tuple(map(list,
-                                     np.unique(query_labs[np.where(np.array(ref_labs) == uniq_rlabs[i])],
-                                               return_counts=True)))
+            # ref cluster i. query unique labs.
+            ref_ci_quniq = tuple(map(list, np.unique(
+                query_labs[np.where(np.array(ref_labs) == uniq_rlabs[i])],
+                return_counts=True)))
             cross_lab_lut[uniq_rlabs[i]] = (uniq_rlab_cnts[i], tuple(map(tuple, ref_ci_quniq)))
 
         return cross_lab_lut
@@ -192,6 +254,5 @@ class SingleLabelClassifiedSamples(object):
             return (lab_cmap, lab_ind_arr, lab_col_lut, uniq_lab_lut)
         else:
             return lab_cmap
-
 
 
