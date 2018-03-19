@@ -50,6 +50,12 @@ def test_parmap_gen_mp():
     assert isinstance(pm_res, list)
     assert pm_res == list(map(lambda x: x**2, range(n)))
 
+def test_parmap_gen_mp():
+    n = 1000
+    pm_res = utils.parmap(lambda x: x ** 2, range(n), nprocs=10)
+    assert isinstance(pm_res, list)
+    assert pm_res == list(map(lambda x: x**2, range(n)))
+
 
 def test_save_obj(tmpdir):
     def test_helper(x, is_np_arr):
@@ -108,6 +114,7 @@ def test_is_valid_full_cut_tree_mat():
     tfctm_invalid[4, 2] = 0
     assert not utils.is_valid_full_cut_tree_mat(tfctm_invalid)
 
+
 def test_is_uniq_np1darr():
     assert not utils.is_uniq_np1darr([])
     assert not utils.is_uniq_np1darr([1])
@@ -123,6 +130,9 @@ def test_is_uniq_np1darr():
     assert not utils.is_uniq_np1darr(np.array([1, 1]))
     assert not utils.is_uniq_np1darr(np.array([1, 1.]))
     assert not utils.is_uniq_np1darr(np.array([0, 1, 2, 1]))
+
+    assert not utils.is_uniq_np1darr(np.array([1, 1]).reshape(2, 1))
+    assert not utils.is_uniq_np1darr(np.array([[], []]))
 
     assert utils.is_uniq_np1darr(np.array([]))
     assert utils.is_uniq_np1darr(np.array([1, 2]))
