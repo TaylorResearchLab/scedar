@@ -325,8 +325,8 @@ class TestSingleLabelClassifiedSamples(object):
         eda.SingleLabelClassifiedSamples(self.sfm5x10_arr, [0, 1, 1, 2, 0], list(range(5)), list(range(10)))
         eda.SingleLabelClassifiedSamples(self.sfm5x10_arr, [0, 1, 1, 2, 0], None, list(range(10)))
         eda.SingleLabelClassifiedSamples(self.sfm5x10_arr, ['a', 'a', 'b', 'd', 'c'], list(range(5)), None)
-        eda.SingleLabelClassifiedSamples(np.arange(10).reshape(-1, 1), list(range(10)))
-        eda.SingleLabelClassifiedSamples(np.arange(10).reshape(1, -1), ['a'])
+        eda.SingleLabelClassifiedSamples(np.arange(100).reshape(-1, 10), list(range(10)))
+        eda.SingleLabelClassifiedSamples(np.arange(100).reshape(10, -1), list('abcdefghij'))
 
     def test_is_valid_lab(self):
         assert eda.SingleLabelClassifiedSamples.is_valid_lab('1')
@@ -431,7 +431,7 @@ class TestSingleLabelClassifiedSamples(object):
     def test_labs_to_cmap(self):
         sids = [0, 1, 2, 3, 4, 5, 6, 7]
         labs = list(map(str, [3, 0, 1, 0, 0, 1, 2, 2]))
-        slab_csamples = eda.SingleLabelClassifiedSamples(np.random.ranf(8).reshape(8, -1), 
+        slab_csamples = eda.SingleLabelClassifiedSamples(np.random.ranf(80).reshape(8, -1), 
                                                          labs, sids)
 
         lab_cmap, lab_ind_arr, lab_col_lut, uniq_lab_lut = slab_csamples.labs_to_cmap(

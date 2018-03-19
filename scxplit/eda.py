@@ -159,7 +159,7 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
             if nprocs is None:
                 nprocs = 1
             else:
-                nprocs = int(nprocs)
+                nprocs = max(int(nprocs), 1)
 
             d = skl.metrics.pairwise.pairwise_distances(x, metric=metric, 
                                                         n_jobs=nprocs)
@@ -216,15 +216,18 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
         return self._d.copy()
       
 
-class SingleLabelClassifiedSamples(SampleFeatureMatrix):
+class SingleLabelClassifiedSamples(SampleDistanceMatrix):
     """docstring for SingleLabelClassifiedSamples"""
     # sid, lab, fid, x
-    def __init__(self, x, labs, sids=None, fids=None):
+    def __init__(self, x, labs, sids=None, fids=None, 
+                 d=None, metric='correlation', nprocs=None):
         # sids: sample IDs. String or int.
         # labs: sample classified labels. String or int. 
         # x: (n_samples, n_features)
-        super(SingleLabelClassifiedSamples, self).__init__(x=x, sids=sids, 
-                                                           fids=fids)
+        super(SingleLabelClassifiedSamples, self).__init__(x=x, d=d, 
+                                                           metric=metric, 
+                                                           sids=sids, fids=fids,
+                                                           nprocs=nprocs)
         self.check_is_valid_labs(labs)
         labs = np.array(labs)
         if self._sids.shape[0] != labs.shape[0]:
@@ -377,4 +380,6 @@ class SingleLabelClassifiedSamples(SampleFeatureMatrix):
         else:
             return lab_cmap
 
+
+        
 
