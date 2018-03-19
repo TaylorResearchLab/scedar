@@ -152,9 +152,9 @@ class TestSampleFeatureMatrix(object):
                                        ['a', 'b', 'c', '1', '2'],
                                        ['a', 'z'])
 
-        assert np.all(tsfm.get_x() == np.array(np.arange(10).reshape(5, 2), dtype='float64'))
-        assert np.all(tsfm.get_sids() == np.array(['a', 'b', 'c', '1', '2']))
-        assert np.all(tsfm.get_fids() == np.array(['a', 'z']))
+        np.testing.assert_equal(tsfm.get_x(), np.array(np.arange(10).reshape(5, 2), dtype='float64'))
+        np.testing.assert_equal(tsfm.get_sids(), np.array(['a', 'b', 'c', '1', '2']))
+        np.testing.assert_equal(tsfm.get_fids(), np.array(['a', 'z']))
 
         assert tsfm.get_x() is not tsfm._x
         assert tsfm.get_sids() is not tsfm._sids
@@ -165,7 +165,25 @@ class TestSampleDistanceMatrix(object):
     """docstring for TestSampleDistanceMatrix"""
     def test_valid_init(self):
         pass
-        
+    
+    def test_num_correct_dist_mat(self):
+        tdmat = np.array([[0, 1, 2],
+                          [0.5, 0, 1.5],
+                          [1, 1.6, 0.5]])
+        # upper triangle is assgned with lower triangle values
+        ref_cdmat = np.array([[0, 0.5, 1],
+                              [0.5, 0, 1.6],
+                              [1, 1.6, 0]])
+        cdmat = eda.SampleDistanceMatrix.num_correct_dist_mat(tdmat)
+        np.testing.assert_equal(cdmat, ref_cdmat)
+
+        ref_cdmat2 = np.array([[0, 0.5, 1],
+                               [0.5, 0, 1],
+                               [1, 1, 0]])
+        # with upper bound
+        cdmat2 = eda.SampleDistanceMatrix.num_correct_dist_mat(tdmat, 1)
+        np.testing.assert_equal(cdmat2, ref_cdmat2)
+
         
 class TestSingleLabelClassifiedSamples(object):
     """docstring for TestSingleLabelClassifiedSamples"""
@@ -254,12 +272,12 @@ class TestSingleLabelClassifiedSamples(object):
         slab_csamples = eda.SingleLabelClassifiedSamples(np.random.ranf(60).reshape(6, -1), 
                                                          qlabs, qsids)
         rs_qsids, rs_qlabs = slab_csamples.lab_sorted_sids(rsids)
-        assert np.all(rs_qsids == np.array([3, 4, 2, 5, 1, 0]))
-        assert np.all(rs_qlabs == np.array([1, 1, 1, 2, 0, 0]))
+        np.testing.assert_equal(rs_qsids, np.array([3, 4, 2, 5, 1, 0]))
+        np.testing.assert_equal(rs_qlabs, np.array([1, 1, 1, 2, 0, 0]))
 
         rs_qsids, rs_qlabs = slab_csamples.lab_sorted_sids()
-        assert np.all(rs_qsids == np.array([0, 1, 3, 2, 4, 5]))
-        assert np.all(rs_qlabs == np.array([0, 0, 1, 1, 1, 2]))
+        np.testing.assert_equal(rs_qsids, np.array([0, 1, 3, 2, 4, 5]))
+        np.testing.assert_equal(rs_qlabs, np.array([0, 0, 1, 1, 1, 2]))
 
     def test_filter_min_class_n(self):
         sids = [0, 1, 2, 3, 4, 5]
@@ -268,8 +286,8 @@ class TestSingleLabelClassifiedSamples(object):
                                                          labs, sids, None)
         min_cl_n = 2
         mcnf_sids, mcnf_labs = slab_csamples.filter_min_class_n(min_cl_n)
-        assert np.all(mcnf_sids == np.array([0, 1, 2, 4, 5]))
-        assert np.all(mcnf_labs == np.array([0, 0, 0, 2, 2]))
+        np.testing.assert_equal(mcnf_sids, np.array([0, 1, 2, 4, 5]))
+        np.testing.assert_equal(mcnf_labs, np.array([0, 0, 0, 2, 2]))
 
     def test_cross_labs(self):
         rsids = [0, 1, 2, 3, 4]
@@ -324,7 +342,7 @@ class TestSingleLabelClassifiedSamples(object):
         n_uniq_labs = len(set(labs))
         assert lab_cmap.N == n_uniq_labs
         assert lab_cmap.colors == sns.hls_palette(n_uniq_labs)
-        assert np.all(lab_ind_arr == np.array([3, 0, 1, 0, 0, 1, 2, 2]))
+        np.testing.assert_equal(lab_ind_arr, np.array([3, 0, 1, 0, 0, 1, 2, 2]))
         assert labs == [uniq_lab_lut[x] for x in lab_ind_arr]
         assert len(uniq_lab_lut) == n_uniq_labs
         assert len(lab_col_lut) == n_uniq_labs
@@ -341,10 +359,10 @@ class TestSingleLabelClassifiedSamples(object):
                                                  ['a', 'b', 'c', '1', '2'],
                                                  ['a', 'z'])
 
-        assert np.all(tslcs.get_x() == np.array(np.arange(10).reshape(5, 2), dtype='float64'))
-        assert np.all(tslcs.get_sids() == np.array(['a', 'b', 'c', '1', '2']))
-        assert np.all(tslcs.get_fids() == np.array(['a', 'z']))
-        assert np.all(tslcs.get_labs() == np.array([0, 0, 1, 2, 3]))
+        np.testing.assert_equal(tslcs.get_x(), np.array(np.arange(10).reshape(5, 2), dtype='float64'))
+        np.testing.assert_equal(tslcs.get_sids(), np.array(['a', 'b', 'c', '1', '2']))
+        np.testing.assert_equal(tslcs.get_fids(), np.array(['a', 'z']))
+        np.testing.assert_equal(tslcs.get_labs(), np.array([0, 0, 1, 2, 3]))
 
         assert tslcs.get_x() is not tslcs._x
         assert tslcs.get_sids() is not tslcs._sids
@@ -357,7 +375,7 @@ class TestSingleLabelClassifiedSamples(object):
                                                  ['a', 'b', 'c', '1', '2'],
                                                  ['a', 'z'])
         qsid_arr = tslcs.labs_to_sids((0, 1))
-        assert np.all(qsid_arr == (('a', 'b'), ('c',)))
+        np.testing.assert_equal(qsid_arr, (('a', 'b'), ('c',)))
 
     def test_sids_to_labs(self):
         tslcs = eda.SingleLabelClassifiedSamples(np.arange(10).reshape(5, 2), 
@@ -365,8 +383,8 @@ class TestSingleLabelClassifiedSamples(object):
                                                  ['a', 'b', 'c', '1', '2'],
                                                  ['a', 'z'])
         qlab_arr = tslcs.sids_to_labs(('a', 'b', '2'))
-        assert np.all(qlab_arr == np.array([0, 0, 3]))
+        np.testing.assert_equal(qlab_arr, np.array([0, 0, 3]))
 
         qlab_arr = tslcs.sids_to_labs(('1', 'a', 'b', '2'))
-        assert np.all(qlab_arr == np.array([2, 0, 0, 3]))
+        np.testing.assert_equal(qlab_arr, np.array([2, 0, 0, 3]))
 

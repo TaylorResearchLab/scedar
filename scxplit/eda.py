@@ -5,7 +5,11 @@ import sklearn.manifold
 import matplotlib as mpl
 import matplotlib.colors
 import matplotlib.gridspec
+
 import seaborn as sns
+
+import sklearn as skl
+import sklearn.metrics
 
 from . import utils
 
@@ -141,14 +145,50 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
     _fids : ndarray
         sample ids.
     """
-    def __init__(self, x, d=None, metric=None, sids=None, fids=None, nprocs=1):
+    def __init__(self, x, d=None, metric=None, sids=None, fids=None, nprocs=None):
         super(SampleDistanceMatrix, self).__init__(x=x, sids=sids, fids=fids)
 
         if d is None:
-            if (metric is None):
+            if metric is None:
                 raise ValueError("If d is None, metric must be provided.")
+            elif type(metric) != str:
+                raise ValueError("metric must be string")
 
+            if nprocs is None:
+                nprocs = 1
+            else:
+                nprocs = int(nprocs)
+
+            d = skl.metrics.pairwise.pairwise_distances(x, metric=metric, 
+                                                        n_jobs=nprocs)
+            d = self.num_correct_dist_mat(d)
+        else:
+            try:
+                d = np.array(d, dtype="float64")
+            except ValueError as e:
+                raise ValueError("d must be float. {}".format(e))
+            
+            if ((d.ndim != 2) 
+                or (d.shape[0] != d.shape[1]) 
+                or (d.shape[0] != self._x.shape[0])):
+                raise ValueError("d should have shape (n_samples, n_samples)")
         
+        self._d = d
+        self._metric = metric
+
+    # numerically correct dmat
+    @staticmethod
+    def num_correct_dist_mat(dmat, upper_bound=None):
+        assert dmat.shape[0] == dmat.shape[1]
+        
+        dmat[dmat < 0] = 0
+        dmat[np.diag_indices(dmat.shape[0])] = 0
+        if upper_bound:
+            dmat[dmat > upper_bound] = upper_bound
+        
+        dmat[np.triu_indices_from(dmat)] = dmat.T[np.triu_indices_from(dmat)]
+        return dmat
+      
 
 class SingleLabelClassifiedSamples(SampleFeatureMatrix):
     """docstring for SingleLabelClassifiedSamples"""
@@ -255,12 +295,12 @@ class SingleLabelClassifiedSamples(SampleFeatureMatrix):
         lab_sorted_lab_arr = np.concatenate(sep_lab_list)
         
         # check sorted sids are the same set as original    
-        assert np.all(np.sort(lab_sorted_sid_arr) == np.sort(self._sids))
+        np.testing.assert_array_equal(np.sort(lab_sorted_sid_arr), np.sort(self._sids))
         # check sorted labs are the same set as original
-        assert np.all(np.sort(lab_sorted_lab_arr) == np.sort(self._labs))
+        np.testing.assert_array_equal(np.sort(lab_sorted_lab_arr), np.sort(self._labs))
         # check sorted (sid, lab) matchings are the same set as original
-        assert np.all(lab_sorted_lab_arr[np.argsort(lab_sorted_sid_arr)] 
-            == self._labs[np.argsort(self._sids)])
+        np.testing.assert_array_equal(lab_sorted_lab_arr[np.argsort(lab_sorted_sid_arr)], 
+                                      self._labs[np.argsort(self._sids)])
 
         return (lab_sorted_sid_arr, lab_sorted_lab_arr)
 

@@ -37,18 +37,6 @@ def parmap(f, X, nprocs=1):
     return [x for i, x in sorted(res)]
 
 
-# numerically correct dmat
-def num_correct_dist_mat(dmat, upper_bound = None):
-    assert dmat.shape[0] == dmat.shape[1]
-    
-    dmat[dmat < 0] = 0
-    dmat[np.diag_indices(dmat.shape[0])] = 0
-    if upper_bound:
-        dmat[dmat > upper_bound] = upper_bound
-    
-    dmat[np.triu_indices_from(dmat)] = dmat.T[np.triu_indices_from(dmat)]
-    return dmat
-
 
 # Validate scipy hierarchical clustering cut tree
 # Number of clusters should decrease from n to 1

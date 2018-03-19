@@ -79,24 +79,6 @@ def test_save_obj(tmpdir):
     test_helper(dict(zip(range(10), range(1, 11))), True)
 
 
-def test_num_correct_dist_mat():
-    tdmat = np.array([[0, 1, 2],
-                      [0.5, 0, 1.5],
-                      [1, 1.6, 0.5]])
-    # upper triangle is assgned with lower triangle values
-    ref_cdmat = np.array([[0, 0.5, 1],
-                          [0.5, 0, 1.6],
-                          [1, 1.6, 0]])
-    cdmat = utils.num_correct_dist_mat(tdmat)
-    assert np.all(cdmat == ref_cdmat)
-
-    ref_cdmat2 = np.array([[0, 0.5, 1],
-                           [0.5, 0, 1],
-                           [1, 1, 0]])
-    cdmat2 = utils.num_correct_dist_mat(tdmat, 1)
-    assert np.all(cdmat2 == ref_cdmat2)
-
-
 def test_is_valid_full_cut_tree_mat():
     tfctm = np.array([[0, 0, 0, 0, 0],
                       [1, 0, 0, 0, 0],
