@@ -70,3 +70,18 @@ def load_obj(path):
 def load_gz_obj(path):
     with gzip.open(path, 'rb') as f:
         return pickle.load(f)
+
+# Test whether x is a 1D np array that only contains unique values. 
+def is_uniq_np1darr(x):
+    if not isinstance(x, np.ndarray):
+        return False
+
+    if not x.ndim == 1:
+        return False
+
+    uniqx = np.unique(x)
+    if not uniqx.shape[0] == x.shape[0]:
+        return False
+
+    return True
+

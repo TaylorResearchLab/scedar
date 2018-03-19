@@ -108,3 +108,24 @@ def test_is_valid_full_cut_tree_mat():
     tfctm_invalid[4, 2] = 0
     assert not utils.is_valid_full_cut_tree_mat(tfctm_invalid)
 
+def test_is_uniq_np1darr():
+    assert not utils.is_uniq_np1darr([])
+    assert not utils.is_uniq_np1darr([1])
+    assert not utils.is_uniq_np1darr([1, 2])
+
+    assert not utils.is_uniq_np1darr(())
+    assert not utils.is_uniq_np1darr((1, 2))
+
+    assert not utils.is_uniq_np1darr((1., 2))
+    assert not utils.is_uniq_np1darr((1, 2))
+
+    assert not utils.is_uniq_np1darr(np.array(['1', '1']))
+    assert not utils.is_uniq_np1darr(np.array([1, 1]))
+    assert not utils.is_uniq_np1darr(np.array([1, 1.]))
+    assert not utils.is_uniq_np1darr(np.array([0, 1, 2, 1]))
+
+    assert utils.is_uniq_np1darr(np.array([]))
+    assert utils.is_uniq_np1darr(np.array([1, 2]))
+    assert utils.is_uniq_np1darr(np.array([1, 3]))
+    assert utils.is_uniq_np1darr(np.array(['1', '3']))
+    assert utils.is_uniq_np1darr(np.array(['1']))
