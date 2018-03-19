@@ -1,4 +1,5 @@
 import numpy as np
+import seaborn as sns
 import scxplit.eda as eda
 import pytest
 
@@ -180,3 +181,22 @@ class TestSingleLabelClassifiedSamples(object):
         }
         assert cross_lab_lut == test_lut
 
+    def test_labs_to_cmap(self):
+        sids = [0, 1, 2, 3, 4, 5, 6, 7]
+        labs = list(map(str, [3, 0, 1, 0, 0, 1, 2, 2]))
+        slab_csamples = eda.SingleLabelClassifiedSamples(sids, labs)
+
+        lab_cmap, lab_ind_arr, lab_col_lut, uniq_lab_lut = slab_csamples.labs_to_cmap(
+            return_lut=True)
+
+        n_uniq_labs = len(set(labs))
+        assert lab_cmap.N == n_uniq_labs
+        assert lab_cmap.colors == sns.hls_palette(n_uniq_labs)
+        assert np.all(lab_ind_arr == np.array([3, 0, 1, 0, 0, 1, 2, 2]))
+        assert labs == [uniq_lab_lut[x] for x in lab_ind_arr]
+        assert len(uniq_lab_lut) == n_uniq_labs
+        assert len(lab_col_lut) == n_uniq_labs
+        assert [lab_col_lut[uniq_lab_lut[i]] 
+                for i in range(n_uniq_labs)] == sns.hls_palette(n_uniq_labs)
+
+    

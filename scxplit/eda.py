@@ -3,7 +3,9 @@ import scipy.spatial
 import sklearn.manifold
 
 import matplotlib as mpl
+import matplotlib.colors
 import matplotlib.gridspec
+import seaborn as sns
 
 from . import utils
 
@@ -170,4 +172,26 @@ class SingleLabelClassifiedSamples(object):
             cross_lab_lut[uniq_rlabs[i]] = (uniq_rlab_cnts[i], tuple(map(tuple, ref_ci_quniq)))
 
         return cross_lab_lut
+
+    def labs_to_cmap(self, return_lut=False):
+        uniq_lab_arr = np.unique(self._labs)
+        num_uniq_labs = len(uniq_lab_arr)
+
+        uniq_lab_lut = dict(zip(range(num_uniq_labs), uniq_lab_arr))
+        uniq_ind_lut = dict(zip(uniq_lab_arr, range(num_uniq_labs)))
+        
+        lab_ind_arr = np.array([uniq_ind_lut[x] for x in self._labs])
+
+        lab_col_list = sns.hls_palette(num_uniq_labs)
+        lab_cmap = mpl.colors.ListedColormap(lab_col_list)
+
+        lab_col_lut = dict(zip([uniq_lab_lut[i] for i in range(len(uniq_lab_arr))],
+                               lab_col_list))
+
+        if return_lut:
+            return (lab_cmap, lab_ind_arr, lab_col_lut, uniq_lab_lut)
+        else:
+            return lab_cmap
+
+
 
