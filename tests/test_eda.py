@@ -1,29 +1,182 @@
 import numpy as np
 import scxplit.eda as eda
-
-def test_sort_sids():
-    qsids = np.array([0, 1, 5, 3, 2, 4])
-    qlabs = np.array([0, 0, 2, 1, 1, 1,])
-    rsids = np.array([3, 4, 2, 5, 1, 0])
-    rs_qsids, rs_qlabs = eda.sort_sids(qsids, qlabs, rsids)
-    assert np.all(rs_qsids == np.array([3, 4, 2, 5, 1, 0]))
-    assert np.all(rs_qlabs == np.array([1, 1, 1, 2, 0, 0]))
+import pytest
 
 
-def test_filter_min_cl_n():
-    sids = np.array([0, 1, 2, 3, 4, 5])
-    labs = np.array([0, 0, 0, 1, 2, 2])
-    min_cl_n = 2
-    mcnf_sids, mcnf_labs = eda.filter_min_cl_n(sids, labs, min_cl_n)
-    assert np.all(mcnf_sids == np.array([0, 1, 2, 4, 5]))
-    assert np.all(mcnf_labs == np.array([0, 0, 0, 2, 2]))
+class TestSingleLabelClassifiedSamples(object):
+    """docstring for TestSingleLabelClassifiedSamples"""
+    def test_init_dup_sids(self):
+        with pytest.raises(Exception) as excinfo:
+            eda.SingleLabelClassifiedSamples([0, 0, 1], [0, 0, 0])
+        
+        with pytest.raises(Exception) as excinfo:
+            eda.SingleLabelClassifiedSamples(['0', '0', '1'], [0, 0, 0])
 
-def test_cross_labs():
-    rlabs = np.array([0, 0, 0, 1, 1])
-    qlabs = np.array([1, 1, 0, 2, 3])
-    cross_lab_lut = eda.cross_labs(rlabs, qlabs)
-    test_lut = {
-        0 : (3, ((0, 1), (1, 2))),
-        1 : (2, ((2, 3), (1, 1)))
-    }
-    assert cross_lab_lut == test_lut
+    def test_init_empty_sids_labs(self):
+        with pytest.raises(Exception) as excinfo:
+            eda.SingleLabelClassifiedSamples([], [])
+
+    def test_init_diff_size_sids_labs(self):
+        with pytest.raises(Exception) as excinfo:
+            eda.SingleLabelClassifiedSamples([0, 1, 2], [0, 1])
+
+    def test_init_non1d_sids_labs(self):
+        with pytest.raises(Exception) as excinfo:
+            eda.SingleLabelClassifiedSamples(np.array([[0], [1], [2]]), 
+                                             np.array([[0], [1], [1]]))
+
+        with pytest.raises(Exception) as excinfo:
+            eda.SingleLabelClassifiedSamples(np.array([[0], [1], [2]]), 
+                                             np.array([0, 1, 2]))
+
+        with pytest.raises(Exception) as excinfo:
+            eda.SingleLabelClassifiedSamples(np.array([0, 1, 2]),
+                                             np.array([[0], [1], [2]]))
+
+    def test_init_bad_sid_type(self):
+        with pytest.raises(Exception) as excinfo:
+            eda.SingleLabelClassifiedSamples([False, True, 2], [0, 1, 1])
+
+        with pytest.raises(Exception) as excinfo:
+            eda.SingleLabelClassifiedSamples([[0], [0, 1], 2], [0, 1, 1])
+
+        with pytest.raises(Exception) as excinfo:
+            eda.SingleLabelClassifiedSamples(np.array([0, 1, 2]), [0, 1, 1])
+
+        with pytest.raises(Exception) as excinfo:
+            eda.SingleLabelClassifiedSamples([(0), (0, 1), 2], [0, 1, 1])
+
+    def test_init_bad_lab_type(self):
+        with pytest.raises(Exception) as excinfo:
+            eda.SingleLabelClassifiedSamples([0, 1, 2], [False, True, 2])
+
+        with pytest.raises(Exception) as excinfo:
+            eda.SingleLabelClassifiedSamples([0, 1, 2], [[0], [0, 1], 2])
+
+        with pytest.raises(Exception) as excinfo:
+            eda.SingleLabelClassifiedSamples([0, 1, 2], [(0), (0, 1), 2])
+
+        with pytest.raises(Exception) as excinfo:
+            eda.SingleLabelClassifiedSamples([0, 1, 2], np.array([0, 1, 2]))
+
+    def test_is_valid_sid(self):
+        assert eda.SingleLabelClassifiedSamples.is_valid_sid('1')
+        assert eda.SingleLabelClassifiedSamples.is_valid_sid(1)
+        assert not eda.SingleLabelClassifiedSamples.is_valid_sid(np.array([1])[0])
+        assert not eda.SingleLabelClassifiedSamples.is_valid_sid([])
+        assert not eda.SingleLabelClassifiedSamples.is_valid_sid([1])
+        assert not eda.SingleLabelClassifiedSamples.is_valid_sid(None)
+        assert not eda.SingleLabelClassifiedSamples.is_valid_sid((1,))
+
+    def test_is_valid_lab(self):
+        assert eda.SingleLabelClassifiedSamples.is_valid_lab('1')
+        assert eda.SingleLabelClassifiedSamples.is_valid_lab(1)
+        assert not eda.SingleLabelClassifiedSamples.is_valid_lab(np.array([1])[0])
+        assert not eda.SingleLabelClassifiedSamples.is_valid_lab([])
+        assert not eda.SingleLabelClassifiedSamples.is_valid_lab([1])
+        assert not eda.SingleLabelClassifiedSamples.is_valid_lab(None)
+        assert not eda.SingleLabelClassifiedSamples.is_valid_lab((1,))
+
+    def test_assert_is_valid_sids(self):
+        with pytest.raises(Exception) as excinfo:
+            eda.SingleLabelClassifiedSamples.assert_is_valid_sids(np.arange(5))
+
+        with pytest.raises(Exception) as excinfo:
+            eda.SingleLabelClassifiedSamples.assert_is_valid_sids([True, False])
+
+        with pytest.raises(Exception) as excinfo:
+            eda.SingleLabelClassifiedSamples.assert_is_valid_sids(None)
+
+        with pytest.raises(Exception) as excinfo:
+            eda.SingleLabelClassifiedSamples.assert_is_valid_sids([])
+
+        with pytest.raises(Exception) as excinfo:
+            eda.SingleLabelClassifiedSamples.assert_is_valid_sids([[1], [2]])
+
+        with pytest.raises(Exception) as excinfo:
+            eda.SingleLabelClassifiedSamples.assert_is_valid_sids(['1', 2, 3])
+
+        with pytest.raises(Exception) as excinfo:
+            eda.SingleLabelClassifiedSamples.assert_is_valid_sids(['1', '1', '3'])
+
+        with pytest.raises(Exception) as excinfo:
+            eda.SingleLabelClassifiedSamples.assert_is_valid_sids([0, 0, 1])
+
+        with pytest.raises(Exception) as excinfo:
+            eda.SingleLabelClassifiedSamples.assert_is_valid_sids(['1', 2, '3'])
+
+        eda.SingleLabelClassifiedSamples.assert_is_valid_sids([1, 2])
+        eda.SingleLabelClassifiedSamples.assert_is_valid_sids(['1', '2'])
+        eda.SingleLabelClassifiedSamples.assert_is_valid_sids([1, 2, 3])
+
+    def test_assert_is_valid_labs(self):
+        with pytest.raises(Exception) as excinfo:
+            eda.SingleLabelClassifiedSamples.assert_is_valid_labs(np.arange(5))
+
+        with pytest.raises(Exception) as excinfo:
+            eda.SingleLabelClassifiedSamples.assert_is_valid_labs([True, False])
+
+        with pytest.raises(Exception) as excinfo:
+            eda.SingleLabelClassifiedSamples.assert_is_valid_labs(None)
+
+        with pytest.raises(Exception) as excinfo:
+            eda.SingleLabelClassifiedSamples.assert_is_valid_labs([])
+
+        with pytest.raises(Exception) as excinfo:
+            eda.SingleLabelClassifiedSamples.assert_is_valid_labs([[1], [2]])
+
+        with pytest.raises(Exception) as excinfo:
+            eda.SingleLabelClassifiedSamples.assert_is_valid_labs(['1', 2, 1])
+
+        with pytest.raises(Exception) as excinfo:
+            eda.SingleLabelClassifiedSamples.assert_is_valid_labs(['1', 2, '3'])
+
+        eda.SingleLabelClassifiedSamples.assert_is_valid_labs([1, 2])
+        eda.SingleLabelClassifiedSamples.assert_is_valid_labs([1, 1, 3])
+        eda.SingleLabelClassifiedSamples.assert_is_valid_labs(['1', '2', '3'])
+            
+    def test_lab_sorted_sids(self):
+        qsids = [0, 1, 5, 3, 2, 4]
+        qlabs = [0, 0, 2, 1, 1, 1]
+        rsids = [3, 4, 2, 5, 1, 0]
+        slab_csamples = eda.SingleLabelClassifiedSamples(qsids, qlabs)
+        rs_qsids, rs_qlabs = slab_csamples.lab_sorted_sids(rsids)
+        assert np.all(rs_qsids == np.array([3, 4, 2, 5, 1, 0]))
+        assert np.all(rs_qlabs == np.array([1, 1, 1, 2, 0, 0]))
+
+        rs_qsids, rs_qlabs = slab_csamples.lab_sorted_sids()
+        assert np.all(rs_qsids == np.array([0, 1, 3, 2, 4, 5]))
+        assert np.all(rs_qlabs == np.array([0, 0, 1, 1, 1, 2]))
+
+    def test_filter_min_class_n(self):
+        sids = [0, 1, 2, 3, 4, 5]
+        labs = [0, 0, 0, 1, 2, 2]
+        slab_csamples = eda.SingleLabelClassifiedSamples(sids, labs)
+        min_cl_n = 2
+        mcnf_sids, mcnf_labs = slab_csamples.filter_min_class_n(min_cl_n)
+        assert np.all(mcnf_sids == np.array([0, 1, 2, 4, 5]))
+        assert np.all(mcnf_labs == np.array([0, 0, 0, 2, 2]))
+
+    def test_cross_labs(self):
+        rsids = [0, 1, 2, 3, 4]
+        rlabs = [0, 0, 0, 1, 1]
+        rscl_samples = eda.SingleLabelClassifiedSamples(rsids, rlabs)
+        
+        qsids = [0, 1, 2, 3, 4]
+        qlabs = [1, 1, 0, 2, 3]
+        qscl_samples = eda.SingleLabelClassifiedSamples(qsids, qlabs)
+
+        cross_lab_lut = rscl_samples.cross_labs(qscl_samples)
+        test_lut = {
+            0 : (3, ((0, 1), (1, 2))),
+            1 : (2, ((2, 3), (1, 1)))
+        }
+        assert cross_lab_lut == test_lut
+
+        cross_lab_lut = rscl_samples.cross_labs(qsids=qsids, qlabs=qlabs)
+        test_lut = {
+            0 : (3, ((0, 1), (1, 2))),
+            1 : (2, ((2, 3), (1, 1)))
+        }
+        assert cross_lab_lut == test_lut
+

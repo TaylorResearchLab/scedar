@@ -5,82 +5,169 @@ import sklearn.manifold
 import matplotlib as mpl
 import matplotlib.gridspec
 
+from . import utils
 
-# Sort the clustered sample_ids with the reference order of another. 
-def sort_sids(sids, clabs, ref_sids):
-    assert isinstance(sids, np.ndarray)
-    assert isinstance(clabs, np.ndarray)
-    assert isinstance(ref_sids, np.ndarray)
-    
-    assert len(sids.shape) == 1
-    assert len(clabs.shape) == 1
-    assert len(ref_sids.shape) == 1
-    
-    uniq_sids = np.unique(sids)
-    uniq_ref_sids = np.unique(ref_sids)
-    assert len(sids) == len(uniq_sids)
-    assert len(ref_sids) == len(uniq_ref_sids)
-    assert len(clabs) == len(sids)
-    
-    assert np.all(uniq_sids == uniq_ref_sids)
-    
-    uniq_clabs = np.unique(clabs)
-    
-    sep_cl_sid_list = []
-    sep_cl_clab_list = []
-    sep_cl_single_sid_list = []
-    
-    def sort_flat_sids(query_sids, ref_sids):
-        return ref_sids[np.in1d(ref_sids, query_sids)]
-    
-    # Break qsids and qclabs by qclusters
-    # Sort each qcluster according to rsids
-    # Keep the min sid of each qcluster for further sorting of the individual
-    # clusters. 
-    for iter_clab in uniq_clabs:
-        iter_cl_sids = sids[clabs == iter_clab]
-        sep_cl_sid_list.append(sort_flat_sids(iter_cl_sids, ref_sids))
-        sep_cl_clab_list.append([iter_clab] * len(iter_cl_sids))
-        sep_cl_single_sid_list.append(iter_cl_sids[0])
+class SingleLabelClassifiedSamples(object):
+    """docstring for SingleLabelClassifiedSamples"""
+    def __init__(self, sids, labs, x=None):
+        # sids: sample IDs. String or int.
+        # labs: sample classified labels. String or int. 
+        # x: (n_samples, n_features)
+        super(SingleLabelClassifiedSamples, self).__init__()
+        self.assert_is_valid_sids(sids)
+        self.assert_is_valid_labs(labs)
+        sids = np.array(sids)
+        labs = np.array(labs)
+        assert sids.shape[0] == labs.shape[0]
+        if x is not None:
+            x = np.array(x)
+            assert len(x.shape) == 2
+            assert x.shape[0] == sids
 
-    ref_ordered_sep_cl_single_sid_list = list(sort_flat_sids(
-        sep_cl_single_sid_list, ref_sids))
-    
-    sep_cl_ref_ordered_ind_arr = np.array([
-        sep_cl_single_sid_list.index(x)
-        for x in ref_ordered_sep_cl_single_sid_list])
-    
-    ref_sorted_clabs = np.concatenate(np.array(
-        sep_cl_clab_list)[sep_cl_ref_ordered_ind_arr])
-    ref_sorted_sids = np.concatenate(np.array(
-        sep_cl_sid_list)[sep_cl_ref_ordered_ind_arr])
-    
-    assert np.all(clabs[np.argsort(sids)] 
-        == ref_sorted_clabs[np.argsort(ref_sorted_sids)])
-    assert np.all(np.unique(ref_sorted_sids) == uniq_sids)
-    
-    return (ref_sorted_sids, ref_sorted_clabs)
+        self._n = sids.shape[0]
+        self._sids = sids
+        self._labs = labs
+        self._x = x
 
+        sid_lut = {}
+        for uniq_lab in np.unique(labs):
+            sid_lut[uniq_lab] = sids[labs == uniq_lab]
+        self._sid_lut = sid_lut
 
-# See how two clustering criteria match with each other. 
-def cross_labs(ref_labs, query_labs):
-    ref_labs = np.array(ref_labs)
-    query_labs = np.array(query_labs)
+        lab_lut = {}
+        # sids only contain unique values
+        for i in range(sids.shape[0]):
+            lab_lut[sids[i]] = labs[i]
+        self._lab_lut = lab_lut
+        return
+
+    @staticmethod
+    def is_valid_sid(sid):
+        return (type(sid) == str) or (type(sid) == int)
+
+    @staticmethod
+    def assert_is_valid_sids(sids):
+        assert sids is not None
+        assert type(sids) == list
+        assert len(sids) > 0
+        sid_types = tuple(map(type, sids))
+        assert len(set(sid_types)) == 1
+        assert SingleLabelClassifiedSamples.is_valid_sid(sids[0])
+        sids = np.array(sids)
+        assert sids.ndim == 1
+        assert sids.shape[0] > 0
+        assert utils.is_uniq_np1darr(sids), 'Sample IDs must be 1D uniq array'
+
+    @staticmethod
+    def is_valid_lab(lab):
+        return (type(lab) == str) or (type(lab) == int)
+
+    @staticmethod
+    def assert_is_valid_labs(labs):
+        assert labs is not None
+        assert type(labs) == list
+        assert len(labs) > 0
+        lab_types = tuple(map(type, labs))
+        assert len(set(lab_types)) == 1
+        assert SingleLabelClassifiedSamples.is_valid_lab(labs[0])
+        labs = np.array(labs)
+        assert labs.ndim == 1, 'Labels must be 1D'
+        assert labs.shape[0] > 0
+        
+    def filter_min_class_n(self, min_class_n):
+        uniq_lab_cnts = np.unique(self._labs, return_counts=True)
+        nf_sid_ind = np.in1d(self._labs, 
+                             (uniq_lab_cnts[0])[uniq_lab_cnts[1] >= min_class_n])
+        return (self._sids[nf_sid_ind], self._labs[nf_sid_ind])
+
+    def labs_to_sids(labs):
+        return np.array([self._sid_lut[y].copy() for y in labs])
+
+    def sids_to_labs(sids):
+        return np.array([self._lab_lut[x] for x in labs])
     
-    uniq_rlabs, uniq_rlab_cnts = np.unique(ref_labs, return_counts=True)
-    cross_lab_lut = {}
-    for i in range(len(uniq_rlabs)):
-        ref_ci_quniq = tuple(map(list,
-                                 np.unique(query_labs[np.where(np.array(ref_labs) == uniq_rlabs[i])],
-                                           return_counts=True)))
-        cross_lab_lut[uniq_rlabs[i]] = (uniq_rlab_cnts[i], tuple(map(tuple, ref_ci_quniq)))
+    def get_sids(self):
+        return self._sids.copy()
 
-    return cross_lab_lut
+    def get_labs(self):
+        return self._labs.copy()
 
+    def get_x(self):
+        return self._x.copy()
 
-def filter_min_cl_n(sids, labs, min_cl_n):
-    uniq_lab_cnts = np.unique(labs, return_counts=True)
-    sids, labds = np.array(sids), np.array(labs)
-    nf_sid_ind = np.in1d(labs, (uniq_lab_cnts[0])[uniq_lab_cnts[1] >= min_cl_n])
-    return (sids[nf_sid_ind], labs[nf_sid_ind])
+    # Sort the clustered sample_ids with the reference order of another. 
+    # 
+    # Sort sids according to labs
+    # If ref_sid_order is not None:
+    #   sort sids further according to ref_sid_order
+    def lab_sorted_sids(self, ref_sid_order=None):
+        sep_lab_sid_list = []
+        sep_lab_list = []
+        for iter_lab in sorted(self._sid_lut.keys()):
+            iter_sid_arr = self._sid_lut[iter_lab]
+            sep_lab_sid_list.append(iter_sid_arr)
+            sep_lab_list.append(np.repeat(iter_lab, len(iter_sid_arr)))
+
+        if ref_sid_order is not None:
+            self.assert_is_valid_sids(ref_sid_order)
+            ref_sid_order = np.array(ref_sid_order)
+            # sort r according to q
+            # assumes:
+            # - r contains all elements in q
+            # - r is 1d np array
+            def sort_flat_sids(query_sids, ref_sids):
+                return ref_sids[np.in1d(ref_sids, query_sids)]
+
+            # sort inner sid list but maintains the order as sep_lab_list
+            sep_lab_sid_list = [sort_flat_sids(x, ref_sid_order)
+                                for x in sep_lab_sid_list]
+            sep_lab_min_sid_list = [x[0] for x in sep_lab_sid_list]
+            sorted_sep_lab_min_sid_list = list(sort_flat_sids(sep_lab_min_sid_list,
+                                                              ref_sid_order))
+            min_sid_sorted_sep_lab_ind_list = [sep_lab_min_sid_list.index(x)
+                                               for x in sorted_sep_lab_min_sid_list]
+            sep_lab_list = [sep_lab_list[i] for i in min_sid_sorted_sep_lab_ind_list]
+            sep_lab_sid_list = [sep_lab_sid_list[i] for i in min_sid_sorted_sep_lab_ind_list]
+
+        lab_sorted_sid_arr = np.concatenate(sep_lab_sid_list)
+        lab_sorted_lab_arr = np.concatenate(sep_lab_list)
+        
+        # check sorted sids are the same set as original    
+        assert np.all(np.sort(lab_sorted_sid_arr) == np.sort(self._sids))
+        # check sorted labs are the same set as original
+        assert np.all(np.sort(lab_sorted_lab_arr) == np.sort(self._labs))
+        # check sorted (sid, lab) matchings are the same set as original
+        assert np.all(lab_sorted_lab_arr[np.argsort(lab_sorted_sid_arr)] 
+            == self._labs[np.argsort(self._sids)])
+
+        return (lab_sorted_sid_arr, lab_sorted_lab_arr)
+
+    # See how two clustering criteria match with each other.
+    # When given q_slc_samples is not None, sids and labs are ignored. 
+    # When q_slc_samples is None, sids and labs must be provided
+    def cross_labs(self, q_slc_samples=None, qsids=None, qlabs=None):
+        if q_slc_samples is None:
+            q_slc_samples = SingleLabelClassifiedSamples(qsids, qlabs)
+            
+        if not isinstance(q_slc_samples, SingleLabelClassifiedSamples):
+            raise TypeError('Query should be an instance of '
+                            'SingleLabelClassifiedSamples')
+        
+        try:
+            ref_labs = np.array([self._lab_lut[x] 
+                                 for x in q_slc_samples.get_sids()])
+        except KeyError as e:
+            raise ValueError('query sid {} is not in ref sids.'.format(e))
+
+        query_labs = q_slc_samples.get_labs()
+        
+        uniq_rlabs, uniq_rlab_cnts = np.unique(ref_labs, return_counts=True)
+        cross_lab_lut = {}
+        for i in range(len(uniq_rlabs)):
+            ref_ci_quniq = tuple(map(list,
+                                     np.unique(query_labs[np.where(np.array(ref_labs) == uniq_rlabs[i])],
+                                               return_counts=True)))
+            cross_lab_lut[uniq_rlabs[i]] = (uniq_rlab_cnts[i], tuple(map(tuple, ref_ci_quniq)))
+
+        return cross_lab_lut
 
