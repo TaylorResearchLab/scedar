@@ -15,5 +15,6 @@ build
 
 .tox
 
+.coverage.*
 .coverage
 
