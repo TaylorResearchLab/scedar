@@ -46,12 +46,6 @@ def test_parmap_arr2d():
 
 def test_parmap_gen_mp():
     n = 1000
-    pm_res = utils.parmap(lambda x: x ** 2, range(n))
-    assert isinstance(pm_res, list)
-    assert pm_res == list(map(lambda x: x**2, range(n)))
-
-def test_parmap_gen_mp():
-    n = 1000
     pm_res = utils.parmap(lambda x: x ** 2, range(n), nprocs=10)
     assert isinstance(pm_res, list)
     assert pm_res == list(map(lambda x: x**2, range(n)))
