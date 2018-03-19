@@ -33,6 +33,8 @@ setup(
         'fa2',
     ],
     setup_requires=[
+        'pytest-xdist',
+        'pytest-cov',
         'pytest-runner', 
         'numpy',
         'scipy',
