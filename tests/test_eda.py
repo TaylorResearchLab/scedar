@@ -4,68 +4,193 @@ import scxplit.eda as eda
 import pytest
 
 
+class TestSampleFeatureMatrix(object):
+    """docstring for TestSampleFeatureMatrix"""
+    sfm5x10_arr = np.random.ranf(50).reshape(5, 10)
+    sfm3x3_arr = np.random.ranf(9).reshape(3, 3)
+    sfm5x10_lst = list(map(list, np.random.ranf(50).reshape(5, 10)))
+
+    def test_init_x_none(self):
+        with pytest.raises(Exception) as excinfo:
+            eda.SampleFeatureMatrix(None)
+
+    def test_init_x_bad_type(self):
+        with pytest.raises(Exception) as excinfo:
+            eda.SampleFeatureMatrix([[0, 1], ['a', 2]])
+
+    def test_init_x_1d(self):
+        with pytest.raises(Exception) as excinfo:
+            eda.SampleFeatureMatrix([1, 2, 3])
+    
+    def test_init_dup_sfids(self):
+        with pytest.raises(Exception) as excinfo:
+            eda.SampleFeatureMatrix(self.sfm5x10_lst, [0, 0, 1, 2, 3])
+        
+        with pytest.raises(Exception) as excinfo:
+            eda.SampleFeatureMatrix(self.sfm5x10_lst, ['0', '0', '1', '2', '3'])
+
+        with pytest.raises(Exception) as excinfo:
+            eda.SampleFeatureMatrix(self.sfm5x10_lst, None, [0, 0, 1, 2, 3])
+        
+        with pytest.raises(Exception) as excinfo:
+            eda.SampleFeatureMatrix(self.sfm5x10_lst, None, ['0', '0', '1', '2', '3'])
+
+    def test_init_empty_x_sfids(self):
+        with pytest.raises(Exception) as excinfo:
+            eda.SampleFeatureMatrix(np.array([[], []]), [])
+
+        with pytest.raises(Exception) as excinfo:
+            eda.SampleFeatureMatrix(np.array([[], []]), None, [])
+
+    def test_init_wrong_sid_len(self):
+        # wrong sid size
+        with pytest.raises(Exception) as excinfo:
+            eda.SampleFeatureMatrix(self.sfm5x10_lst, list(range(10)), list(range(5)))
+
+        with pytest.raises(Exception) as excinfo:
+            eda.SampleFeatureMatrix(self.sfm5x10_lst, list(range(10)))
+
+    def test_init_wrong_fid_len(self):
+        # wrong fid size
+        with pytest.raises(Exception) as excinfo:
+            eda.SampleFeatureMatrix(self.sfm5x10_lst, list(range(5)), list(range(2)))
+
+    def test_init_wrong_sfid_len(self):
+        # wrong sid and fid sizes
+        with pytest.raises(Exception) as excinfo:
+            eda.SampleFeatureMatrix(self.sfm5x10_lst, list(range(10)), list(range(10)))
+
+    def test_init_non1d_sfids(self):
+        with pytest.raises(Exception) as excinfo:
+            eda.SampleFeatureMatrix(self.sfm3x3_arr, np.array([[0], [1], [2]]), 
+                                    np.array([[0], [1], [1]]))
+
+        with pytest.raises(Exception) as excinfo:
+            eda.SampleFeatureMatrix(self.sfm3x3_arr, np.array([[0], [1], [2]]), 
+                                    np.array([0, 1, 2]))
+
+        with pytest.raises(Exception) as excinfo:
+            eda.SampleFeatureMatrix(self.sfm3x3_arr, np.array([0, 1, 2]),
+                                    np.array([[0], [1], [2]]))
+
+    def test_init_bad_sid_type(self):
+        with pytest.raises(Exception) as excinfo:
+            eda.SampleFeatureMatrix(self.sfm3x3_arr, [False, True, 2], [0, 1, 1])
+
+        with pytest.raises(Exception) as excinfo:
+            eda.SampleFeatureMatrix(self.sfm3x3_arr, [[0], [0, 1], 2], [0, 1, 1])
+
+        with pytest.raises(Exception) as excinfo:
+            eda.SampleFeatureMatrix(self.sfm3x3_arr, np.array([0, 1, 2]), [0, 1, 1])
+
+        with pytest.raises(Exception) as excinfo:
+            eda.SampleFeatureMatrix(self.sfm3x3_arr, [(0), (0, 1), 2], [0, 1, 1])
+
+    def test_init_bad_fid_type(self):
+        with pytest.raises(Exception) as excinfo:
+            eda.SampleFeatureMatrix(self.sfm3x3_arr, [0, 1, 2], [False, True, 2])
+
+        with pytest.raises(Exception) as excinfo:
+            eda.SampleFeatureMatrix(self.sfm3x3_arr, [0, 1, 2], [[0], [0, 1], 2])
+
+        with pytest.raises(Exception) as excinfo:
+            eda.SampleFeatureMatrix(self.sfm3x3_arr, [0, 1, 2], [(0), (0, 1), 2])
+
+        with pytest.raises(Exception) as excinfo:
+            eda.SampleFeatureMatrix(self.sfm3x3_arr, [0, 1, 2], np.array([0, 1, 2]))
+
+    def test_valid_init(self):
+        eda.SampleFeatureMatrix(self.sfm5x10_arr, list(range(5)), list(range(10)))
+        eda.SampleFeatureMatrix(self.sfm5x10_arr, None, list(range(10)))
+        eda.SampleFeatureMatrix(self.sfm5x10_arr, list(range(5)), None)
+        eda.SampleFeatureMatrix(np.arange(10).reshape(-1, 1))
+        eda.SampleFeatureMatrix(np.arange(10).reshape(1, -1))
+    
+    def test_is_valid_sfid(self):
+        assert eda.SampleFeatureMatrix.is_valid_sfid('1')
+        assert eda.SampleFeatureMatrix.is_valid_sfid(1)
+        assert not eda.SampleFeatureMatrix.is_valid_sfid(np.array([1])[0])
+        assert not eda.SampleFeatureMatrix.is_valid_sfid([])
+        assert not eda.SampleFeatureMatrix.is_valid_sfid([1])
+        assert not eda.SampleFeatureMatrix.is_valid_sfid(None)
+        assert not eda.SampleFeatureMatrix.is_valid_sfid((1,))
+
+    def test_check_is_valid_sfids(self):
+        with pytest.raises(Exception) as excinfo:
+            eda.SampleFeatureMatrix.check_is_valid_sfids(np.arange(5))
+
+        with pytest.raises(Exception) as excinfo:
+            eda.SampleFeatureMatrix.check_is_valid_sfids([True, False])
+
+        with pytest.raises(Exception) as excinfo:
+            eda.SampleFeatureMatrix.check_is_valid_sfids(None)
+
+        with pytest.raises(Exception) as excinfo:
+            eda.SampleFeatureMatrix.check_is_valid_sfids([])
+
+        with pytest.raises(Exception) as excinfo:
+            eda.SampleFeatureMatrix.check_is_valid_sfids([[1], [2]])
+
+        with pytest.raises(Exception) as excinfo:
+            eda.SampleFeatureMatrix.check_is_valid_sfids(['1', 2, 3])
+
+        with pytest.raises(Exception) as excinfo:
+            eda.SampleFeatureMatrix.check_is_valid_sfids(['1', '1', '3'])
+
+        with pytest.raises(Exception) as excinfo:
+            eda.SampleFeatureMatrix.check_is_valid_sfids([0, 0, 1])
+
+        with pytest.raises(Exception) as excinfo:
+            eda.SampleFeatureMatrix.check_is_valid_sfids(['1', 2, '3'])
+
+        eda.SampleFeatureMatrix.check_is_valid_sfids([1, 2])
+        eda.SampleFeatureMatrix.check_is_valid_sfids(['1', '2'])
+        eda.SampleFeatureMatrix.check_is_valid_sfids([1, 2, 3])
+
+    def test_getters(self):
+        tsfm = eda.SampleFeatureMatrix(np.arange(10).reshape(5, 2), 
+                                       ['a', 'b', 'c', '1', '2'],
+                                       ['a', 'z'])
+
+        assert np.all(tsfm.get_x() == np.array(np.arange(10).reshape(5, 2), dtype='float64'))
+        assert np.all(tsfm.get_sids() == np.array(['a', 'b', 'c', '1', '2']))
+        assert np.all(tsfm.get_fids() == np.array(['a', 'z']))
+
+        assert tsfm.get_x() is not tsfm._x
+        assert tsfm.get_sids() is not tsfm._sids
+        assert tsfm.get_fids() is not tsfm._fids
+
+
+class TestSampleDistanceMatrix(object):
+    """docstring for TestSampleDistanceMatrix"""
+    def test_valid_init(self):
+        eda.SampleDistanceMatrix(np.arange(10).reshape(5, 2))
+        
+        
 class TestSingleLabelClassifiedSamples(object):
     """docstring for TestSingleLabelClassifiedSamples"""
     sfm3x3_arr = np.arange(9, dtype = "float64").reshape(3, 3)
     sfm_2x0 = np.array([[], []])
     sfm5x10_arr = np.random.ranf(50).reshape(5, 10)
     sfm5x10_lst = list(map(list, np.random.ranf(50).reshape(5, 10)))
-    
-    def test_init_x_none(self):
-        with pytest.raises(Exception) as excinfo:
-            eda.SingleLabelClassifiedSamples(None, [0, 0, 0], 
-                                             [0, 0, 1], None)
 
-    def test_init_x_bad_type(self):
+    def test_init_empty_labs(self):
         with pytest.raises(Exception) as excinfo:
-            eda.SingleLabelClassifiedSamples([[0, 1], ['a', 2]], [0, 0], 
-                                             [0, 0], None)
+            eda.SingleLabelClassifiedSamples(self.sfm_2x0, [])
 
-    def test_init_x_1d(self):
-        with pytest.raises(Exception) as excinfo:
-            eda.SingleLabelClassifiedSamples([1, 2, 3], [0, 0, 0], 
-                                             [0, 0, 1], None)
-    
-    def test_init_dup_sids(self):
-        with pytest.raises(Exception) as excinfo:
-            eda.SingleLabelClassifiedSamples(self.sfm3x3_arr, [0, 0, 0], 
-                                             [0, 0, 1], None)
-        
-        with pytest.raises(Exception) as excinfo:
-            eda.SingleLabelClassifiedSamples(self.sfm3x3_arr, [0, 0, 0], 
-                                             ['0', '0', '1'], None)
-
-    def test_init_empty_sids_labs(self):
-        with pytest.raises(Exception) as excinfo:
-            eda.SingleLabelClassifiedSamples(self.sfm_2x0, [], [], None)
-
-    def test_init_diff_sid_len(self):
-        with pytest.raises(Exception) as excinfo:
-            eda.SingleLabelClassifiedSamples(self.sfm3x3_arr, [0, 1, 2], [0, 1], None)
-
-    def test_init_diff_fid_len(self):
-        with pytest.raises(Exception) as excinfo:
-            eda.SingleLabelClassifiedSamples(self.sfm3x3_arr, [0, 1], [0, 1, 2], [0, 1, 2, 4])
-
-        with pytest.raises(Exception) as excinfo:
-            eda.SingleLabelClassifiedSamples(self.sfm3x3_arr, [0, 1], [0, 1, 2], [0, 1])
-
-    def test_init_diff_lab_len(self):
+    def test_init_wrong_lab_len(self):
         with pytest.raises(Exception) as excinfo:
             eda.SingleLabelClassifiedSamples(self.sfm3x3_arr, [0, 1], None, None)
 
-    def test_init_non1d_sids_labs(self):
+    def test_init_non1d_labs(self):
         with pytest.raises(Exception) as excinfo:
-            eda.SingleLabelClassifiedSamples(self.sfm3x3_arr, np.array([[0], [1], [1]]),
-                                             np.array([[0], [1], [2]]), None)
+            eda.SingleLabelClassifiedSamples(self.sfm3x3_arr, [[0], [1], [2]],
+                                             [0, 1, 2], [0, 1, 2])
 
         with pytest.raises(Exception) as excinfo:
-            eda.SingleLabelClassifiedSamples(self.sfm3x3_arr, np.array([0, 1, 2]),
-                                             np.array([[0], [1], [2]]), None)
-
-        with pytest.raises(Exception) as excinfo:
-            eda.SingleLabelClassifiedSamples(self.sfm3x3_arr, np.array([[0], [1], [2]]),
-                                             np.array([0, 1, 2]), None)
+            eda.SingleLabelClassifiedSamples(self.sfm3x3_arr, 
+                                             [[0, 1], [1, 2], [2, 3]],
+                                             [0, 1, 2], [0, 1, 2])
 
     def test_init_bad_lab_type(self):
         with pytest.raises(Exception) as excinfo:
@@ -79,19 +204,6 @@ class TestSingleLabelClassifiedSamples(object):
 
         with pytest.raises(Exception) as excinfo:
             eda.SingleLabelClassifiedSamples(self.sfm3x3_arr, [(0), (0, 1), 2], [0, 1, 1], None)
-
-    def test_init_bad_sid_type(self):
-        with pytest.raises(Exception) as excinfo:
-            eda.SingleLabelClassifiedSamples(self.sfm3x3_arr, [0, 1, 2], [False, True, 2], None)
-
-        with pytest.raises(Exception) as excinfo:
-            eda.SingleLabelClassifiedSamples(self.sfm3x3_arr, [0, 1, 2], [[0], [0, 1], 2], None)
-
-        with pytest.raises(Exception) as excinfo:
-            eda.SingleLabelClassifiedSamples(self.sfm3x3_arr, [0, 1, 2], [(0), (0, 1), 2], None)
-
-        with pytest.raises(Exception) as excinfo:
-            eda.SingleLabelClassifiedSamples(self.sfm3x3_arr, [0, 1, 2], np.array([0, 1, 2]), None)
 
     def test_valid_init(self):
         eda.SingleLabelClassifiedSamples(self.sfm5x10_arr, [0, 1, 1, 2, 0], list(range(5)), list(range(10)))
@@ -258,151 +370,3 @@ class TestSingleLabelClassifiedSamples(object):
         qlab_arr = tslcs.sids_to_labs(('1', 'a', 'b', '2'))
         assert np.all(qlab_arr == np.array([2, 0, 0, 3]))
 
-
-class TestSampleDistanceMatrix(object):
-    """docstring for TestSampleDistanceMatrix"""
-    def test_valid_init(self):
-        eda.SampleDistanceMatrix(np.arange(10).reshape(5, 2))
-        
-
-
-class TestSampleFeatureMatrix(object):
-    """docstring for TestSampleFeatureMatrix"""
-    sfm5x10_arr = np.random.ranf(50).reshape(5, 10)
-    sfm3x3_arr = np.random.ranf(9).reshape(3, 3)
-    sfm5x10_lst = list(map(list, np.random.ranf(50).reshape(5, 10)))
-    
-    def test_init_dup_sfids(self):
-        with pytest.raises(Exception) as excinfo:
-            eda.SampleFeatureMatrix(self.sfm5x10_lst, [0, 0, 1, 2, 3])
-        
-        with pytest.raises(Exception) as excinfo:
-            eda.SampleFeatureMatrix(self.sfm5x10_lst, ['0', '0', '1', '2', '3'])
-
-        with pytest.raises(Exception) as excinfo:
-            eda.SampleFeatureMatrix(self.sfm5x10_lst, None, [0, 0, 1, 2, 3])
-        
-        with pytest.raises(Exception) as excinfo:
-            eda.SampleFeatureMatrix(self.sfm5x10_lst, None, ['0', '0', '1', '2', '3'])
-
-    def test_init_empty_x_sfids(self):
-        with pytest.raises(Exception) as excinfo:
-            eda.SampleFeatureMatrix(np.array([[], []]), [])
-
-        with pytest.raises(Exception) as excinfo:
-            eda.SampleFeatureMatrix(np.array([[], []]), None, [])
-
-    def test_init_diff_size_sfids(self):
-        with pytest.raises(Exception) as excinfo:
-            eda.SampleFeatureMatrix(self.sfm5x10_lst, np.arange(10), np.arange(5))
-
-        with pytest.raises(Exception) as excinfo:
-            eda.SampleFeatureMatrix(self.sfm5x10_lst, np.arange(10))
-
-        with pytest.raises(Exception) as excinfo:
-            eda.SampleFeatureMatrix(self.sfm5x10_lst, np.arange(5), np.arange(5))
-
-        with pytest.raises(Exception) as excinfo:
-            eda.SampleFeatureMatrix(self.sfm5x10_lst, np.arange(10), np.arange(10))
-
-    def test_init_non1d_sfids(self):
-        with pytest.raises(Exception) as excinfo:
-            eda.SampleFeatureMatrix(self.sfm3x3_arr, np.array([[0], [1], [2]]), 
-                                    np.array([[0], [1], [1]]))
-
-        with pytest.raises(Exception) as excinfo:
-            eda.SampleFeatureMatrix(self.sfm3x3_arr, np.array([[0], [1], [2]]), 
-                                    np.array([0, 1, 2]))
-
-        with pytest.raises(Exception) as excinfo:
-            eda.SampleFeatureMatrix(self.sfm3x3_arr, np.array([0, 1, 2]),
-                                    np.array([[0], [1], [2]]))
-
-    def test_init_bad_sid_type(self):
-        with pytest.raises(Exception) as excinfo:
-            eda.SampleFeatureMatrix(self.sfm3x3_arr, [False, True, 2], [0, 1, 1])
-
-        with pytest.raises(Exception) as excinfo:
-            eda.SampleFeatureMatrix(self.sfm3x3_arr, [[0], [0, 1], 2], [0, 1, 1])
-
-        with pytest.raises(Exception) as excinfo:
-            eda.SampleFeatureMatrix(self.sfm3x3_arr, np.array([0, 1, 2]), [0, 1, 1])
-
-        with pytest.raises(Exception) as excinfo:
-            eda.SampleFeatureMatrix(self.sfm3x3_arr, [(0), (0, 1), 2], [0, 1, 1])
-
-    def test_init_bad_fid_type(self):
-        with pytest.raises(Exception) as excinfo:
-            eda.SampleFeatureMatrix(self.sfm3x3_arr, [0, 1, 2], [False, True, 2])
-
-        with pytest.raises(Exception) as excinfo:
-            eda.SampleFeatureMatrix(self.sfm3x3_arr, [0, 1, 2], [[0], [0, 1], 2])
-
-        with pytest.raises(Exception) as excinfo:
-            eda.SampleFeatureMatrix(self.sfm3x3_arr, [0, 1, 2], [(0), (0, 1), 2])
-
-        with pytest.raises(Exception) as excinfo:
-            eda.SampleFeatureMatrix(self.sfm3x3_arr, [0, 1, 2], np.array([0, 1, 2]))
-
-    def test_valid_init(self):
-        eda.SampleFeatureMatrix(self.sfm5x10_arr, list(range(5)), list(range(10)))
-        eda.SampleFeatureMatrix(self.sfm5x10_arr, None, list(range(10)))
-        eda.SampleFeatureMatrix(self.sfm5x10_arr, list(range(5)), None)
-        eda.SampleFeatureMatrix(np.arange(10).reshape(-1, 1))
-        eda.SampleFeatureMatrix(np.arange(10).reshape(1, -1))
-    
-    def test_is_valid_sfid(self):
-        assert eda.SampleFeatureMatrix.is_valid_sfid('1')
-        assert eda.SampleFeatureMatrix.is_valid_sfid(1)
-        assert not eda.SampleFeatureMatrix.is_valid_sfid(np.array([1])[0])
-        assert not eda.SampleFeatureMatrix.is_valid_sfid([])
-        assert not eda.SampleFeatureMatrix.is_valid_sfid([1])
-        assert not eda.SampleFeatureMatrix.is_valid_sfid(None)
-        assert not eda.SampleFeatureMatrix.is_valid_sfid((1,))
-
-    def test_check_is_valid_sfids(self):
-        with pytest.raises(Exception) as excinfo:
-            eda.SampleFeatureMatrix.check_is_valid_sfids(np.arange(5))
-
-        with pytest.raises(Exception) as excinfo:
-            eda.SampleFeatureMatrix.check_is_valid_sfids([True, False])
-
-        with pytest.raises(Exception) as excinfo:
-            eda.SampleFeatureMatrix.check_is_valid_sfids(None)
-
-        with pytest.raises(Exception) as excinfo:
-            eda.SampleFeatureMatrix.check_is_valid_sfids([])
-
-        with pytest.raises(Exception) as excinfo:
-            eda.SampleFeatureMatrix.check_is_valid_sfids([[1], [2]])
-
-        with pytest.raises(Exception) as excinfo:
-            eda.SampleFeatureMatrix.check_is_valid_sfids(['1', 2, 3])
-
-        with pytest.raises(Exception) as excinfo:
-            eda.SampleFeatureMatrix.check_is_valid_sfids(['1', '1', '3'])
-
-        with pytest.raises(Exception) as excinfo:
-            eda.SampleFeatureMatrix.check_is_valid_sfids([0, 0, 1])
-
-        with pytest.raises(Exception) as excinfo:
-            eda.SampleFeatureMatrix.check_is_valid_sfids(['1', 2, '3'])
-
-        eda.SampleFeatureMatrix.check_is_valid_sfids([1, 2])
-        eda.SampleFeatureMatrix.check_is_valid_sfids(['1', '2'])
-        eda.SampleFeatureMatrix.check_is_valid_sfids([1, 2, 3])
-
-    def test_getters(self):
-        tsfm = eda.SampleFeatureMatrix(np.arange(10).reshape(5, 2), 
-                                       ['a', 'b', 'c', '1', '2'],
-                                       ['a', 'z'])
-
-        assert np.all(tsfm.get_x() == np.array(np.arange(10).reshape(5, 2), dtype='float64'))
-        assert np.all(tsfm.get_sids() == np.array(['a', 'b', 'c', '1', '2']))
-        assert np.all(tsfm.get_fids() == np.array(['a', 'z']))
-
-        assert tsfm.get_x() is not tsfm._x
-        assert tsfm.get_sids() is not tsfm._sids
-        assert tsfm.get_fids() is not tsfm._fids
-
-        

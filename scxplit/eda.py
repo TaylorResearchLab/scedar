@@ -87,11 +87,11 @@ class SampleFeatureMatrix(object):
         return self._x.copy()
 
 
-
-class SampleDistanceMatrix(object):
+class SampleDistanceMatrix(SampleFeatureMatrix):
     """docstring for SampleDistanceMatrix"""
-    def __init__(self, x, is_dist_mat=False, sids=None, nprocs=1):
-        super(SampleDistanceMatrix, self).__init__()
+    def __init__(self, x, d=None, sids=None, fids=None, metric=None, nprocs=1):
+        super(SampleDistanceMatrix, self).__init__(x=x, sids=sids, fids=fids)
+        
         
 
 class SingleLabelClassifiedSamples(SampleFeatureMatrix):
