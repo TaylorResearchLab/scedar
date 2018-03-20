@@ -1,0 +1,33 @@
+{
+	"folders":
+	[
+		{
+			"path": "."
+		}
+	],
+    "build_systems":
+    [
+        {
+            "name": "PyTest",
+            "working_dir": "${project_path}",
+            "selector": "source.python",
+            "shell_cmd": "source activate py36 && python setup.py test --addopts --mpl-baseline-path=tests/baseline_images",
+            "env": { "TERM": "xterm-256color",
+                     "CLICOLOR_FORCE": "1" 
+                   }, 
+             /*  add target and syntax */
+            "target": "ansi_color_build",
+            "syntax": "Packages/ANSIescape/ANSI.tmLanguage",
+            "variants": [
+
+                { "name": "Generate Baseline Image",
+                  "shell_cmd": "source activate py36 && python setup.py test --addopts --mpl-generate-path=tests/baseline_images",
+                },
+
+                { "name": "Clean Coverage Data",
+                  "shell_cmd": "rm .coverage.*",
+                },
+            ]
+        }
+    ]
+}

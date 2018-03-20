@@ -33,6 +33,7 @@ setup(
         'fa2',
     ],
     setup_requires=[
+        'pytest-mpl',
         'pytest-xdist',
         'pytest-cov',
         'pytest-runner', 
