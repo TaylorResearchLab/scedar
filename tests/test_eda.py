@@ -152,13 +152,13 @@ class TestSampleFeatureMatrix(object):
                                        ['a', 'b', 'c', '1', '2'],
                                        ['a', 'z'])
 
-        np.testing.assert_equal(tsfm.get_x(), np.array(np.arange(10).reshape(5, 2), dtype='float64'))
-        np.testing.assert_equal(tsfm.get_sids(), np.array(['a', 'b', 'c', '1', '2']))
-        np.testing.assert_equal(tsfm.get_fids(), np.array(['a', 'z']))
+        np.testing.assert_equal(tsfm.x, np.array(np.arange(10).reshape(5, 2), dtype='float64'))
+        np.testing.assert_equal(tsfm.sids, np.array(['a', 'b', 'c', '1', '2']))
+        np.testing.assert_equal(tsfm.fids, np.array(['a', 'z']))
 
-        assert tsfm.get_x() is not tsfm._x
-        assert tsfm.get_sids() is not tsfm._sids
-        assert tsfm.get_fids() is not tsfm._fids
+        assert tsfm.x is not tsfm._x
+        assert tsfm.sids is not tsfm._sids
+        assert tsfm.fids is not tsfm._fids
 
 
 class TestSampleDistanceMatrix(object):
@@ -503,15 +503,15 @@ class TestSingleLabelClassifiedSamples(object):
                                                  ['a', 'b', 'c', '1', '2'],
                                                  ['a', 'z'])
 
-        np.testing.assert_equal(tslcs.get_x(), np.array(np.arange(10).reshape(5, 2), dtype='float64'))
-        np.testing.assert_equal(tslcs.get_sids(), np.array(['a', 'b', 'c', '1', '2']))
-        np.testing.assert_equal(tslcs.get_fids(), np.array(['a', 'z']))
-        np.testing.assert_equal(tslcs.get_labs(), np.array([0, 0, 1, 2, 3]))
+        np.testing.assert_equal(tslcs.x, np.array(np.arange(10).reshape(5, 2), dtype='float64'))
+        np.testing.assert_equal(tslcs.sids, np.array(['a', 'b', 'c', '1', '2']))
+        np.testing.assert_equal(tslcs.fids, np.array(['a', 'z']))
+        np.testing.assert_equal(tslcs.labs, np.array([0, 0, 1, 2, 3]))
 
-        assert tslcs.get_x() is not tslcs._x
-        assert tslcs.get_sids() is not tslcs._sids
-        assert tslcs.get_fids() is not tslcs._fids
-        assert tslcs.get_labs() is not tslcs._labs
+        assert tslcs.x is not tslcs._x
+        assert tslcs.sids is not tslcs._sids
+        assert tslcs.fids is not tslcs._fids
+        assert tslcs.labs is not tslcs._labs
 
     def test_lab_to_sids(self):
         tslcs = eda.SingleLabelClassifiedSamples(np.arange(10).reshape(5, 2), 

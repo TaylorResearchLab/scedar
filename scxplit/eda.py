@@ -104,13 +104,16 @@ class SampleFeatureMatrix(object):
         if not utils.is_uniq_np1darr(sfids):
             raise ValueError("[sf]ids must not contain duplicated values")
 
-    def get_sids(self):
+    @property
+    def sids(self):
         return self._sids.copy()
 
-    def get_fids(self):
+    @property
+    def fids(self):
         return self._fids.copy()
 
-    def get_x(self):
+    @property
+    def x(self):
         return self._x.copy()
 
 
@@ -331,9 +334,10 @@ class SingleLabelClassifiedSamples(SampleDistanceMatrix):
     def sids_to_labs(self, sids):
         return np.array([self._lab_lut[x] for x in sids])
     
-    def get_labs(self):
+    @property
+    def labs(self):
         return self._labs.copy()
-
+    
     # Sort the clustered sample_ids with the reference order of another. 
     # 
     # Sort sids according to labs
@@ -391,11 +395,11 @@ class SingleLabelClassifiedSamples(SampleDistanceMatrix):
         
         try:
             ref_labs = np.array([self._lab_lut[x] 
-                                 for x in q_slc_samples.get_sids()])
+                                 for x in q_slc_samples.sids])
         except KeyError as e:
             raise ValueError("query sid {} is not in ref sids.".format(e))
 
-        query_labs = q_slc_samples.get_labs()
+        query_labs = q_slc_samples.labs
         
         uniq_rlabs, uniq_rlab_cnts = np.unique(ref_labs, return_counts=True)
         cross_lab_lut = {}
