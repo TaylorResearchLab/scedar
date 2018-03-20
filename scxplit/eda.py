@@ -3,7 +3,9 @@ import scipy.spatial
 import sklearn.manifold
 
 import matplotlib as mpl
+import matplotlib.pyplot as plt
 import matplotlib.colors
+import matplotlib.patches
 import matplotlib.gridspec
 
 import seaborn as sns
@@ -433,4 +435,61 @@ class SingleLabelClassifiedSamples(SampleDistanceMatrix):
             return lab_cmap
 
 
-# TODO: tsne, tsne graph, heatmap. Test graph existence only. 
+# TODO: tsne graph, heatmap. Test graph existence only. 
+
+def cluster_scatter(tsne, labels=None, title=None, xlab=None, ylab=None, 
+                 figsize=(20, 20), add_legend=True, n_txt_per_cluster=3, alpha=1, 
+                 s=0.5, random_state=None, **kwargs):
+    tsne = np.array(tsne, dtype="float")
+
+    if (tsne.ndim != 2) or (tsne.shape[1] != 2):
+        raise ValueError("tsne matrix should have shape (n_samples, 2)."
+                         " {}".format(tsne))
+
+    fig, ax = plt.subplots(figsize=figsize)
+
+    if labels is not None:
+        SingleLabelClassifiedSamples.check_is_valid_labs(labels)
+        labels = np.array(labels)
+        if labels.shape[0] != tsne.shape[0]:
+            raise ValueError("nrow(tsne matrix) should be equal to len(labels)")
+
+        uniq_labels = np.unique(labels)
+        color_lut = dict(zip(uniq_labels, 
+                             sns.color_palette("hls", len(uniq_labels))))
+
+        ax.scatter(tsne[:, 0], tsne[:, 1], 
+                   c=tuple(map(lambda cl: color_lut[cl], labels)),
+                   s=s, alpha = alpha, **kwargs)
+        # randomly select labels for annotation
+        if random_state is not None:
+            np.random.seed(random_state)
+        
+        anno_ind = np.concatenate([np.random.choice(np.where(labels == ulab)[0], 
+                                                    n_txt_per_cluster) 
+                                   for ulab in uniq_labels])
+
+        for i in map(int, anno_ind):
+            ax.annotate(labels[i], (tsne[i, 0], tsne[i, 1]))
+        # Add legend
+        # Shrink current axis by 20%
+        if add_legend:
+            box = ax.get_position()
+            ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])        
+            ax.legend(handles=tuple(mpl.patches.Patch(color=color_lut[ulab], label=ulab)
+                                    for ulab in uniq_labels), 
+                      bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
+    else:
+        ax.scatter(tsne[:, 0], tsne[:, 1], s=s, alpha = alpha, **kwargs)
+
+    if title is not None:
+        ax.set_title(title)
+    
+    if xlab is not None:
+        ax.set_xlabel(xlab)
+
+    if ylab is not None:
+        ax.set_ylabel(ylab)
+            
+    return ax
+

@@ -1,6 +1,7 @@
 import numpy as np
 import seaborn as sns
 import scxplit.eda as eda
+import matplotlib as mpl
 import pytest
 
 
@@ -532,3 +533,63 @@ class TestSingleLabelClassifiedSamples(object):
         qlab_arr = tslcs.sids_to_labs(('1', 'a', 'b', '2'))
         np.testing.assert_equal(qlab_arr, np.array([2, 0, 0, 3]))
 
+
+@pytest.mark.mpl_image_compare
+def test_cluster_scatter_legends():
+    np.random.seed(123)
+    ax = eda.cluster_scatter(np.random.ranf(100).reshape(50, 2), 
+                             [0]*25 + [1]*25,
+                             title='test tsne scatter', xlab='tsne1', ylab='tsne2',
+                             figsize=(10, 10), n_txt_per_cluster=3, alpha=0.5, 
+                             s=50, random_state=123)
+    return ax.get_figure()
+
+
+@pytest.mark.mpl_image_compare
+def test_cluster_scatter_no_legends():
+    np.random.seed(123)
+    ax = eda.cluster_scatter(np.random.ranf(100).reshape(50, 2), 
+                             [0]*25 + [1]*25,
+                             title='test tsne scatter', xlab='tsne1', ylab='tsne2',
+                             figsize=(10, 10), add_legend=False, 
+                             n_txt_per_cluster=3, alpha=0.5, 
+                             s=50, random_state=123)
+    return ax.get_figure()
+
+
+@pytest.mark.mpl_image_compare
+def test_cluster_scatter_no_labels():
+    np.random.seed(123)
+    ax = eda.cluster_scatter(np.random.ranf(100).reshape(50, 2), 
+                             title='test tsne scatter', xlab='tsne1', ylab='tsne2',
+                             figsize=(10, 10), n_txt_per_cluster=3, alpha=0.5, 
+                             s=50, random_state=123)
+    return ax.get_figure()
+
+def test_cluster_scatter_wrong_tsne_shape():
+    with pytest.raises(ValueError) as excinfo:
+        eda.cluster_scatter(np.random.ranf(100).reshape(-1, 1),
+                            title='test tsne scatter', xlab='tsne1', ylab='tsne2',
+                            figsize=(10, 10), n_txt_per_cluster=3, alpha=0.5,
+                            s=50, random_state=123)
+
+    with pytest.raises(ValueError) as excinfo:
+        eda.cluster_scatter(np.random.ranf(100).reshape(-1, 5),
+                            title='test tsne scatter', xlab='tsne1', ylab='tsne2',
+                            figsize=(10, 10), n_txt_per_cluster=3, alpha=0.5,
+                            s=50, random_state=123)
+
+    with pytest.raises(ValueError) as excinfo:
+        eda.cluster_scatter(np.random.ranf(99).reshape(-1, 3),
+                            title='test tsne scatter', xlab='tsne1', ylab='tsne2',
+                            figsize=(10, 10), n_txt_per_cluster=3, alpha=0.5,
+                            s=50, random_state=123)
+
+
+def test_cluster_scatter_wrong_label_shape():
+    with pytest.raises(ValueError) as excinfo:
+        eda.cluster_scatter(np.random.ranf(100).reshape(50, 2),
+                            [0] * 60,
+                            title='test tsne scatter', xlab='tsne1', ylab='tsne2',
+                            figsize=(10, 10), n_txt_per_cluster=3, alpha=0.5,
+                            s=50, random_state=123)
