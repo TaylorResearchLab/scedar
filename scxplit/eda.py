@@ -176,6 +176,7 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
         
         d = self.num_correct_dist_mat(d)
         self._d = d
+        self._tsne_lut = {}
         self._metric = metric
 
     # numerically correct dmat
@@ -212,15 +213,62 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
         dmat[np.triu_indices_from(dmat)] = dmat.T[np.triu_indices_from(dmat)]
         return dmat
 
-    def get_d(self):
+    # store_res : bool. Wheter to keep the tsne results in a dictionalry keyed
+    # by the parameters. 
+    def tsne(self, store_res=True, **kwargs):
+        if ("metric" in kwargs) and (kwargs["metric"] not in ("precomputed", self._metric)):
+            raise ValueError("If you want to calculate t-SNE of a different "
+                             "metric than the instance metric, create another "
+                             "instance of the desired metric.")
+        else:
+            kwargs["metric"] = "precomputed"
+
+        tsne_res = tsne(self._d, **kwargs)
+
+        if store_res:
+            curr_store_ind = len(self._tsne_lut) + 1
+            self._tsne_lut[str(kwargs)
+                           + " stored run {}".format(curr_store_ind)] = tsne_res
+        
+        return tsne_res
+
+    @property
+    def d(self):
         return self._d.copy()
-      
+
+    @property
+    def metric(self):
+        return self._metric
+
+    @property
+    def tsne_lut(self):
+        return dict((key, val) for key, val in self._tsne_lut.items())
+    
+
+# x : (n_samples, n_features) or (n_samples, n_samples)
+# If metric is 'precomputed', x must be a pairwise distance matrix
+def tsne(x, n_components=2, perplexity=30.0, early_exaggeration=12.0, 
+         learning_rate=200.0, n_iter=1000, n_iter_without_progress=300, 
+         min_grad_norm=1e-07, metric="euclidean", init="random", verbose=0, 
+         random_state=None, method="barnes_hut", angle=0.5):
+    x_tsne = sklearn.manifold.TSNE(n_components=n_components, 
+                                   perplexity=perplexity, 
+                                   early_exaggeration=early_exaggeration, 
+                                   learning_rate=learning_rate, n_iter=n_iter, 
+                                   n_iter_without_progress=n_iter_without_progress, 
+                                   min_grad_norm=min_grad_norm, metric=metric, 
+                                   init=init, verbose=verbose, 
+                                   random_state=random_state, method=method, 
+                                   angle=angle).fit_transform(x)
+    return x_tsne
+
+
 
 class SingleLabelClassifiedSamples(SampleDistanceMatrix):
     """docstring for SingleLabelClassifiedSamples"""
     # sid, lab, fid, x
     def __init__(self, x, labs, sids=None, fids=None, 
-                 d=None, metric='correlation', nprocs=None):
+                 d=None, metric="correlation", nprocs=None):
         # sids: sample IDs. String or int.
         # labs: sample classified labels. String or int. 
         # x: (n_samples, n_features)
@@ -381,5 +429,4 @@ class SingleLabelClassifiedSamples(SampleDistanceMatrix):
             return lab_cmap
 
 
-        
-
+# TODO: tsne, tsne graph, heatmap. Test graph existence only. 

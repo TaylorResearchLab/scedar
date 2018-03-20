@@ -171,11 +171,11 @@ class TestSampleDistanceMatrix(object):
         dist_mat = np.array([[0, np.sqrt(2), np.sqrt(8)],
                              [np.sqrt(2), 0, np.sqrt(2)],
                              [np.sqrt(8), np.sqrt(2), 0]])
-        np.testing.assert_allclose(sdm.get_d(), dist_mat)
+        np.testing.assert_allclose(sdm.d, dist_mat)
 
         sdm2 = eda.SampleDistanceMatrix(self.x_2x4_arr, metric='euclidean', nprocs=5)
         sdm2_d1 = np.sqrt(np.power(self.x_2x4_arr[0] - self.x_2x4_arr[1], 2).sum())
-        np.testing.assert_allclose(sdm2.get_d(), 
+        np.testing.assert_allclose(sdm2.d, 
                                    np.array([[0, sdm2_d1], [sdm2_d1, 0]]))
 
         sdm3 = eda.SampleDistanceMatrix(self.x_2x4_arr, metric='correlation', nprocs=5)
@@ -183,11 +183,11 @@ class TestSampleDistanceMatrix(object):
                                   self.x_2x4_arr[1] - self.x_2x4_arr[1].mean())
                        / (np.linalg.norm(self.x_2x4_arr[0] - self.x_2x4_arr[0].mean(), 2)
                           * np.linalg.norm(self.x_2x4_arr[1] - self.x_2x4_arr[1].mean(), 2)))
-        np.testing.assert_allclose(sdm3.get_d(), 
+        np.testing.assert_allclose(sdm3.d, 
                                    np.array([[0, 0.3618551], 
                                              [0.3618551, 0]]))
 
-        np.testing.assert_allclose(sdm3.get_d(), 
+        np.testing.assert_allclose(sdm3.d, 
                                    np.array([[0, sdm3_corr_d], 
                                              [sdm3_corr_d, 0]]))
 
@@ -243,13 +243,59 @@ class TestSampleDistanceMatrix(object):
         with pytest.raises(Exception) as excinfo:
             eda.SampleDistanceMatrix(self.x_3x2, d_1x6)
 
+    def test_tsne(self):
+        tmet = 'euclidean'
+        tsne_kwargs = {'metric': tmet, 'n_iter': 250,
+                       'random_state': 123}
+        ref_tsne = eda.tsne(self.x_3x2, **tsne_kwargs)
+        sdm = eda.SampleDistanceMatrix(self.x_3x2, metric=tmet)
+        
+        assert sdm.tsne_lut == {}
+        tsne1 = sdm.tsne(n_iter=250, random_state=123)
+        np.testing.assert_allclose(ref_tsne, tsne1)
+        assert tsne1.shape == (3, 2)
+        assert len(sdm.tsne_lut) == 1
+        
+        tsne2 = sdm.tsne(store_res=False, **tsne_kwargs)
+        np.testing.assert_allclose(ref_tsne, tsne2)
+        assert len(sdm.tsne_lut) == 1
+        
+        with pytest.raises(Exception) as excinfo:
+            wrong_metric_kwargs = tsne_kwargs.copy()
+            wrong_metric_kwargs['metric'] = 'correlation'
+            sdm.tsne(**wrong_metric_kwargs)
+        assert len(sdm.tsne_lut) == 1
+
+        tsne3 = sdm.tsne(store_res=True, **tsne_kwargs)
+        np.testing.assert_allclose(ref_tsne, tsne2)
+        assert len(sdm.tsne_lut) == 2
+
+        tsne_res_list = [tsne1, tsne3]
+        tsne_res_lut = sdm.tsne_lut
+        tsne_res_lut_sorted_keys = sorted(tsne_res_lut.keys())
+        for i in range(len(tsne_res_lut)):
+            iter_key = tsne_res_lut_sorted_keys[i]
+            iter_key[-1] == str(i)
+            np.testing.assert_allclose(tsne_res_lut[iter_key], 
+                                       tsne_res_list[i])
+            assert tsne_res_lut[iter_key] is not tsne_res_list[i]
+
     def test_getter(self):
-        sdm = eda.SampleDistanceMatrix(self.x_3x2, metric='euclidean')
+        tmet = 'euclidean'
+        sdm = eda.SampleDistanceMatrix(self.x_3x2, metric=tmet)
         dist_mat = np.array([[0, np.sqrt(2), np.sqrt(8)],
                              [np.sqrt(2), 0, np.sqrt(2)],
                              [np.sqrt(8), np.sqrt(2), 0]])
-        np.testing.assert_allclose(sdm.get_d(), dist_mat)
-        assert sdm.get_d() is not sdm._d
+        np.testing.assert_allclose(sdm.d, dist_mat)
+        assert sdm.d is not sdm._d
+        assert sdm.metric == tmet
+        assert sdm.tsne_lut == {}
+        assert sdm.tsne_lut is not sdm._tsne_lut
+        assert sdm.tsne_lut == sdm._tsne_lut
+        sdm.tsne(n_iter=250)
+        assert sdm.tsne_lut is not sdm._tsne_lut
+        assert sdm.tsne_lut == sdm._tsne_lut
+
     
     def test_num_correct_dist_mat(self):
         tdmat = np.array([[0, 1, 2],
