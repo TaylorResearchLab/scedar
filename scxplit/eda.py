@@ -417,7 +417,7 @@ class SingleLabelClassifiedSamples(SampleDistanceMatrix):
 
     @staticmethod
     def labs_to_cmap(labels, return_lut=False):
-        SingleLabelClassifiedSamples.check_is_valid_labs(list(labels))
+        SingleLabelClassifiedSamples.check_is_valid_labs(labels)
 
         labels = np.array(labels)
         uniq_lab_arr = np.unique(labels)
@@ -504,24 +504,27 @@ def heatmap(x, row_labels=None, col_labels=None, title=None, xlab=None,
     if x.ndim != 2:
         raise ValueError("x should be 2D array. {}".format(x))
 
-    SingleLabelClassifiedSamples.check_is_valid_labs(row_labels)
-    SingleLabelClassifiedSamples.check_is_valid_labs(col_labels)
+    if x.size == 0:
+        raise ValueError("x cannot be empty.")
 
-    if len(row_labels) != x.shape[0]:
-        raise ValueError("length of row_labels should be the same as the "
-                         "number of rows in x."
-                         " row_labels: {}. x: {}".format(row_labels, x))
+    if row_labels is not None:
+        SingleLabelClassifiedSamples.check_is_valid_labs(row_labels)
+        if len(row_labels) != x.shape[0]:
+            raise ValueError("length of row_labels should be the same as the "
+                             "number of rows in x."
+                             " row_labels: {}. x: {}".format(len(row_labels), 
+                                                             x.shape))
 
-    if len(col_labels) != x.shape[0]:
-        raise ValueError("length of col_labels should be the same as the "
-                         "number of rows in x."
-                         " col_labels: {}. x: {}".format(col_labels, x))
+    if col_labels is not None:
+        SingleLabelClassifiedSamples.check_is_valid_labs(col_labels)
+        if len(col_labels) != x.shape[1]:
+            raise ValueError("length of col_labels should be the same as the "
+                             "number of rows in x."
+                             " col_labels: {}. x: {}".format(len(col_labels),
+                                                             x.shape))
     
-    row_labels=np.array(row_labels)
-    col_labels=np.array(col_labels)
-    
-    if "im_interpolation" not in kwargs:
-        kwargs["im_interpolation"] = "nearest"
+    if "interpolation" not in kwargs:
+        kwargs["interpolation"] = "nearest"
 
     fig = plt.figure(figsize=figsize)
     if title is not None:
@@ -582,7 +585,7 @@ def heatmap(x, row_labels=None, col_labels=None, title=None, xlab=None,
     cr_labs = (col_labels, row_labels)
     for i in range(2):
         if cr_labs[i] is not None:
-            cmap, ind, ulab_col_lut, ulab_lut = SingleLabelClassifiedSamples.label_to_cmap(
+            cmap, ind, ulab_col_lut, ulab_lut = SingleLabelClassifiedSamples.labs_to_cmap(
                 cr_labs[i], return_lut=True)
             if i == 0:
                 # col color labels
@@ -590,17 +593,18 @@ def heatmap(x, row_labels=None, col_labels=None, title=None, xlab=None,
             else:
                 # row color labels
                 ind_mat = ind.reshape(-1, 1)
-            col_axs[i].imshow(ind_mat, cmap=cmap, aspect='auto',
-                              interpolation=im_interpolation)
-            for ulab in sorted(ulab_lut.values()):
-                lgd_axs[i].bar(0, 0, color=ulab_col_lut[ulab],
-                               label=ulab, linewidth=0)
+            col_axs[i].imshow(ind_mat, cmap=cmap, aspect='auto', **kwargs)
+
+            lgd_patches = [mpl.patches.Patch(color=ulab_col_lut[ulab],
+                                             label=ulab)
+                           for ulab in sorted(ulab_lut.values())]
 
             if i == 0:
                 # col color legend
-                lgd_axs[i].legend(loc="center", ncol=6)
+                lgd_axs[i].legend(handles=lgd_patches, loc="center", ncol=6)
             else:
                 # row color legend
-                lgd_axs[i].legend(loc="upper center", ncol=1)
-    return
+                lgd_axs[i].legend(handles=lgd_patches, loc="upper center", 
+                                  ncol=1)
+    return fig
 
