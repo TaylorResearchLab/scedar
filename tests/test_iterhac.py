@@ -40,7 +40,13 @@ class TestHClustTree(object):
                                         [101, 101], 
                                         [80, 80]],
                                         metric="euclidean")
-
+    # This tree should be
+    #   _______|_____
+    #   |       ____|___
+    # __|___    |    __|___
+    # |    |    |    |    |
+    # 0    2    4    1    3
+    # Leaves are in optimal order. 
     hct = ihac.HClustTree.hclust_tree(sdm_5x2.d, linkage="auto")
     
     def test_hclust_tree_args(self):
@@ -56,7 +62,7 @@ class TestHClustTree(object):
         assert self.hct.count() == 5
 
         assert len(self.hct.leaf_ids()) == 5
-        assert np.all(np.in1d(self.hct.leaf_ids(), [0, 1, 2, 3, 4]))
+        assert self.hct.leaf_ids() == [0, 2, 4, 1, 3]
 
         assert len(self.hct.left_leaf_ids()) == 2
         assert self.hct.left_leaf_ids() == [0, 2]
