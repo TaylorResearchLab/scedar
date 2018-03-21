@@ -108,15 +108,15 @@ class SampleFeatureMatrix(object):
 
     @property
     def sids(self):
-        return self._sids.copy()
+        return self._sids.tolist()
 
     @property
     def fids(self):
-        return self._fids.copy()
+        return self._fids.tolist()
 
     @property
     def x(self):
-        return self._x.copy()
+        return self._x.tolist()
 
 
 class SampleDistanceMatrix(SampleFeatureMatrix):
@@ -239,7 +239,7 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
 
     @property
     def d(self):
-        return self._d.copy()
+        return self._d.tolist()
 
     @property
     def metric(self):
@@ -331,14 +331,14 @@ class SingleLabelClassifiedSamples(SampleDistanceMatrix):
         return (self._sids[nf_sid_ind], self._labs[nf_sid_ind])
 
     def labs_to_sids(self, labs):
-        return tuple(tuple(self._sid_lut[y].copy()) for y in labs)
+        return tuple(tuple(self._sid_lut[y].tolist()) for y in labs)
 
     def sids_to_labs(self, sids):
         return np.array([self._lab_lut[x] for x in sids])
     
     @property
     def labs(self):
-        return self._labs.copy()
+        return self._labs.tolist()
     
     # Sort the clustered sample_ids with the reference order of another. 
     # 
@@ -401,7 +401,7 @@ class SingleLabelClassifiedSamples(SampleDistanceMatrix):
         except KeyError as e:
             raise ValueError("query sid {} is not in ref sids.".format(e))
 
-        query_labs = q_slc_samples.labs
+        query_labs = np.array(q_slc_samples.labs)
         
         uniq_rlabs, uniq_rlab_cnts = np.unique(ref_labs, return_counts=True)
         cross_lab_lut = {}
@@ -410,30 +410,35 @@ class SingleLabelClassifiedSamples(SampleDistanceMatrix):
             ref_ci_quniq = tuple(map(list, np.unique(
                 query_labs[np.where(np.array(ref_labs) == uniq_rlabs[i])],
                 return_counts=True)))
-            cross_lab_lut[uniq_rlabs[i]] = (uniq_rlab_cnts[i], tuple(map(tuple, ref_ci_quniq)))
+            cross_lab_lut[uniq_rlabs[i]] = (uniq_rlab_cnts[i], 
+                                            tuple(map(tuple, ref_ci_quniq)))
 
         return cross_lab_lut
 
-    def labs_to_cmap(self, return_lut=False):
-        uniq_lab_arr = np.unique(self._labs)
-        num_uniq_labs = len(uniq_lab_arr)
+    @staticmethod
+    def labs_to_cmap(labels, return_lut=False):
+        SingleLabelClassifiedSamples.check_is_valid_labs(list(labels))
 
-        uniq_lab_lut = dict(zip(range(num_uniq_labs), uniq_lab_arr))
-        uniq_ind_lut = dict(zip(uniq_lab_arr, range(num_uniq_labs)))
-        
-        lab_ind_arr = np.array([uniq_ind_lut[x] for x in self._labs])
+        labels = np.array(labels)
+        uniq_lab_arr = np.unique(labels)
+        num_uniq_labs = len(uniq_lab_arr)
 
         lab_col_list = sns.hls_palette(num_uniq_labs)
         lab_cmap = mpl.colors.ListedColormap(lab_col_list)
 
-        lab_col_lut = dict(zip([uniq_lab_lut[i] for i in range(len(uniq_lab_arr))],
-                               lab_col_list))
-
         if return_lut:
+            uniq_lab_lut = dict(zip(range(num_uniq_labs), uniq_lab_arr))
+            uniq_ind_lut = dict(zip(uniq_lab_arr, range(num_uniq_labs)))
+            
+            lab_ind_arr = np.array([uniq_ind_lut[x] for x in labels])
+
+            lab_col_lut = dict(zip([uniq_lab_lut[i] 
+                                    for i in range(len(uniq_lab_arr))],
+                                   lab_col_list))
             return (lab_cmap, lab_ind_arr, lab_col_lut, uniq_lab_lut)
         else:
             return lab_cmap
-
+    
 
 def cluster_scatter(tsne, labels=None, title=None, xlab=None, ylab=None, 
                     figsize=(20, 20), add_legend=True, n_txt_per_cluster=3, 
@@ -556,8 +561,7 @@ def heatmap(x, row_labels=None, col_labels=None, title=None, xlab=None,
         iax.axis('off')
 
     # lower right heatmap
-    imgp = ax_lut['hm_ax'].imshow(x, cmap='magma', aspect='auto', 
-                                  interpolation=im_interpolation)
+    imgp = ax_lut['hm_ax'].imshow(x, cmap='magma', aspect='auto', **kwargs)
     if xlab is not None:
         ax_lut['hm_ax'].set_xlabel(xlab)
 
@@ -578,7 +582,7 @@ def heatmap(x, row_labels=None, col_labels=None, title=None, xlab=None,
     cr_labs = (col_labels, row_labels)
     for i in range(2):
         if cr_labs[i] is not None:
-            cmap, ind, ulab_col_lut, ulab_lut = label_to_cmap(
+            cmap, ind, ulab_col_lut, ulab_lut = SingleLabelClassifiedSamples.label_to_cmap(
                 cr_labs[i], return_lut=True)
             if i == 0:
                 # col color labels

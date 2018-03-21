@@ -481,8 +481,8 @@ class TestSingleLabelClassifiedSamples(object):
         slab_csamples = eda.SingleLabelClassifiedSamples(np.random.ranf(80).reshape(8, -1), 
                                                          labs, sids)
 
-        lab_cmap, lab_ind_arr, lab_col_lut, uniq_lab_lut = slab_csamples.labs_to_cmap(
-            return_lut=True)
+        lab_cmap, lab_ind_arr, lab_col_lut, uniq_lab_lut = eda.SingleLabelClassifiedSamples.labs_to_cmap(
+            slab_csamples.labs, return_lut=True)
 
         n_uniq_labs = len(set(labs))
         assert lab_cmap.N == n_uniq_labs
@@ -494,7 +494,8 @@ class TestSingleLabelClassifiedSamples(object):
         assert [lab_col_lut[uniq_lab_lut[i]] 
                 for i in range(n_uniq_labs)] == sns.hls_palette(n_uniq_labs)
 
-        lab_cmap2 = slab_csamples.labs_to_cmap(return_lut=False)
+        lab_cmap2 = eda.SingleLabelClassifiedSamples.labs_to_cmap(
+            slab_csamples.labs, return_lut=False)
         assert lab_cmap2.N == n_uniq_labs
         assert lab_cmap2.colors == lab_cmap.colors
 
@@ -571,7 +572,7 @@ def test_cluster_scatter_wrong_tsne_shape():
         eda.cluster_scatter(np.random.ranf(100).reshape(-1, 1),
                             title='test tsne scatter', xlab='tsne1', ylab='tsne2',
                             figsize=(10, 10), n_txt_per_cluster=3, alpha=0.5,
-                            s=50, random_state=123)
+                            s=50,random_state=123)
 
     with pytest.raises(ValueError) as excinfo:
         eda.cluster_scatter(np.random.ranf(100).reshape(-1, 5),
