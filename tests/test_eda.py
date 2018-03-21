@@ -537,34 +537,34 @@ class TestSingleLabelClassifiedSamples(object):
 @pytest.mark.mpl_image_compare
 def test_cluster_scatter_legends():
     np.random.seed(123)
-    ax = eda.cluster_scatter(np.random.ranf(100).reshape(50, 2), 
+    fig = eda.cluster_scatter(np.random.ranf(100).reshape(50, 2), 
                              [0]*25 + [1]*25,
                              title='test tsne scatter', xlab='tsne1', ylab='tsne2',
                              figsize=(10, 10), n_txt_per_cluster=3, alpha=0.5, 
                              s=50, random_state=123)
-    return ax.get_figure()
+    return fig
 
 
 @pytest.mark.mpl_image_compare
 def test_cluster_scatter_no_legends():
     np.random.seed(123)
-    ax = eda.cluster_scatter(np.random.ranf(100).reshape(50, 2), 
+    fig = eda.cluster_scatter(np.random.ranf(100).reshape(50, 2), 
                              [0]*25 + [1]*25,
                              title='test tsne scatter', xlab='tsne1', ylab='tsne2',
                              figsize=(10, 10), add_legend=False, 
                              n_txt_per_cluster=3, alpha=0.5, 
                              s=50, random_state=123)
-    return ax.get_figure()
+    return fig
 
 
 @pytest.mark.mpl_image_compare
 def test_cluster_scatter_no_labels():
     np.random.seed(123)
-    ax = eda.cluster_scatter(np.random.ranf(100).reshape(50, 2), 
+    fig = eda.cluster_scatter(np.random.ranf(100).reshape(50, 2), 
                              title='test tsne scatter', xlab='tsne1', ylab='tsne2',
                              figsize=(10, 10), n_txt_per_cluster=3, alpha=0.5, 
                              s=50, random_state=123)
-    return ax.get_figure()
+    return fig
 
 def test_cluster_scatter_wrong_tsne_shape():
     with pytest.raises(ValueError) as excinfo:
@@ -593,3 +593,4 @@ def test_cluster_scatter_wrong_label_shape():
                             title='test tsne scatter', xlab='tsne1', ylab='tsne2',
                             figsize=(10, 10), n_txt_per_cluster=3, alpha=0.5,
                             s=50, random_state=123)
+

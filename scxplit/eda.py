@@ -435,11 +435,9 @@ class SingleLabelClassifiedSamples(SampleDistanceMatrix):
             return lab_cmap
 
 
-# TODO: tsne graph, heatmap. Test graph existence only. 
-
 def cluster_scatter(tsne, labels=None, title=None, xlab=None, ylab=None, 
-                 figsize=(20, 20), add_legend=True, n_txt_per_cluster=3, alpha=1, 
-                 s=0.5, random_state=None, **kwargs):
+                    figsize=(20, 20), add_legend=True, n_txt_per_cluster=3, 
+                    alpha=1, s=0.5, random_state=None, **kwargs):
     tsne = np.array(tsne, dtype="float")
 
     if (tsne.ndim != 2) or (tsne.shape[1] != 2):
@@ -476,7 +474,8 @@ def cluster_scatter(tsne, labels=None, title=None, xlab=None, ylab=None,
         if add_legend:
             box = ax.get_position()
             ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])        
-            ax.legend(handles=tuple(mpl.patches.Patch(color=color_lut[ulab], label=ulab)
+            ax.legend(handles=tuple(mpl.patches.Patch(color=color_lut[ulab], 
+                                                      label=ulab)
                                     for ulab in uniq_labels), 
                       bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
     else:
@@ -491,5 +490,113 @@ def cluster_scatter(tsne, labels=None, title=None, xlab=None, ylab=None,
     if ylab is not None:
         ax.set_ylabel(ylab)
             
-    return ax
+    return fig
+
+
+def heatmap(x, row_labels=None, col_labels=None, title=None, xlab=None,
+            ylab=None, figsize=(20, 20), **kwargs):
+    x = np.array(x, dtype="float")
+    if x.ndim != 2:
+        raise ValueError("x should be 2D array. {}".format(x))
+
+    SingleLabelClassifiedSamples.check_is_valid_labs(row_labels)
+    SingleLabelClassifiedSamples.check_is_valid_labs(col_labels)
+
+    if len(row_labels) != x.shape[0]:
+        raise ValueError("length of row_labels should be the same as the "
+                         "number of rows in x."
+                         " row_labels: {}. x: {}".format(row_labels, x))
+
+    if len(col_labels) != x.shape[0]:
+        raise ValueError("length of col_labels should be the same as the "
+                         "number of rows in x."
+                         " col_labels: {}. x: {}".format(col_labels, x))
+    
+    row_labels=np.array(row_labels)
+    col_labels=np.array(col_labels)
+    
+    if "im_interpolation" not in kwargs:
+        kwargs["im_interpolation"] = "nearest"
+
+    fig = plt.figure(figsize=figsize)
+    if title is not None:
+        fig.suptitle(title)
+
+    # outer 2x2 grid
+    gs = mpl.gridspec.GridSpec(2, 2,
+                               width_ratios=[1, 4],
+                               height_ratios=[1, 4],
+                               wspace=0.0, hspace=0.0)
+
+    # inner upper right for color labels and legends
+    ur_gs = mpl.gridspec.GridSpecFromSubplotSpec(2, 1,
+                                                 height_ratios=[3, 1],
+                                                 subplot_spec=gs[1],
+                                                 wspace=0.0, hspace=0.0)
+
+    # inner lower left for color labels and legends
+    ll_gs = mpl.gridspec.GridSpecFromSubplotSpec(1, 2,
+                                                 width_ratios=[3, 1],
+                                                 subplot_spec=gs[2],
+                                                 wspace=0.0, hspace=0.0)
+
+    ax_lut = {
+        'cb_ax': plt.subplot(gs[0]),
+        'hm_ax': plt.subplot(gs[3]),
+        'lcol_ax': plt.subplot(ll_gs[1]),
+        'ucol_ax': plt.subplot(ur_gs[1]),
+        'llgd_ax': plt.subplot(ll_gs[0]),
+        'ulgd_ax': plt.subplot(ur_gs[0])
+    }
+
+    # remove frames and ticks
+    for iax in ax_lut.values():
+        iax.set_xticks([])
+        iax.set_yticks([])
+        iax.axis('off')
+
+    # lower right heatmap
+    imgp = ax_lut['hm_ax'].imshow(x, cmap='magma', aspect='auto', 
+                                  interpolation=im_interpolation)
+    if xlab is not None:
+        ax_lut['hm_ax'].set_xlabel(xlab)
+
+    if ylab is not None:
+        ax_lut['hm_ax'].set_ylabel(ylab)
+
+    # upper left colorbar
+    cb = plt.colorbar(imgp, cax=ax_lut['cb_ax'])
+    ax_lut['cb_ax'].set_aspect(5, anchor='W')
+    ax_lut['cb_ax'].yaxis.tick_left()
+    ax_lut['cb_ax'].axis('on')
+
+    # color labels and legends
+    ax_lut['ucol_ax'].set_anchor('S')
+    ax_lut['lcol_ax'].set_anchor('E')
+    col_axs = (ax_lut['ucol_ax'], ax_lut['lcol_ax'])
+    lgd_axs = (ax_lut['ulgd_ax'], ax_lut['llgd_ax'])
+    cr_labs = (col_labels, row_labels)
+    for i in range(2):
+        if cr_labs[i] is not None:
+            cmap, ind, ulab_col_lut, ulab_lut = label_to_cmap(
+                cr_labs[i], return_lut=True)
+            if i == 0:
+                # col color labels
+                ind_mat = ind.reshape(1, -1)
+            else:
+                # row color labels
+                ind_mat = ind.reshape(-1, 1)
+            col_axs[i].imshow(ind_mat, cmap=cmap, aspect='auto',
+                              interpolation=im_interpolation)
+            for ulab in sorted(ulab_lut.values()):
+                lgd_axs[i].bar(0, 0, color=ulab_col_lut[ulab],
+                               label=ulab, linewidth=0)
+
+            if i == 0:
+                # col color legend
+                lgd_axs[i].legend(loc="center", ncol=6)
+            else:
+                # row color legend
+                lgd_axs[i].legend(loc="upper center", ncol=1)
+    return
 
