@@ -233,7 +233,7 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
         if store_res:
             curr_store_ind = len(self._tsne_lut) + 1
             self._tsne_lut[str(kwargs)
-                           + " stored run {}".format(curr_store_ind)] = tsne_res
+                           + " stored run {}".format(curr_store_ind)] = tsne_res.copy()
         
         return tsne_res
 
@@ -247,7 +247,7 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
 
     @property
     def tsne_lut(self):
-        return dict((key, val) for key, val in self._tsne_lut.items())
+        return dict((key, val.copy()) for key, val in self._tsne_lut.items())
     
 
 # x : (n_samples, n_features) or (n_samples, n_samples)

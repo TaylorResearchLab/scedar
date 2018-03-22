@@ -295,7 +295,8 @@ class TestSampleDistanceMatrix(object):
         assert sdm.tsne_lut == sdm._tsne_lut
         sdm.tsne(n_iter=250)
         assert sdm.tsne_lut is not sdm._tsne_lut
-        assert sdm.tsne_lut == sdm._tsne_lut
+        for k in sdm.tsne_lut:
+            np.testing.assert_equal(sdm.tsne_lut[k], sdm._tsne_lut[k])
 
     
     def test_num_correct_dist_mat(self):
