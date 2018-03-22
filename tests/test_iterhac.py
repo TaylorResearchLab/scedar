@@ -33,6 +33,85 @@ class TestMultinomialMdl(object):
         assert mmdl2.x == [0, 0, 1, 1, 1]
 
 
+class TestZeroIdcGKdeMdl(object):
+    """docstring for TestZeroIdcGKdeMdl"""
+    x = np.concatenate([np.repeat(0, 50),
+                        np.random.uniform(1, 2, size=200), 
+                        np.repeat(0, 50)])
+    x_all_zero = np.repeat(0, 100)
+    x_one_nonzero = np.array([0]*99 + [1])
+    x_all_non_zero = x[50:250]
+    
+    def test_std_usage(self):
+        zikm = ihac.ZeroIdcGKdeMdl(self.x)
+        np.testing.assert_allclose(zikm.x, self.x)
+        
+        assert zikm.x is not self.x
+        np.testing.assert_allclose(zikm.x_nonzero, self.x[50:250])
+
+        np.testing.assert_allclose(zikm.mdl, zikm.zi_mdl + zikm.kde_mdl)
+
+        np.testing.assert_allclose(zikm.zi_mdl, 
+                                   np.log(3) + ihac.MultinomialMdl(self.x != 0).mdl)
+
+        assert zikm._bw_method == "silverman"
+
+        assert zikm.bandwidth is not None
+
+        # test > 0 value kde same
+        zikm2 = ihac.ZeroIdcGKdeMdl(self.x[50:250])
+        np.testing.assert_allclose(zikm2.kde_mdl, zikm.kde_mdl)
+        np.testing.assert_allclose(zikm2.bandwidth, zikm.bandwidth)
+
+
+    def test_all_zero(self):
+        zikm = ihac.ZeroIdcGKdeMdl(self.x_all_zero)
+        assert zikm.bandwidth is None
+        np.testing.assert_allclose(zikm.zi_mdl, np.log(3))
+        assert zikm.x_nonzero.size == 0
+        np.testing.assert_allclose(zikm.x, self.x_all_zero)
+        np.testing.assert_allclose(zikm.kde_mdl, 0)
+        np.testing.assert_allclose(zikm.mdl, zikm.zi_mdl + zikm.kde_mdl)
+
+    def test_all_nonzero(self):
+        zikm = ihac.ZeroIdcGKdeMdl(self.x_all_non_zero)
+        np.testing.assert_allclose(zikm.zi_mdl, np.log(3))
+
+    def test_one_nonzero(self):
+        zikm = ihac.ZeroIdcGKdeMdl(self.x_one_nonzero)
+        assert zikm.bandwidth is None
+        np.testing.assert_allclose(zikm.kde_mdl, np.log(2))
+
+    def test_empty(self):
+        zikm = ihac.ZeroIdcGKdeMdl(np.array([]))
+        assert zikm.mdl == 0
+        assert zikm.zi_mdl == 0
+        assert zikm.kde_mdl == 0
+
+    def test_kde_bw(self):
+        zikm = ihac.ZeroIdcGKdeMdl(self.x)
+        zikm2 = ihac.ZeroIdcGKdeMdl(self.x, "scott")
+        zikm3 = ihac.ZeroIdcGKdeMdl(self.x, 1)
+        xnz_std = zikm.x_nonzero.std(ddof=1)
+        np.testing.assert_allclose(1, zikm3.bandwidth / xnz_std)
+        np.testing.assert_raises(AssertionError, 
+                                 np.testing.assert_allclose, 
+                                 zikm2.bandwidth, zikm3.bandwidth)
+        
+    def test_wrong_x_shape(self):
+        with pytest.raises(ValueError) as excinfo:
+            ihac.ZeroIdcGKdeMdl(np.arange(10).reshape(5,2))
+    
+    def test_2d_kde(self):
+        logdens = ihac.ZeroIdcGKdeMdl.gaussian_kde_logdens(
+            np.random.normal(size=50).reshape(10, 5))
+        assert logdens.ndim == 1
+        assert logdens.size == 10
+
+    def test_wrong_kde_x_shape(self):
+        with pytest.raises(ValueError) as excinfo:
+            ihac.ZeroIdcGKdeMdl.gaussian_kde_logdens(np.reshape(np.arange(9), (3, 3, 1)))
+
 
 class TestHClustTree(object):
     """docstring for TestHClustTree"""

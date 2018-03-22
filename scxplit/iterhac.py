@@ -103,7 +103,7 @@ class ZeroIdcGKdeMdl(object):
 
     @staticmethod
     def gaussian_kde_logdens(x, bandwidth_method="silverman",
-                              ret_kernel=False):
+                             ret_kernel=False):
         # This package uses (n_samples, n_features) convention
         # scipy uses (n_featues, n_samples) convention
         # so it is necessary to reshape the data
@@ -146,7 +146,7 @@ class ZeroIdcGKdeMdl(object):
             # encode just single value or multiple values
             kde_mdl = np.log(2)
         else:
-            kde, logdens = self.gaussian_kde_logdens(
+            logdens, kde = self.gaussian_kde_logdens(
                 self._x_nonzero, bandwidth_method=self._bw_method,
                 ret_kernel=True)
             kde_mdl = -logdens.sum() + np.log(2)
