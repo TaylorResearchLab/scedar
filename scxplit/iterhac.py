@@ -1,7 +1,8 @@
 import numpy as np
 
 import scipy.cluster.hierarchy as sph
-import scipy.spatial as sps
+import scipy.spatial as spspatial
+import scipy.stats as spstats
 
 from . import utils
 from . import eda
@@ -13,8 +14,7 @@ class MultinomialMdl(object):
     x: 1d array. Should be non-negative
     
     Notes:
-    When x only has 1 uniq value. Encode the value and 
-    the number of values by 32bits float.
+    When x only has 1 uniq value. Encode the the number of values only.
     """
     def __init__(self, x):
         super(MultinomialMdl, self).__init__()
@@ -32,7 +32,7 @@ class MultinomialMdl(object):
         if len(uniq_vals) > 1:
             return (-np.log(uniq_val_cnts / uniq_val_cnts.sum()) * uniq_val_cnts).sum()
         elif len(uniq_vals) == 1:
-            return np.log(uniq_val_cnts) + 1
+            return np.log(uniq_val_cnts)
         else:
             # len(x) == 0
             return 0
@@ -46,11 +46,152 @@ class MultinomialMdl(object):
         return self._mdl
 
 
+class ZeroIdcGKdeMdl(object):
+    """
+    ZeroIdcGKdeMdl. Encode the 0s and non-0s using bernoulli distribution.
+    Then, encode non-0s using gaussian kde. Finally, one ternary val indicates 
+    all 0s, all non-0s, or otherwise
+
+    Parameters:
+    -----------
+    x: 1d array. Should be non-negative
+
+    Methods defined here:
+    ---------------------
+    gaussian_kde_bw(x, method="silverman") : 
+        Estimate Gaussian kernel density estimation bandwidth for input x.
+        x: 
+            float array of shape (n_samples) or (n_samples, n_features)
+        bandwidth_method: 
+            passed to scipy.stats.gaussian_kde param bw_method
+            'scott': Scott's rule of thumb.
+            'silverman': Silverman's rule of thumb.
+            constant: constant will be timed by x.std(ddof=1) internally, 
+                because scipy times bw_method value by std. "Scipy weights its 
+                bandwidth by the ovariance of the input data" [3].
+            callable: scipy calls the function on self
+        Ref: 
+        [1] https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.gaussian_kde.html
+        [2] https://en.wikipedia.org/wiki/Kernel_density_estimation
+        [3] https://jakevdp.github.io/blog/2013/12/01/kernel-density-estimation/
+        [4] https://github.com/scipy/scipy/blob/v1.0.0/scipy/stats/kde.py#L42-L564
+
+    """
+    def __init__(self, x, kde_bw_method="silverman"):
+        super(ZeroIdcGKdeMdl, self).__init__()
+
+        if x.ndim != 1:
+            raise ValueError("x should be 1D array. "
+                             "x.shape: {}".format(x.shape))
+
+        self._x = x
+        self._n = x.shape[0]
+
+        self._x_nonzero = x[np.nonzero(x)]
+        self._k = self._x_nonzero.shape[0]
+
+        self._bw_method = kde_bw_method
+        
+        if self._n != 0:
+            self._zi_mdl = self._compute_zi_mdl()
+            self._kde_mdl = self._compute_gaussian_kde_mdl()
+            self._mdl = self._zi_mdl + self._kde_mdl
+        else:
+            self._zi_mdl = 0
+            self._kde_mdl = 0
+            self._mdl = 0
+
+    @staticmethod
+    def gaussian_kde_logdens(x, bandwidth_method="silverman",
+                              ret_kernel=False):
+        # This package uses (n_samples, n_features) convention
+        # scipy uses (n_featues, n_samples) convention
+        # so it is necessary to reshape the data
+        if x.ndim == 1:
+            x = x.reshape(1, -1)
+        elif x.ndim == 2:
+            x = x.T
+        else:
+            raise ValueError("x should be 1/2D array. "
+                             "x.shape: {}".format(x.shape))
+
+        kde = spstats.gaussian_kde(x, bw_method=bandwidth_method)
+        logdens = np.log(kde.evaluate(x))
+
+        if ret_kernel:
+            return (logdens, kde)
+        else:
+            return logdens
+
+    def _compute_zi_mdl(self):
+        if self._k == self._n or self._k == 0:
+            zi_mdl = np.log(3)
+        else:
+            p = self._k / self._n
+            zi_mdl = (np.log(3) - self._k * np.log(p) -
+                      (self._n - self._k) * np.log(1-p))
+        return zi_mdl
+    
+    def _compute_gaussian_kde_mdl(self):
+        if self._k == 0:
+            kde = None
+            logdens = None
+            bw_factor = None
+            # no non-zery vals. Indicator encoded by zi mdl. 
+            kde_mdl = 0
+        elif self._k == 1:
+            kde = None
+            logdens = None
+            bw_factor = None
+            # encode just single value or multiple values
+            kde_mdl = np.log(2)
+        else:
+            kde, logdens = self.gaussian_kde_logdens(
+                self._x_nonzero, bandwidth_method=self._bw_method,
+                ret_kernel=True)
+            kde_mdl = -logdens.sum() + np.log(2)
+            bw_factor = kde.factor
+        
+        self._bw_factor = bw_factor
+        self._kde = kde
+        self._logdens = logdens
+        return kde_mdl
+
+    @property
+    def bandwidth(self):
+        if self._bw_factor is None:
+            return None
+        else:
+            return self._bw_factor * self._x_nonzero.std(ddof=1)
+
+    @property
+    def zi_mdl(self):
+        return self._zi_mdl
+
+    @property
+    def kde_mdl(self):
+        return self._kde_mdl
+
+    @property
+    def mdl(self):
+        return self._mdl
+
+    @property
+    def x(self):
+        return self._x.copy()
+
+    @property
+    def x_nonzero(self):
+        return self._x_nonzero.copy()
+
+
 class HClustTree(object):
     """
     Hierarchical clustering tree. Implement simple tree operation routines. 
     HCT is binary unbalanced tree. 
+
     Attributes:
+    -----------
     node : scipy.cluster.hierarchy.ClusterNode
         current node
     prev : HClustTree
@@ -175,7 +316,7 @@ class HClustTree(object):
 
         if linkage == "auto":
             try_linkages = ("single", "complete", "average", "weighted")
-            
+
             if is_euc_dist:
                 try_linkages += ("centroid", "median", "ward")
 
@@ -201,7 +342,7 @@ class HClustTree(object):
                 print(linkage, tuple(zip(try_linkages, ltype_mdl_list)),
                       sep = "\n")
 
-        dmat_sf = sps.distance.squareform(dmat)
+        dmat_sf = spspatial.distance.squareform(dmat)
         hac_z = sph.linkage(dmat_sf, method=linkage, optimal_ordering=False)
         return HClustTree(sph.to_tree(hac_z))
 

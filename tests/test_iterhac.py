@@ -13,7 +13,7 @@ class TestMultinomialMdl(object):
 
     def test_single_level(self):
         mmdl = ihac.MultinomialMdl(["a"]*10)
-        np.testing.assert_allclose(mmdl.mdl, np.log(10) + 1)
+        np.testing.assert_allclose(mmdl.mdl, np.log(10))
 
     def test_multi_levels(self):
         x = ["a"]*10 + ["b"]*25
@@ -31,6 +31,8 @@ class TestMultinomialMdl(object):
         assert mmdl.x == []
         mmdl2 = ihac.MultinomialMdl([0, 0, 1, 1, 1])
         assert mmdl2.x == [0, 0, 1, 1, 1]
+
+
 
 class TestHClustTree(object):
     """docstring for TestHClustTree"""
