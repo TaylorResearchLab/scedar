@@ -33,6 +33,11 @@
         },
 
         {
+          "name": "PyTest Current Test File",
+          "shell_cmd": "/Users/zhangy4/miniconda3/envs/py36/bin/python setup.py test --addopts \"--mpl --mpl-baseline-path=tests/baseline_images tests/$file_name --cov=scxplit.${file_base_name/test_//}\"",
+        },
+
+        {
           "name": "test",
           "shell_cmd": "echo \\$PATH $file_name"
         }
