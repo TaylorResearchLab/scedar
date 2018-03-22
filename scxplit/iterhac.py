@@ -347,3 +347,192 @@ class HClustTree(object):
         return HClustTree(sph.to_tree(hac_z))
 
 
+class MDLSampleDistanceMatrix(eda.SingleLabelClassifiedSamples):
+    """
+    MDLSampleDistanceMatrix inherits SingleLabelClassifiedSamples to offer MDL 
+    operations. 
+    """
+    def __init__(self, x, labs, sids=None, fids=None, 
+                 d=None, metric="correlation", nprocs=None):
+        super(MDLSampleDistanceMatrix, self).__init__(x=x, labs=labs, 
+                                                      sids=sid, fids=fid, 
+                                                      d=d, metric=metric, 
+                                                      nprocs=nprocs)
+
+    @staticmethod
+    def per_column_zigkmdl(x, nprocs=1, verbose=False):
+        # verbose is not implemented
+        if x.ndim != 2:
+            raise ValueError("x should have shape (n_samples, n_features)."
+                             "x.shape: {}".format(x.shape))
+
+        nprocs = max(int(nprocs), 1)
+        
+        # apply to each feature
+        if nprocs != 1:
+            col_mdl_list = utils.parmap(lambda x1d: ZeroIdcGKdeMdl(x1d), 
+                                        x.T, nprocs)
+        else:
+            col_mdl_list = list(map(lambda x1d: ZeroIdcGKdeMdl(x1d), x.T))
+
+        return col_mdl_list
+
+    def no_lab_mdl(self, nprocs=1, verbose=False, ret_internal=False):
+        # verbose is not implemented
+        col_mdl_list = self.per_column_zigkmdl(self._x, nprocs, verbose)
+        col_mdl_sum = sum(map(lambda zkmdl: zkmdl.mdl, col_mdl_list))
+        if ret_internal:
+            return (pc_zkmdl_sum, col_mdl_list)
+        else:
+            return pc_zkmdl_sum
+
+    def lab_mdl(self, nprocs=1, verbose=False, ret_internal=False):
+        n_uniq_labels = self._uniq_labs.shape[0]
+
+        ulab_x_list = [self._x[self._labs == ulab, :] 
+                       for ulab in self._uniq_labs]
+
+        # MDL for points
+        pts_mdl_list = [self.per_column_zigkmdl(x, nprocs, verbose)
+                        for x in ulab_x_list]
+
+        ulab_pts_mdl_sum_list = [sum(map(lambda zkmdl: zkmdl.mdl, 
+                                         ulab_pts_mdl_list))
+                                 for ulab_pts_mdl_list in pts_mdl_list]
+        
+        pts_mdl_sum = sum(ulab_pts_mdl_sum_list)
+        
+        lab_mdl = MultinomialMdl(self._labs)
+
+        # bandwidth
+        # np.log(2**32) = 22.18070977791825
+        param_mdl = 22.18070977791825 * n_uniq_labels
+        
+        mdl = param_mdl + lab_mdl.mdl + pts_mdl_sum
+
+        if ret_internal:
+            return (mdl, (pts_mdl_list, ulab_pts_mdl_sum_list, pts_mdl_sum, 
+                          lab_mdl, lab_mdl.mdl, param_mdl))
+        else:
+            return mdl
+
+
+class MIRCH(eda.SampleDistanceMatrix):
+    """
+    MIRCH: MDL iteratively regularized clustering based on hierarchy.
+    """
+    def __init__(self, x, d=None, metric=None, sids=None, fids=None, nprocs=None):
+        super(MIRCH, self).__init__(x=x, d=d, metric=metric, sids=sid, 
+                                    fids=fid, nprocs=nprocs)
+
+    # lower upper bound
+    # start, end, lb, ub should all be scalar
+    @staticmethod
+    def bidir_ReLU(x, start, end, lb=0, ub=1):
+        if start > end:
+            raise ValueError("start should <= end"
+                             "start: {}. end: {}.".format(start, end))
+
+        if lb > ub:
+            raise ValueError("lb should <= ub"
+                             "lower bound: {}. "
+                             "upper bound: {}. ".format(start, end))
+
+        if start < end:
+            width = end - start
+            height = ub - lb
+            return np.clip(a = height * (x - start) / width + lb,
+                           a_min=lb, a_max=ub)
+        else:
+            # start == end
+            return np.where(x >= start, ub, lb)
+
+    
+    # S-shaped function
+    # MDL upper bound of a homogenous cluster. 
+    #   Below -> stop slit. 
+    #   Above -> keep split.
+    # Upper bound is corrected by the clustering status. 
+    # if even split -> upper bound is not changed.
+    # if uneven split -> bigger sub-cl hMDL upper bound gets lower (more likely
+    #                    to be heterogenous)
+    #                 -> smaller sub-cl hMDL upper bound gets higher
+    # shrink_factor: if n >> minimax_n, more likely to split.
+    @staticmethod
+    def spl_mdl_ratio(ind_cl_n, n, no_spl_mdl, minimax_n=25):
+        if ind_cl_n >= n or ind_cl_n <= 0:
+            raise ValueError("ind_cl_n={} should < n={} and > 0".format(ind_cl_n, n))
+
+        if minimax_n <= 0:
+            raise ValueError("minimax_n shoud > 0. "
+                             "minimax_n: {}".format(minimax_n))
+
+        shrink_factor = MIRCH.bidir_ReLU(n / minimax_n, 2, 20)
+
+        ind_cl_r_to_n = ind_cl_n / n
+        ind_cl_r = (ind_cl_n - n/2) / (n/2)
+
+        if no_spl_mdl <= 0:
+            ind_cl_corrected_r = ((ind_cl_r
+                                   + ind_cl_r * (1 - np.abs(ind_cl_r))) / 2
+                                  + 0.5)
+        else:
+            ind_cl_corrected_r = ((1 - np.sqrt(-np.abs(ind_cl_r) + 1))
+                                  * np.sign(ind_cl_r) / 2 + 0.5)
+
+        shr_ind_cl_corrected_r = ((ind_cl_corrected_r - ind_cl_r_to_n)
+                                  * shrink_factor
+                                  + ind_cl_r_to_n)
+
+        shr_ind_cl_corrected_n = shr_ind_cl_corrected_r * n
+        if shr_ind_cl_corrected_n < 1:
+            shr_ind_cl_corrected_n = np.ceil(shr_ind_cl_corrected_n)
+        elif shr_ind_cl_corrected_n > n - 1:
+            shr_ind_cl_corrected_n = np.floor(shr_ind_cl_corrected_n)
+
+        return shr_ind_cl_corrected_r * (1 - 1 / shr_ind_cl_corrected_n)
+
+    # bisplit: split both subtrees if labeled mdl sum > threshold
+    # if n is large, bisplit threshold increases. Prefer splitting.
+    # maxmini_n: estimate of smallest large cluster size
+    # minimax_n: estimate of largest smallest cluster size
+    @staticmethod
+    def bi_split_compensation_factor(subtree_leaf_cnt, n, 
+                                     minimax_n, maxmini_n):
+        # compensation factor: large when iter_n >> minimax
+        # and iter_n close to n
+        if subtree_leaf_cnt <= 0:
+            raise ValueError("subtree_leaf_cnt shoud > 0. "
+                             "subtree_leaf_cnt: {}".format(subtree_leaf_cnt))
+        if subtree_leaf_cnt > n:
+            raise ValueError("subtree_leaf_cnt shoud < n. "
+                             "subtree_leaf_cnt: {}. n: {}".format(
+                                subtree_leaf_cnt, n))
+
+        if minimax_n <= 0:
+            raise ValueError("minimax_n shoud > 0. "
+                             "minimax_n: {}".format(minimax_n))
+
+        if maxmini_n <= 0:
+            raise ValueError("maxmini_n shoud > 0. "
+                             "maxmini_n: {}".format(maxmini_n))
+
+        if minimax_n > maxmini_n:
+            raise ValueError("minimax_n should be <= maxmini_n"
+                             "minimax_n={}"
+                             "maxmini_n={}".format(minimax_n, maxmini_n))
+
+        lin_grow_start_ratio = maxmini_n / minimax_n
+        lin_grow_end_ratio = lin_grow_start_ratio ** 2
+        ratio_linear_grow_width = lin_grow_end_ratio - lin_grow_start_ratio
+
+        stc_minimaxn_ratio = subtree_leaf_cnt / minimax_n
+        subtree_complexity = MIRCH.bidir_ReLU(stc_minimaxn_ratio, 
+                                              lin_grow_start_ratio, 
+                                              lin_grow_end_ratio)
+
+        split_progress_factor = ((subtree_leaf_cnt / n) ** 2)
+
+        subtree_sum_spl_comp_factor = (0.5 * subtree_complexity 
+                                       * split_progress_factor)
+        return subtree_sum_spl_comp_factor

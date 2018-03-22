@@ -287,8 +287,10 @@ class SingleLabelClassifiedSamples(SampleDistanceMatrix):
             raise ValueError("sids must have the same length as labs")
         self._labs = labs
 
+        self._uniq_labs = np.unique(labs)
+
         sid_lut = {}
-        for uniq_lab in np.unique(labs):
+        for uniq_lab in self._uniq_labs:
             sid_lut[uniq_lab] = self._sids[labs == uniq_lab]
         self._sid_lut = sid_lut
 
