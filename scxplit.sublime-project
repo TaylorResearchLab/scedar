@@ -24,7 +24,7 @@
 
         { 
           "name": "Generate Baseline Image",
-          "shell_cmd": "/Users/zhangy4/miniconda3/envs/py36/bin/python setup.py test --addopts --mpl-generate-path=tests/baseline_images",
+          "shell_cmd": "/Users/zhangy4/miniconda3/envs/py36/bin/python setup.py test --addopts \"--mpl-generate-path=tests/baseline_images --cov=scxplit\"",
         },
 
         {
