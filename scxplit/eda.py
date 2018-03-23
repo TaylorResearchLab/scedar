@@ -197,7 +197,7 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
         try:
             # Distance matrix diag vals should be close to 0.
             np.testing.assert_allclose(dmat[np.diag_indices(dmat.shape[0])], 0,
-                                       atol=1e-10)
+                                       atol=1e-5)
         except AssertionError as e:
             warnings.warn("distance matrix might not be numerically "
                           "correct. diag vals should be close to 0. {}".format(e))
@@ -205,7 +205,8 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
         try:
             # distance matrix should be approximately symmetric
             np.testing.assert_allclose(dmat[np.triu_indices_from(dmat)], 
-                                       dmat.T[np.triu_indices_from(dmat)])
+                                       dmat.T[np.triu_indices_from(dmat)],
+                                       rtol=0.001)
         except AssertionError as e:
             warnings.warn("distance matrix might not be numerically "
                           "correct. should be approximately symmetric. {}".format(e))
