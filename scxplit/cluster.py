@@ -64,8 +64,8 @@ class ZeroIdcGKdeMdl(object):
             float array of shape (n_samples) or (n_samples, n_features)
         bandwidth_method: 
             passed to scipy.stats.gaussian_kde param bw_method
-            'scott': Scott's rule of thumb.
-            'silverman': Silverman's rule of thumb.
+            "scott": Scott"s rule of thumb.
+            "silverman": Silverman"s rule of thumb.
             constant: constant will be timed by x.std(ddof=1) internally, 
                 because scipy times bw_method value by std. "Scipy weights its 
                 bandwidth by the ovariance of the input data" [3].
@@ -426,7 +426,7 @@ class MIRCH(object):
     """
     def __init__(self, x, d=None, metric=None, sids=None, fids=None, 
                  nprocs=1, cl_mdl_scale_factor=1, minimax_n=25,
-                 maxmini_n=None, linkage='complete',
+                 maxmini_n=None, linkage="complete",
                  is_euc_dist=False, verbose=False):
         super(MIRCH, self).__init__()
 
@@ -586,7 +586,7 @@ class MIRCH(object):
     # else:
     #     add_individual_cluster_as_a_final_cl
     def _mirch(self, cl_mdl_scale_factor=1, minimax_n=25,
-               maxmini_n=None, linkage='complete',
+               maxmini_n=None, linkage="complete",
                is_euc_dist=False, nprocs=1, verbose=False):
 
         # iterative hierarchical agglomerative clustering
@@ -648,19 +648,19 @@ class MIRCH(object):
                        * (self.spl_mdl_ratio(s_cnt, s_cnt, no_lab_mdl, 
                                              self._minimax_n)
                           + bi_spl_cmps_factor))):
-                    subtree_split_type = 'bi-spl'
+                    subtree_split_type = "bi-spl"
                     for st_ind in range(n_subtrees):
                         st_n = subtree_s_cnt_list[st_ind]
                         if st_n <= self._minimax_n:
                             final_s_inds += subtree_s_ind_list[st_ind]
                             final_labs += [curr_final_lab] * st_n
                             curr_final_lab += 1
-                            subtree_split_list.append('spl-minimax')
+                            subtree_split_list.append("spl-minimax")
                         else:
                             next_trees.append(subtrees[st_ind])
-                            subtree_split_list.append('spl')
+                            subtree_split_list.append("spl")
                 else:
-                    subtree_split_type = 'ind-spl'
+                    subtree_split_type = "ind-spl"
                     for st_ind in range(n_subtrees):
                         st_n = subtree_s_cnt_list[st_ind]
                         st_spl_ratio = self.spl_mdl_ratio(st_n, 
@@ -670,37 +670,37 @@ class MIRCH(object):
                         if (subtree_mdl_list[st_ind]
                             < (no_lab_mdl * st_spl_ratio)):
                             if st_n <= self._minimax_n:
-                                subtree_split_list.append('no-spl-minimax')
+                                subtree_split_list.append("no-spl-minimax")
                             else:
-                                subtree_split_list.append('no-spl')
+                                subtree_split_list.append("no-spl")
                         else:
                             if st_n <= self._minimax_n:
-                                subtree_split_list.append('spl-minimax')
+                                subtree_split_list.append("spl-minimax")
                             else:
-                                subtree_split_list.append('spl')
+                                subtree_split_list.append("spl")
                             
-                    # if both subcls are 'no-spl', add them together as a single cluster
+                    # if both subcls are "no-spl", add them together as a single cluster
                     if ( np.all(np.in1d(subtree_split_list, 
-                                        ('spl', 'spl-minimax')))
+                                        ("spl", "spl-minimax")))
                          or np.all(np.in1d(subtree_split_list, 
-                                          ('no-spl', 'no-spl-minimax'))) ):
+                                          ("no-spl", "no-spl-minimax"))) ):
                         final_s_inds += s_inds
                         final_labs += [curr_final_lab] * s_cnt
                         curr_final_lab += 1
                     else:
                         for st_ind in range(n_subtrees):
                             st_n = subtree_s_cnt_list[st_ind]
-                            if subtree_split_list[st_ind] in ('no-spl', 'no-spl-minimax'):
+                            if subtree_split_list[st_ind] in ("no-spl", "no-spl-minimax"):
                                 final_s_inds += subtree_s_ind_list[st_ind]
                                 final_labs += [curr_final_lab] * st_n
                                 curr_final_lab += 1
                             else:
-                                if subtree_split_list[st_ind] == 'spl-minimax':
+                                if subtree_split_list[st_ind] == "spl-minimax":
                                     final_s_inds += subtree_s_ind_list[st_ind]
                                     final_labs += [curr_final_lab] * st_n
                                     curr_final_lab += 1
                                 else:
-                                    # 'spl'
+                                    # "spl"
                                     next_trees.append(subtrees[st_ind])
 
                 if verbose:
