@@ -197,6 +197,87 @@ class TestHClustTree(object):
             cluster.HClustTree.cluster_id_list_to_lab_array(
                 [[0, 1, 2], [3,4]], [0, 1, 2, 3, 5])
 
+    def test_cluster_id_list_to_lab_array_empty_cluster(self):
+        with pytest.raises(ValueError) as excinfo:
+            cluster.HClustTree.cluster_id_list_to_lab_array(
+                [[], [0, 1, 2, 3, 4]], [0, 1, 2, 3, 4])
+
+class TestMDLSampleDistanceMatrix(object):
+    """docstring for TestMDLSampleDistanceMatrix"""
+    np.random.seed(5009)
+    x50x5 = np.vstack(( np.zeros((30,5)), np.random.ranf((20, 5)) ))
+    labs50 = [0]*10 + [1]*35 + [2]*5
+
+    def test_mdl_computation(self):
+        mdl_sdm = cluster.MDLSampleDistanceMatrix(
+            self.x50x5, labs=self.labs50, metric="euclidean")
+        no_lab_mdl = mdl_sdm.no_lab_mdl()
+        ulab_s_ind_l, ulab_cnt_l, ulab_mdl_l, cluster_mdl = mdl_sdm.lab_mdl()
+        assert ulab_s_ind_l == [list(range(10)), list(range(10, 45)),
+                                list(range(45, 50))]
+
+        ulab_cnt_l = [10, 35, 5]
+
+        for i in range(3):
+            ci_mdl = cluster.MDLSampleDistanceMatrix(
+                self.x50x5[ulab_s_ind_l[i], :], 
+                labs=[self.labs50[ii] for ii in ulab_s_ind_l[i]], 
+                metric="euclidean")
+
+            np.testing.assert_allclose(
+                ci_mdl.no_lab_mdl(), 
+                ulab_mdl_l[i] - cluster_mdl * ulab_cnt_l[i] / 50)
+
+    def test_mdl_computation_mp(self):
+        mdl_sdm = cluster.MDLSampleDistanceMatrix(
+            self.x50x5, labs=self.labs50, metric="euclidean")
+        no_lab_mdl = mdl_sdm.no_lab_mdl(nprocs=5)
+        ulab_s_ind_l, ulab_cnt_l, ulab_mdl_l, cluster_mdl = mdl_sdm.lab_mdl(
+            nprocs=5)
+        assert ulab_s_ind_l == [list(range(10)), list(range(10, 45)),
+                                list(range(45, 50))]
+
+        ulab_cnt_l = [10, 35, 5]
+
+        for i in range(3):
+            ci_mdl = cluster.MDLSampleDistanceMatrix(
+                self.x50x5[ulab_s_ind_l[i], :], 
+                labs=[self.labs50[ii] for ii in ulab_s_ind_l[i]], 
+                metric="euclidean")
+
+            np.testing.assert_allclose(
+                ci_mdl.no_lab_mdl(nprocs=5), 
+                ulab_mdl_l[i] - cluster_mdl * ulab_cnt_l[i] / 50)
+
+    def test_mdl_ret_internal(self):
+        mdl_sdm = cluster.MDLSampleDistanceMatrix(
+            self.x50x5, labs=self.labs50, metric="euclidean")
+
+        ulab_s_ind_l, ulab_cnt_l, ulab_mdl_l, cluster_mdl, mdl_l = mdl_sdm.lab_mdl(
+            ret_internal=True)
+        np.testing.assert_allclose(sum(mdl_l) + cluster_mdl, 
+                                   sum(ulab_mdl_l))
+
+        ulab_s_ind_l2, ulab_cnt_l2, ulab_mdl_l2, cluster_mdl2 = mdl_sdm.lab_mdl()
+        assert ulab_s_ind_l == ulab_s_ind_l2
+        assert ulab_cnt_l == ulab_cnt_l2
+        assert ulab_mdl_l == ulab_mdl_l2
+        assert cluster_mdl == cluster_mdl2
+    
+    def test_per_column_zigkmdl_wrong_xshape(self):
+        with pytest.raises(ValueError) as excinfo:
+            cluster.MDLSampleDistanceMatrix.per_column_zigkmdl(np.zeros(10))
+
+        with pytest.raises(ValueError) as excinfo:
+            cluster.MDLSampleDistanceMatrix.per_column_zigkmdl(
+                np.zeros((10, 10, 10)))
+
+    def test_per_column_zigkmdl_ret_internal(self):
+        mdl_sum = cluster.MDLSampleDistanceMatrix.per_column_zigkmdl(self.x50x5)
+        mdl_sum, mdl_l = cluster.MDLSampleDistanceMatrix.per_column_zigkmdl(
+            self.x50x5, ret_internal=True)
+        np.testing.assert_allclose(mdl_sum, sum(map(lambda x: x.mdl, mdl_l)))
+
 
 class TestMIRCH(object):
     """docstring for TestMIRCH"""
@@ -381,3 +462,7 @@ class TestMIRCH(object):
             cluster.MIRCH.bi_split_compensation_factor(100, 500, 2, -1)
         with pytest.raises(ValueError) as excinfo:
             cluster.MIRCH.bi_split_compensation_factor(100, 500, 2, 1)
+
+
+
+

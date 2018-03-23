@@ -280,6 +280,7 @@ class HClustTree(object):
         # according to id_arr [0, 1, 2, 3, 4]
 
         # checks uniqueness
+        # This guarantees that clusters are all non-empty
         eda.SampleFeatureMatrix.check_is_valid_sfids(sid_list)
 
         if type(cl_sid_list) != list:
@@ -299,10 +300,6 @@ class HClustTree(object):
         # iter_cl_ind : cluster index
         # iter_cl_sids: individual cluster list
         for iter_cl_ind, iter_cl_sids in enumerate(cl_sid_list):
-            if len(iter_cl_sids) <= 0:
-                raise ValueError("Clusters should have at least size of 1."
-                                 "cl_sid_list: {}".format(cl_sid_list))
-                
             for sid in iter_cl_sids:
                 cl_ind_lut[sid] = iter_cl_ind
 
@@ -358,12 +355,12 @@ class MDLSampleDistanceMatrix(eda.SingleLabelClassifiedSamples):
     def __init__(self, x, labs, sids=None, fids=None, 
                  d=None, metric="correlation", nprocs=None):
         super(MDLSampleDistanceMatrix, self).__init__(x=x, labs=labs, 
-                                                      sids=sid, fids=fid, 
+                                                      sids=sids, fids=fids, 
                                                       d=d, metric=metric, 
                                                       nprocs=nprocs)
 
     @staticmethod
-    def per_column_zigkmdl(x, nprocs=1, verbose=False):
+    def per_column_zigkmdl(x, nprocs=1, verbose=False, ret_internal=False):
         # verbose is not implemented
         if x.ndim != 2:
             raise ValueError("x should have shape (n_samples, n_features)."
@@ -378,18 +375,18 @@ class MDLSampleDistanceMatrix(eda.SingleLabelClassifiedSamples):
         else:
             col_mdl_list = list(map(lambda x1d: ZeroIdcGKdeMdl(x1d), x.T))
 
-        return col_mdl_list
-
-    def no_lab_mdl(self, nprocs=1, verbose=False, ret_internal=False):
-        # verbose is not implemented
-        col_mdl_list = self.per_column_zigkmdl(self._x, nprocs, verbose)
         col_mdl_sum = sum(map(lambda zkmdl: zkmdl.mdl, col_mdl_list))
         if ret_internal:
-            return (pc_zkmdl_sum, col_mdl_list)
+            return col_mdl_sum, col_mdl_list
         else:
-            return pc_zkmdl_sum
+            return col_mdl_sum
 
-    def lab_mdl(self, cl_mdl_scale_factor, nprocs=1, verbose=False, 
+    def no_lab_mdl(self, nprocs=1, verbose=False):
+        # verbose is not implemented
+        col_mdl_sum = self.per_column_zigkmdl(self._x, nprocs, verbose)
+        return col_mdl_sum
+
+    def lab_mdl(self, cl_mdl_scale_factor=1, nprocs=1, verbose=False, 
                 ret_internal=False):
         n_uniq_labs = self._uniq_labs.shape[0]
         ulab_s_ind_list = [np.where(self._labs == ulab)[0].tolist()
@@ -408,7 +405,7 @@ class MDLSampleDistanceMatrix(eda.SingleLabelClassifiedSamples):
         # - KDE bandwidth factors are encoded by 32bit float
         #   np.log(2**32) = 22.18070977791825
         # - scaled by factor
-        cluster_mdl = ( (MultinomialMdl(labs).mdl 
+        cluster_mdl = ( (MultinomialMdl(self._labs).mdl 
                          + 22.18070977791825 * n_uniq_labs)
                         * cl_mdl_scale_factor )
 
@@ -416,8 +413,8 @@ class MDLSampleDistanceMatrix(eda.SingleLabelClassifiedSamples):
                          for i in range(n_uniq_labs)]
 
         if ret_internal:
-            return (ulab_s_ind_list, self._uniq_lab_cnts, ulab_mdl_list, 
-                    cluster_mdl, pts_mdl_list)
+            return (ulab_s_ind_list, self._uniq_lab_cnts.tolist(), 
+                    ulab_mdl_list, cluster_mdl, pts_mdl_list)
         else:
             return (ulab_s_ind_list, self._uniq_lab_cnts.tolist(), 
                     ulab_mdl_list, cluster_mdl)
