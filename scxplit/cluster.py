@@ -93,8 +93,8 @@ class ZeroIdcGKdeMdl(object):
         self._bw_method = kde_bw_method
         
         if self._n != 0:
-            self._zi_mdl = self._compute_zi_mdl()
-            self._kde_mdl = self._compute_gaussian_kde_mdl()
+            self._zi_mdl = self._compute_zero_indicator_mdl()
+            self._kde_mdl = self._compute_non_zero_val_mdl()
             self._mdl = self._zi_mdl + self._kde_mdl
         else:
             self._zi_mdl = 0
@@ -123,7 +123,7 @@ class ZeroIdcGKdeMdl(object):
         else:
             return logdens
 
-    def _compute_zi_mdl(self):
+    def _compute_zero_indicator_mdl(self):
         if self._k == self._n or self._k == 0:
             zi_mdl = np.log(3)
         else:
@@ -132,25 +132,26 @@ class ZeroIdcGKdeMdl(object):
                       (self._n - self._k) * np.log(1-p))
         return zi_mdl
     
-    def _compute_gaussian_kde_mdl(self):
+    def _compute_non_zero_val_mdl(self):
         if self._k == 0:
             kde = None
             logdens = None
             bw_factor = None
             # no non-zery vals. Indicator encoded by zi mdl. 
             kde_mdl = 0
-        elif self._k == 1:
-            kde = None
-            logdens = None
-            bw_factor = None
-            # encode just single value or multiple values
-            kde_mdl = np.log(2)
         else:
-            logdens, kde = self.gaussian_kde_logdens(
-                self._x_nonzero, bandwidth_method=self._bw_method,
-                ret_kernel=True)
-            kde_mdl = -logdens.sum() + np.log(2)
-            bw_factor = kde.factor
+            try:
+                logdens, kde = self.gaussian_kde_logdens(
+                    self._x_nonzero, bandwidth_method=self._bw_method,
+                    ret_kernel=True)
+                kde_mdl = -logdens.sum() + np.log(2)
+                bw_factor = kde.factor
+            except Exception as e:
+                kde = None
+                logdens = None
+                bw_factor = None
+                # encode just single value or multiple values
+                kde_mdl = MultinomialMdl((self._x_nonzero * 100).astype(int)).mdl
         
         self._bw_factor = bw_factor
         self._kde = kde

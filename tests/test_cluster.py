@@ -82,7 +82,7 @@ class TestZeroIdcGKdeMdl(object):
     def test_one_nonzero(self):
         zikm = cluster.ZeroIdcGKdeMdl(self.x_one_nonzero)
         assert zikm.bandwidth is None
-        np.testing.assert_allclose(zikm.kde_mdl, np.log(2))
+        np.testing.assert_allclose(zikm.kde_mdl, np.log(1))
 
     def test_empty(self):
         zikm = cluster.ZeroIdcGKdeMdl(np.array([]))
