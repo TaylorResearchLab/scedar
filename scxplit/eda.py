@@ -18,19 +18,20 @@ import warnings
 
 from . import utils
 
+
 class SampleFeatureMatrix(object):
     """
-    SampleFeatureMatrix is a (n_samples, n_features) matrix. 
+    SampleFeatureMatrix is a (n_samples, n_features) matrix.
     In this package, we are only interested in float features as measured
-    expression levels. 
+    expression levels.
     Parameters
     ----------
     x : ndarray or list
         data matrix (n_samples, n_features)
     sids : homogenous list of int or string
-        sample ids. Should not contain duplicated elements. 
+        sample ids. Should not contain duplicated elements.
     fids : homogenous list of int or string
-        feature ids. Should not contain duplicated elements. 
+        feature ids. Should not contain duplicated elements.
 
     Attributes:
     -----------
@@ -45,6 +46,7 @@ class SampleFeatureMatrix(object):
 
     Methods defined here:
     """
+
     def __init__(self, x, sids=None, fids=None):
         super(SampleFeatureMatrix, self).__init__()
         if x is None:
@@ -54,7 +56,7 @@ class SampleFeatureMatrix(object):
                 x = np.array(x, dtype="float64")
             except ValueError as e:
                 raise ValueError("Features must be float. {}".format(e))
-            
+
             if x.ndim != 2:
                 raise ValueError("x has shape (n_samples, n_features)")
 
@@ -134,9 +136,9 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
     metric : string
         distance metric
     sids : homogenous list of int or string
-        sample ids. Should not contain duplicated elements. 
+        sample ids. Should not contain duplicated elements.
     fids : homogenous list of int or string
-        feature ids. Should not contain duplicated elements. 
+        feature ids. Should not contain duplicated elements.
     nprocs : int
         the number of processes for computing pairwise distance matrix
 
@@ -153,7 +155,8 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
     _fids : ndarray
         sample ids.
     """
-    def __init__(self, x, d=None, metric="correlation", 
+
+    def __init__(self, x, d=None, metric="correlation",
                  sids=None, fids=None, nprocs=None):
         super(SampleDistanceMatrix, self).__init__(x=x, sids=sids, fids=fids)
 
@@ -162,10 +165,11 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
                 d = np.array(d, dtype="float64")
             except ValueError as e:
                 raise ValueError("d must be float. {}".format(e))
-            
-            if ((d.ndim != 2) 
-                or (d.shape[0] != d.shape[1]) 
-                or (d.shape[0] != self._x.shape[0])):
+
+            if ((d.ndim != 2) or
+                (d.shape[0] != d.shape[1]) or
+                (d.shape[0] != self._x.shape[0])):
+                # check provided distance matrix shape
                 raise ValueError("d should have shape (n_samples, n_samples)")
 
             d = self.num_correct_dist_mat(d)
@@ -185,9 +189,10 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
     # numerically correct dmat
     @staticmethod
     def num_correct_dist_mat(dmat, upper_bound=None):
-        if ((not isinstance(dmat, np.ndarray))
-            or (dmat.ndim != 2)
-            or (dmat.shape[0] != dmat.shape[1])):
+        if ((not isinstance(dmat, np.ndarray)) or
+            (dmat.ndim != 2) or
+            (dmat.shape[0] != dmat.shape[1])):
+            # check distance matrix shape
             raise ValueError("dmat must be a 2D (n_samples, n_samples)"
                              " np array")
 
@@ -198,16 +203,16 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
         except AssertionError as e:
             warnings.warn("distance matrix might not be numerically "
                           "correct. diag vals should be close to 0. {}".format(e))
-        
+
         try:
             # distance matrix should be approximately symmetric
-            np.testing.assert_allclose(dmat[np.triu_indices_from(dmat)], 
+            np.testing.assert_allclose(dmat[np.triu_indices_from(dmat)],
                                        dmat.T[np.triu_indices_from(dmat)],
                                        rtol=0.001)
         except AssertionError as e:
             warnings.warn("distance matrix might not be numerically "
                           "correct. should be approximately symmetric. {}".format(e))
-        
+
         dmat[dmat < 0] = 0
         dmat[np.diag_indices(dmat.shape[0])] = 0
         if upper_bound is not None:
@@ -218,7 +223,7 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
         return dmat
 
     # store_res : bool. Wheter to keep the tsne results in a dictionalry keyed
-    # by the parameters. 
+    # by the parameters.
     def tsne(self, store_res=True, **kwargs):
         if ("metric" in kwargs) and (kwargs["metric"] not in ("precomputed", self._metric)):
             raise ValueError("If you want to calculate t-SNE of a different "
@@ -233,7 +238,7 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
             curr_store_ind = len(self._tsne_lut) + 1
             self._tsne_lut[str(kwargs)
                            + " stored run {}".format(curr_store_ind)] = tsne_res.copy()
-        
+
         return tsne_res
 
     @property
@@ -244,8 +249,8 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
     def _d(self):
         if self._lazy_load_d is None:
             self._lazy_load_d = self.num_correct_dist_mat(
-                skl.metrics.pairwise.pairwise_distances(self._x, 
-                                                        metric=self._metric, 
+                skl.metrics.pairwise.pairwise_distances(self._x,
+                                                        metric=self._metric,
                                                         n_jobs=self._nprocs))
         return self._lazy_load_d
 
@@ -256,37 +261,37 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
     @property
     def tsne_lut(self):
         return dict((key, val.copy()) for key, val in self._tsne_lut.items())
-    
+
 
 # x : (n_samples, n_features) or (n_samples, n_samples)
 # If metric is 'precomputed', x must be a pairwise distance matrix
-def tsne(x, n_components=2, perplexity=30.0, early_exaggeration=12.0, 
-         learning_rate=200.0, n_iter=1000, n_iter_without_progress=300, 
-         min_grad_norm=1e-07, metric="euclidean", init="random", verbose=0, 
+def tsne(x, n_components=2, perplexity=30.0, early_exaggeration=12.0,
+         learning_rate=200.0, n_iter=1000, n_iter_without_progress=300,
+         min_grad_norm=1e-07, metric="euclidean", init="random", verbose=0,
          random_state=None, method="barnes_hut", angle=0.5):
-    x_tsne = sklearn.manifold.TSNE(n_components=n_components, 
-                                   perplexity=perplexity, 
-                                   early_exaggeration=early_exaggeration, 
-                                   learning_rate=learning_rate, n_iter=n_iter, 
-                                   n_iter_without_progress=n_iter_without_progress, 
-                                   min_grad_norm=min_grad_norm, metric=metric, 
-                                   init=init, verbose=verbose, 
-                                   random_state=random_state, method=method, 
+    x_tsne = sklearn.manifold.TSNE(n_components=n_components,
+                                   perplexity=perplexity,
+                                   early_exaggeration=early_exaggeration,
+                                   learning_rate=learning_rate, n_iter=n_iter,
+                                   n_iter_without_progress=n_iter_without_progress,
+                                   min_grad_norm=min_grad_norm, metric=metric,
+                                   init=init, verbose=verbose,
+                                   random_state=random_state, method=method,
                                    angle=angle).fit_transform(x)
     return x_tsne
-
 
 
 class SingleLabelClassifiedSamples(SampleDistanceMatrix):
     """docstring for SingleLabelClassifiedSamples"""
     # sid, lab, fid, x
-    def __init__(self, x, labs, sids=None, fids=None, d=None, 
+
+    def __init__(self, x, labs, sids=None, fids=None, d=None,
                  metric="correlation", nprocs=None):
         # sids: sample IDs. String or int.
-        # labs: sample classified labels. String or int. 
+        # labs: sample classified labels. String or int.
         # x: (n_samples, n_features)
-        super(SingleLabelClassifiedSamples, self).__init__(x=x, d=d, 
-                                                           metric=metric, 
+        super(SingleLabelClassifiedSamples, self).__init__(x=x, d=d,
+                                                           metric=metric,
                                                            sids=sids, fids=fids,
                                                            nprocs=nprocs)
         self.check_is_valid_labs(labs)
@@ -295,7 +300,7 @@ class SingleLabelClassifiedSamples(SampleDistanceMatrix):
             raise ValueError("sids must have the same length as labs")
         self._labs = labs
 
-        self._uniq_labs, self._uniq_lab_cnts = np.unique(labs, 
+        self._uniq_labs, self._uniq_lab_cnts = np.unique(labs,
                                                          return_counts=True)
 
         sid_lut = {}
@@ -321,7 +326,7 @@ class SingleLabelClassifiedSamples(SampleDistanceMatrix):
 
         if type(labs) != list:
             raise ValueError("labs must be a homogenous list of int or str")
-        
+
         if len(labs) == 0:
             raise ValueError("labs cannot be empty")
 
@@ -334,30 +339,33 @@ class SingleLabelClassifiedSamples(SampleDistanceMatrix):
         labs = np.array(labs)
         assert labs.ndim == 1, "Labels must be 1D"
         assert labs.shape[0] > 0
-        
+
     def filter_min_class_n(self, min_class_n):
         uniq_lab_cnts = np.unique(self._labs, return_counts=True)
-        nf_sid_ind = np.in1d(self._labs, 
+        nf_sid_ind = np.in1d(self._labs,
                              (uniq_lab_cnts[0])[uniq_lab_cnts[1] >= min_class_n])
-        return SingleLabelClassifiedSamples(x=self._x[nf_sid_ind], 
-                                            labs=self._labs[nf_sid_ind].tolist(),
-                                            d=self._d[np.ix_(nf_sid_ind, nf_sid_ind)],
-                                            sids=self._sids[nf_sid_ind].tolist(),
-                                            fids=self._fids.tolist(), 
-                                            metric=self._metric)
+        return SingleLabelClassifiedSamples(x=self._x[nf_sid_ind],
+                                            labs=self._labs[nf_sid_ind].tolist(
+        ),
+            d=self._d[np.ix_(
+                nf_sid_ind, nf_sid_ind)],
+            sids=self._sids[nf_sid_ind].tolist(
+        ),
+            fids=self._fids.tolist(),
+            metric=self._metric)
 
     def labs_to_sids(self, labs):
         return tuple(tuple(self._sid_lut[y].tolist()) for y in labs)
 
     def sids_to_labs(self, sids):
         return np.array([self._lab_lut[x] for x in sids])
-    
+
     @property
     def labs(self):
         return self._labs.tolist()
-    
-    # Sort the clustered sample_ids with the reference order of another. 
-    # 
+
+    # Sort the clustered sample_ids with the reference order of another.
+    #
     # Sort sids according to labs
     # If ref_sid_order is not None:
     #   sort sids further according to ref_sid_order
@@ -376,6 +384,7 @@ class SingleLabelClassifiedSamples(SampleDistanceMatrix):
             # assumes:
             # - r contains all elements in q
             # - r is 1d np array
+
             def sort_flat_sids(query_sids, ref_sids):
                 return ref_sids[np.in1d(ref_sids, query_sids)]
 
@@ -387,38 +396,42 @@ class SingleLabelClassifiedSamples(SampleDistanceMatrix):
                                                               ref_sid_order))
             min_sid_sorted_sep_lab_ind_list = [sep_lab_min_sid_list.index(x)
                                                for x in sorted_sep_lab_min_sid_list]
-            sep_lab_list = [sep_lab_list[i] for i in min_sid_sorted_sep_lab_ind_list]
-            sep_lab_sid_list = [sep_lab_sid_list[i] for i in min_sid_sorted_sep_lab_ind_list]
+            sep_lab_list = [sep_lab_list[i]
+                            for i in min_sid_sorted_sep_lab_ind_list]
+            sep_lab_sid_list = [sep_lab_sid_list[i]
+                                for i in min_sid_sorted_sep_lab_ind_list]
 
         lab_sorted_sid_arr = np.concatenate(sep_lab_sid_list)
         lab_sorted_lab_arr = np.concatenate(sep_lab_list)
-        
-        # check sorted sids are the same set as original    
-        np.testing.assert_array_equal(np.sort(lab_sorted_sid_arr), np.sort(self._sids))
+
+        # check sorted sids are the same set as original
+        np.testing.assert_array_equal(
+            np.sort(lab_sorted_sid_arr), np.sort(self._sids))
         # check sorted labs are the same set as original
-        np.testing.assert_array_equal(np.sort(lab_sorted_lab_arr), np.sort(self._labs))
+        np.testing.assert_array_equal(
+            np.sort(lab_sorted_lab_arr), np.sort(self._labs))
         # check sorted (sid, lab) matchings are the same set as original
-        np.testing.assert_array_equal(lab_sorted_lab_arr[np.argsort(lab_sorted_sid_arr)], 
+        np.testing.assert_array_equal(lab_sorted_lab_arr[np.argsort(lab_sorted_sid_arr)],
                                       self._labs[np.argsort(self._sids)])
 
         return (lab_sorted_sid_arr, lab_sorted_lab_arr)
 
     # See how two clustering criteria match with each other.
-    # When given q_slc_samples is not None, sids and labs are ignored. 
+    # When given q_slc_samples is not None, sids and labs are ignored.
     # When q_slc_samples is None, sids and labs must be provided
     def cross_labs(self, q_slc_samples):
         if not isinstance(q_slc_samples, SingleLabelClassifiedSamples):
             raise TypeError("Query should be an instance of "
                             "SingleLabelClassifiedSamples")
-        
+
         try:
-            ref_labs = np.array([self._lab_lut[x] 
+            ref_labs = np.array([self._lab_lut[x]
                                  for x in q_slc_samples.sids])
         except KeyError as e:
             raise ValueError("query sid {} is not in ref sids.".format(e))
 
         query_labs = np.array(q_slc_samples.labs)
-        
+
         uniq_rlabs, uniq_rlab_cnts = np.unique(ref_labs, return_counts=True)
         cross_lab_lut = {}
         for i in range(len(uniq_rlabs)):
@@ -426,7 +439,7 @@ class SingleLabelClassifiedSamples(SampleDistanceMatrix):
             ref_ci_quniq = tuple(map(list, np.unique(
                 query_labs[np.where(np.array(ref_labs) == uniq_rlabs[i])],
                 return_counts=True)))
-            cross_lab_lut[uniq_rlabs[i]] = (uniq_rlab_cnts[i], 
+            cross_lab_lut[uniq_rlabs[i]] = (uniq_rlab_cnts[i],
                                             tuple(map(tuple, ref_ci_quniq)))
 
         return cross_lab_lut
@@ -445,19 +458,19 @@ class SingleLabelClassifiedSamples(SampleDistanceMatrix):
         if return_lut:
             uniq_lab_lut = dict(zip(range(num_uniq_labs), uniq_lab_arr))
             uniq_ind_lut = dict(zip(uniq_lab_arr, range(num_uniq_labs)))
-            
+
             lab_ind_arr = np.array([uniq_ind_lut[x] for x in labels])
 
-            lab_col_lut = dict(zip([uniq_lab_lut[i] 
+            lab_col_lut = dict(zip([uniq_lab_lut[i]
                                     for i in range(len(uniq_lab_arr))],
                                    lab_col_list))
             return (lab_cmap, lab_ind_arr, lab_col_lut, uniq_lab_lut)
         else:
             return lab_cmap
-    
 
-def cluster_scatter(tsne, labels=None, title=None, xlab=None, ylab=None, 
-                    figsize=(20, 20), add_legend=True, n_txt_per_cluster=3, 
+
+def cluster_scatter(tsne, labels=None, title=None, xlab=None, ylab=None,
+                    figsize=(20, 20), add_legend=True, n_txt_per_cluster=3,
                     alpha=1, s=0.5, random_state=None, **kwargs):
     tsne = np.array(tsne, dtype="float")
 
@@ -471,21 +484,22 @@ def cluster_scatter(tsne, labels=None, title=None, xlab=None, ylab=None,
         SingleLabelClassifiedSamples.check_is_valid_labs(labels)
         labels = np.array(labels)
         if labels.shape[0] != tsne.shape[0]:
-            raise ValueError("nrow(tsne matrix) should be equal to len(labels)")
+            raise ValueError(
+                "nrow(tsne matrix) should be equal to len(labels)")
 
         uniq_labels = np.unique(labels)
-        color_lut = dict(zip(uniq_labels, 
+        color_lut = dict(zip(uniq_labels,
                              sns.color_palette("hls", len(uniq_labels))))
 
-        ax.scatter(tsne[:, 0], tsne[:, 1], 
+        ax.scatter(tsne[:, 0], tsne[:, 1],
                    c=tuple(map(lambda cl: color_lut[cl], labels)),
-                   s=s, alpha = alpha, **kwargs)
+                   s=s, alpha=alpha, **kwargs)
         # randomly select labels for annotation
         if random_state is not None:
             np.random.seed(random_state)
-        
-        anno_ind = np.concatenate([np.random.choice(np.where(labels == ulab)[0], 
-                                                    n_txt_per_cluster) 
+
+        anno_ind = np.concatenate([np.random.choice(np.where(labels == ulab)[0],
+                                                    n_txt_per_cluster)
                                    for ulab in uniq_labels])
 
         for i in map(int, anno_ind):
@@ -494,23 +508,23 @@ def cluster_scatter(tsne, labels=None, title=None, xlab=None, ylab=None,
         # Shrink current axis by 20%
         if add_legend:
             box = ax.get_position()
-            ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])        
-            ax.legend(handles=tuple(mpl.patches.Patch(color=color_lut[ulab], 
+            ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
+            ax.legend(handles=tuple(mpl.patches.Patch(color=color_lut[ulab],
                                                       label=ulab)
-                                    for ulab in uniq_labels), 
+                                    for ulab in uniq_labels),
                       bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
     else:
-        ax.scatter(tsne[:, 0], tsne[:, 1], s=s, alpha = alpha, **kwargs)
+        ax.scatter(tsne[:, 0], tsne[:, 1], s=s, alpha=alpha, **kwargs)
 
     if title is not None:
         ax.set_title(title)
-    
+
     if xlab is not None:
         ax.set_xlabel(xlab)
 
     if ylab is not None:
         ax.set_ylabel(ylab)
-            
+
     return fig
 
 
@@ -528,7 +542,7 @@ def heatmap(x, row_labels=None, col_labels=None, title=None, xlab=None,
         if len(row_labels) != x.shape[0]:
             raise ValueError("length of row_labels should be the same as the "
                              "number of rows in x."
-                             " row_labels: {}. x: {}".format(len(row_labels), 
+                             " row_labels: {}. x: {}".format(len(row_labels),
                                                              x.shape))
 
     if col_labels is not None:
@@ -538,7 +552,7 @@ def heatmap(x, row_labels=None, col_labels=None, title=None, xlab=None,
                              "number of rows in x."
                              " col_labels: {}. x: {}".format(len(col_labels),
                                                              x.shape))
-    
+
     if "interpolation" not in kwargs:
         kwargs["interpolation"] = "nearest"
 
@@ -620,7 +634,6 @@ def heatmap(x, row_labels=None, col_labels=None, title=None, xlab=None,
                 lgd_axs[i].legend(handles=lgd_patches, loc="center", ncol=6)
             else:
                 # row color legend
-                lgd_axs[i].legend(handles=lgd_patches, loc="upper center", 
+                lgd_axs[i].legend(handles=lgd_patches, loc="upper center",
                                   ncol=1)
     return fig
-
