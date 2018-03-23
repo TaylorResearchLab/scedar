@@ -1,5 +1,5 @@
-__all__ = ['eda', 'iterhac', 'utils']
+__all__ = ['eda', 'cluster', 'utils']
 
 from . import eda
-from . import iterhac
+from . import cluster
 from . import utils
