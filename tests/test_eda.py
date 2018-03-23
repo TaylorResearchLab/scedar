@@ -431,9 +431,19 @@ class TestSingleLabelClassifiedSamples(object):
         slab_csamples = eda.SingleLabelClassifiedSamples(np.random.ranf(60).reshape(6, -1), 
                                                          labs, sids, None)
         min_cl_n = 2
-        mcnf_sids, mcnf_labs = slab_csamples.filter_min_class_n(min_cl_n)
-        np.testing.assert_equal(mcnf_sids, np.array([0, 1, 2, 4, 5]))
-        np.testing.assert_equal(mcnf_labs, np.array([0, 0, 0, 2, 2]))
+        mcnf_slab_csamples = slab_csamples.filter_min_class_n(min_cl_n)
+        np.testing.assert_equal(mcnf_slab_csamples.sids, 
+                                np.array([0, 1, 2, 4, 5]))
+        np.testing.assert_equal(mcnf_slab_csamples.labs, 
+                                np.array([0, 0, 0, 2, 2]))
+        np.testing.assert_equal(mcnf_slab_csamples._x.shape, 
+                                (5, 10))
+        np.testing.assert_equal(mcnf_slab_csamples.fids, 
+                                slab_csamples.fids)
+        np.testing.assert_equal(mcnf_slab_csamples._x, 
+                                slab_csamples._x[np.array([0, 1, 2, 4, 5])])
+        np.testing.assert_equal(mcnf_slab_csamples._d, 
+                                slab_csamples._d[np.array([0, 1, 2, 4, 5])][:, np.array([0, 1, 2, 4, 5])])
 
     def test_cross_labs(self):
         rsids = [0, 1, 2, 3, 4]
