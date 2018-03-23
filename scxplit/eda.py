@@ -3,6 +3,7 @@ import scipy.spatial
 import sklearn.manifold
 
 import matplotlib as mpl
+mpl.use('agg')
 import matplotlib.pyplot as plt
 import matplotlib.colors
 import matplotlib.patches
