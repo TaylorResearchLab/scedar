@@ -272,8 +272,8 @@ def tsne(x, n_components=2, perplexity=30.0, early_exaggeration=12.0,
 class SingleLabelClassifiedSamples(SampleDistanceMatrix):
     """docstring for SingleLabelClassifiedSamples"""
     # sid, lab, fid, x
-    def __init__(self, x, labs, sids=None, fids=None, 
-                 d=None, metric="correlation", nprocs=None):
+    def __init__(self, x, labs, sids=None, fids=None, d=None, 
+                 metric="correlation", nprocs=None):
         # sids: sample IDs. String or int.
         # labs: sample classified labels. String or int. 
         # x: (n_samples, n_features)
@@ -287,7 +287,8 @@ class SingleLabelClassifiedSamples(SampleDistanceMatrix):
             raise ValueError("sids must have the same length as labs")
         self._labs = labs
 
-        self._uniq_labs = np.unique(labs)
+        self._uniq_labs, self._uniq_lab_cnts = np.unique(labs, 
+                                                         return_counts=True)
 
         sid_lut = {}
         for uniq_lab in self._uniq_labs:

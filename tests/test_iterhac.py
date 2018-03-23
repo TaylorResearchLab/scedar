@@ -165,13 +165,17 @@ class TestHClustTree(object):
 
     def test_bi_partition(self):
         # return subtrees False
-        clabs1, cids1 = self.hct.bi_partition()
+        labs1, sids1 = self.hct.bi_partition()
 
         # return subtrees True
-        clasb2, cids2, lst, rst = self.hct.bi_partition(return_subtrees=True)
+        labs2, sids2, lst, rst = self.hct.bi_partition(return_subtrees=True)
 
-        assert clabs1 == clasb2
-        assert cids1 == cids2
+        np.testing.assert_equal(labs1, [0, 0, 1, 1, 1])
+        np.testing.assert_equal(sids1, [0, 2, 4, 1, 3])
+        np.testing.assert_equal(sids1, self.hct.leaf_ids())
+        
+        assert labs1 == labs2
+        assert sids1 == sids2
 
         assert lst.count() == 2
         assert lst.left_count() == 1
@@ -183,14 +187,14 @@ class TestHClustTree(object):
         assert rst.right_leaf_ids() == [1, 3]
         assert rst.left_leaf_ids() == [4]
 
-    def test_cluster_id_list_to_clab_array_wrong_id_list_type(self):
+    def test_cluster_id_list_to_lab_array_wrong_id_list_type(self):
         with pytest.raises(ValueError) as excinfo:
-            ihac.HClustTree.cluster_id_list_to_clab_array(
+            ihac.HClustTree.cluster_id_list_to_lab_array(
                 np.array([[0, 1, 2], [3,4]]), [0, 1, 2, 3, 4])
 
-    def test_cluster_id_list_to_clab_array_mismatched_ids_cids(self):
+    def test_cluster_id_list_to_lab_array_mismatched_ids_sids(self):
         with pytest.raises(ValueError) as excinfo:
-            ihac.HClustTree.cluster_id_list_to_clab_array(
+            ihac.HClustTree.cluster_id_list_to_lab_array(
                 [[0, 1, 2], [3,4]], [0, 1, 2, 3, 5])
 
 
