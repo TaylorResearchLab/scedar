@@ -153,23 +153,11 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
     _fids : ndarray
         sample ids.
     """
-    def __init__(self, x, d=None, metric=None, sids=None, fids=None, nprocs=None):
+    def __init__(self, x, d=None, metric="correlation", 
+                 sids=None, fids=None, nprocs=None):
         super(SampleDistanceMatrix, self).__init__(x=x, sids=sids, fids=fids)
 
-        if d is None:
-            if metric is None:
-                raise ValueError("If d is None, metric must be provided.")
-            elif type(metric) != str:
-                raise ValueError("metric must be string")
-
-            if nprocs is None:
-                nprocs = 1
-            else:
-                nprocs = max(int(nprocs), 1)
-
-            d = skl.metrics.pairwise.pairwise_distances(x, metric=metric, 
-                                                        n_jobs=nprocs)
-        else:
+        if d is not None:
             try:
                 d = np.array(d, dtype="float64")
             except ValueError as e:
@@ -179,9 +167,18 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
                 or (d.shape[0] != d.shape[1]) 
                 or (d.shape[0] != self._x.shape[0])):
                 raise ValueError("d should have shape (n_samples, n_samples)")
-        
-        d = self.num_correct_dist_mat(d)
-        self._d = d
+
+            d = self.num_correct_dist_mat(d)
+        else:
+            if metric == "precomputed":
+                raise ValueError("metric cannot be precomputed when "
+                                 "d is None.")
+        if nprocs is None:
+            self._nprocs = 1
+        else:
+            self._nprocs = max(int(nprocs), 1)
+
+        self._lazy_load_d = d
         self._tsne_lut = {}
         self._metric = metric
 
@@ -242,6 +239,15 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
     @property
     def d(self):
         return self._d.tolist()
+
+    @property
+    def _d(self):
+        if self._lazy_load_d is None:
+            self._lazy_load_d = self.num_correct_dist_mat(
+                skl.metrics.pairwise.pairwise_distances(self._x, 
+                                                        metric=self._metric, 
+                                                        n_jobs=self._nprocs))
+        return self._lazy_load_d
 
     @property
     def metric(self):

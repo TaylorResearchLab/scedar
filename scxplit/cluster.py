@@ -627,8 +627,7 @@ class MIRCH(object):
                 
                 mdl_sdm = MDLSampleDistanceMatrix(
                     x=self._sdm._x[s_inds, :],
-                    labs=labs, 
-                    d=self._sdm._d[np.ix_(s_inds, s_inds)],
+                    labs=labs,
                     metric=self._sdm._metric)
 
                 no_lab_mdl = mdl_sdm.no_lab_mdl(nprocs, verbose=verbose)

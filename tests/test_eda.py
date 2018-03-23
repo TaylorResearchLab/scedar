@@ -196,20 +196,31 @@ class TestSampleDistanceMatrix(object):
         sdm5 = eda.SampleDistanceMatrix(self.x_3x2, dist_mat, metric='euclidean')
 
     def test_init_wrong_metric(self):
+        # when d is None, metric cannot be precomputed
         with pytest.raises(Exception) as excinfo:
-            eda.SampleDistanceMatrix(self.x_3x2)
+            eda.SampleDistanceMatrix(self.x_3x2, metric='precomputed')
 
+        # lazy load d
+        eda.SampleDistanceMatrix(self.x_3x2, metric='unknown')
         with pytest.raises(Exception) as excinfo:
-            eda.SampleDistanceMatrix(self.x_3x2, metric=1)
+            eda.SampleDistanceMatrix(self.x_3x2, metric='unknown').d
 
-        with pytest.raises(Exception) as excinfo:
-            eda.SampleDistanceMatrix(self.x_3x2, metric=1.)
 
+        eda.SampleDistanceMatrix(self.x_3x2, metric=1)
         with pytest.raises(Exception) as excinfo:
-            eda.SampleDistanceMatrix(self.x_3x2, metric=('euclidean', ))
+            eda.SampleDistanceMatrix(self.x_3x2, metric=1).d
 
+        eda.SampleDistanceMatrix(self.x_3x2, metric=1.)
         with pytest.raises(Exception) as excinfo:
-            eda.SampleDistanceMatrix(self.x_3x2, metric=['euclidean'])
+            eda.SampleDistanceMatrix(self.x_3x2, metric=1.).d
+
+        eda.SampleDistanceMatrix(self.x_3x2, metric=('euclidean', ))
+        with pytest.raises(Exception) as excinfo:
+            eda.SampleDistanceMatrix(self.x_3x2, metric=('euclidean', )).d
+
+        eda.SampleDistanceMatrix(self.x_3x2, metric=['euclidean'])
+        with pytest.raises(Exception) as excinfo:
+            eda.SampleDistanceMatrix(self.x_3x2, metric=['euclidean']).d
 
     def test_init_wrong_d_type(self):
         d_3x3 = np.array([[0, np.sqrt(2), np.sqrt(8)],
