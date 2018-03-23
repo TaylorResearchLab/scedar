@@ -425,18 +425,19 @@ class MIRCH(object):
     MIRCH: MDL iteratively regularized clustering based on hierarchy.
     """
     def __init__(self, x, d=None, metric=None, sids=None, fids=None, 
-                 nprocs=None, cl_mdl_scale_factor=1, minimax_n=25,
+                 nprocs=1, cl_mdl_scale_factor=1, minimax_n=25,
                  maxmini_n=None, linkage='complete',
                  is_euc_dist=False, verbose=False):
         super(MIRCH, self).__init__()
 
-        if nprocs is None:
-            nprocs = 1
-        else:
-            nprocs = int(np.ceil(nprocs))
+        nprocs = int(np.ceil(nprocs))
 
-        self._sdm = eda.SampleDistanceMatrix(x=x, d=d, metric=metric, sids=sid, 
-                                             fids=fid, nprocs=nprocs)
+        self._sdm = eda.SampleDistanceMatrix(x=x, d=d, metric=metric, sids=sids, 
+                                             fids=fids, nprocs=nprocs)
+
+        if cl_mdl_scale_factor < 0:
+            raise ValueError("cl_mdl_scale_factor should >= 0",
+                             "cl_mdl_scale_factor: {}".format(cl_mdl_scale_factor))
 
         # assert minimax_n > 0
         minimax_n = int(minimax_n)
@@ -456,7 +457,10 @@ class MIRCH(object):
 
         self._minimax_n = minimax_n
         self._maxmini_n = maxmini_n
-
+        self._cluster_s_ind, self._cluster_labs = self._mirch(
+            cl_mdl_scale_factor=cl_mdl_scale_factor, 
+            minimax_n=minimax_n, maxmini_n=maxmini_n, linkage=linkage,
+           is_euc_dist=is_euc_dist, nprocs=nprocs, verbose=verbose)
 
     # lower upper bound
     # start, end, lb, ub should all be scalar
@@ -493,8 +497,9 @@ class MIRCH(object):
     # shrink_factor: if n >> minimax_n, more likely to split.
     @staticmethod
     def spl_mdl_ratio(ind_cl_n, n, no_spl_mdl, minimax_n=25):
-        if ind_cl_n >= n or ind_cl_n <= 0:
-            raise ValueError("ind_cl_n={} should < n={} and > 0".format(ind_cl_n, n))
+        if ind_cl_n > n or ind_cl_n <= 0:
+            raise ValueError("ind_cl_n={} should <= n={} and > 0".format(
+                ind_cl_n, n))
 
         if minimax_n <= 0:
             raise ValueError("minimax_n shoud > 0. "
@@ -593,24 +598,6 @@ class MIRCH(object):
 
         n_samples = self._sdm._x.shape[0]
         n_features = self._sdm._x.shape[1]
-        if cl_mdl_scale_factor < 0:
-            raise ValueError("cl_mdl_scale_factor should >= 0",
-                             "cl_mdl_scale_factor: {}".format(cl_mdl_scale_factor))
-
-        # assert minimax_n > 0
-        if minimax_n <= 0:
-            raise ValueError("minimax_n shoud > 0. "
-                             "minimax_n: {}".format(minimax_n))
-
-        minimax_n = int(np.ceil(minimax_n))
-        if maxmini_n is not None:
-            # assert maxmini_n >= minimax_n
-            if minimax_n > maxmini_n:
-                raise ValueError("minimax_n should be <= maxmini_n"
-                                 "minimax_n={}"
-                                 "maxmini_n={}".format(minimax_n, maxmini_n))
-        else:
-            maxmini_n = 10 * minimax_n
 
         hac_tree = HClustTree.hclust_tree(self._sdm._d, linkage=linkage, 
                                           is_euc_dist=is_euc_dist, 
@@ -641,7 +628,7 @@ class MIRCH(object):
                     x=self._sdm._x[s_inds, :],
                     labs=labs, 
                     d=self._sdm._d[np.ix_(s_inds, s_inds)],
-                    metric=self._metric)
+                    metric=self._sdm._metric)
 
                 no_lab_mdl = mdl_sdm.no_lab_mdl(nprocs, verbose=verbose)
 
@@ -663,7 +650,7 @@ class MIRCH(object):
                           + bi_spl_cmps_factor))):
                     subtree_split_type = 'bi-spl'
                     for st_ind in range(n_subtrees):
-                        st_n = subtree_n_list[st_ind]
+                        st_n = subtree_s_cnt_list[st_ind]
                         if st_n <= self._minimax_n:
                             final_s_inds += subtree_s_ind_list[st_ind]
                             final_labs += [curr_final_lab] * st_n
@@ -675,11 +662,11 @@ class MIRCH(object):
                 else:
                     subtree_split_type = 'ind-spl'
                     for st_ind in range(n_subtrees):
-                        st_n = subtree_n_list[st_ind]
+                        st_n = subtree_s_cnt_list[st_ind]
                         st_spl_ratio = self.spl_mdl_ratio(st_n, 
-                                                               s_cnt, 
-                                                               no_lab_mdl, 
-                                                               self._minimax_n)
+                                                          s_cnt, 
+                                                          no_lab_mdl, 
+                                                          self._minimax_n)
                         if (subtree_mdl_list[st_ind]
                             < (no_lab_mdl * st_spl_ratio)):
                             if st_n <= self._minimax_n:
@@ -694,22 +681,22 @@ class MIRCH(object):
                             
                     # if both subcls are 'no-spl', add them together as a single cluster
                     if ( np.all(np.in1d(subtree_split_list, 
-                                       ('spl', 'spl-minimax')))
+                                        ('spl', 'spl-minimax')))
                          or np.all(np.in1d(subtree_split_list, 
                                           ('no-spl', 'no-spl-minimax'))) ):
                         final_s_inds += s_inds
-                        final_labs += [curr_final_lab] * i_cnt
+                        final_labs += [curr_final_lab] * s_cnt
                         curr_final_lab += 1
                     else:
                         for st_ind in range(n_subtrees):
-                            st_n = subtree_n_list[st_ind]
+                            st_n = subtree_s_cnt_list[st_ind]
                             if subtree_split_list[st_ind] in ('no-spl', 'no-spl-minimax'):
-                                final_s_inds += subtree_cid_list[st_ind]
+                                final_s_inds += subtree_s_ind_list[st_ind]
                                 final_labs += [curr_final_lab] * st_n
                                 curr_final_lab += 1
                             else:
-                                if subtree_split_list[st_ind] == 'spl minimax':
-                                    final_s_inds += subtree_cid_list[st_ind]
+                                if subtree_split_list[st_ind] == 'spl-minimax':
+                                    final_s_inds += subtree_s_ind_list[st_ind]
                                     final_labs += [curr_final_lab] * st_n
                                     curr_final_lab += 1
                                 else:
@@ -722,10 +709,11 @@ class MIRCH(object):
                           "split type: {}, "
                           "split: {}.".format(no_lab_mdl, 
                                               subtree_mdl_list, 
-                                              cluster_mdl, subtree_n_list, 
+                                              cluster_mdl, subtree_s_cnt_list, 
                                               subtree_split_type, 
                                               subtree_split_list))
             curr_trees = next_trees
             next_trees = []
             
         return (np.array(final_s_inds), np.array(final_labs))
+

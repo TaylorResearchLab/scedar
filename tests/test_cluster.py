@@ -2,6 +2,8 @@ import pytest
 
 import numpy as np
 
+import sklearn.datasets as skdset
+
 import scxplit.cluster as cluster
 import scxplit.eda as eda
 
@@ -231,9 +233,9 @@ class TestMDLSampleDistanceMatrix(object):
     def test_mdl_computation_mp(self):
         mdl_sdm = cluster.MDLSampleDistanceMatrix(
             self.x50x5, labs=self.labs50, metric="euclidean")
-        no_lab_mdl = mdl_sdm.no_lab_mdl(nprocs=5)
+        no_lab_mdl = mdl_sdm.no_lab_mdl(nprocs=2)
         ulab_s_ind_l, ulab_cnt_l, ulab_mdl_l, cluster_mdl = mdl_sdm.lab_mdl(
-            nprocs=5)
+            nprocs=2)
         assert ulab_s_ind_l == [list(range(10)), list(range(10, 45)),
                                 list(range(45, 50))]
 
@@ -281,6 +283,7 @@ class TestMDLSampleDistanceMatrix(object):
 
 class TestMIRCH(object):
     """docstring for TestMIRCH"""
+
     def test_bidir_ReLU(self):
         np.testing.assert_allclose(cluster.MIRCH.bidir_ReLU(0, 0, 10, 0, 1), 0)
         np.testing.assert_allclose(cluster.MIRCH.bidir_ReLU(-1, 0, 10, 0, 1), 0)
@@ -387,8 +390,6 @@ class TestMIRCH(object):
         with pytest.raises(ValueError) as excinfo:
             cluster.MIRCH.spl_mdl_ratio(60, 100, 1, -1)
         with pytest.raises(ValueError) as excinfo:
-            cluster.MIRCH.spl_mdl_ratio(60, 60, 1, 10)
-        with pytest.raises(ValueError) as excinfo:
             cluster.MIRCH.spl_mdl_ratio(60, 59, 1, 10)
         with pytest.raises(ValueError) as excinfo:
             cluster.MIRCH.spl_mdl_ratio(0, 100, 1, 10)
@@ -463,6 +464,30 @@ class TestMIRCH(object):
         with pytest.raises(ValueError) as excinfo:
             cluster.MIRCH.bi_split_compensation_factor(100, 500, 2, 1)
 
+    def test_mirch_wrong_args(self):
+        x = np.zeros((10, 10))
+        with pytest.raises(ValueError) as excinfo:
+            cluster.MIRCH(x, metric="euclidean", minimax_n=-0.1)
+        with pytest.raises(ValueError) as excinfo:
+            cluster.MIRCH(x, metric="euclidean", minimax_n=25, maxmini_n=24)
+        with pytest.raises(ValueError) as excinfo:
+            cluster.MIRCH(x, metric="euclidean", minimax_n=-0.1)
+        with pytest.raises(ValueError) as excinfo:
+            cluster.MIRCH(x, metric="euclidean", cl_mdl_scale_factor=-0.1)
 
+    # no specific purpose. Just to exaust the coverage
+    def test_mirch_cover_tests(self):
+        # make all non-neg
+        x = np.zeros((10, 10))
+        cluster.MIRCH(x, metric="euclidean", minimax_n=25, maxmini_n=250)
+        cluster.MIRCH(x, metric="euclidean", minimax_n=25)
+        cluster.MIRCH(x, metric="euclidean", minimax_n=25, maxmini_n=250, 
+                      verbose=True)
 
+        tx2, tlab2 = skdset.make_blobs(n_samples=500, n_features=5, 
+                                       centers=100, cluster_std=1,
+                                       random_state=8927)
+        tx2 = tx2 - tx2.min()
+        cluster.MIRCH(tx2, metric="correlation", minimax_n=1, maxmini_n=2,
+                      cl_mdl_scale_factor=0)
 
