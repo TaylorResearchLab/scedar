@@ -7,15 +7,17 @@ import scipy.stats as spstats
 from . import utils
 from . import eda
 
+
 class MultinomialMdl(object):
     """
     Encode discrete values using multinomial distribution
     Input:
     x: 1d array. Should be non-negative
-    
+
     Notes:
     When x only has 1 uniq value. Encode the the number of values only.
     """
+
     def __init__(self, x):
         super(MultinomialMdl, self).__init__()
         x = np.array(x)
@@ -26,7 +28,7 @@ class MultinomialMdl(object):
         self._n = x.shape[0]
         self._mdl = self._mn_mdl()
         return
-    
+
     def _mn_mdl(self):
         uniq_vals, uniq_val_cnts = np.unique(self._x, return_counts=True)
         if len(uniq_vals) > 1:
@@ -77,6 +79,7 @@ class ZeroIdcGKdeMdl(object):
         [4] https://github.com/scipy/scipy/blob/v1.0.0/scipy/stats/kde.py#L42-L564
 
     """
+
     def __init__(self, x, kde_bw_method="silverman"):
         super(ZeroIdcGKdeMdl, self).__init__()
 
@@ -91,7 +94,7 @@ class ZeroIdcGKdeMdl(object):
         self._k = self._x_nonzero.shape[0]
 
         self._bw_method = kde_bw_method
-        
+
         if self._n != 0:
             self._zi_mdl = self._compute_zero_indicator_mdl()
             self._kde_mdl = self._compute_non_zero_val_mdl()
@@ -131,13 +134,13 @@ class ZeroIdcGKdeMdl(object):
             zi_mdl = (np.log(3) - self._k * np.log(p) -
                       (self._n - self._k) * np.log(1-p))
         return zi_mdl
-    
+
     def _compute_non_zero_val_mdl(self):
         if self._k == 0:
             kde = None
             logdens = None
             bw_factor = None
-            # no non-zery vals. Indicator encoded by zi mdl. 
+            # no non-zery vals. Indicator encoded by zi mdl.
             kde_mdl = 0
         else:
             try:
@@ -151,8 +154,9 @@ class ZeroIdcGKdeMdl(object):
                 logdens = None
                 bw_factor = None
                 # encode just single value or multiple values
-                kde_mdl = MultinomialMdl((self._x_nonzero * 100).astype(int)).mdl
-        
+                kde_mdl = MultinomialMdl(
+                    (self._x_nonzero * 100).astype(int)).mdl
+
         self._bw_factor = bw_factor
         self._kde = kde
         self._logdens = logdens
@@ -198,6 +202,7 @@ class HClustTree(object):
     prev : HClustTree
         parent of current node
     """
+
     def __init__(self, node, prev=None):
         super(HClustTree, self).__init__()
         self._node = node
@@ -222,7 +227,7 @@ class HClustTree(object):
             return 0
         else:
             return self._node.get_count()
-    
+
     def left(self):
         return HClustTree(self._left, self)
 
@@ -234,7 +239,7 @@ class HClustTree(object):
 
     def right_count(self):
         return self.right().count()
-    
+
     def leaf_ids(self):
         if self._node is None:
             return None
@@ -285,7 +290,8 @@ class HClustTree(object):
         eda.SampleFeatureMatrix.check_is_valid_sfids(sid_list)
 
         if type(cl_sid_list) != list:
-            raise ValueError("cl_sid_list must be a list: {}".format(cl_sid_list))
+            raise ValueError(
+                "cl_sid_list must be a list: {}".format(cl_sid_list))
 
         for x in cl_sid_list:
             eda.SampleFeatureMatrix.check_is_valid_sfids(x)
@@ -295,7 +301,8 @@ class HClustTree(object):
 
         # np.unique returns sorted unique values
         if sorted(sid_list) != sorted(cl_id_mlist):
-            raise ValueError("sid_list should have the same ids as cl_sid_list.")
+            raise ValueError(
+                "sid_list should have the same ids as cl_sid_list.")
 
         cl_ind_lut = {}
         # iter_cl_ind : cluster index
@@ -308,11 +315,11 @@ class HClustTree(object):
         return lab_list, sid_list
 
     @staticmethod
-    def hclust_tree(dmat, linkage="complete", n_eval_rounds = None, 
-                    is_euc_dist=False, verbose = False):
+    def hclust_tree(dmat, linkage="complete", n_eval_rounds=None,
+                    is_euc_dist=False, verbose=False):
         dmat = np.array(dmat, dtype="float")
         dmat = eda.SampleDistanceMatrix.num_correct_dist_mat(dmat)
-        
+
         n = dmat.shape[0]
 
         if linkage == "auto":
@@ -328,12 +335,12 @@ class HClustTree(object):
 
             ltype_mdl_list = []
             for iter_ltype in try_linkages:
-                iter_lhct = HClustTree.hclust_tree(dmat, linkage = iter_ltype)
+                iter_lhct = HClustTree.hclust_tree(dmat, linkage=iter_ltype)
                 iter_nbp_cnt_list = iter_lhct.n_round_bipar_cnt(n_eval_rounds)
                 iter_nbp_mdl_arr = np.array(list(map(
                     lambda x: MultinomialMdl(np.array(x)).mdl,
                     iter_nbp_cnt_list)))
-                iter_nbp_mdl = np.sum(iter_nbp_mdl_arr 
+                iter_nbp_mdl = np.sum(iter_nbp_mdl_arr
                                       / np.arange(1, n_eval_rounds + 1))
                 ltype_mdl_list.append(iter_nbp_mdl)
 
@@ -341,7 +348,7 @@ class HClustTree(object):
 
             if verbose:
                 print(linkage, tuple(zip(try_linkages, ltype_mdl_list)),
-                      sep = "\n")
+                      sep="\n")
 
         dmat_sf = spspatial.distance.squareform(dmat)
         hac_z = sph.linkage(dmat_sf, method=linkage, optimal_ordering=False)
@@ -353,11 +360,12 @@ class MDLSampleDistanceMatrix(eda.SingleLabelClassifiedSamples):
     MDLSampleDistanceMatrix inherits SingleLabelClassifiedSamples to offer MDL 
     operations. 
     """
-    def __init__(self, x, labs, sids=None, fids=None, 
+
+    def __init__(self, x, labs, sids=None, fids=None,
                  d=None, metric="correlation", nprocs=None):
-        super(MDLSampleDistanceMatrix, self).__init__(x=x, labs=labs, 
-                                                      sids=sids, fids=fids, 
-                                                      d=d, metric=metric, 
+        super(MDLSampleDistanceMatrix, self).__init__(x=x, labs=labs,
+                                                      sids=sids, fids=fids,
+                                                      d=d, metric=metric,
                                                       nprocs=nprocs)
 
     @staticmethod
@@ -368,10 +376,10 @@ class MDLSampleDistanceMatrix(eda.SingleLabelClassifiedSamples):
                              "x.shape: {}".format(x.shape))
 
         nprocs = max(int(nprocs), 1)
-        
+
         # apply to each feature
         if nprocs != 1:
-            col_mdl_list = utils.parmap(lambda x1d: ZeroIdcGKdeMdl(x1d), 
+            col_mdl_list = utils.parmap(lambda x1d: ZeroIdcGKdeMdl(x1d),
                                         x.T, nprocs)
         else:
             col_mdl_list = list(map(lambda x1d: ZeroIdcGKdeMdl(x1d), x.T))
@@ -387,7 +395,7 @@ class MDLSampleDistanceMatrix(eda.SingleLabelClassifiedSamples):
         col_mdl_sum = self.per_column_zigkmdl(self._x, nprocs, verbose)
         return col_mdl_sum
 
-    def lab_mdl(self, cl_mdl_scale_factor=1, nprocs=1, verbose=False, 
+    def lab_mdl(self, cl_mdl_scale_factor=1, nprocs=1, verbose=False,
                 ret_internal=False):
         n_uniq_labs = self._uniq_labs.shape[0]
         ulab_s_ind_list = [np.where(self._labs == ulab)[0].tolist()
@@ -406,18 +414,18 @@ class MDLSampleDistanceMatrix(eda.SingleLabelClassifiedSamples):
         # - KDE bandwidth factors are encoded by 32bit float
         #   np.log(2**32) = 22.18070977791825
         # - scaled by factor
-        cluster_mdl = ( (MultinomialMdl(self._labs).mdl 
-                         + 22.18070977791825 * n_uniq_labs)
-                        * cl_mdl_scale_factor )
+        cluster_mdl = ((MultinomialMdl(self._labs).mdl
+                        + 22.18070977791825 * n_uniq_labs)
+                       * cl_mdl_scale_factor)
 
         ulab_mdl_list = [pts_mdl_list[i] + cluster_mdl * ulab_cnt_ratios[i]
                          for i in range(n_uniq_labs)]
 
         if ret_internal:
-            return (ulab_s_ind_list, self._uniq_lab_cnts.tolist(), 
+            return (ulab_s_ind_list, self._uniq_lab_cnts.tolist(),
                     ulab_mdl_list, cluster_mdl, pts_mdl_list)
         else:
-            return (ulab_s_ind_list, self._uniq_lab_cnts.tolist(), 
+            return (ulab_s_ind_list, self._uniq_lab_cnts.tolist(),
                     ulab_mdl_list, cluster_mdl)
 
 
@@ -425,7 +433,8 @@ class MIRCH(object):
     """
     MIRCH: MDL iteratively regularized clustering based on hierarchy.
     """
-    def __init__(self, x, d=None, metric=None, sids=None, fids=None, 
+
+    def __init__(self, x, d=None, metric=None, sids=None, fids=None,
                  nprocs=1, cl_mdl_scale_factor=1, minimax_n=25,
                  maxmini_n=None, linkage="complete",
                  is_euc_dist=False, verbose=False):
@@ -433,7 +442,7 @@ class MIRCH(object):
 
         nprocs = int(np.ceil(nprocs))
 
-        self._sdm = eda.SampleDistanceMatrix(x=x, d=d, metric=metric, sids=sids, 
+        self._sdm = eda.SampleDistanceMatrix(x=x, d=d, metric=metric, sids=sids,
                                              fids=fids, nprocs=nprocs)
 
         if cl_mdl_scale_factor < 0:
@@ -459,9 +468,9 @@ class MIRCH(object):
         self._minimax_n = minimax_n
         self._maxmini_n = maxmini_n
         self._cluster_s_ind, self._cluster_labs = self._mirch(
-            cl_mdl_scale_factor=cl_mdl_scale_factor, 
+            cl_mdl_scale_factor=cl_mdl_scale_factor,
             minimax_n=minimax_n, maxmini_n=maxmini_n, linkage=linkage,
-           is_euc_dist=is_euc_dist, nprocs=nprocs, verbose=verbose)
+            is_euc_dist=is_euc_dist, nprocs=nprocs, verbose=verbose)
 
     # lower upper bound
     # start, end, lb, ub should all be scalar
@@ -479,18 +488,17 @@ class MIRCH(object):
         if start < end:
             width = end - start
             height = ub - lb
-            return np.clip(a = height * (x - start) / width + lb,
+            return np.clip(a=height * (x - start) / width + lb,
                            a_min=lb, a_max=ub)
         else:
             # start == end
             return np.where(x >= start, ub, lb)
 
-    
     # S-shaped function
-    # MDL upper bound of a homogenous cluster. 
-    #   Below -> stop slit. 
+    # MDL upper bound of a homogenous cluster.
+    #   Below -> stop slit.
     #   Above -> keep split.
-    # Upper bound is corrected by the clustering status. 
+    # Upper bound is corrected by the clustering status.
     # if even split -> upper bound is not changed.
     # if uneven split -> bigger sub-cl hMDL upper bound gets lower (more likely
     #                    to be heterogenous)
@@ -536,7 +544,7 @@ class MIRCH(object):
     # maxmini_n: estimate of smallest large cluster size
     # minimax_n: estimate of largest smallest cluster size
     @staticmethod
-    def bi_split_compensation_factor(subtree_leaf_cnt, n, 
+    def bi_split_compensation_factor(subtree_leaf_cnt, n,
                                      minimax_n, maxmini_n):
         # compensation factor: large when iter_n >> minimax
         # and iter_n close to n
@@ -546,7 +554,7 @@ class MIRCH(object):
         if subtree_leaf_cnt > n:
             raise ValueError("subtree_leaf_cnt shoud < n. "
                              "subtree_leaf_cnt: {}. n: {}".format(
-                                subtree_leaf_cnt, n))
+                                 subtree_leaf_cnt, n))
         # assert minimax_n > 0
         if minimax_n <= 0:
             raise ValueError("minimax_n shoud > 0. "
@@ -563,13 +571,13 @@ class MIRCH(object):
         ratio_linear_grow_width = lin_grow_end_ratio - lin_grow_start_ratio
 
         stc_minimaxn_ratio = subtree_leaf_cnt / minimax_n
-        subtree_complexity = MIRCH.bidir_ReLU(stc_minimaxn_ratio, 
-                                              lin_grow_start_ratio, 
+        subtree_complexity = MIRCH.bidir_ReLU(stc_minimaxn_ratio,
+                                              lin_grow_start_ratio,
                                               lin_grow_end_ratio)
 
         split_progress_factor = ((subtree_leaf_cnt / n) ** 2)
 
-        subtree_sum_spl_comp_factor = (0.5 * subtree_complexity 
+        subtree_sum_spl_comp_factor = (0.5 * subtree_complexity
                                        * split_progress_factor)
         return subtree_sum_spl_comp_factor
 
@@ -581,7 +589,7 @@ class MIRCH(object):
     #         split_with_minimax_to_final
     #     else:
     #         no_spl
-    # 
+    #
     # if all_sub_cl_no_spl:
     #     add_together_as_a_final_cl
     # else:
@@ -594,14 +602,14 @@ class MIRCH(object):
         # Input:
         # - cl_mdl_scale_factor: scale cluster overhead mdl
         # - minimax_n: estimated minimum # samples in a cluster
-        # - maxmini_n: estimated max # samples in a cluster. 
+        # - maxmini_n: estimated max # samples in a cluster.
         #   If none, 10 * minimax is used.
 
         n_samples = self._sdm._x.shape[0]
         n_features = self._sdm._x.shape[1]
 
-        hac_tree = HClustTree.hclust_tree(self._sdm._d, linkage=linkage, 
-                                          is_euc_dist=is_euc_dist, 
+        hac_tree = HClustTree.hclust_tree(self._sdm._d, linkage=linkage,
+                                          is_euc_dist=is_euc_dist,
                                           verbose=verbose)
 
         curr_trees = [hac_tree]
@@ -616,7 +624,8 @@ class MIRCH(object):
             # Split each of the hac tree in curr_trees
             for i in range(len(curr_trees)):
                 # lst, rst: left_sub_tree, right_sub_tree
-                labs, s_inds, lst, rst = curr_trees[i].bi_partition(return_subtrees=True)
+                labs, s_inds, lst, rst = curr_trees[i].bi_partition(
+                    return_subtrees=True)
                 s_cnt = len(s_inds)
 
                 subtrees = [lst, rst]
@@ -624,7 +633,7 @@ class MIRCH(object):
 
                 subtree_split_list = []
                 subtree_split_type = None
-                
+
                 mdl_sdm = MDLSampleDistanceMatrix(
                     x=self._sdm._x[s_inds, :],
                     labs=labs,
@@ -645,7 +654,7 @@ class MIRCH(object):
 
                 if (sum(subtree_mdl_list)
                     < (no_lab_mdl
-                       * (self.spl_mdl_ratio(s_cnt, s_cnt, no_lab_mdl, 
+                       * (self.spl_mdl_ratio(s_cnt, s_cnt, no_lab_mdl,
                                              self._minimax_n)
                           + bi_spl_cmps_factor))):
                     subtree_split_type = "bi-spl"
@@ -663,12 +672,12 @@ class MIRCH(object):
                     subtree_split_type = "ind-spl"
                     for st_ind in range(n_subtrees):
                         st_n = subtree_s_cnt_list[st_ind]
-                        st_spl_ratio = self.spl_mdl_ratio(st_n, 
-                                                          s_cnt, 
-                                                          no_lab_mdl, 
+                        st_spl_ratio = self.spl_mdl_ratio(st_n,
+                                                          s_cnt,
+                                                          no_lab_mdl,
                                                           self._minimax_n)
                         if (subtree_mdl_list[st_ind]
-                            < (no_lab_mdl * st_spl_ratio)):
+                                < (no_lab_mdl * st_spl_ratio)):
                             if st_n <= self._minimax_n:
                                 subtree_split_list.append("no-spl-minimax")
                             else:
@@ -678,12 +687,12 @@ class MIRCH(object):
                                 subtree_split_list.append("spl-minimax")
                             else:
                                 subtree_split_list.append("spl")
-                            
+
                     # if both subcls are "no-spl", add them together as a single cluster
-                    if ( np.all(np.in1d(subtree_split_list, 
-                                        ("spl", "spl-minimax")))
-                         or np.all(np.in1d(subtree_split_list, 
-                                          ("no-spl", "no-spl-minimax"))) ):
+                    if (np.all(np.in1d(subtree_split_list,
+                                       ("spl", "spl-minimax")))
+                        or np.all(np.in1d(subtree_split_list,
+                                          ("no-spl", "no-spl-minimax")))):
                         final_s_inds += s_inds
                         final_labs += [curr_final_lab] * s_cnt
                         curr_final_lab += 1
@@ -707,13 +716,12 @@ class MIRCH(object):
                     print("no lab mdl: {:.2f}, subtree mdl: {}, "
                           "cluster_mdl: {:.2f}, subtree_n: {}, "
                           "split type: {}, "
-                          "split: {}.".format(no_lab_mdl, 
-                                              subtree_mdl_list, 
-                                              cluster_mdl, subtree_s_cnt_list, 
-                                              subtree_split_type, 
+                          "split: {}.".format(no_lab_mdl,
+                                              subtree_mdl_list,
+                                              cluster_mdl, subtree_s_cnt_list,
+                                              subtree_split_type,
                                               subtree_split_list))
             curr_trees = next_trees
             next_trees = []
-            
-        return (np.array(final_s_inds), np.array(final_labs))
 
+        return (np.array(final_s_inds), np.array(final_labs))

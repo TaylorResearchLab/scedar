@@ -22,19 +22,21 @@ class TestSampleFeatureMatrix(object):
     def test_init_x_1d(self):
         with pytest.raises(Exception) as excinfo:
             eda.SampleFeatureMatrix([1, 2, 3])
-    
+
     def test_init_dup_sfids(self):
         with pytest.raises(Exception) as excinfo:
             eda.SampleFeatureMatrix(self.sfm5x10_lst, [0, 0, 1, 2, 3])
-        
+
         with pytest.raises(Exception) as excinfo:
-            eda.SampleFeatureMatrix(self.sfm5x10_lst, ['0', '0', '1', '2', '3'])
+            eda.SampleFeatureMatrix(
+                self.sfm5x10_lst, ['0', '0', '1', '2', '3'])
 
         with pytest.raises(Exception) as excinfo:
             eda.SampleFeatureMatrix(self.sfm5x10_lst, None, [0, 0, 1, 2, 3])
-        
+
         with pytest.raises(Exception) as excinfo:
-            eda.SampleFeatureMatrix(self.sfm5x10_lst, None, ['0', '0', '1', '2', '3'])
+            eda.SampleFeatureMatrix(self.sfm5x10_lst, None, [
+                                    '0', '0', '1', '2', '3'])
 
     def test_init_empty_x_sfids(self):
         with pytest.raises(Exception) as excinfo:
@@ -46,7 +48,8 @@ class TestSampleFeatureMatrix(object):
     def test_init_wrong_sid_len(self):
         # wrong sid size
         with pytest.raises(Exception) as excinfo:
-            eda.SampleFeatureMatrix(self.sfm5x10_lst, list(range(10)), list(range(5)))
+            eda.SampleFeatureMatrix(
+                self.sfm5x10_lst, list(range(10)), list(range(5)))
 
         with pytest.raises(Exception) as excinfo:
             eda.SampleFeatureMatrix(self.sfm5x10_lst, list(range(10)))
@@ -54,20 +57,22 @@ class TestSampleFeatureMatrix(object):
     def test_init_wrong_fid_len(self):
         # wrong fid size
         with pytest.raises(Exception) as excinfo:
-            eda.SampleFeatureMatrix(self.sfm5x10_lst, list(range(5)), list(range(2)))
+            eda.SampleFeatureMatrix(
+                self.sfm5x10_lst, list(range(5)), list(range(2)))
 
     def test_init_wrong_sfid_len(self):
         # wrong sid and fid sizes
         with pytest.raises(Exception) as excinfo:
-            eda.SampleFeatureMatrix(self.sfm5x10_lst, list(range(10)), list(range(10)))
+            eda.SampleFeatureMatrix(
+                self.sfm5x10_lst, list(range(10)), list(range(10)))
 
     def test_init_non1d_sfids(self):
         with pytest.raises(Exception) as excinfo:
-            eda.SampleFeatureMatrix(self.sfm3x3_arr, np.array([[0], [1], [2]]), 
+            eda.SampleFeatureMatrix(self.sfm3x3_arr, np.array([[0], [1], [2]]),
                                     np.array([[0], [1], [1]]))
 
         with pytest.raises(Exception) as excinfo:
-            eda.SampleFeatureMatrix(self.sfm3x3_arr, np.array([[0], [1], [2]]), 
+            eda.SampleFeatureMatrix(self.sfm3x3_arr, np.array([[0], [1], [2]]),
                                     np.array([0, 1, 2]))
 
         with pytest.raises(Exception) as excinfo:
@@ -76,37 +81,46 @@ class TestSampleFeatureMatrix(object):
 
     def test_init_bad_sid_type(self):
         with pytest.raises(Exception) as excinfo:
-            eda.SampleFeatureMatrix(self.sfm3x3_arr, [False, True, 2], [0, 1, 1])
+            eda.SampleFeatureMatrix(
+                self.sfm3x3_arr, [False, True, 2], [0, 1, 1])
 
         with pytest.raises(Exception) as excinfo:
-            eda.SampleFeatureMatrix(self.sfm3x3_arr, [[0], [0, 1], 2], [0, 1, 1])
+            eda.SampleFeatureMatrix(
+                self.sfm3x3_arr, [[0], [0, 1], 2], [0, 1, 1])
 
         with pytest.raises(Exception) as excinfo:
-            eda.SampleFeatureMatrix(self.sfm3x3_arr, np.array([0, 1, 2]), [0, 1, 1])
+            eda.SampleFeatureMatrix(
+                self.sfm3x3_arr, np.array([0, 1, 2]), [0, 1, 1])
 
         with pytest.raises(Exception) as excinfo:
-            eda.SampleFeatureMatrix(self.sfm3x3_arr, [(0), (0, 1), 2], [0, 1, 1])
+            eda.SampleFeatureMatrix(
+                self.sfm3x3_arr, [(0), (0, 1), 2], [0, 1, 1])
 
     def test_init_bad_fid_type(self):
         with pytest.raises(Exception) as excinfo:
-            eda.SampleFeatureMatrix(self.sfm3x3_arr, [0, 1, 2], [False, True, 2])
+            eda.SampleFeatureMatrix(
+                self.sfm3x3_arr, [0, 1, 2], [False, True, 2])
 
         with pytest.raises(Exception) as excinfo:
-            eda.SampleFeatureMatrix(self.sfm3x3_arr, [0, 1, 2], [[0], [0, 1], 2])
+            eda.SampleFeatureMatrix(
+                self.sfm3x3_arr, [0, 1, 2], [[0], [0, 1], 2])
 
         with pytest.raises(Exception) as excinfo:
-            eda.SampleFeatureMatrix(self.sfm3x3_arr, [0, 1, 2], [(0), (0, 1), 2])
+            eda.SampleFeatureMatrix(
+                self.sfm3x3_arr, [0, 1, 2], [(0), (0, 1), 2])
 
         with pytest.raises(Exception) as excinfo:
-            eda.SampleFeatureMatrix(self.sfm3x3_arr, [0, 1, 2], np.array([0, 1, 2]))
+            eda.SampleFeatureMatrix(
+                self.sfm3x3_arr, [0, 1, 2], np.array([0, 1, 2]))
 
     def test_valid_init(self):
-        eda.SampleFeatureMatrix(self.sfm5x10_arr, list(range(5)), list(range(10)))
+        eda.SampleFeatureMatrix(
+            self.sfm5x10_arr, list(range(5)), list(range(10)))
         eda.SampleFeatureMatrix(self.sfm5x10_arr, None, list(range(10)))
         eda.SampleFeatureMatrix(self.sfm5x10_arr, list(range(5)), None)
         eda.SampleFeatureMatrix(np.arange(10).reshape(-1, 1))
         eda.SampleFeatureMatrix(np.arange(10).reshape(1, -1))
-    
+
     def test_is_valid_sfid(self):
         assert eda.SampleFeatureMatrix.is_valid_sfid('1')
         assert eda.SampleFeatureMatrix.is_valid_sfid(1)
@@ -149,11 +163,12 @@ class TestSampleFeatureMatrix(object):
         eda.SampleFeatureMatrix.check_is_valid_sfids([1, 2, 3])
 
     def test_getters(self):
-        tsfm = eda.SampleFeatureMatrix(np.arange(10).reshape(5, 2), 
+        tsfm = eda.SampleFeatureMatrix(np.arange(10).reshape(5, 2),
                                        ['a', 'b', 'c', '1', '2'],
                                        ['a', 'z'])
 
-        np.testing.assert_equal(tsfm.x, np.array(np.arange(10).reshape(5, 2), dtype='float64'))
+        np.testing.assert_equal(tsfm.x, np.array(
+            np.arange(10).reshape(5, 2), dtype='float64'))
         np.testing.assert_equal(tsfm.sids, np.array(['a', 'b', 'c', '1', '2']))
         np.testing.assert_equal(tsfm.fids, np.array(['a', 'z']))
 
@@ -166,7 +181,7 @@ class TestSampleDistanceMatrix(object):
     """docstring for TestSampleDistanceMatrix"""
     x_3x2 = [[0, 0], [1, 1], [2, 2]]
     x_2x4_arr = np.array([[0, 1, 2, 3], [1, 2, 0, 6]])
-    
+
     def test_valid_init(self):
         sdm = eda.SampleDistanceMatrix(self.x_3x2, metric='euclidean')
         dist_mat = np.array([[0, np.sqrt(2), np.sqrt(8)],
@@ -174,26 +189,30 @@ class TestSampleDistanceMatrix(object):
                              [np.sqrt(8), np.sqrt(2), 0]])
         np.testing.assert_allclose(sdm.d, dist_mat)
 
-        sdm2 = eda.SampleDistanceMatrix(self.x_2x4_arr, metric='euclidean', nprocs=5)
-        sdm2_d1 = np.sqrt(np.power(self.x_2x4_arr[0] - self.x_2x4_arr[1], 2).sum())
-        np.testing.assert_allclose(sdm2.d, 
+        sdm2 = eda.SampleDistanceMatrix(
+            self.x_2x4_arr, metric='euclidean', nprocs=5)
+        sdm2_d1 = np.sqrt(
+            np.power(self.x_2x4_arr[0] - self.x_2x4_arr[1], 2).sum())
+        np.testing.assert_allclose(sdm2.d,
                                    np.array([[0, sdm2_d1], [sdm2_d1, 0]]))
 
-        sdm3 = eda.SampleDistanceMatrix(self.x_2x4_arr, metric='correlation', nprocs=5)
-        sdm3_corr_d = (1 - np.dot(self.x_2x4_arr[0] - self.x_2x4_arr[0].mean(), 
+        sdm3 = eda.SampleDistanceMatrix(
+            self.x_2x4_arr, metric='correlation', nprocs=5)
+        sdm3_corr_d = (1 - np.dot(self.x_2x4_arr[0] - self.x_2x4_arr[0].mean(),
                                   self.x_2x4_arr[1] - self.x_2x4_arr[1].mean())
                        / (np.linalg.norm(self.x_2x4_arr[0] - self.x_2x4_arr[0].mean(), 2)
                           * np.linalg.norm(self.x_2x4_arr[1] - self.x_2x4_arr[1].mean(), 2)))
-        np.testing.assert_allclose(sdm3.d, 
-                                   np.array([[0, 0.3618551], 
+        np.testing.assert_allclose(sdm3.d,
+                                   np.array([[0, 0.3618551],
                                              [0.3618551, 0]]))
 
-        np.testing.assert_allclose(sdm3.d, 
-                                   np.array([[0, sdm3_corr_d], 
+        np.testing.assert_allclose(sdm3.d,
+                                   np.array([[0, sdm3_corr_d],
                                              [sdm3_corr_d, 0]]))
 
         sdm4 = eda.SampleDistanceMatrix(self.x_3x2, dist_mat)
-        sdm5 = eda.SampleDistanceMatrix(self.x_3x2, dist_mat, metric='euclidean')
+        sdm5 = eda.SampleDistanceMatrix(
+            self.x_3x2, dist_mat, metric='euclidean')
 
     def test_init_wrong_metric(self):
         # when d is None, metric cannot be precomputed
@@ -204,7 +223,6 @@ class TestSampleDistanceMatrix(object):
         eda.SampleDistanceMatrix(self.x_3x2, metric='unknown')
         with pytest.raises(Exception) as excinfo:
             eda.SampleDistanceMatrix(self.x_3x2, metric='unknown').d
-
 
         eda.SampleDistanceMatrix(self.x_3x2, metric=1)
         with pytest.raises(Exception) as excinfo:
@@ -261,17 +279,17 @@ class TestSampleDistanceMatrix(object):
                        'random_state': 123}
         ref_tsne = eda.tsne(self.x_3x2, **tsne_kwargs)
         sdm = eda.SampleDistanceMatrix(self.x_3x2, metric=tmet)
-        
+
         assert sdm.tsne_lut == {}
         tsne1 = sdm.tsne(n_iter=250, random_state=123)
         np.testing.assert_allclose(ref_tsne, tsne1)
         assert tsne1.shape == (3, 2)
         assert len(sdm.tsne_lut) == 1
-        
+
         tsne2 = sdm.tsne(store_res=False, **tsne_kwargs)
         np.testing.assert_allclose(ref_tsne, tsne2)
         assert len(sdm.tsne_lut) == 1
-        
+
         with pytest.raises(Exception) as excinfo:
             wrong_metric_kwargs = tsne_kwargs.copy()
             wrong_metric_kwargs['metric'] = 'correlation'
@@ -288,7 +306,7 @@ class TestSampleDistanceMatrix(object):
         for i in range(len(tsne_res_lut)):
             iter_key = tsne_res_lut_sorted_keys[i]
             iter_key[-1] == str(i)
-            np.testing.assert_allclose(tsne_res_lut[iter_key], 
+            np.testing.assert_allclose(tsne_res_lut[iter_key],
                                        tsne_res_list[i])
             assert tsne_res_lut[iter_key] is not tsne_res_list[i]
 
@@ -309,7 +327,6 @@ class TestSampleDistanceMatrix(object):
         for k in sdm.tsne_lut:
             np.testing.assert_equal(sdm.tsne_lut[k], sdm._tsne_lut[k])
 
-    
     def test_num_correct_dist_mat(self):
         tdmat = np.array([[0, 1, 2],
                           [0.5, 0, 1.5],
@@ -332,8 +349,8 @@ class TestSampleDistanceMatrix(object):
 
         # wrong shape
         tdmat3 = np.array([[0, 0.5],
-                            [0.5, 0],
-                            [1, 1]])
+                           [0.5, 0],
+                           [1, 1]])
         # with upper bound
         with pytest.raises(Exception) as excinfo:
             eda.SampleDistanceMatrix.num_correct_dist_mat(tdmat3, 1)
@@ -341,10 +358,10 @@ class TestSampleDistanceMatrix(object):
         with pytest.raises(Exception) as excinfo:
             eda.SampleDistanceMatrix.num_correct_dist_mat(tdmat3)
 
-        
+
 class TestSingleLabelClassifiedSamples(object):
     """docstring for TestSingleLabelClassifiedSamples"""
-    sfm3x3_arr = np.arange(9, dtype = "float64").reshape(3, 3)
+    sfm3x3_arr = np.arange(9, dtype="float64").reshape(3, 3)
     sfm_2x0 = np.array([[], []])
     sfm5x10_arr = np.random.ranf(50).reshape(5, 10)
     sfm5x10_lst = list(map(list, np.random.ranf(50).reshape(5, 10)))
@@ -355,7 +372,8 @@ class TestSingleLabelClassifiedSamples(object):
 
     def test_init_wrong_lab_len(self):
         with pytest.raises(Exception) as excinfo:
-            eda.SingleLabelClassifiedSamples(self.sfm3x3_arr, [0, 1], None, None)
+            eda.SingleLabelClassifiedSamples(
+                self.sfm3x3_arr, [0, 1], None, None)
 
     def test_init_non1d_labs(self):
         with pytest.raises(Exception) as excinfo:
@@ -363,34 +381,44 @@ class TestSingleLabelClassifiedSamples(object):
                                              [0, 1, 2], [0, 1, 2])
 
         with pytest.raises(Exception) as excinfo:
-            eda.SingleLabelClassifiedSamples(self.sfm3x3_arr, 
+            eda.SingleLabelClassifiedSamples(self.sfm3x3_arr,
                                              [[0, 1], [1, 2], [2, 3]],
                                              [0, 1, 2], [0, 1, 2])
 
     def test_init_bad_lab_type(self):
         with pytest.raises(Exception) as excinfo:
-            eda.SingleLabelClassifiedSamples(self.sfm3x3_arr, [False, True, 2], [0, 1, 1], None)
+            eda.SingleLabelClassifiedSamples(
+                self.sfm3x3_arr, [False, True, 2], [0, 1, 1], None)
 
         with pytest.raises(Exception) as excinfo:
-            eda.SingleLabelClassifiedSamples(self.sfm3x3_arr, [[0], [0, 1], 2], [0, 1, 1], None)
+            eda.SingleLabelClassifiedSamples(
+                self.sfm3x3_arr, [[0], [0, 1], 2], [0, 1, 1], None)
 
         with pytest.raises(Exception) as excinfo:
-            eda.SingleLabelClassifiedSamples(self.sfm3x3_arr, np.array([0, 1, 2]), [0, 1, 1], None)
+            eda.SingleLabelClassifiedSamples(
+                self.sfm3x3_arr, np.array([0, 1, 2]), [0, 1, 1], None)
 
         with pytest.raises(Exception) as excinfo:
-            eda.SingleLabelClassifiedSamples(self.sfm3x3_arr, [(0), (0, 1), 2], [0, 1, 1], None)
+            eda.SingleLabelClassifiedSamples(
+                self.sfm3x3_arr, [(0), (0, 1), 2], [0, 1, 1], None)
 
     def test_valid_init(self):
-        eda.SingleLabelClassifiedSamples(self.sfm5x10_arr, [0, 1, 1, 2, 0], list(range(5)), list(range(10)))
-        eda.SingleLabelClassifiedSamples(self.sfm5x10_arr, [0, 1, 1, 2, 0], None, list(range(10)))
-        eda.SingleLabelClassifiedSamples(self.sfm5x10_arr, ['a', 'a', 'b', 'd', 'c'], list(range(5)), None)
-        eda.SingleLabelClassifiedSamples(np.arange(100).reshape(-1, 10), list(range(10)))
-        eda.SingleLabelClassifiedSamples(np.arange(100).reshape(10, -1), list('abcdefghij'))
+        eda.SingleLabelClassifiedSamples(
+            self.sfm5x10_arr, [0, 1, 1, 2, 0], list(range(5)), list(range(10)))
+        eda.SingleLabelClassifiedSamples(
+            self.sfm5x10_arr, [0, 1, 1, 2, 0], None, list(range(10)))
+        eda.SingleLabelClassifiedSamples(
+            self.sfm5x10_arr, ['a', 'a', 'b', 'd', 'c'], list(range(5)), None)
+        eda.SingleLabelClassifiedSamples(
+            np.arange(100).reshape(-1, 10), list(range(10)))
+        eda.SingleLabelClassifiedSamples(
+            np.arange(100).reshape(10, -1), list('abcdefghij'))
 
     def test_is_valid_lab(self):
         assert eda.SingleLabelClassifiedSamples.is_valid_lab('1')
         assert eda.SingleLabelClassifiedSamples.is_valid_lab(1)
-        assert not eda.SingleLabelClassifiedSamples.is_valid_lab(np.array([1])[0])
+        assert not eda.SingleLabelClassifiedSamples.is_valid_lab(np.array([1])[
+                                                                 0])
         assert not eda.SingleLabelClassifiedSamples.is_valid_lab([])
         assert not eda.SingleLabelClassifiedSamples.is_valid_lab([1])
         assert not eda.SingleLabelClassifiedSamples.is_valid_lab(None)
@@ -421,12 +449,12 @@ class TestSingleLabelClassifiedSamples(object):
         eda.SingleLabelClassifiedSamples.check_is_valid_labs([1, 2])
         eda.SingleLabelClassifiedSamples.check_is_valid_labs([1, 1, 3])
         eda.SingleLabelClassifiedSamples.check_is_valid_labs(['1', '2', '3'])
-            
+
     def test_lab_sorted_sids(self):
         qsids = [0, 1, 5, 3, 2, 4]
         qlabs = [0, 0, 2, 1, 1, 1]
         rsids = [3, 4, 2, 5, 1, 0]
-        slab_csamples = eda.SingleLabelClassifiedSamples(np.random.ranf(60).reshape(6, -1), 
+        slab_csamples = eda.SingleLabelClassifiedSamples(np.random.ranf(60).reshape(6, -1),
                                                          qlabs, qsids)
         rs_qsids, rs_qlabs = slab_csamples.lab_sorted_sids(rsids)
         np.testing.assert_equal(rs_qsids, np.array([3, 4, 2, 5, 1, 0]))
@@ -439,51 +467,54 @@ class TestSingleLabelClassifiedSamples(object):
     def test_filter_min_class_n(self):
         sids = [0, 1, 2, 3, 4, 5]
         labs = [0, 0, 0, 1, 2, 2]
-        slab_csamples = eda.SingleLabelClassifiedSamples(np.random.ranf(60).reshape(6, -1), 
+        slab_csamples = eda.SingleLabelClassifiedSamples(np.random.ranf(60).reshape(6, -1),
                                                          labs, sids, None)
         min_cl_n = 2
         mcnf_slab_csamples = slab_csamples.filter_min_class_n(min_cl_n)
-        np.testing.assert_equal(mcnf_slab_csamples.sids, 
+        np.testing.assert_equal(mcnf_slab_csamples.sids,
                                 np.array([0, 1, 2, 4, 5]))
-        np.testing.assert_equal(mcnf_slab_csamples.labs, 
+        np.testing.assert_equal(mcnf_slab_csamples.labs,
                                 np.array([0, 0, 0, 2, 2]))
-        np.testing.assert_equal(mcnf_slab_csamples._x.shape, 
+        np.testing.assert_equal(mcnf_slab_csamples._x.shape,
                                 (5, 10))
-        np.testing.assert_equal(mcnf_slab_csamples.fids, 
+        np.testing.assert_equal(mcnf_slab_csamples.fids,
                                 slab_csamples.fids)
-        np.testing.assert_equal(mcnf_slab_csamples._x, 
+        np.testing.assert_equal(mcnf_slab_csamples._x,
                                 slab_csamples._x[np.array([0, 1, 2, 4, 5])])
-        np.testing.assert_equal(mcnf_slab_csamples._d, 
+        np.testing.assert_equal(mcnf_slab_csamples._d,
                                 slab_csamples._d[np.array([0, 1, 2, 4, 5])][:, np.array([0, 1, 2, 4, 5])])
 
     def test_cross_labs(self):
         rsids = [0, 1, 2, 3, 4]
         rlabs = [0, 0, 0, 1, 1]
-        rscl_samples = eda.SingleLabelClassifiedSamples(self.sfm5x10_lst, rlabs, rsids)
-        
+        rscl_samples = eda.SingleLabelClassifiedSamples(
+            self.sfm5x10_lst, rlabs, rsids)
+
         qsids = [0, 1, 2, 3, 4]
         qlabs = [1, 1, 0, 2, 3]
-        qscl_samples = eda.SingleLabelClassifiedSamples(self.sfm5x10_lst, qlabs, qsids)
+        qscl_samples = eda.SingleLabelClassifiedSamples(
+            self.sfm5x10_lst, qlabs, qsids)
 
         cross_lab_lut = rscl_samples.cross_labs(qscl_samples)
         test_lut = {
-            0 : (3, ((0, 1), (1, 2))),
-            1 : (2, ((2, 3), (1, 1)))
+            0: (3, ((0, 1), (1, 2))),
+            1: (2, ((2, 3), (1, 1)))
         }
         assert cross_lab_lut == test_lut
 
         qsids2 = [0, 1, 2]
         qlabs2 = [1, 1, 0]
-        qscl_samples2 = eda.SingleLabelClassifiedSamples(self.sfm3x3_arr, qlabs2, qsids2)
+        qscl_samples2 = eda.SingleLabelClassifiedSamples(
+            self.sfm3x3_arr, qlabs2, qsids2)
 
         cross_lab_lut2 = rscl_samples.cross_labs(qscl_samples2)
         test_lut2 = {
-            0 : (3, ((0, 1), (1, 2)))
+            0: (3, ((0, 1), (1, 2)))
         }
         assert cross_lab_lut2 == test_lut2
 
         with pytest.raises(Exception) as excinfo:
-            rscl_samples.cross_labs([1,2,3])
+            rscl_samples.cross_labs([1, 2, 3])
 
         qsfm = eda.SampleFeatureMatrix(self.sfm5x10_lst)
         with pytest.raises(Exception) as excinfo:
@@ -492,7 +523,7 @@ class TestSingleLabelClassifiedSamples(object):
         # Contains mismatch to rsids
         mm_qsids = [0, 1, 6]
         mm_qlabs = [1, 1, 0]
-        mm_qscl_samples = eda.SingleLabelClassifiedSamples(self.sfm3x3_arr, 
+        mm_qscl_samples = eda.SingleLabelClassifiedSamples(self.sfm3x3_arr,
                                                            mm_qlabs, mm_qsids)
         with pytest.raises(Exception) as excinfo:
             rscl_samples.cross_labs(mm_qscl_samples)
@@ -500,7 +531,7 @@ class TestSingleLabelClassifiedSamples(object):
     def test_labs_to_cmap(self):
         sids = [0, 1, 2, 3, 4, 5, 6, 7]
         labs = list(map(str, [3, 0, 1, 0, 0, 1, 2, 2]))
-        slab_csamples = eda.SingleLabelClassifiedSamples(np.random.ranf(80).reshape(8, -1), 
+        slab_csamples = eda.SingleLabelClassifiedSamples(np.random.ranf(80).reshape(8, -1),
                                                          labs, sids)
 
         lab_cmap, lab_ind_arr, lab_col_lut, uniq_lab_lut = eda.SingleLabelClassifiedSamples.labs_to_cmap(
@@ -509,11 +540,12 @@ class TestSingleLabelClassifiedSamples(object):
         n_uniq_labs = len(set(labs))
         assert lab_cmap.N == n_uniq_labs
         assert lab_cmap.colors == sns.hls_palette(n_uniq_labs)
-        np.testing.assert_equal(lab_ind_arr, np.array([3, 0, 1, 0, 0, 1, 2, 2]))
+        np.testing.assert_equal(
+            lab_ind_arr, np.array([3, 0, 1, 0, 0, 1, 2, 2]))
         assert labs == [uniq_lab_lut[x] for x in lab_ind_arr]
         assert len(uniq_lab_lut) == n_uniq_labs
         assert len(lab_col_lut) == n_uniq_labs
-        assert [lab_col_lut[uniq_lab_lut[i]] 
+        assert [lab_col_lut[uniq_lab_lut[i]]
                 for i in range(n_uniq_labs)] == sns.hls_palette(n_uniq_labs)
 
         lab_cmap2 = eda.SingleLabelClassifiedSamples.labs_to_cmap(
@@ -522,13 +554,15 @@ class TestSingleLabelClassifiedSamples(object):
         assert lab_cmap2.colors == lab_cmap.colors
 
     def test_getters(self):
-        tslcs = eda.SingleLabelClassifiedSamples(np.arange(10).reshape(5, 2), 
+        tslcs = eda.SingleLabelClassifiedSamples(np.arange(10).reshape(5, 2),
                                                  [0, 0, 1, 2, 3],
                                                  ['a', 'b', 'c', '1', '2'],
                                                  ['a', 'z'])
 
-        np.testing.assert_equal(tslcs.x, np.array(np.arange(10).reshape(5, 2), dtype='float64'))
-        np.testing.assert_equal(tslcs.sids, np.array(['a', 'b', 'c', '1', '2']))
+        np.testing.assert_equal(tslcs.x, np.array(
+            np.arange(10).reshape(5, 2), dtype='float64'))
+        np.testing.assert_equal(
+            tslcs.sids, np.array(['a', 'b', 'c', '1', '2']))
         np.testing.assert_equal(tslcs.fids, np.array(['a', 'z']))
         np.testing.assert_equal(tslcs.labs, np.array([0, 0, 1, 2, 3]))
 
@@ -538,7 +572,7 @@ class TestSingleLabelClassifiedSamples(object):
         assert tslcs.labs is not tslcs._labs
 
     def test_lab_to_sids(self):
-        tslcs = eda.SingleLabelClassifiedSamples(np.arange(10).reshape(5, 2), 
+        tslcs = eda.SingleLabelClassifiedSamples(np.arange(10).reshape(5, 2),
                                                  [0, 0, 1, 2, 3],
                                                  ['a', 'b', 'c', '1', '2'],
                                                  ['a', 'z'])
@@ -546,7 +580,7 @@ class TestSingleLabelClassifiedSamples(object):
         np.testing.assert_equal(qsid_arr, (('a', 'b'), ('c',)))
 
     def test_sids_to_labs(self):
-        tslcs = eda.SingleLabelClassifiedSamples(np.arange(10).reshape(5, 2), 
+        tslcs = eda.SingleLabelClassifiedSamples(np.arange(10).reshape(5, 2),
                                                  [0, 0, 1, 2, 3],
                                                  ['a', 'b', 'c', '1', '2'],
                                                  ['a', 'z'])
@@ -565,51 +599,50 @@ class TestClusterScatter(object):
     def test_cluster_scatter_no_randstate(self):
         eda.cluster_scatter(self.x_50x2,
                             [0]*25 + [1]*25,
-                            title='test tsne scatter', 
+                            title='test tsne scatter',
                             xlab='tsne1', ylab='tsne2',
-                            figsize=(10, 10), n_txt_per_cluster=3, 
+                            figsize=(10, 10), n_txt_per_cluster=3,
                             alpha=0.5, s=50)
         eda.cluster_scatter(self.x_50x2,
                             [0]*25 + [1]*25,
                             title='test tsne scatter',
                             xlab='tsne1', ylab='tsne2',
-                            figsize=(10, 10), n_txt_per_cluster=3, alpha=0.5, 
+                            figsize=(10, 10), n_txt_per_cluster=3, alpha=0.5,
                             random_state=None, s=50)
 
     @pytest.mark.mpl_image_compare
     def test_cluster_scatter_no_xylab_title(self):
         fig = eda.cluster_scatter(self.x_50x2,
-                                 [0]*25 + [1]*25,
-                                 figsize=(10, 10), n_txt_per_cluster=3, alpha=0.5, 
-                                 s=50, random_state=123)
+                                  [0]*25 + [1]*25,
+                                  figsize=(10, 10), n_txt_per_cluster=3, alpha=0.5,
+                                  s=50, random_state=123)
         return fig
-    
+
     @pytest.mark.mpl_image_compare
     def test_cluster_scatter_legends(self):
         fig = eda.cluster_scatter(self.x_50x2,
-                                 [0]*25 + [1]*25,
-                                 title='test tsne scatter', xlab='tsne1', ylab='tsne2',
-                                 figsize=(10, 10), n_txt_per_cluster=3, alpha=0.5, 
-                                 s=50, random_state=123)
+                                  [0]*25 + [1]*25,
+                                  title='test tsne scatter', xlab='tsne1', ylab='tsne2',
+                                  figsize=(10, 10), n_txt_per_cluster=3, alpha=0.5,
+                                  s=50, random_state=123)
         return fig
-
 
     @pytest.mark.mpl_image_compare
     def test_cluster_scatter_no_legends(self):
         fig = eda.cluster_scatter(self.x_50x2,
-                                 [0]*25 + [1]*25,
-                                 title='test tsne scatter', xlab='tsne1', ylab='tsne2',
-                                 figsize=(10, 10), add_legend=False, 
-                                 n_txt_per_cluster=3, alpha=0.5, 
-                                 s=50, random_state=123)
+                                  [0]*25 + [1]*25,
+                                  title='test tsne scatter', xlab='tsne1', ylab='tsne2',
+                                  figsize=(10, 10), add_legend=False,
+                                  n_txt_per_cluster=3, alpha=0.5,
+                                  s=50, random_state=123)
         return fig
 
     @pytest.mark.mpl_image_compare
     def test_cluster_scatter_no_labels(self):
         fig = eda.cluster_scatter(self.x_50x2,
-                                 title='test tsne scatter', xlab='tsne1', ylab='tsne2',
-                                 figsize=(10, 10), n_txt_per_cluster=3, alpha=0.5, 
-                                 s=50, random_state=123)
+                                  title='test tsne scatter', xlab='tsne1', ylab='tsne2',
+                                  figsize=(10, 10), n_txt_per_cluster=3, alpha=0.5,
+                                  s=50, random_state=123)
         return fig
 
     def test_cluster_scatter_wrong_tsne_shape(self):
@@ -617,20 +650,19 @@ class TestClusterScatter(object):
             eda.cluster_scatter(np.random.ranf(100).reshape(-1, 1),
                                 title='test tsne scatter', xlab='tsne1', ylab='tsne2',
                                 figsize=(10, 10), n_txt_per_cluster=3, alpha=0.5,
-                                s=50,random_state=123)
-    
+                                s=50, random_state=123)
+
         with pytest.raises(ValueError) as excinfo:
             eda.cluster_scatter(np.random.ranf(100).reshape(-1, 5),
                                 title='test tsne scatter', xlab='tsne1', ylab='tsne2',
                                 figsize=(10, 10), n_txt_per_cluster=3, alpha=0.5,
                                 s=50, random_state=123)
-    
+
         with pytest.raises(ValueError) as excinfo:
             eda.cluster_scatter(np.random.ranf(99).reshape(-1, 3),
                                 title='test tsne scatter', xlab='tsne1', ylab='tsne2',
                                 figsize=(10, 10), n_txt_per_cluster=3, alpha=0.5,
                                 s=50, random_state=123)
-
 
     def test_cluster_scatter_wrong_label_shape(self):
         with pytest.raises(ValueError) as excinfo:
@@ -655,7 +687,6 @@ class TestHeatmap(object):
                           xlab='col label', ylab='row label',
                           figsize=(10, 10))
         return fig
-
 
     @pytest.mark.mpl_image_compare
     def test_heatmap_bilinear_interpolation(self):

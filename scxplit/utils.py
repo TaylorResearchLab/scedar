@@ -4,13 +4,14 @@ import numpy as np
 import gzip
 import os
 
-#
-# !!! parmap_fun() and parmap() are obtained from klaus se's post 
-# on stackoverflow. !!!
-# <https://stackoverflow.com/a/16071616/4638182>
-# parmap allows map on lambda and class static functions. 
-# 
+
 def _parmap_fun(f, q_in, q_out):
+    """
+    !!! parmap_fun() and parmap() are obtained from klaus se's post
+    on stackoverflow. !!!
+    <https://stackoverflow.com/a/16071616/4638182>
+    parmap allows map on lambda and class static functions.
+    """
     while True:
         i, x = q_in.get()
         if i is None:
@@ -37,30 +38,32 @@ def parmap(f, X, nprocs=1):
     return [x for i, x in sorted(res)]
 
 
-
-# Validate scipy hierarchical clustering cut tree
-# Number of clusters should decrease from n to 1
 def is_valid_full_cut_tree_mat(cmat):
+    """
+    Validate scipy hierarchical clustering cut tree
+    Number of clusters should decrease from n to 1
+    """
     col_unique_vals = [len(np.unique(x)) for x in cmat.T]
     return col_unique_vals == list(range(cmat.shape[0], 0, -1))
 
 
 def save_obj(obj, path):
-    with open(path, 'wb') as f:
+    with open(path, "wb") as f:
         pickle.dump(obj, f, pickle.HIGHEST_PROTOCOL)
 
 
 def load_obj(path):
-    with open(path, 'rb') as f:
+    with open(path, "rb") as f:
         return pickle.load(f)
 
 
 def load_gz_obj(path):
-    with gzip.open(path, 'rb') as f:
+    with gzip.open(path, "rb") as f:
         return pickle.load(f)
 
-# Test whether x is a 1D np array that only contains unique values. 
+
 def is_uniq_np1darr(x):
+    """Test whether x is a 1D np array that only contains unique values."""
     if not isinstance(x, np.ndarray):
         return False
 
@@ -72,4 +75,3 @@ def is_uniq_np1darr(x):
         return False
 
     return True
-

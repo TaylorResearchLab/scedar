@@ -36,7 +36,7 @@ setup(
         'pytest-mpl',
         'pytest-xdist',
         'pytest-cov',
-        'pytest-runner', 
+        'pytest-runner',
         'numpy',
         'scipy',
         'matplotlib',

@@ -37,7 +37,7 @@ def test_parmap_arr2d():
 
 
 def test_parmap_arr2d():
-    pm_res = utils.parmap(lambda x: x ** 2, 
+    pm_res = utils.parmap(lambda x: x ** 2,
                           np.array([[1, 2], [3, 4]]))
     assert isinstance(pm_res, list)
     assert np.all(pm_res[0] == np.array([1, 4]))
