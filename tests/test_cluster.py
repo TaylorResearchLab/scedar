@@ -191,19 +191,19 @@ class TestHClustTree(object):
         assert rst.right_leaf_ids() == [1, 3]
         assert rst.left_leaf_ids() == [4]
 
-    def test_cluster_id_list_to_lab_array_wrong_id_list_type(self):
+    def test_cluster_id_to_lab_list_wrong_id_list_type(self):
         with pytest.raises(ValueError) as excinfo:
-            cluster.HClustTree.cluster_id_list_to_lab_array(
+            cluster.HClustTree.cluster_id_to_lab_list(
                 np.array([[0, 1, 2], [3, 4]]), [0, 1, 2, 3, 4])
 
-    def test_cluster_id_list_to_lab_array_mismatched_ids_sids(self):
+    def test_cluster_id_to_lab_list_mismatched_ids_sids(self):
         with pytest.raises(ValueError) as excinfo:
-            cluster.HClustTree.cluster_id_list_to_lab_array(
+            cluster.HClustTree.cluster_id_to_lab_list(
                 [[0, 1, 2], [3, 4]], [0, 1, 2, 3, 5])
 
-    def test_cluster_id_list_to_lab_array_empty_cluster(self):
+    def test_cluster_id_to_lab_list_empty_cluster(self):
         with pytest.raises(ValueError) as excinfo:
-            cluster.HClustTree.cluster_id_list_to_lab_array(
+            cluster.HClustTree.cluster_id_to_lab_list(
                 [[], [0, 1, 2, 3, 4]], [0, 1, 2, 3, 4])
 
 

@@ -22,8 +22,10 @@ from . import utils
 class SampleFeatureMatrix(object):
     """
     SampleFeatureMatrix is a (n_samples, n_features) matrix.
+
     In this package, we are only interested in float features as measured
     expression levels.
+    
     Parameters
     ----------
     x : ndarray or list
@@ -33,8 +35,8 @@ class SampleFeatureMatrix(object):
     fids : homogenous list of int or string
         feature ids. Should not contain duplicated elements.
 
-    Attributes:
-    -----------
+    Attributes
+    ----------
     _x : ndarray
         data matrix (n_samples, n_features)
     _d : ndarray
@@ -43,8 +45,6 @@ class SampleFeatureMatrix(object):
         sample ids.
     _fids : ndarray
         sample ids.
-
-    Methods defined here:
     """
 
     def __init__(self, x, sids=None, fids=None):
@@ -142,8 +142,8 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
     nprocs : int
         the number of processes for computing pairwise distance matrix
 
-    Attributes:
-    -----------
+    Attributes
+    ----------
     _x : ndarray
         data matrix (n_samples, n_features)
     _d : ndarray
@@ -282,7 +282,7 @@ def tsne(x, n_components=2, perplexity=30.0, early_exaggeration=12.0,
 
 
 class SingleLabelClassifiedSamples(SampleDistanceMatrix):
-    """docstring for SingleLabelClassifiedSamples"""
+    """SingleLabelClassifiedSamples"""
     # sid, lab, fid, x
 
     def __init__(self, x, labs, sids=None, fids=None, d=None,

@@ -6,12 +6,6 @@ import os
 
 
 def _parmap_fun(f, q_in, q_out):
-    """
-    !!! parmap_fun() and parmap() are obtained from klaus se's post
-    on stackoverflow. !!!
-    <https://stackoverflow.com/a/16071616/4638182>
-    parmap allows map on lambda and class static functions.
-    """
     while True:
         i, x = q_in.get()
         if i is None:
@@ -20,6 +14,12 @@ def _parmap_fun(f, q_in, q_out):
 
 
 def parmap(f, X, nprocs=1):
+    """
+    parmap_fun() and parmap() are obtained from klaus se's post
+    on stackoverflow. <https://stackoverflow.com/a/16071616/4638182>
+    
+    parmap allows map on lambda and class static functions.
+    """
     q_in = mp.Queue(1)
     q_out = mp.Queue()
     proc = [mp.Process(target=_parmap_fun, args=(f, q_in, q_out))

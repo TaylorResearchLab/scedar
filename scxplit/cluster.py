@@ -11,10 +11,14 @@ from . import eda
 class MultinomialMdl(object):
     """
     Encode discrete values using multinomial distribution
-    Input:
-    x: 1d array. Should be non-negative
 
-    Notes:
+    Parameters
+    ----------
+    x: 1d float array
+        Should be non-negative
+
+    Notes
+    -----
     When x only has 1 uniq value. Encode the the number of values only.
     """
 
@@ -50,35 +54,40 @@ class MultinomialMdl(object):
 
 class ZeroIdcGKdeMdl(object):
     """
-    ZeroIdcGKdeMdl. Encode the 0s and non-0s using bernoulli distribution.
+    Zero indicator Gaussian KDE MDL
+
+    Encode the 0s and non-0s using bernoulli distribution.
     Then, encode non-0s using gaussian kde. Finally, one ternary val indicates 
     all 0s, all non-0s, or otherwise
 
-    Parameters:
-    -----------
-    x: 1d array. Should be non-negative
 
-    Methods defined here:
-    ---------------------
-    gaussian_kde_bw(x, method="silverman") : 
-        Estimate Gaussian kernel density estimation bandwidth for input x.
-        x: 
-            float array of shape (n_samples) or (n_samples, n_features)
-        bandwidth_method: 
-            passed to scipy.stats.gaussian_kde param bw_method
-            "scott": Scott"s rule of thumb.
-            "silverman": Silverman"s rule of thumb.
-            constant: constant will be timed by x.std(ddof=1) internally, 
-                because scipy times bw_method value by std. "Scipy weights its 
-                bandwidth by the ovariance of the input data" [3].
-            callable: scipy calls the function on self
-        Ref: 
-        [1] https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.gaussian_kde.html
-        [2] https://en.wikipedia.org/wiki/Kernel_density_estimation
-        [3] https://jakevdp.github.io/blog/2013/12/01/kernel-density-estimation/
-        [4] https://github.com/scipy/scipy/blob/v1.0.0/scipy/stats/kde.py#L42-L564
+    Parameters
+    ----------
+    x: 1d float array
+        Should be non-negative
+    bandwidth_method: string
+        KDE bandwidth estimation method bing passed to 
+        `scipy.stats.gaussian_kde`.
+        Types: 
+        * `"scott"`: Scott's rule of thumb.
+        * `"silverman"`: Silverman"s rule of thumb.
+        * `constant`: constant will be timed by x.std(ddof=1) internally, 
+        because scipy times bw_method value by std. "Scipy weights its 
+        bandwidth by the ovariance of the input data" [3].
+        * `callable`: scipy calls the function on self
+
+    References
+    ----------
+    [1] https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.gaussian_kde.html
+
+    [2] https://en.wikipedia.org/wiki/Kernel_density_estimation
+
+    [3] https://jakevdp.github.io/blog/2013/12/01/kernel-density-estimation/
+
+    [4] https://github.com/scipy/scipy/blob/v1.0.0/scipy/stats/kde.py#L42-L564
 
     """
+
 
     def __init__(self, x, kde_bw_method="silverman"):
         super(ZeroIdcGKdeMdl, self).__init__()
@@ -107,6 +116,19 @@ class ZeroIdcGKdeMdl(object):
     @staticmethod
     def gaussian_kde_logdens(x, bandwidth_method="silverman",
                              ret_kernel=False):
+        """
+        Estimate Gaussian kernel density estimation bandwidth for input `x`.
+
+        Parameters
+        ----------
+        x: float array of shape `(n_samples)` or `(n_samples, n_features)`
+            Data points for KDE estimation. 
+        bandwidth_method: string
+            KDE bandwidth estimation method bing passed to 
+            `scipy.stats.gaussian_kde`.
+
+        """
+    
         # This package uses (n_samples, n_features) convention
         # scipy uses (n_featues, n_samples) convention
         # so it is necessary to reshape the data
@@ -192,15 +214,17 @@ class ZeroIdcGKdeMdl(object):
 
 class HClustTree(object):
     """
-    Hierarchical clustering tree. Implement simple tree operation routines. 
-    HCT is binary unbalanced tree. 
+    Hierarchical clustering tree. 
 
-    Attributes:
-    -----------
+    Implement simple tree operation routines. HCT is binary unbalanced tree.
+
+    Attributes
+    ----------
     node : scipy.cluster.hierarchy.ClusterNode
         current node
     prev : HClustTree
         parent of current node
+
     """
 
     def __init__(self, node, prev=None):
@@ -253,7 +277,7 @@ class HClustTree(object):
         return self.right().leaf_ids()
 
     def bi_partition(self, return_subtrees=False):
-        labs, sids = self.cluster_id_list_to_lab_array([self.left_leaf_ids(),
+        labs, sids = self.cluster_id_to_lab_list([self.left_leaf_ids(),
                                                         self.right_leaf_ids()],
                                                        self.leaf_ids())
         if return_subtrees:
@@ -281,9 +305,21 @@ class HClustTree(object):
         return nr_bipar_cnt_list
 
     @staticmethod
-    def cluster_id_list_to_lab_array(cl_sid_list, sid_list):
-        # convert [[0, 1, 2], [3,4]] to np.array([0, 0, 0, 1, 1])
-        # according to id_arr [0, 1, 2, 3, 4]
+    def cluster_id_to_lab_list(cl_sid_list, sid_list):
+        """
+        Convert nested clustered ID list into cluster label list.
+        
+        For example, convert `[[0, 1, 2], [3,4]]` to `[0, 0, 0, 1, 1]`
+        according to id_arr `[0, 1, 2, 3, 4]`
+
+        Parameters
+
+        cl_sid_list: list[list[id]]
+            Nested list with each sublist as a sert of IDs from a cluster.
+        sid_list: list[id]
+            Flat list of lists.
+
+        """
 
         # checks uniqueness
         # This guarantees that clusters are all non-empty

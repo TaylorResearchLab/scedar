@@ -7,7 +7,8 @@ dist
 # Python egg metadata, regenerated from source files by setuptools.
 *.egg-info
 
-.eggs
+*.eggs
+
 
 .pytest_cache
 
@@ -19,3 +20,8 @@ build
 .coverage
 
 *.sublime-workspace
+
+doc/_build
+doc/_static
+doc/_templates
+
