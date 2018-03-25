@@ -469,18 +469,62 @@ class MDLSampleDistanceMatrix(eda.SingleLabelClassifiedSamples):
 class MIRAC(object):
     """
     MIRAC: MDL iteratively regularized agglomerative clustering.
+
+    Parameters
+    ----------
+    x: float array
+        Data.
+    d: float array
+        Distance matrix.
+    metric: str
+        Type of distance metric.
+    sids: sid list
+        List of sample ids.
+    fids: fid list
+        List of feature ids.
+    nprocs: int
+        Number of processes to run MIRAC parallely.
+    cl_mdl_scale_factor: float
+        Scale factor of cluster overhead mdl. 
+    minimax_n: int
+        Estimated minimum # samples in a cluster
+    maxmini_n: int
+        Estimated max # samples in a cluster. If none, 10 * minimax is used.
+    linkage: str
+        Linkage type for generating the hierarchy. 
+    verbose: bool
+        Print stats for each iteration.
+
+    Attributes
+    ----------
+    _sdm: SampleDistanceMatrix
+        Data and distance matrices. 
+    _minimax_n: int
+        Stored parameter.
+    _maxmini_n: int
+        Stored parameter.
+    _cluster_s_ind: int array
+        Clustered sample indices of the data matrix.
+    _cluster_labs: label array
+        Labels of clustered samples. 1-to-1 matching to _cluster_s_ind.
+    _hac_tree_root: HClustTree
+        Root node of the hierarchical agglomerative clustering tree.
+    _run_log: str
+        String containing the log of the MIRAC run. 
+
     """
 
     def __init__(self, x, d=None, metric=None, sids=None, fids=None,
                  nprocs=1, cl_mdl_scale_factor=1, minimax_n=25,
-                 maxmini_n=None, linkage="complete",
-                 is_euc_dist=False, verbose=False):
+                 maxmini_n=None, linkage="complete", verbose=False):
         super(MIRAC, self).__init__()
 
         nprocs = int(np.ceil(nprocs))
 
         self._sdm = eda.SampleDistanceMatrix(x=x, d=d, metric=metric, sids=sids,
                                              fids=fids, nprocs=nprocs)
+
+        is_euc_dist = (metric == "euclidean")
 
         if cl_mdl_scale_factor < 0:
             raise ValueError("cl_mdl_scale_factor should >= 0",
@@ -648,6 +692,8 @@ class MIRAC(object):
         hac_tree = HClustTree.hclust_tree(self._sdm._d, linkage=linkage,
                                           is_euc_dist=is_euc_dist,
                                           verbose=verbose)
+        self._hac_tree_root = hac_tree
+        self._run_log = ""
 
         curr_trees = [hac_tree]
 
@@ -752,15 +798,21 @@ class MIRAC(object):
                                     # "spl"
                                     next_trees.append(subtrees[st_ind])
 
+                curr_iter_run_log = str.format(
+                    "no lab mdl: {}, subtree mdl: {}, "
+                    "cluster_mdl: {}, subtree_n: {}, "
+                    "split type: {}, "
+                    "split: {}.\n",
+                    no_lab_mdl,
+                    subtree_mdl_list,
+                    cluster_mdl,
+                    subtree_s_cnt_list,
+                    subtree_split_type,
+                    subtree_split_list)
+                self._run_log += curr_iter_run_log
                 if verbose:
-                    print("no lab mdl: {}, subtree mdl: {}, "
-                          "cluster_mdl: {}, subtree_n: {}, "
-                          "split type: {}, "
-                          "split: {}.".format(no_lab_mdl,
-                                              subtree_mdl_list,
-                                              cluster_mdl, subtree_s_cnt_list,
-                                              subtree_split_type,
-                                              subtree_split_list))
+                    print(curr_iter_run_log, end="")
+
             curr_trees = next_trees
             next_trees = []
 
