@@ -678,12 +678,15 @@ class MIRCH(object):
 
                 no_lab_mdl = mdl_sdm.no_lab_mdl(nprocs, verbose=verbose)
 
-                (subtree_s_ind_list,
+                # subtree_subset_s_ind_list starts from 0 to mdl_sdm.shape[0]
+                (subtree_subset_s_ind_list,
                  subtree_s_cnt_list,
                  subtree_mdl_list,
                  cluster_mdl) = mdl_sdm.lab_mdl(cl_mdl_scale_factor, nprocs,
                                                 verbose)
 
+                subtree_s_ind_list = [[s_inds[i] for i in x] 
+                                      for x in subtree_subset_s_ind_list]
                 # compensation factor: large when s_cnt >> minimax and s_cnt
                 # close to n_samples
                 bi_spl_cmps_factor = self.bi_split_compensation_factor(

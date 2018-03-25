@@ -344,13 +344,11 @@ class SingleLabelClassifiedSamples(SampleDistanceMatrix):
         uniq_lab_cnts = np.unique(self._labs, return_counts=True)
         nf_sid_ind = np.in1d(self._labs,
                              (uniq_lab_cnts[0])[uniq_lab_cnts[1] >= min_class_n])
-        return SingleLabelClassifiedSamples(x=self._x[nf_sid_ind],
-                                            labs=self._labs[nf_sid_ind].tolist(
-        ),
-            d=self._d[np.ix_(
-                nf_sid_ind, nf_sid_ind)],
-            sids=self._sids[nf_sid_ind].tolist(
-        ),
+        return SingleLabelClassifiedSamples(
+            x=self._x[nf_sid_ind], 
+            labs=self._labs[nf_sid_ind].tolist(), 
+            d=self._d[np.ix_(nf_sid_ind, nf_sid_ind)], 
+            sids=self._sids[nf_sid_ind].tolist(),
             fids=self._fids.tolist(),
             metric=self._metric)
 

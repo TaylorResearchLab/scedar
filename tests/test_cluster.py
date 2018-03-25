@@ -529,5 +529,6 @@ class TestMIRCH(object):
                                        centers=100, cluster_std=1,
                                        random_state=8927)
         tx2 = tx2 - tx2.min()
-        cluster.MIRCH(tx2, metric="correlation", minimax_n=1, maxmini_n=2,
-                      cl_mdl_scale_factor=0, verbose=True)
+        m = cluster.MIRCH(tx2, metric="correlation", minimax_n=1, maxmini_n=2,
+                          cl_mdl_scale_factor=0, verbose=True)
+        assert len(np.unique(m._cluster_s_ind)) == 500
