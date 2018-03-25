@@ -352,7 +352,7 @@ class HClustTree(object):
 
     @staticmethod
     def hclust_tree(dmat, linkage="complete", n_eval_rounds=None,
-                    is_euc_dist=False, verbose=False, optimal_ordering=True):
+                    is_euc_dist=False, optimal_ordering=False, verbose=False):
         dmat = np.array(dmat, dtype="float")
         dmat = eda.SampleDistanceMatrix.num_correct_dist_mat(dmat)
 
