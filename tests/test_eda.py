@@ -484,6 +484,25 @@ class TestSingleLabelClassifiedSamples(object):
         np.testing.assert_equal(mcnf_slab_csamples._d,
                                 slab_csamples._d[np.array([0, 1, 2, 4, 5])][:, np.array([0, 1, 2, 4, 5])])
 
+    def test_s_id_x(self):
+        sids = list("abcdef")
+        labs = [0, 0, 0, 1, 2, 2]
+        slab_csamples = eda.SingleLabelClassifiedSamples(
+            np.random.ranf(60).reshape(6, -1), labs, sids)
+        selected = slab_csamples.s_id_x(['a', 'e'])
+        assert selected._x.shape == (2, 10)
+        assert selected.sids == ['a', 'e']
+        assert selected.labs == [0, 2]
+
+        # select non-existent ids
+        with pytest.raises(ValueError) as excinfo:
+            slab_csamples.s_id_x([1])
+
+        # select 0 id
+        # does not support empty matrix
+        with pytest.raises(ValueError) as excinfo:
+            slab_csamples.s_id_x([])
+
     def test_cross_labs(self):
         rsids = [0, 1, 2, 3, 4]
         rlabs = [0, 0, 0, 1, 1]

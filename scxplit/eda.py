@@ -344,13 +344,7 @@ class SingleLabelClassifiedSamples(SampleDistanceMatrix):
         uniq_lab_cnts = np.unique(self._labs, return_counts=True)
         nf_sid_ind = np.in1d(self._labs,
                              (uniq_lab_cnts[0])[uniq_lab_cnts[1] >= min_class_n])
-        return SingleLabelClassifiedSamples(
-            x=self._x[nf_sid_ind], 
-            labs=self._labs[nf_sid_ind].tolist(), 
-            d=self._d[np.ix_(nf_sid_ind, nf_sid_ind)], 
-            sids=self._sids[nf_sid_ind].tolist(),
-            fids=self._fids.tolist(),
-            metric=self._metric)
+        return self.s_ind_x(nf_sid_ind)
 
     def labs_to_sids(self, labs):
         return tuple(tuple(self._sid_lut[y].tolist()) for y in labs)
@@ -358,6 +352,35 @@ class SingleLabelClassifiedSamples(SampleDistanceMatrix):
     def sids_to_labs(self, sids):
         return np.array([self._lab_lut[x] for x in sids])
 
+    def s_id_x(self, selected_sids):
+        """
+        Subset samples by sample IDs.
+
+        Returns
+        -------
+        subset: SingleLabelClassifiedSamples
+        """
+        sid_list = self.sids
+        s_id_ind = [sid_list.index(i) for i in selected_sids]
+        return self.s_ind_x(s_id_ind)
+
+    def s_ind_x(self, selected_s_inds):
+        """
+        Subset samples by sample IDs.
+
+        Returns
+        -------
+        subset: SingleLabelClassifiedSamples
+        """
+        return SingleLabelClassifiedSamples(
+            x=self._x[selected_s_inds].copy(),
+            labs=self._labs[selected_s_inds].tolist(),
+            d=self._d[np.ix_(selected_s_inds, selected_s_inds)].copy(),
+            sids=self._sids[selected_s_inds].tolist(),
+            fids=self._fids.tolist(),
+            metric=self._metric,
+            nprocs=self._nprocs)
+    
     @property
     def labs(self):
         return self._labs.tolist()
