@@ -202,7 +202,8 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
                                        atol=1e-5)
         except AssertionError as e:
             warnings.warn("distance matrix might not be numerically "
-                          "correct. diag vals should be close to 0. {}".format(e))
+                          "correct. diag vals "
+                          "should be close to 0. {}".format(e))
 
         try:
             # distance matrix should be approximately symmetric
@@ -211,7 +212,8 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
                                        rtol=0.001)
         except AssertionError as e:
             warnings.warn("distance matrix might not be numerically "
-                          "correct. should be approximately symmetric. {}".format(e))
+                          "correct. should be approximately "
+                          "symmetric. {}".format(e))
 
         dmat[dmat < 0] = 0
         dmat[np.diag_indices(dmat.shape[0])] = 0
@@ -225,7 +227,8 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
     # store_res : bool. Wheter to keep the tsne results in a dictionalry keyed
     # by the parameters.
     def tsne(self, store_res=True, **kwargs):
-        if ("metric" in kwargs) and (kwargs["metric"] not in ("precomputed", self._metric)):
+        if ("metric" in kwargs 
+            and kwargs["metric"] not in ("precomputed", self._metric)):
             raise ValueError("If you want to calculate t-SNE of a different "
                              "metric than the instance metric, create another "
                              "instance of the desired metric.")
@@ -236,8 +239,9 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
 
         if store_res:
             curr_store_ind = len(self._tsne_lut) + 1
-            self._tsne_lut[str(kwargs)
-                           + " stored run {}".format(curr_store_ind)] = tsne_res.copy()
+            tsne_params_key = str(kwargs) + " stored run {}".format(
+                curr_store_ind)
+            self._tsne_lut[tsne_params_key] = tsne_res.copy()
 
         return tsne_res
 
@@ -269,15 +273,15 @@ def tsne(x, n_components=2, perplexity=30.0, early_exaggeration=12.0,
          learning_rate=200.0, n_iter=1000, n_iter_without_progress=300,
          min_grad_norm=1e-07, metric="euclidean", init="random", verbose=0,
          random_state=None, method="barnes_hut", angle=0.5):
-    x_tsne = sklearn.manifold.TSNE(n_components=n_components,
-                                   perplexity=perplexity,
-                                   early_exaggeration=early_exaggeration,
-                                   learning_rate=learning_rate, n_iter=n_iter,
-                                   n_iter_without_progress=n_iter_without_progress,
-                                   min_grad_norm=min_grad_norm, metric=metric,
-                                   init=init, verbose=verbose,
-                                   random_state=random_state, method=method,
-                                   angle=angle).fit_transform(x)
+    x_tsne = sklearn.manifold.TSNE(
+        n_components=n_components, perplexity=perplexity, 
+        early_exaggeration=early_exaggeration, 
+        learning_rate=learning_rate, n_iter=n_iter, 
+        n_iter_without_progress=n_iter_without_progress, 
+        min_grad_norm=min_grad_norm, metric=metric, 
+        init=init, verbose=verbose, 
+        random_state=random_state, method=method, 
+        angle=angle).fit_transform(x)
     return x_tsne
 
 
@@ -342,8 +346,8 @@ class SingleLabelClassifiedSamples(SampleDistanceMatrix):
 
     def filter_min_class_n(self, min_class_n):
         uniq_lab_cnts = np.unique(self._labs, return_counts=True)
-        nf_sid_ind = np.in1d(self._labs,
-                             (uniq_lab_cnts[0])[uniq_lab_cnts[1] >= min_class_n])
+        nf_sid_ind = np.in1d(
+            self._labs, (uniq_lab_cnts[0])[uniq_lab_cnts[1] >= min_class_n])
         return self.s_ind_x(nf_sid_ind)
 
     def labs_to_sids(self, labs):
@@ -413,8 +417,8 @@ class SingleLabelClassifiedSamples(SampleDistanceMatrix):
             sep_lab_sid_list = [sort_flat_sids(x, ref_sid_order)
                                 for x in sep_lab_sid_list]
             sep_lab_min_sid_list = [x[0] for x in sep_lab_sid_list]
-            sorted_sep_lab_min_sid_list = list(sort_flat_sids(sep_lab_min_sid_list,
-                                                              ref_sid_order))
+            sorted_sep_lab_min_sid_list = list(
+                sort_flat_sids(sep_lab_min_sid_list, ref_sid_order))
             min_sid_sorted_sep_lab_ind_list = [sep_lab_min_sid_list.index(x)
                                                for x in sorted_sep_lab_min_sid_list]
             sep_lab_list = [sep_lab_list[i]
