@@ -1,3 +1,3 @@
-# Single-Cell RNA Expression Pattern Split
+# Single-cell explorative data analysis for RNA-Seq
 
 TBC. 
