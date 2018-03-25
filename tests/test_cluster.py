@@ -530,4 +530,4 @@ class TestMIRCH(object):
                                        random_state=8927)
         tx2 = tx2 - tx2.min()
         cluster.MIRCH(tx2, metric="correlation", minimax_n=1, maxmini_n=2,
-                      cl_mdl_scale_factor=0)
+                      cl_mdl_scale_factor=0, verbose=True)

@@ -352,7 +352,7 @@ class HClustTree(object):
 
     @staticmethod
     def hclust_tree(dmat, linkage="complete", n_eval_rounds=None,
-                    is_euc_dist=False, verbose=False):
+                    is_euc_dist=False, verbose=False, optimal_ordering=True):
         dmat = np.array(dmat, dtype="float")
         dmat = eda.SampleDistanceMatrix.num_correct_dist_mat(dmat)
 
@@ -387,7 +387,8 @@ class HClustTree(object):
                       sep="\n")
 
         dmat_sf = spspatial.distance.squareform(dmat)
-        hac_z = sph.linkage(dmat_sf, method=linkage, optimal_ordering=False)
+        hac_z = sph.linkage(dmat_sf, method=linkage,
+                            optimal_ordering=optimal_ordering)
         return HClustTree(sph.to_tree(hac_z))
 
 
@@ -749,8 +750,8 @@ class MIRCH(object):
                                     next_trees.append(subtrees[st_ind])
 
                 if verbose:
-                    print("no lab mdl: {:.2f}, subtree mdl: {}, "
-                          "cluster_mdl: {:.2f}, subtree_n: {}, "
+                    print("no lab mdl: {}, subtree mdl: {}, "
+                          "cluster_mdl: {}, subtree_n: {}, "
                           "split type: {}, "
                           "split: {}.".format(no_lab_mdl,
                                               subtree_mdl_list,
