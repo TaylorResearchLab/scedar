@@ -162,6 +162,38 @@ class TestSampleFeatureMatrix(object):
         eda.SampleFeatureMatrix.check_is_valid_sfids(['1', '2'])
         eda.SampleFeatureMatrix.check_is_valid_sfids([1, 2, 3])
 
+    def test_s_ind_x(self):
+        sids = list("abcdef")
+        sfm = eda.SampleFeatureMatrix(np.random.ranf(60).reshape(6, -1), sids)
+        ss_sfm = sfm.s_ind_x([0, 5])
+        assert ss_sfm._x.shape == (2, 10)
+        assert ss_sfm.sids == ['a', 'f']
+
+        # select non-existent inds
+        with pytest.raises(IndexError) as excinfo:
+            sfm.s_ind_x([6])
+
+        # select 0 ind
+        # does not support empty matrix
+        with pytest.raises(ValueError) as excinfo:
+            sfm.s_ind_x([])
+
+    def test_s_id_x(self):
+        sids = list("abcdef")
+        sfm = eda.SampleFeatureMatrix(np.random.ranf(60).reshape(6, -1), sids)
+        ss_sfm = sfm.s_id_x(['a', 'e'])
+        assert ss_sfm._x.shape == (2, 10)
+        assert ss_sfm.sids == ['a', 'e']
+
+        # select non-existent ids
+        with pytest.raises(ValueError) as excinfo:
+            sfm.s_id_x([1])
+
+        # select 0 id
+        # does not support empty matrix
+        with pytest.raises(ValueError) as excinfo:
+            sfm.s_id_x([])
+
     def test_getters(self):
         tsfm = eda.SampleFeatureMatrix(np.arange(10).reshape(5, 2),
                                        ['a', 'b', 'c', '1', '2'],
@@ -309,6 +341,45 @@ class TestSampleDistanceMatrix(object):
             np.testing.assert_allclose(tsne_res_lut[iter_key],
                                        tsne_res_list[i])
             assert tsne_res_lut[iter_key] is not tsne_res_list[i]
+
+    def test_s_ind_x(self):
+        sids = list("abcdef")
+        sdm = eda.SampleDistanceMatrix(
+            np.random.ranf(60).reshape(6, -1), sids=sids)
+        ss_sdm = sdm.s_ind_x([0, 5])
+        assert ss_sdm._x.shape == (2, 10)
+        assert ss_sdm.sids == ['a', 'f']
+
+        np.testing.assert_equal(
+            ss_sdm.d, sdm._d[np.ix_((0, 5), (0, 5))])
+
+        # select non-existent inds
+        with pytest.raises(IndexError) as excinfo:
+            sdm.s_ind_x([6])
+
+        # select 0 ind
+        # does not support empty matrix
+        with pytest.raises(ValueError) as excinfo:
+            sdm.s_ind_x([])
+
+    def test_s_id_x(self):
+        sids = list("abcdef")
+        sdm = eda.SampleDistanceMatrix(
+            np.random.ranf(60).reshape(6, -1), sids=sids)
+        ss_sdm = sdm.s_id_x(['a', 'e'])
+        assert ss_sdm._x.shape == (2, 10)
+        assert ss_sdm.sids == ['a', 'e']
+        np.testing.assert_equal(
+            ss_sdm._d, sdm._d[np.ix_((0, 4), (0, 4))])
+
+        # select non-existent ids
+        with pytest.raises(ValueError) as excinfo:
+            sdm.s_id_x([1])
+
+        # select 0 id
+        # does not support empty matrix
+        with pytest.raises(ValueError) as excinfo:
+            sdm.s_id_x([])
 
     def test_getter(self):
         tmet = 'euclidean'
@@ -493,7 +564,8 @@ class TestSingleLabelClassifiedSamples(object):
         assert selected._x.shape == (2, 10)
         assert selected.sids == ['a', 'e']
         assert selected.labs == [0, 2]
-
+        np.testing.assert_equal(
+            selected._d, slab_csamples._d[np.ix_([0, 4], [0, 4])])
         # select non-existent ids
         with pytest.raises(ValueError) as excinfo:
             slab_csamples.s_id_x([1])

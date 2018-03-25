@@ -3,7 +3,7 @@ import scipy.spatial
 import sklearn.manifold
 
 import matplotlib as mpl
-mpl.use('agg')
+mpl.use("agg", warn=False)
 import matplotlib.pyplot as plt
 import matplotlib.colors
 import matplotlib.patches
@@ -108,6 +108,31 @@ class SampleFeatureMatrix(object):
         assert sfids.shape[0] > 0
         if not utils.is_uniq_np1darr(sfids):
             raise ValueError("[sf]ids must not contain duplicated values")
+
+    def s_id_x(self, selected_sids):
+        """
+        Subset samples by sample IDs.
+
+        Returns
+        -------
+        subset: SampleFeatureMatrix
+        """
+        sid_list = self.sids
+        s_id_inds = [sid_list.index(i) for i in selected_sids]
+        return self.s_ind_x(s_id_inds)
+
+    def s_ind_x(self, selected_s_inds):
+        """
+        Subset samples by sample IDs.
+
+        Returns
+        -------
+        subset: SampleFeatureMatrix
+        """
+        return SampleFeatureMatrix(
+            x=self._x[selected_s_inds].copy(),
+            sids=self._sids[selected_s_inds].tolist(),
+            fids=self._fids.tolist())
 
     @property
     def sids(self):
@@ -245,6 +270,34 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
 
         return tsne_res
 
+    def s_id_x(self, selected_sids):
+        """
+        Subset samples by sample IDs.
+
+        Returns
+        -------
+        subset: SampleDistanceMatrix
+        """
+        sid_list = self.sids
+        s_id_inds = [sid_list.index(i) for i in selected_sids]
+        return self.s_ind_x(s_id_inds)
+
+    def s_ind_x(self, selected_s_inds):
+        """
+        Subset samples by sample IDs.
+
+        Returns
+        -------
+        subset: SampleDistanceMatrix
+        """
+        return SampleDistanceMatrix(
+            x=self._x[selected_s_inds].copy(),
+            d=self._d[np.ix_(selected_s_inds, selected_s_inds)].copy(),
+            metric=self._metric,
+            sids=self._sids[selected_s_inds].tolist(),
+            fids=self._fids.tolist(),
+            nprocs=self._nprocs)
+
     @property
     def d(self):
         return self._d.tolist()
@@ -365,8 +418,8 @@ class SingleLabelClassifiedSamples(SampleDistanceMatrix):
         subset: SingleLabelClassifiedSamples
         """
         sid_list = self.sids
-        s_id_ind = [sid_list.index(i) for i in selected_sids]
-        return self.s_ind_x(s_id_ind)
+        s_id_inds = [sid_list.index(i) for i in selected_sids]
+        return self.s_ind_x(s_id_inds)
 
     def s_ind_x(self, selected_s_inds):
         """
