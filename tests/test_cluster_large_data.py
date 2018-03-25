@@ -4,8 +4,8 @@ import numpy as np
 
 import sklearn.datasets as skdset
 
-import scxplit.cluster as cluster
-import scxplit.eda as eda
+import scedar.cluster as cluster
+import scedar.eda as eda
 
 
 class TestLargeDataMIRCH(object):

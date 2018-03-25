@@ -1,6 +1,6 @@
 import numpy as np
 import seaborn as sns
-import scxplit.eda as eda
+import scedar.eda as eda
 import matplotlib as mpl
 import pytest
 

@@ -11,7 +11,7 @@
       "name": "PyTest",
       "working_dir": "${project_path}",
       "selector": "source.python",
-      "shell_cmd": "/Users/zhangy4/miniconda3/envs/py36/bin/python setup.py test --addopts \"--mpl --mpl-baseline-path=tests/baseline_images --cov=scxplit\"",
+      "shell_cmd": "/Users/zhangy4/miniconda3/envs/py36/bin/python setup.py test --addopts \"--mpl --mpl-baseline-path=tests/baseline_images --cov=scedar\"",
       "env": {
          "TERM": "xterm-256color",
          "CLICOLOR_FORCE": "1",
@@ -24,17 +24,17 @@
 
         { 
           "name": "Generate Baseline Image",
-          "shell_cmd": "/Users/zhangy4/miniconda3/envs/py36/bin/python setup.py test --addopts \"--mpl-generate-path=tests/baseline_images --cov=scxplit\"",
+          "shell_cmd": "/Users/zhangy4/miniconda3/envs/py36/bin/python setup.py test --addopts \"--mpl-generate-path=tests/baseline_images --cov=scedar\"",
         },
 
         {
           "name": "PyTest Current Module",
-          "shell_cmd": "/Users/zhangy4/miniconda3/envs/py36/bin/python setup.py test --addopts \"--mpl --mpl-baseline-path=tests/baseline_images tests/test_$file_name --cov=scxplit.$file_base_name\"",
+          "shell_cmd": "/Users/zhangy4/miniconda3/envs/py36/bin/python setup.py test --addopts \"--mpl --mpl-baseline-path=tests/baseline_images tests/test_$file_name --cov=scedar.$file_base_name\"",
         },
 
         {
           "name": "PyTest Current Test File",
-          "shell_cmd": "/Users/zhangy4/miniconda3/envs/py36/bin/python setup.py test --addopts \"--mpl --mpl-baseline-path=tests/baseline_images tests/$file_name --cov=scxplit.${file_base_name/test_//}\"",
+          "shell_cmd": "/Users/zhangy4/miniconda3/envs/py36/bin/python setup.py test --addopts \"--mpl --mpl-baseline-path=tests/baseline_images tests/$file_name --cov=scedar.${file_base_name/test_//}\"",
         },
 
         {

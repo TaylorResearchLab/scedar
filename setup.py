@@ -2,10 +2,10 @@ from setuptools import setup, find_packages
 
 
 setup(
-    name='scxplit',
+    name='scedar',
     version='0.0.1.dev1',
-    description='Single-Cell RNA Expression Pattern Split',
-    url='http://github.com/logstar/scxplit',
+    description='Single-cell explorative data analysis for RNA-Seq',
+    url='http://github.com/logstar/scedar',
     author='Yuanchao Zhang',
     author_email='logstarx@gmail.com',
     license='MIT',

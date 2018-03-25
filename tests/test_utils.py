@@ -1,4 +1,4 @@
-import scxplit.utils as utils
+import scedar.utils as utils
 import numpy as np
 import os
 import shutil
