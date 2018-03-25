@@ -466,16 +466,16 @@ class MDLSampleDistanceMatrix(eda.SingleLabelClassifiedSamples):
                     ulab_mdl_list, cluster_mdl)
 
 
-class MIRCH(object):
+class MIRAC(object):
     """
-    MIRCH: MDL iteratively regularized clustering based on hierarchy.
+    MIRAC: MDL iteratively regularized agglomerative clustering.
     """
 
     def __init__(self, x, d=None, metric=None, sids=None, fids=None,
                  nprocs=1, cl_mdl_scale_factor=1, minimax_n=25,
                  maxmini_n=None, linkage="complete",
                  is_euc_dist=False, verbose=False):
-        super(MIRCH, self).__init__()
+        super(MIRAC, self).__init__()
 
         nprocs = int(np.ceil(nprocs))
 
@@ -504,7 +504,7 @@ class MIRCH(object):
 
         self._minimax_n = minimax_n
         self._maxmini_n = maxmini_n
-        self._cluster_s_ind, self._cluster_labs = self._mirch(
+        self._cluster_s_ind, self._cluster_labs = self._mirac(
             cl_mdl_scale_factor=cl_mdl_scale_factor,
             minimax_n=minimax_n, maxmini_n=maxmini_n, linkage=linkage,
             is_euc_dist=is_euc_dist, nprocs=nprocs, verbose=verbose)
@@ -551,7 +551,7 @@ class MIRCH(object):
             raise ValueError("minimax_n shoud > 0. "
                              "minimax_n: {}".format(minimax_n))
 
-        shrink_factor = MIRCH.bidir_ReLU(n / minimax_n, 2, 20)
+        shrink_factor = MIRAC.bidir_ReLU(n / minimax_n, 2, 20)
 
         ind_cl_r_to_n = ind_cl_n / n
         ind_cl_r = (ind_cl_n - n/2) / (n/2)
@@ -608,7 +608,7 @@ class MIRCH(object):
         ratio_linear_grow_width = lin_grow_end_ratio - lin_grow_start_ratio
 
         stc_minimaxn_ratio = subtree_leaf_cnt / minimax_n
-        subtree_complexity = MIRCH.bidir_ReLU(stc_minimaxn_ratio,
+        subtree_complexity = MIRAC.bidir_ReLU(stc_minimaxn_ratio,
                                               lin_grow_start_ratio,
                                               lin_grow_end_ratio)
 
@@ -631,7 +631,7 @@ class MIRCH(object):
     #     add_together_as_a_final_cl
     # else:
     #     add_individual_cluster_as_a_final_cl
-    def _mirch(self, cl_mdl_scale_factor=1, minimax_n=25,
+    def _mirac(self, cl_mdl_scale_factor=1, minimax_n=25,
                maxmini_n=None, linkage="complete",
                is_euc_dist=False, nprocs=1, verbose=False):
 
