@@ -413,6 +413,7 @@ class TestSampleDistanceMatrix(object):
         assert sdm.tsne_lut == {}
         tsne1 = sdm.tsne(n_iter=250, random_state=123)
         np.testing.assert_allclose(ref_tsne, tsne1)
+        np.testing.assert_allclose(ref_tsne, sdm._last_tsne)
         assert tsne1.shape == (3, 2)
         assert len(sdm.tsne_lut) == 1
 
@@ -439,6 +440,22 @@ class TestSampleDistanceMatrix(object):
             np.testing.assert_allclose(tsne_res_lut[iter_key],
                                        tsne_res_list[i])
             assert tsne_res_lut[iter_key] is not tsne_res_list[i]
+
+    def test_tsne_default_init(self):
+        tmet = 'euclidean'
+        tsne_kwargs = {'metric': tmet, 'n_iter': 250,
+                       'random_state': 123}
+        ref_tsne = eda.tsne(self.x_3x2, **tsne_kwargs)
+        sdm = eda.SampleDistanceMatrix(self.x_3x2, metric=tmet)
+        
+        init_tsne = sdm._last_tsne
+
+        assert init_tsne.shape == (3, 2)
+        assert len(sdm.tsne_lut) == 1
+
+        tsne2 = sdm.tsne(store_res=True, **tsne_kwargs)
+        np.testing.assert_allclose(ref_tsne, tsne2)
+        assert len(sdm.tsne_lut) == 2
 
     def test_ind_x(self):
         sids = list("abcdef")
@@ -576,6 +593,7 @@ class TestSampleDistanceMatrix(object):
 
 class TestSingleLabelClassifiedSamples(object):
     """docstring for TestSingleLabelClassifiedSamples"""
+    np.random.seed(123)
     sfm3x3_arr = np.arange(9, dtype="float64").reshape(3, 3)
     sfm_2x0 = np.array([[], []])
     sfm5x10_arr = np.random.ranf(50).reshape(5, 10)
@@ -864,6 +882,54 @@ class TestSingleLabelClassifiedSamples(object):
             slab_csamples.labs, return_lut=False)
         assert lab_cmap2.N == n_uniq_labs
         assert lab_cmap2.colors == lab_cmap.colors
+
+    @pytest.mark.mpl_image_compare
+    def test_tsne_feature_gradient_plot(self):
+        sids = list(range(8))
+        fids = [str(i) for i in range(10)]
+        labs = list(range(8))
+        np.random.seed(123)
+        x = np.random.ranf(80).reshape(8, -1)
+        x_sorted = x[np.argsort(x[:, 5])]
+        slab_csamples = eda.SingleLabelClassifiedSamples(
+            x_sorted, labs, sids=sids, fids=fids)
+        return slab_csamples.tsne_feature_gradient_plot(
+            '5', figsize=(10, 10), s=50)
+
+    @pytest.mark.mpl_image_compare
+    def test_tsne_gradient_plot(self):
+        sids = list(range(8))
+        fids = [str(i) for i in range(10)]
+        labs = list(range(8))
+        np.random.seed(123)
+        x = np.random.ranf(80).reshape(8, -1)
+        x_sorted = x[np.argsort(x[:, 5])]
+        g = x_sorted[:, 5]
+        slab_csamples = eda.SingleLabelClassifiedSamples(
+            x_sorted, labs, sids=sids, fids=fids)
+        return slab_csamples.tsne_gradient_plot(g, figsize=(10, 10), s=50)
+
+    def test_tsne_feature_gradient_plot_wrong_args(self):
+        sids = list(range(8))
+        fids = [str(i) for i in range(10)]
+        labs = list(range(8))
+        np.random.seed(123)
+        x = np.random.ranf(80).reshape(8, -1)
+        x_sorted = x[np.argsort(x[:, 5])]
+        slab_csamples = eda.SingleLabelClassifiedSamples(
+            x, labs, sids=sids, fids=fids)
+        with pytest.raises(ValueError):
+            slab_csamples.tsne_feature_gradient_plot([0, 1])
+        with pytest.raises(ValueError):
+            slab_csamples.tsne_feature_gradient_plot(11)
+        with pytest.raises(ValueError):
+            slab_csamples.tsne_feature_gradient_plot(11)
+        with pytest.raises(ValueError):
+            slab_csamples.tsne_feature_gradient_plot(-1)
+        with pytest.raises(ValueError):
+            slab_csamples.tsne_feature_gradient_plot(5)
+        with pytest.raises(ValueError):
+            slab_csamples.tsne_feature_gradient_plot('123')
 
     def test_getters(self):
         tslcs = eda.SingleLabelClassifiedSamples(np.arange(10).reshape(5, 2),

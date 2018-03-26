@@ -320,7 +320,7 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
 
         self._lazy_load_d = d
         self._tsne_lut = {}
-        self._last_tsne = None
+        self._lazy_load_last_tsne = None
         self._metric = metric
 
     # numerically correct dmat
@@ -380,16 +380,55 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
                 curr_store_ind)
             tsne_res_copy = tsne_res.copy()
             self._tsne_lut[tsne_params_key] = tsne_res_copy
-            self._last_tsne = tsne_res_copy
+            self._lazy_load_last_tsne = tsne_res_copy
 
         return tsne_res
 
-    def feature_gradient_plot(self, fid, labels=None, 
-                              title=None, xlab=None, ylab=None,
-                              figsize=(20, 20), add_legend=True, 
-                              n_txt_per_cluster=3, alpha=1, s=0.5,
-                              random_state=None, **kwargs):
-        pass
+    def tsne_gradient_plot(self, gradient=None, labels=None, 
+                           title=None, xlab=None, ylab=None,
+                           figsize=(20, 20), add_legend=True, 
+                           n_txt_per_cluster=3, alpha=1, s=0.5,
+                           random_state=None, **kwargs):
+        """
+        Plot the last t-SNE projection with the provided gradient as color.
+        """
+        return cluster_scatter(self._last_tsne, labels=labels,
+                               gradient=gradient,
+                               title=title, xlab=xlab, ylab=ylab,
+                               figsize=figsize, add_legend=add_legend,
+                               n_txt_per_cluster=n_txt_per_cluster,
+                               alpha=alpha, s=s, random_state=random_state,
+                               **kwargs)
+
+    def tsne_feature_gradient_plot(self, fid, labels=None,
+                                   title=None, xlab=None, ylab=None,
+                                   figsize=(20, 20), add_legend=True,
+                                   n_txt_per_cluster=3, alpha=1, s=0.5,
+                                   random_state=None, **kwargs):
+        """
+        Plot the last t-SNE projection with the provided gradient as color.
+
+        Parameters
+        ----------
+        fid: feature id scalar
+            ID of the feature to be used for gradient plot.
+        """
+        if SampleFeatureMatrix.is_valid_sfid(fid):
+            fid = [fid]
+            f_ind = self.f_id_to_ind(fid)[0]
+        else:
+            raise ValueError("Invalid fid {}."
+                             "Currently only support 1 "
+                             "feature gradient plot.".format(fid))
+            
+        fx = self._x[:, f_ind]
+        return cluster_scatter(self._last_tsne, labels=labels,
+                               gradient=fx,
+                               title=title, xlab=xlab, ylab=ylab,
+                               figsize=figsize, add_legend=add_legend,
+                               n_txt_per_cluster=n_txt_per_cluster,
+                               alpha=alpha, s=s, random_state=random_state,
+                               **kwargs)
 
     def ind_x(self, selected_s_inds=None, selected_f_inds=None):
         """
@@ -458,6 +497,12 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
                                                         metric=self._metric,
                                                         n_jobs=self._nprocs))
         return self._lazy_load_d
+
+    @property
+    def _last_tsne(self):
+        if self._lazy_load_last_tsne is None:
+            self._lazy_load_last_tsne = self.tsne()
+        return self._lazy_load_last_tsne
 
     @property
     def metric(self):
@@ -612,6 +657,44 @@ class SingleLabelClassifiedSamples(SampleDistanceMatrix):
             selected_f_inds = self.f_id_to_ind(selected_fids)
         return self.ind_x(selected_s_inds, selected_f_inds)
 
+    def tsne_gradient_plot(self, gradient=None, labels=None, 
+                           title=None, xlab=None, ylab=None,
+                           figsize=(20, 20), add_legend=True, 
+                           n_txt_per_cluster=3, alpha=1, s=0.5,
+                           random_state=None, **kwargs):
+        """
+        Plot the last t-SNE projection with the provided gradient as color.
+        """
+        return super(SingleLabelClassifiedSamples, 
+                     self).tsne_gradient_plot(
+                        labels=self.labs, gradient=gradient,
+                        title=title, xlab=xlab, ylab=ylab,
+                        figsize=figsize, 
+                        add_legend=add_legend, 
+                        n_txt_per_cluster=n_txt_per_cluster, 
+                        alpha=alpha, s=s, 
+                        random_state=random_state, 
+                        **kwargs)
+
+    def tsne_feature_gradient_plot(self, fid, labels=None, 
+                                   title=None, xlab=None, ylab=None,
+                                   figsize=(20, 20), add_legend=True, 
+                                   n_txt_per_cluster=3, alpha=1, s=0.5,
+                                   random_state=None, **kwargs):
+        """
+        Plot the last t-SNE projection with the provided gradient as color.
+        """
+        return super(SingleLabelClassifiedSamples, 
+                     self).tsne_feature_gradient_plot(
+                        fid=fid, labels=self.labs,
+                        title=title, xlab=xlab, ylab=ylab,
+                        figsize=figsize, 
+                        add_legend=add_legend, 
+                        n_txt_per_cluster=n_txt_per_cluster, 
+                        alpha=alpha, s=s, 
+                        random_state=random_state, 
+                        **kwargs)
+
     @property
     def labs(self):
         return self._labs.tolist()
@@ -742,7 +825,7 @@ def cluster_scatter(projection2d, labels=None, gradient=None,
 
         if gradient is not None:
             cmap = kwargs.pop("cmap", "viridis")
-            plt.clf()
+            plt.figure(figsize=figsize)
             # matplotlib.collections.PathCollection
             mpc = plt.scatter(x=projection2d[:, 0], y=projection2d[:, 1], 
                               c=gradient, cmap=cmap, s=s, alpha=alpha, 
