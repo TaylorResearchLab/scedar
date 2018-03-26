@@ -514,7 +514,9 @@ class MIRAC(object):
 
     TODO
     ----
-    Dendrogram representation of the splitting process.
+    * Dendrogram representation of the splitting process.
+
+    * Take HCTree as parameter. Computing it is non-trivial when n is large.
 
     """
 
