@@ -436,10 +436,19 @@ class TestSampleDistanceMatrix(object):
         tsne_res_lut_sorted_keys = sorted(tsne_res_lut.keys())
         for i in range(len(tsne_res_lut)):
             iter_key = tsne_res_lut_sorted_keys[i]
-            iter_key[-1] == str(i)
+            iter_key[1] == i
             np.testing.assert_allclose(tsne_res_lut[iter_key],
                                        tsne_res_list[i])
             assert tsne_res_lut[iter_key] is not tsne_res_list[i]
+
+        tsne4 = sdm.tsne(store_res=True, n_iter=250, random_state=123)
+        np.testing.assert_allclose(ref_tsne, tsne4)
+        assert len(sdm.tsne_lut) == 3
+
+        tsne5 = sdm.tsne(store_res=True, n_iter=251, random_state=123)
+        tsne6 = sdm.tsne(store_res=True, n_iter=251, random_state=123)
+        np.testing.assert_allclose(tsne6, tsne5)
+        assert len(sdm.tsne_lut) == 5
 
     def test_tsne_default_init(self):
         tmet = 'euclidean'

@@ -364,20 +364,25 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
     # store_res : bool. Wheter to keep the tsne results in a dictionalry keyed
     # by the parameters.
     def tsne(self, store_res=True, **kwargs):
-        if ("metric" in kwargs 
+        # check input args
+        if ("metric" in kwargs
             and kwargs["metric"] not in ("precomputed", self._metric)):
             raise ValueError("If you want to calculate t-SNE of a different "
                              "metric than the instance metric, create another "
                              "instance of the desired metric.")
         else:
             kwargs["metric"] = "precomputed"
-
-        tsne_res = tsne(self._d, **kwargs)
+        # look for cached tsne with param key
+        curr_store_ind = len(self._tsne_lut) + 1
+        tsne_params_key = (str(kwargs), curr_store_ind)
+        for key, val in self._tsne_lut.items():
+            if key[0] == tsne_params_key[0]:
+                tsne_res = val
+                break
+        else:
+            tsne_res = tsne(self._d, **kwargs)
 
         if store_res:
-            curr_store_ind = len(self._tsne_lut) + 1
-            tsne_params_key = str(kwargs) + " stored run {}".format(
-                curr_store_ind)
             tsne_res_copy = tsne_res.copy()
             self._tsne_lut[tsne_params_key] = tsne_res_copy
             self._lazy_load_last_tsne = tsne_res_copy
