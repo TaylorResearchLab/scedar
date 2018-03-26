@@ -773,9 +773,58 @@ class TestClusterScatter(object):
     @pytest.mark.mpl_image_compare
     def test_cluster_scatter_no_xylab_title(self):
         fig = eda.cluster_scatter(self.x_50x2,
-                                  [0]*25 + [1]*25,
+                                  [0]*25 + [1]*10 + [2]*15,
                                   figsize=(10, 10), n_txt_per_cluster=3, alpha=0.5,
                                   s=50, random_state=123)
+        return fig
+
+    @pytest.mark.mpl_image_compare
+    def test_cluster_scatter_gradient_legends(self):
+        sorted_x = self.x_50x2[np.argsort(self.x_50x2[:, 1])]
+        fig = eda.cluster_scatter(sorted_x,
+                                  labels=[0]*25 + [1]*25,
+                                  gradient=sorted_x[:, 1],
+                                  title='test tsne scatter', 
+                                  xlab='tsne1', ylab='tsne2',
+                                  figsize=(10, 10), n_txt_per_cluster=3, 
+                                  alpha=0.5, s=50, random_state=123)
+        return fig
+
+    @pytest.mark.mpl_image_compare
+    def test_cluster_scatter_gradient_legends_nolab(self):
+        sorted_x = self.x_50x2[np.argsort(self.x_50x2[:, 1])]
+        fig = eda.cluster_scatter(sorted_x,
+                                  labels=None,
+                                  gradient=sorted_x[:, 1],
+                                  title='test tsne scatter', 
+                                  xlab='tsne1', ylab='tsne2',
+                                  figsize=(10, 10), n_txt_per_cluster=3, 
+                                  alpha=0.5, s=50, random_state=123)
+        return fig
+
+    @pytest.mark.mpl_image_compare
+    def test_cluster_scatter_gradient_nolegend_nolab(self):
+        sorted_x = self.x_50x2[np.argsort(self.x_50x2[:, 1])]
+        fig = eda.cluster_scatter(sorted_x,
+                                  labels=None, add_legend=False,
+                                  gradient=sorted_x[:, 1],
+                                  title='test tsne scatter', 
+                                  xlab='tsne1', ylab='tsne2',
+                                  figsize=(10, 10), n_txt_per_cluster=3, 
+                                  alpha=0.5, s=50, random_state=123)
+        return fig
+
+    @pytest.mark.mpl_image_compare
+    def test_cluster_scatter_gradient_nolegend(self):
+        sorted_x = self.x_50x2[np.argsort(self.x_50x2[:, 1])]
+        fig = eda.cluster_scatter(sorted_x,
+                                  labels=[0]*25 + [1]*25,
+                                  gradient=sorted_x[:, 1],
+                                  add_legend=False,
+                                  title='test tsne scatter', 
+                                  xlab='tsne1', ylab='tsne2',
+                                  figsize=(10, 10), n_txt_per_cluster=3, 
+                                  alpha=0.5, s=50, random_state=123)
         return fig
 
     @pytest.mark.mpl_image_compare

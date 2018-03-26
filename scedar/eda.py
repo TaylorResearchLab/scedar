@@ -620,52 +620,79 @@ class SingleLabelClassifiedSamples(SampleDistanceMatrix):
             return lab_cmap
 
 
-def cluster_scatter(tsne, labels=None, title=None, xlab=None, ylab=None,
+def cluster_scatter(projection2d, labels=None, gradient=None, 
+                    title=None, xlab=None, ylab=None,
                     figsize=(20, 20), add_legend=True, n_txt_per_cluster=3,
                     alpha=1, s=0.5, random_state=None, **kwargs):
-    tsne = np.array(tsne, dtype="float")
+    projection2d = np.array(projection2d, dtype="float")
 
-    if (tsne.ndim != 2) or (tsne.shape[1] != 2):
-        raise ValueError("tsne matrix should have shape (n_samples, 2)."
-                         " {}".format(tsne))
+    if (projection2d.ndim != 2) or (projection2d.shape[1] != 2):
+        raise ValueError("projection2d matrix should have shape "
+                         "(n_samples, 2). {}".format(projection2d))
 
-    fig, ax = plt.subplots(figsize=figsize)
-
+    # TODO: optimize the if-else statement
     if labels is not None:
         SingleLabelClassifiedSamples.check_is_valid_labs(labels)
         labels = np.array(labels)
-        if labels.shape[0] != tsne.shape[0]:
+        if labels.shape[0] != projection2d.shape[0]:
             raise ValueError(
-                "nrow(tsne matrix) should be equal to len(labels)")
-
+                "nrow(projection2d matrix) should be equal to len(labels)")
         uniq_labels = np.unique(labels)
-        color_lut = dict(zip(uniq_labels,
-                             sns.color_palette("hls", len(uniq_labels))))
 
-        ax.scatter(tsne[:, 0], tsne[:, 1],
-                   c=tuple(map(lambda cl: color_lut[cl], labels)),
-                   s=s, alpha=alpha, **kwargs)
+        if gradient is not None:
+            cmap = kwargs.pop("cmap", "viridis")
+            plt.clf()
+            # matplotlib.collections.PathCollection
+            mpc = plt.scatter(x=projection2d[:, 0], y=projection2d[:, 1], 
+                              c=gradient, cmap=cmap, s=s, alpha=alpha, 
+                              **kwargs)
+            if add_legend:
+                plt.colorbar(mpc)
+            fig = mpc.get_figure()
+            ax = fig.get_axes()[0]
+        else:
+            fig, ax = plt.subplots(figsize=figsize)
+            color_lut = dict(zip(uniq_labels,
+                                 sns.color_palette("hls", len(uniq_labels))))
+            ax.scatter(x=projection2d[:, 0], y=projection2d[:, 1],
+                       c=[color_lut[lab] for lab in labels],
+                       s=s, alpha=alpha, **kwargs)
+            # Add legend
+            # Shrink current axis by 20%
+            if add_legend:
+                box = ax.get_position()
+                ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
+                ax.legend(handles=[mpl.patches.Patch(color=color_lut[ulab], 
+                                                     label=ulab)
+                                   for ulab in uniq_labels],
+                          bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
+
         # randomly select labels for annotation
         if random_state is not None:
             np.random.seed(random_state)
 
-        anno_ind = np.concatenate([np.random.choice(np.where(labels == ulab)[0],
-                                                    n_txt_per_cluster)
-                                   for ulab in uniq_labels])
+        anno_ind = np.concatenate(
+            [np.random.choice(np.where(labels == ulab)[0], n_txt_per_cluster)
+             for ulab in uniq_labels])
 
         for i in map(int, anno_ind):
-            ax.annotate(labels[i], (tsne[i, 0], tsne[i, 1]))
-        # Add legend
-        # Shrink current axis by 20%
-        if add_legend:
-            box = ax.get_position()
-            ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
-            ax.legend(handles=tuple(mpl.patches.Patch(color=color_lut[ulab],
-                                                      label=ulab)
-                                    for ulab in uniq_labels),
-                      bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
+            ax.annotate(labels[i], (projection2d[i, 0], projection2d[i, 1]))
     else:
-        ax.scatter(tsne[:, 0], tsne[:, 1], s=s, alpha=alpha, **kwargs)
+        if gradient is None:
+            fig, ax = plt.subplots(figsize=figsize)
+            ax.scatter(x=projection2d[:, 0], y=projection2d[:, 1], s=s,
+                       alpha=alpha, **kwargs)
+        else:
+            cmap = kwargs.pop("cmap", "viridis")
+            plt.clf()
+            # matplotlib.collections.PathCollection
+            mpc = plt.scatter(x=projection2d[:, 0], y=projection2d[:, 1], 
+                              c=gradient, cmap=cmap, s=s, alpha=alpha, 
+                              **kwargs)
+            if add_legend:
+                plt.colorbar(mpc)
+            fig = mpc.get_figure()
+            ax = fig.get_axes()[0]
 
     if title is not None:
         ax.set_title(title)
