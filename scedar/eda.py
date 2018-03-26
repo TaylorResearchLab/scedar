@@ -113,32 +113,70 @@ class SampleFeatureMatrix(object):
             raise ValueError("[sf]ids must not contain duplicated values")
 
     def s_id_to_ind(self, selected_sids):
+        """
+        Convert a list of sample IDs into sample indices.
+        """
         sid_list = self.sids
         return [sid_list.index(i) for i in selected_sids]
 
-    def s_id_x(self, selected_sids):
+    def f_id_to_ind(self, selected_fids):
         """
-        Subset samples by sample IDs.
+        Convert a list of feature IDs into feature indices.
+        """
+        fid_list = self.fids
+        return [fid_list.index(i) for i in selected_fids]
+
+    def ind_x(self, selected_s_inds=None, selected_f_inds=None):
+        """
+        Subset samples by (sample IDs, feature IDs).
+        
+        Parameters
+        ----------
+        selected_s_inds: int array
+            Index array of selected samples. If is None, select all.
+        selected_f_inds: int array
+            Index array of selected features. If is None, select all.
 
         Returns
         -------
         subset: SampleFeatureMatrix
         """
-        s_id_inds = self.s_id_to_ind(selected_sids)
-        return self.s_ind_x(s_id_inds)
+        if selected_s_inds is None:
+            selected_s_inds = slice(None, None)
 
-    def s_ind_x(self, selected_s_inds):
-        """
-        Subset samples by sample IDs.
+        if selected_f_inds is None:
+            selected_f_inds = slice(None, None)
 
-        Returns
-        -------
-        subset: SampleFeatureMatrix
-        """
         return SampleFeatureMatrix(
-            x=self._x[selected_s_inds].copy(),
+            x=self._x[selected_s_inds, :][:, selected_f_inds].copy(),
             sids=self._sids[selected_s_inds].tolist(),
-            fids=self._fids.tolist())
+            fids=self._fids[selected_f_inds].tolist())
+
+    def id_x(self, selected_sids=None, selected_fids=None):
+        """
+        Subset samples by (sample IDs, feature IDs).
+        
+        Parameters
+        ----------
+        selected_s_inds: int array
+            Index array of selected samples. If is None, select all.
+        selected_f_inds: int array
+            Index array of selected features. If is None, select all.
+
+        Returns
+        -------
+        subset: SampleFeatureMatrix
+        """
+        if selected_sids is None:
+            selected_s_inds = None
+        else:
+            selected_s_inds = self.s_id_to_ind(selected_sids)
+
+        if selected_fids is None:
+            selected_f_inds = None
+        else:
+            selected_f_inds = self.f_id_to_ind(selected_fids)
+        return self.ind_x(selected_s_inds, selected_f_inds)
 
     def s_ind_regression_scatter(self, xs_ind, ys_ind, feature_filter=None,
                                  xlab=None, ylab=None, title=None,
@@ -164,7 +202,7 @@ class SampleFeatureMatrix(object):
         y = self._x[ys_ind, :]
 
         if feature_filter is None:
-            f_inds = np.arange(self._x.shape[1])
+            f_inds = slice(None, None)
         else:
             if callable(feature_filter):
                 f_inds = [feature_filter(ix, iy) for ix, iy in zip(x, y)]
@@ -282,6 +320,7 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
 
         self._lazy_load_d = d
         self._tsne_lut = {}
+        self._last_tsne = None
         self._metric = metric
 
     # numerically correct dmat
@@ -339,37 +378,73 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
             curr_store_ind = len(self._tsne_lut) + 1
             tsne_params_key = str(kwargs) + " stored run {}".format(
                 curr_store_ind)
-            self._tsne_lut[tsne_params_key] = tsne_res.copy()
+            tsne_res_copy = tsne_res.copy()
+            self._tsne_lut[tsne_params_key] = tsne_res_copy
+            self._last_tsne = tsne_res_copy
 
         return tsne_res
 
-    def s_id_x(self, selected_sids):
+    def feature_gradient_plot(self, fid, labels=None, 
+                              title=None, xlab=None, ylab=None,
+                              figsize=(20, 20), add_legend=True, 
+                              n_txt_per_cluster=3, alpha=1, s=0.5,
+                              random_state=None, **kwargs):
+        pass
+
+    def ind_x(self, selected_s_inds=None, selected_f_inds=None):
         """
-        Subset samples by sample IDs.
+        Subset samples by (sample IDs, feature IDs).
+        
+        Parameters
+        ----------
+        selected_s_inds: int array
+            Index array of selected samples. If is None, select all.
+        selected_f_inds: int array
+            Index array of selected features. If is None, select all.
 
         Returns
         -------
         subset: SampleDistanceMatrix
         """
-        sid_list = self.sids
-        s_id_inds = [sid_list.index(i) for i in selected_sids]
-        return self.s_ind_x(s_id_inds)
+        if selected_s_inds is None:
+            selected_s_inds = slice(None, None)
 
-    def s_ind_x(self, selected_s_inds):
-        """
-        Subset samples by sample IDs.
+        if selected_f_inds is None:
+            selected_f_inds = slice(None, None)
 
-        Returns
-        -------
-        subset: SampleDistanceMatrix
-        """
         return SampleDistanceMatrix(
-            x=self._x[selected_s_inds].copy(),
-            d=self._d[np.ix_(selected_s_inds, selected_s_inds)].copy(),
+            x=self._x[selected_s_inds, :][:, selected_f_inds].copy(),
+            d=self._d[selected_s_inds, :][:, selected_s_inds].copy(),
             metric=self._metric,
             sids=self._sids[selected_s_inds].tolist(),
-            fids=self._fids.tolist(),
+            fids=self._fids[selected_f_inds].tolist(),
             nprocs=self._nprocs)
+
+    def id_x(self, selected_sids=None, selected_fids=None):
+        """
+        Subset samples by (sample IDs, feature IDs).
+        
+        Parameters
+        ----------
+        selected_s_inds: int array
+            Index array of selected samples. If is None, select all.
+        selected_f_inds: int array
+            Index array of selected features. If is None, select all.
+
+        Returns
+        -------
+        subset: SampleDistanceMatrix
+        """
+        if selected_sids is None:
+            selected_s_inds = None
+        else:
+            selected_s_inds = self.s_id_to_ind(selected_sids)
+
+        if selected_fids is None:
+            selected_f_inds = None
+        else:
+            selected_f_inds = self.f_id_to_ind(selected_fids)
+        return self.ind_x(selected_s_inds, selected_f_inds)
 
     @property
     def d(self):
@@ -474,7 +549,7 @@ class SingleLabelClassifiedSamples(SampleDistanceMatrix):
         uniq_lab_cnts = np.unique(self._labs, return_counts=True)
         nf_sid_ind = np.in1d(
             self._labs, (uniq_lab_cnts[0])[uniq_lab_cnts[1] >= min_class_n])
-        return self.s_ind_x(nf_sid_ind)
+        return self.ind_x(nf_sid_ind)
 
     def labs_to_sids(self, labs):
         return tuple(tuple(self._sid_lut[y].tolist()) for y in labs)
@@ -482,35 +557,61 @@ class SingleLabelClassifiedSamples(SampleDistanceMatrix):
     def sids_to_labs(self, sids):
         return np.array([self._lab_lut[x] for x in sids])
 
-    def s_id_x(self, selected_sids):
+    def ind_x(self, selected_s_inds=None, selected_f_inds=None):
         """
-        Subset samples by sample IDs.
+        Subset samples by (sample IDs, feature IDs).
+        
+        Parameters
+        ----------
+        selected_s_inds: int array
+            Index array of selected samples. If is None, select all.
+        selected_f_inds: int array
+            Index array of selected features. If is None, select all.
 
         Returns
         -------
         subset: SingleLabelClassifiedSamples
         """
-        sid_list = self.sids
-        s_id_inds = [sid_list.index(i) for i in selected_sids]
-        return self.s_ind_x(s_id_inds)
+        if selected_s_inds is None:
+            selected_s_inds = slice(None, None)
 
-    def s_ind_x(self, selected_s_inds):
-        """
-        Subset samples by sample IDs.
+        if selected_f_inds is None:
+            selected_f_inds = slice(None, None)
 
-        Returns
-        -------
-        subset: SingleLabelClassifiedSamples
-        """
         return SingleLabelClassifiedSamples(
-            x=self._x[selected_s_inds].copy(),
+            x=self._x[selected_s_inds, :][:, selected_f_inds].copy(),
             labs=self._labs[selected_s_inds].tolist(),
-            d=self._d[np.ix_(selected_s_inds, selected_s_inds)].copy(),
+            d=self._d[selected_s_inds, :][:, selected_s_inds].copy(),
             sids=self._sids[selected_s_inds].tolist(),
-            fids=self._fids.tolist(),
-            metric=self._metric,
-            nprocs=self._nprocs)
-    
+            fids=self._fids[selected_f_inds].tolist(),
+            metric=self._metric, nprocs=self._nprocs)
+
+    def id_x(self, selected_sids=None, selected_fids=None):
+        """
+        Subset samples by (sample IDs, feature IDs).
+        
+        Parameters
+        ----------
+        selected_s_inds: int array
+            Index array of selected samples. If is None, select all.
+        selected_f_inds: int array
+            Index array of selected features. If is None, select all.
+
+        Returns
+        -------
+        subset: SingleLabelClassifiedSamples
+        """
+        if selected_sids is None:
+            selected_s_inds = None
+        else:
+            selected_s_inds = self.s_id_to_ind(selected_sids)
+
+        if selected_fids is None:
+            selected_f_inds = None
+        else:
+            selected_f_inds = self.f_id_to_ind(selected_fids)
+        return self.ind_x(selected_s_inds, selected_f_inds)
+
     @property
     def labs(self):
         return self._labs.tolist()
