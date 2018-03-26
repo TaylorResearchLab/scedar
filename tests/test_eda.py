@@ -194,6 +194,59 @@ class TestSampleFeatureMatrix(object):
         with pytest.raises(ValueError) as excinfo:
             sfm.s_id_x([])
 
+    @pytest.mark.mpl_image_compare
+    def test_s_ind_regression_scatter(self):
+        sids = list("abcdef")
+        fids = list(map(lambda i: 'f{}'.format(i), range(10)))
+        sfm = eda.SampleFeatureMatrix(np.arange(60).reshape(6, 10), 
+                                      sids=sids, fids=fids)
+        return sfm.s_ind_regression_scatter(0, 1, figsize=(5, 5))
+
+    @pytest.mark.mpl_image_compare
+    def test_s_id_regression_scatter(self):
+        sids = list("abcdef")
+        fids = list(map(lambda i: 'f{}'.format(i), range(10)))
+        sfm = eda.SampleFeatureMatrix(np.arange(60).reshape(6, 10), 
+                                      sids=sids, fids=fids)
+        return sfm.s_id_regression_scatter("a", "b", figsize=(5, 5))
+
+    @pytest.mark.mpl_image_compare
+    def test_s_ind_regression_scatter_custom_labs(self):
+        sids = list("abcdef")
+        fids = list(map(lambda i: 'f{}'.format(i), range(10)))
+        sfm = eda.SampleFeatureMatrix(np.arange(60).reshape(6, 10), 
+                                      sids=sids, fids=fids)
+        return sfm.s_ind_regression_scatter(0, 1, xlab='X', ylab='Y', 
+                                            figsize=(5, 5))
+
+    @pytest.mark.mpl_image_compare
+    def test_s_ind_regression_scatter_custom_bool_ff(self):
+        sids = list("abcdef")
+        fids = list(map(lambda i: 'f{}'.format(i), range(10)))
+        sfm = eda.SampleFeatureMatrix(np.arange(60).reshape(6, 10), 
+                                      sids=sids, fids=fids)
+        return sfm.s_ind_regression_scatter(
+            0, 1, feature_filter=[True]*2 + [False]*8, figsize=(5, 5))
+
+    @pytest.mark.mpl_image_compare
+    def test_s_ind_regression_scatter_custom_int_ff(self):
+        sids = list("abcdef")
+        fids = list(map(lambda i: 'f{}'.format(i), range(10)))
+        sfm = eda.SampleFeatureMatrix(np.arange(60).reshape(6, 10), 
+                                      sids=sids, fids=fids)
+        return sfm.s_ind_regression_scatter(
+            0, 1, feature_filter=[0, 1], figsize=(5, 5))
+
+    @pytest.mark.mpl_image_compare
+    def test_s_ind_regression_scatter_custom_func_ff(self):
+        sids = list("abcdef")
+        fids = list(map(lambda i: 'f{}'.format(i), range(10)))
+        sfm = eda.SampleFeatureMatrix(np.arange(60).reshape(6, 10), 
+                                      sids=sids, fids=fids)
+        return sfm.s_ind_regression_scatter(
+            0, 1, feature_filter=lambda x, y: (x in (0, 1, 2)) and (10 < y < 12), 
+            figsize=(5, 5))
+
     def test_getters(self):
         tsfm = eda.SampleFeatureMatrix(np.arange(10).reshape(5, 2),
                                        ['a', 'b', 'c', '1', '2'],
@@ -680,6 +733,22 @@ class TestSingleLabelClassifiedSamples(object):
 
         qlab_arr = tslcs.sids_to_labs(('1', 'a', 'b', '2'))
         np.testing.assert_equal(qlab_arr, np.array([2, 0, 0, 3]))
+
+
+class TestRegressionScatter(object):
+    """docstring for TestRegressionPlot"""
+    @pytest.mark.mpl_image_compare
+    def test_reg_sct_full_labels(self):
+        fig = eda.regression_scatter(x=np.arange(10), y=np.arange(10, 20),
+                                     xlab='x', ylab='y', title='x versus y',
+                                     figsize=(10, 10))
+        return fig
+
+    @pytest.mark.mpl_image_compare
+    def test_regression_no_label(self):
+        fig = eda.regression_scatter(x=np.arange(10), y=np.arange(10, 20),
+                                     figsize=(10, 10))
+        return fig
 
 
 class TestClusterScatter(object):

@@ -2,6 +2,8 @@ import numpy as np
 import scipy.spatial
 import sklearn.manifold
 
+import pandas as pd
+
 import matplotlib as mpl
 mpl.use("agg", warn=False)
 import matplotlib.pyplot as plt
@@ -10,6 +12,7 @@ import matplotlib.patches
 import matplotlib.gridspec
 
 import seaborn as sns
+sns.set(style="ticks")
 
 import sklearn as skl
 import sklearn.metrics
@@ -109,6 +112,10 @@ class SampleFeatureMatrix(object):
         if not utils.is_uniq_np1darr(sfids):
             raise ValueError("[sf]ids must not contain duplicated values")
 
+    def s_id_to_ind(self, selected_sids):
+        sid_list = self.sids
+        return [sid_list.index(i) for i in selected_sids]
+
     def s_id_x(self, selected_sids):
         """
         Subset samples by sample IDs.
@@ -117,8 +124,7 @@ class SampleFeatureMatrix(object):
         -------
         subset: SampleFeatureMatrix
         """
-        sid_list = self.sids
-        s_id_inds = [sid_list.index(i) for i in selected_sids]
+        s_id_inds = self.s_id_to_ind(selected_sids)
         return self.s_ind_x(s_id_inds)
 
     def s_ind_x(self, selected_s_inds):
@@ -134,6 +140,73 @@ class SampleFeatureMatrix(object):
             sids=self._sids[selected_s_inds].tolist(),
             fids=self._fids.tolist())
 
+    def s_ind_regression_scatter(self, xs_ind, ys_ind, feature_filter=None,
+                                 xlab=None, ylab=None, title=None,
+                                 **kwargs):
+        """
+        Regression plot on two samples with xs_ind and ys_ind.
+
+        Parameters
+        ----------
+        xs_ind: int
+            Sample index of x.
+        ys_ind: int
+            Sample index of y.
+        feature_filter: bool array, or int array, or callable(x, y)
+            If feature_filter is bool / int array, directly select features 
+            with it. If feature_filter is callable, it will be applied on each 
+            (x, y) value tuple.
+        xlab: str
+        ylab: str
+        title: str
+        """
+        x = self._x[xs_ind, :]
+        y = self._x[ys_ind, :]
+
+        if feature_filter is None:
+            f_inds = np.arange(self._x.shape[1])
+        else:
+            if callable(feature_filter):
+                f_inds = [feature_filter(ix, iy) for ix, iy in zip(x, y)]
+            else:
+                f_inds = feature_filter
+        
+        xf = x[f_inds]
+        yf = y[f_inds]
+        if xlab is None:
+            xlab = self._sids[xs_ind]
+
+        if ylab is None:
+            ylab = self._sids[ys_ind]
+        
+        return regression_scatter(x=xf, y=yf, xlab=xlab, ylab=ylab, 
+                                  title=title, **kwargs)
+
+    def s_id_regression_scatter(self, xs_id, ys_id, feature_filter=None,
+                                 xlab=None, ylab=None, title=None, **kwargs):
+        """
+        Regression plot on two samples with xs_id and ys_id.
+
+        Parameters
+        ----------
+        xs_ind: int
+            Sample ID of x.
+        ys_ind: int
+            Sample ID of y.
+        feature_filter: bool array, or int array, or callable(x, y)
+            If feature_filter is bool / int array, directly select features 
+            with it. If feature_filter is callable, it will be applied on each 
+            (x, y) value tuple.
+        xlab: str
+        ylab: str
+        title: str
+        """
+        xs_ind, ys_ind = self.s_id_to_ind([xs_id, ys_id])
+        return self.s_ind_regression_scatter(xs_ind, ys_ind, 
+                                             feature_filter=None, 
+                                             xlab=None, ylab=None, title=None, 
+                                             **kwargs)
+    
     @property
     def sids(self):
         return self._sids.tolist()
@@ -605,6 +678,27 @@ def cluster_scatter(tsne, labels=None, title=None, xlab=None, ylab=None,
 
     return fig
 
+def regression_scatter(x, y, title=None, xlab=None, ylab=None, 
+                       figsize=(20, 20), alpha=1, s=0.5, ax=None, **kwargs):
+    """
+    Paired vector scatter plot.
+    """
+    if xlab is not None:
+        x = pd.Series(x, name=xlab)
+
+    if ylab is not None:
+        y = pd.Series(y, name=ylab)
+
+    ax = sns.regplot(x=x, y=y, ax=ax, **kwargs)
+
+    fig = ax.get_figure()
+
+    if title is not None:
+        ax.set_title(title)
+
+    fig.set_size_inches(*figsize)
+
+    return fig
 
 def heatmap(x, row_labels=None, col_labels=None, title=None, xlab=None,
             ylab=None, figsize=(20, 20), **kwargs):
