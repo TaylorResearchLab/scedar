@@ -11,7 +11,7 @@
       "name": "PyTest",
       "working_dir": "${project_path}",
       "selector": "source.python",
-      "shell_cmd": "/Users/zhangy4/miniconda3/envs/py36/bin/python setup.py test --addopts \"--mpl --mpl-baseline-path=tests/baseline_images --cov=scedar\"",
+      "shell_cmd": "/Users/zhangy4/miniconda3/envs/py36/bin/python setup.py test --addopts \"--mpl --mpl-baseline-path=tests/baseline_images --cov=scedar --ignore=tests/test_cluster_large_data.py\"",
       "env": {
          "TERM": "xterm-256color",
          "CLICOLOR_FORCE": "1",
@@ -24,7 +24,12 @@
 
         { 
           "name": "Generate Baseline Image",
-          "shell_cmd": "/Users/zhangy4/miniconda3/envs/py36/bin/python setup.py test --addopts \"--mpl-generate-path=tests/baseline_images --cov=scedar\"",
+          "shell_cmd": "/Users/zhangy4/miniconda3/envs/py36/bin/python setup.py test --addopts \"--mpl-generate-path=tests/baseline_images --cov=scedar --ignore=tests/test_cluster_large_data.py\"",
+        },
+
+        { 
+          "name": "Test All",
+          "shell_cmd": "/Users/zhangy4/miniconda3/envs/py36/bin/python setup.py test --addopts \"--mpl --mpl-baseline-path=tests/baseline_images --cov=scedar\"",
         },
 
         {
