@@ -512,6 +512,10 @@ class MIRAC(object):
     _run_log: str
         String containing the log of the MIRAC run. 
 
+    TODO
+    ----
+    Dendrogram representation of the splitting process.
+
     """
 
     def __init__(self, x, d=None, metric=None, sids=None, fids=None,
