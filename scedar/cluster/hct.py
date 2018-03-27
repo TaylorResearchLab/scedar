@@ -4,6 +4,7 @@ import numpy as np
 from .. import eda
 from .mdl import MultinomialMdl
 
+
 class HClustTree(object):
     """
     Hierarchical clustering tree. 
