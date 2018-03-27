@@ -33,18 +33,8 @@
         },
 
         {
-          "name": "PyTest Current Module",
-          "shell_cmd": "/Users/zhangy4/miniconda3/envs/py36/bin/python setup.py test --addopts \"--mpl --mpl-baseline-path=tests/baseline_images tests/test_$file_name --cov=scedar.$file_base_name\"",
-        },
-
-        {
-          "name": "PyTest Current Test File",
-          "shell_cmd": "/Users/zhangy4/miniconda3/envs/py36/bin/python setup.py test --addopts \"--mpl --mpl-baseline-path=tests/baseline_images tests/$file_name --cov=scedar.${file_base_name/test_//}\"",
-        },
-
-        {
           "name": "test",
-          "shell_cmd": "echo \\$PATH $file_name"
+          "shell_cmd": "echo \\$PATH $file_name $file_path"
         }
       ]
      }
