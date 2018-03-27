@@ -178,6 +178,21 @@ class SampleFeatureMatrix(object):
             selected_f_inds = self.f_id_to_ind(selected_fids)
         return self.ind_x(selected_s_inds, selected_f_inds)
 
+    def s_ind_x_pair(self, xs_ind, ys_ind, feature_filter=None):
+        x = self._x[xs_ind, :]
+        y = self._x[ys_ind, :]
+
+        if feature_filter is None:
+            f_inds = slice(None, None)
+        else:
+            if callable(feature_filter):
+                f_inds = [feature_filter(ix, iy) for ix, iy in zip(x, y)]
+            else:
+                f_inds = feature_filter
+        xf = x[f_inds]
+        yf = y[f_inds]
+        return xf, yf
+        
     def s_ind_regression_scatter(self, xs_ind, ys_ind, feature_filter=None,
                                  xlab=None, ylab=None, title=None,
                                  **kwargs):
@@ -198,19 +213,7 @@ class SampleFeatureMatrix(object):
         ylab: str
         title: str
         """
-        x = self._x[xs_ind, :]
-        y = self._x[ys_ind, :]
-
-        if feature_filter is None:
-            f_inds = slice(None, None)
-        else:
-            if callable(feature_filter):
-                f_inds = [feature_filter(ix, iy) for ix, iy in zip(x, y)]
-            else:
-                f_inds = feature_filter
-        
-        xf = x[f_inds]
-        yf = y[f_inds]
+        xf, yf = self.s_ind_x_pair(xs_ind, ys_ind, feature_filter)
         if xlab is None:
             xlab = self._sids[xs_ind]
 
@@ -245,6 +248,22 @@ class SampleFeatureMatrix(object):
                                              xlab=xlab, ylab=ylab, title=title, 
                                              **kwargs)
 
+    def f_ind_x_pair(self, xf_ind, yf_ind, sample_filter=None):
+        x = self._x[:, xf_ind]
+        y = self._x[:, yf_ind]
+
+        if sample_filter is None:
+            s_inds = slice(None, None)
+        else:
+            if callable(sample_filter):
+                s_inds = [sample_filter(ix, iy) for ix, iy in zip(x, y)]
+            else:
+                s_inds = sample_filter
+        
+        xf = x[s_inds]
+        yf = y[s_inds]
+        return (xf, yf)
+    
     def f_ind_regression_scatter(self, xf_ind, yf_ind, sample_filter=None,
                                  xlab=None, ylab=None, title=None,
                                  **kwargs):
@@ -265,19 +284,7 @@ class SampleFeatureMatrix(object):
         ylab: str
         title: str
         """
-        x = self._x[:, xf_ind]
-        y = self._x[:, yf_ind]
-
-        if sample_filter is None:
-            s_inds = slice(None, None)
-        else:
-            if callable(sample_filter):
-                s_inds = [sample_filter(ix, iy) for ix, iy in zip(x, y)]
-            else:
-                s_inds = sample_filter
-        
-        xf = x[s_inds]
-        yf = y[s_inds]
+        xf, yf = self.f_ind_x_pair(xf_ind, yf_ind, sample_filter)
         if xlab is None:
             xlab = self._fids[xf_ind]
 
@@ -311,7 +318,61 @@ class SampleFeatureMatrix(object):
                                              sample_filter=sample_filter, 
                                              xlab=xlab, ylab=ylab, title=title, 
                                              **kwargs)
+
+    def s_ind_x_vec(self, s_ind, feature_filter=None):
+        """
+        Access a single vector of a sample.         
+        """
+        x = self._x[s_ind, :]
+        if feature_filter is None:
+            f_inds = slice(None, None)
+        else:
+            if callable(feature_filter):
+                f_inds = [feature_filter(ix) for ix in x]
+            else:
+                f_inds = feature_filter
+        xf = x[f_inds]
+        return xf
     
+    def s_ind_dist(self, s_ind, feature_filter=None, xlab=None, ylab=None,
+                   title=None, figsize=(5, 5), ax=None, **kwargs):
+        xf = self.s_ind_x_vec(s_ind, feature_filter)
+        return hist_dens_plot(xf, title=title, xlab=xlab, ylab=ylab, 
+                              figsize=figsize, ax=ax, **kwargs)
+
+    def s_id_dist(self, s_id, feature_filter=None, xlab=None, ylab=None,
+                  title=None, figsize=(5, 5), ax=None, **kwargs):
+        s_ind = self.s_id_to_ind([s_id])[0]
+        return self.s_ind_dist(s_ind, title=title, xlab=xlab, ylab=ylab,
+                               figsize=figsize, ax=ax, **kwargs)
+
+    def f_ind_x_vec(self, f_ind, sample_filter=None):
+        """
+        Access a single vector of a sample.         
+        """
+        x = self._x[:, f_ind]
+        if sample_filter is None:
+            s_inds = slice(None, None)
+        else:
+            if callable(sample_filter):
+                s_inds = [sample_filter(ix) for ix in x]
+            else:
+                s_inds = sample_filter
+        xf = x[s_inds]
+        return xf
+    
+    def f_ind_dist(self, f_ind, sample_filter=None, xlab=None, ylab=None,
+                   title=None, figsize=(5, 5), ax=None, **kwargs):
+        xf = self.f_ind_x_vec(f_ind, sample_filter)
+        return hist_dens_plot(xf, title=title, xlab=xlab, ylab=ylab, 
+                              figsize=figsize, ax=ax, **kwargs)
+
+    def f_id_dist(self, f_id, sample_filter=None, xlab=None, ylab=None,
+                  title=None, figsize=(5, 5), ax=None, **kwargs):
+        f_ind = self.f_id_to_ind([f_id])[0]
+        return self.f_ind_dist(f_ind, title=title, xlab=xlab, ylab=ylab,
+                               figsize=figsize, ax=ax, **kwargs)
+
     @property
     def sids(self):
         return self._sids.tolist()
@@ -958,11 +1019,11 @@ def cluster_scatter(projection2d, labels=None, gradient=None,
 
     if ylab is not None:
         ax.set_ylabel(ylab)
-
+    plt.close()
     return fig
 
 def regression_scatter(x, y, title=None, xlab=None, ylab=None, 
-                       figsize=(20, 20), alpha=1, s=0.5, ax=None, **kwargs):
+                       figsize=(5, 5), alpha=1, s=0.5, ax=None, **kwargs):
     """
     Paired vector scatter plot.
     """
@@ -983,8 +1044,39 @@ def regression_scatter(x, y, title=None, xlab=None, ylab=None,
     if title is not None:
         ax.set_title(title)
 
-    fig.set_size_inches(*figsize)
+    if xlab is not None:
+        ax.set_xlabel(xlab)
 
+    if ylab is not None:
+        ax.set_ylabel(ylab)
+
+    fig.set_size_inches(*figsize)
+    plt.close()
+    return fig
+
+def hist_dens_plot(x, title=None, xlab=None, ylab=None, figsize=(5, 5), 
+                   ax=None, **kwargs):
+    """
+    Plot histogram and density plot of x.
+    """
+    if ax is None:
+        _, ax = plt.subplots()
+
+    ax = sns.distplot(x, norm_hist=None, ax=ax, **kwargs)
+
+    fig = ax.get_figure()
+
+    if title is not None:
+        ax.set_title(title)
+
+    if xlab is not None:
+        ax.set_xlabel(xlab)
+
+    if ylab is not None:
+        ax.set_ylabel(ylab)
+
+    fig.set_size_inches(*figsize)
+    plt.close()
     return fig
 
 def heatmap(x, row_labels=None, col_labels=None, title=None, xlab=None,
@@ -1095,4 +1187,5 @@ def heatmap(x, row_labels=None, col_labels=None, title=None, xlab=None,
                 # row color legend
                 lgd_axs[i].legend(handles=lgd_patches, loc="upper center",
                                   ncol=1)
+    plt.close()
     return fig
