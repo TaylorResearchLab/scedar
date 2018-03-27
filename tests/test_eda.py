@@ -128,45 +128,45 @@ class TestSampleFeatureMatrix(object):
         eda.SampleFeatureMatrix(np.arange(10).reshape(1, -1))
 
     def test_is_valid_sfid(self):
-        assert eda.SampleFeatureMatrix.is_valid_sfid('1')
-        assert eda.SampleFeatureMatrix.is_valid_sfid(1)
-        assert not eda.SampleFeatureMatrix.is_valid_sfid(np.array([1])[0])
-        assert not eda.SampleFeatureMatrix.is_valid_sfid([])
-        assert not eda.SampleFeatureMatrix.is_valid_sfid([1])
-        assert not eda.SampleFeatureMatrix.is_valid_sfid(None)
-        assert not eda.SampleFeatureMatrix.is_valid_sfid((1,))
+        assert eda.mtype.is_valid_sfid('1')
+        assert eda.mtype.is_valid_sfid(1)
+        assert not eda.mtype.is_valid_sfid(np.array([1])[0])
+        assert not eda.mtype.is_valid_sfid([])
+        assert not eda.mtype.is_valid_sfid([1])
+        assert not eda.mtype.is_valid_sfid(None)
+        assert not eda.mtype.is_valid_sfid((1,))
 
     def test_check_is_valid_sfids(self):
         with pytest.raises(Exception) as excinfo:
-            eda.SampleFeatureMatrix.check_is_valid_sfids(np.arange(5))
+            eda.mtype.check_is_valid_sfids(np.arange(5))
 
         with pytest.raises(Exception) as excinfo:
-            eda.SampleFeatureMatrix.check_is_valid_sfids([True, False])
+            eda.mtype.check_is_valid_sfids([True, False])
 
         with pytest.raises(Exception) as excinfo:
-            eda.SampleFeatureMatrix.check_is_valid_sfids(None)
+            eda.mtype.check_is_valid_sfids(None)
 
         with pytest.raises(Exception) as excinfo:
-            eda.SampleFeatureMatrix.check_is_valid_sfids([])
+            eda.mtype.check_is_valid_sfids([])
 
         with pytest.raises(Exception) as excinfo:
-            eda.SampleFeatureMatrix.check_is_valid_sfids([[1], [2]])
+            eda.mtype.check_is_valid_sfids([[1], [2]])
 
         with pytest.raises(Exception) as excinfo:
-            eda.SampleFeatureMatrix.check_is_valid_sfids(['1', 2, 3])
+            eda.mtype.check_is_valid_sfids(['1', 2, 3])
 
         with pytest.raises(Exception) as excinfo:
-            eda.SampleFeatureMatrix.check_is_valid_sfids(['1', '1', '3'])
+            eda.mtype.check_is_valid_sfids(['1', '1', '3'])
 
         with pytest.raises(Exception) as excinfo:
-            eda.SampleFeatureMatrix.check_is_valid_sfids([0, 0, 1])
+            eda.mtype.check_is_valid_sfids([0, 0, 1])
 
         with pytest.raises(Exception) as excinfo:
-            eda.SampleFeatureMatrix.check_is_valid_sfids(['1', 2, '3'])
+            eda.mtype.check_is_valid_sfids(['1', 2, '3'])
 
-        eda.SampleFeatureMatrix.check_is_valid_sfids([1, 2])
-        eda.SampleFeatureMatrix.check_is_valid_sfids(['1', '2'])
-        eda.SampleFeatureMatrix.check_is_valid_sfids([1, 2, 3])
+        eda.mtype.check_is_valid_sfids([1, 2])
+        eda.mtype.check_is_valid_sfids(['1', '2'])
+        eda.mtype.check_is_valid_sfids([1, 2, 3])
 
     def test_ind_x(self):
         sids = list("abcdef")
@@ -756,40 +756,40 @@ class TestSingleLabelClassifiedSamples(object):
             np.arange(100).reshape(10, -1), list('abcdefghij'))
 
     def test_is_valid_lab(self):
-        assert eda.SingleLabelClassifiedSamples.is_valid_lab('1')
-        assert eda.SingleLabelClassifiedSamples.is_valid_lab(1)
-        assert not eda.SingleLabelClassifiedSamples.is_valid_lab(np.array([1])[
+        assert eda.mtype.is_valid_lab('1')
+        assert eda.mtype.is_valid_lab(1)
+        assert not eda.mtype.is_valid_lab(np.array([1])[
                                                                  0])
-        assert not eda.SingleLabelClassifiedSamples.is_valid_lab([])
-        assert not eda.SingleLabelClassifiedSamples.is_valid_lab([1])
-        assert not eda.SingleLabelClassifiedSamples.is_valid_lab(None)
-        assert not eda.SingleLabelClassifiedSamples.is_valid_lab((1,))
+        assert not eda.mtype.is_valid_lab([])
+        assert not eda.mtype.is_valid_lab([1])
+        assert not eda.mtype.is_valid_lab(None)
+        assert not eda.mtype.is_valid_lab((1,))
 
     def test_check_is_valid_labs(self):
         with pytest.raises(Exception) as excinfo:
-            eda.SingleLabelClassifiedSamples.check_is_valid_labs(np.arange(5))
+            eda.mtype.check_is_valid_labs(np.arange(5))
 
         with pytest.raises(Exception) as excinfo:
-            eda.SingleLabelClassifiedSamples.check_is_valid_labs([True, False])
+            eda.mtype.check_is_valid_labs([True, False])
 
         with pytest.raises(Exception) as excinfo:
-            eda.SingleLabelClassifiedSamples.check_is_valid_labs(None)
+            eda.mtype.check_is_valid_labs(None)
 
         with pytest.raises(Exception) as excinfo:
-            eda.SingleLabelClassifiedSamples.check_is_valid_labs([])
+            eda.mtype.check_is_valid_labs([])
 
         with pytest.raises(Exception) as excinfo:
-            eda.SingleLabelClassifiedSamples.check_is_valid_labs([[1], [2]])
+            eda.mtype.check_is_valid_labs([[1], [2]])
 
         with pytest.raises(Exception) as excinfo:
-            eda.SingleLabelClassifiedSamples.check_is_valid_labs(['1', 2, 1])
+            eda.mtype.check_is_valid_labs(['1', 2, 1])
 
         with pytest.raises(Exception) as excinfo:
-            eda.SingleLabelClassifiedSamples.check_is_valid_labs(['1', 2, '3'])
+            eda.mtype.check_is_valid_labs(['1', 2, '3'])
 
-        eda.SingleLabelClassifiedSamples.check_is_valid_labs([1, 2])
-        eda.SingleLabelClassifiedSamples.check_is_valid_labs([1, 1, 3])
-        eda.SingleLabelClassifiedSamples.check_is_valid_labs(['1', '2', '3'])
+        eda.mtype.check_is_valid_labs([1, 2])
+        eda.mtype.check_is_valid_labs([1, 1, 3])
+        eda.mtype.check_is_valid_labs(['1', '2', '3'])
 
     def test_lab_sorted_sids(self):
         qsids = [0, 1, 5, 3, 2, 4]
@@ -972,7 +972,7 @@ class TestSingleLabelClassifiedSamples(object):
         slab_csamples = eda.SingleLabelClassifiedSamples(np.random.ranf(80).reshape(8, -1),
                                                          labs, sids)
 
-        lab_cmap, lab_ind_arr, lab_col_lut, uniq_lab_lut = eda.SingleLabelClassifiedSamples.labs_to_cmap(
+        lab_cmap, lab_ind_arr, lab_col_lut, uniq_lab_lut = eda.plot.labs_to_cmap(
             slab_csamples.labs, return_lut=True)
 
         n_uniq_labs = len(set(labs))
@@ -986,7 +986,7 @@ class TestSingleLabelClassifiedSamples(object):
         assert [lab_col_lut[uniq_lab_lut[i]]
                 for i in range(n_uniq_labs)] == sns.hls_palette(n_uniq_labs)
 
-        lab_cmap2 = eda.SingleLabelClassifiedSamples.labs_to_cmap(
+        lab_cmap2 = eda.plot.labs_to_cmap(
             slab_csamples.labs, return_lut=False)
         assert lab_cmap2.N == n_uniq_labs
         assert lab_cmap2.colors == lab_cmap.colors

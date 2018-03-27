@@ -4,8 +4,8 @@ import scipy.cluster.hierarchy as sph
 import scipy.spatial as spspatial
 import scipy.stats as spstats
 
-from . import utils
-from . import eda
+from .. import utils
+from .. import eda
 
 
 class MultinomialMdl(object):
@@ -323,17 +323,17 @@ class HClustTree(object):
 
         # checks uniqueness
         # This guarantees that clusters are all non-empty
-        eda.SampleFeatureMatrix.check_is_valid_sfids(sid_list)
+        eda.mtype.check_is_valid_sfids(sid_list)
 
         if type(cl_sid_list) != list:
             raise ValueError(
                 "cl_sid_list must be a list: {}".format(cl_sid_list))
 
         for x in cl_sid_list:
-            eda.SampleFeatureMatrix.check_is_valid_sfids(x)
+            eda.mtype.check_is_valid_sfids(x)
 
         cl_id_mlist = np.concatenate(cl_sid_list).tolist()
-        eda.SampleFeatureMatrix.check_is_valid_sfids(cl_id_mlist)
+        eda.mtype.check_is_valid_sfids(cl_id_mlist)
 
         # np.unique returns sorted unique values
         if sorted(sid_list) != sorted(cl_id_mlist):
