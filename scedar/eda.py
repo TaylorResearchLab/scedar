@@ -241,8 +241,75 @@ class SampleFeatureMatrix(object):
         """
         xs_ind, ys_ind = self.s_id_to_ind([xs_id, ys_id])
         return self.s_ind_regression_scatter(xs_ind, ys_ind, 
-                                             feature_filter=None, 
-                                             xlab=None, ylab=None, title=None, 
+                                             feature_filter=feature_filter, 
+                                             xlab=xlab, ylab=ylab, title=title, 
+                                             **kwargs)
+
+    def f_ind_regression_scatter(self, xf_ind, yf_ind, sample_filter=None,
+                                 xlab=None, ylab=None, title=None,
+                                 **kwargs):
+        """
+        Regression plot on two features with xf_ind and yf_ind.
+
+        Parameters
+        ----------
+        xf_ind: int
+            Sample index of x.
+        yf_ind: int
+            Sample index of y.
+        sample_filter: bool array, or int array, or callable(x, y)
+            If sample_filter is bool / int array, directly select features 
+            with it. If sample_filter is callable, it will be applied on each 
+            (x, y) value tuple.
+        xlab: str
+        ylab: str
+        title: str
+        """
+        x = self._x[:, xf_ind]
+        y = self._x[:, yf_ind]
+
+        if sample_filter is None:
+            s_inds = slice(None, None)
+        else:
+            if callable(sample_filter):
+                s_inds = [sample_filter(ix, iy) for ix, iy in zip(x, y)]
+            else:
+                s_inds = sample_filter
+        
+        xf = x[s_inds]
+        yf = y[s_inds]
+        if xlab is None:
+            xlab = self._fids[xf_ind]
+
+        if ylab is None:
+            ylab = self._fids[yf_ind]
+        
+        return regression_scatter(x=xf, y=yf, xlab=xlab, ylab=ylab, 
+                                  title=title, **kwargs)
+
+    def f_id_regression_scatter(self, xf_id, yf_id, sample_filter=None,
+                                 xlab=None, ylab=None, title=None, **kwargs):
+        """
+        Regression plot on two features with xf_id and yf_id.
+
+        Parameters
+        ----------
+        xf_id: int
+            Sample ID of x.
+        yf_ind: int
+            Sample ID of y.
+        sample_filter: bool array, or int array, or callable(x, y)
+            If sample_filter is bool / int array, directly select features 
+            with it. If sample_filter is callable, it will be applied on each 
+            (x, y) value tuple.
+        xlab: str
+        ylab: str
+        title: str
+        """
+        xf_ind, yf_ind = self.f_id_to_ind([xf_id, yf_id])
+        return self.f_ind_regression_scatter(xf_ind, yf_ind, 
+                                             sample_filter=sample_filter, 
+                                             xlab=xlab, ylab=ylab, title=title, 
                                              **kwargs)
     
     @property
@@ -904,6 +971,10 @@ def regression_scatter(x, y, title=None, xlab=None, ylab=None,
 
     if ylab is not None:
         y = pd.Series(y, name=ylab)
+
+    # initialize a new figure
+    if ax is None:
+        _, ax = plt.subplots()
 
     ax = sns.regplot(x=x, y=y, ax=ax, **kwargs)
 

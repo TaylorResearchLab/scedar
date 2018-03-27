@@ -2,6 +2,7 @@ import numpy as np
 import seaborn as sns
 import scedar.eda as eda
 import matplotlib as mpl
+import matplotlib.pyplot as plt
 import pytest
 
 
@@ -10,6 +11,11 @@ class TestSampleFeatureMatrix(object):
     sfm5x10_arr = np.random.ranf(50).reshape(5, 10)
     sfm3x3_arr = np.random.ranf(9).reshape(3, 3)
     sfm5x10_lst = list(map(list, np.random.ranf(50).reshape(5, 10)))
+    reg_sct_sdm = eda.SampleFeatureMatrix(np.arange(60).reshape(6, 10), 
+                                          sids=list("abcdef"), 
+                                          fids=list(map(lambda i: 'f{}'.format(i), 
+                                                        range(10))))
+
 
     def test_init_x_none(self):
         with pytest.raises(Exception) as excinfo:
@@ -240,57 +246,99 @@ class TestSampleFeatureMatrix(object):
             sdm.id_x(None, [])
 
     @pytest.mark.mpl_image_compare
+    def test_s_ind_regression_scatter_ax(self):
+        fig, axs = plt.subplots(ncols=2)
+        return self.reg_sct_sdm.s_ind_regression_scatter(
+            0, 1, figsize=(5, 5), ax=axs[0])
+
+    @pytest.mark.mpl_image_compare
     def test_s_ind_regression_scatter(self):
-        sids = list("abcdef")
-        fids = list(map(lambda i: 'f{}'.format(i), range(10)))
-        sfm = eda.SampleFeatureMatrix(np.arange(60).reshape(6, 10), 
-                                      sids=sids, fids=fids)
-        return sfm.s_ind_regression_scatter(0, 1, figsize=(5, 5))
+        return self.reg_sct_sdm.s_ind_regression_scatter(0, 1, figsize=(5, 5))
 
     @pytest.mark.mpl_image_compare
     def test_s_id_regression_scatter(self):
-        sids = list("abcdef")
-        fids = list(map(lambda i: 'f{}'.format(i), range(10)))
-        sfm = eda.SampleFeatureMatrix(np.arange(60).reshape(6, 10), 
-                                      sids=sids, fids=fids)
-        return sfm.s_id_regression_scatter("a", "b", figsize=(5, 5))
+        return self.reg_sct_sdm.s_id_regression_scatter("a", "b", 
+                                           feature_filter=[1,2,3],
+                                           figsize=(5, 5))
 
     @pytest.mark.mpl_image_compare
     def test_s_ind_regression_scatter_custom_labs(self):
-        sids = list("abcdef")
-        fids = list(map(lambda i: 'f{}'.format(i), range(10)))
-        sfm = eda.SampleFeatureMatrix(np.arange(60).reshape(6, 10), 
-                                      sids=sids, fids=fids)
-        return sfm.s_ind_regression_scatter(0, 1, xlab='X', ylab='Y', 
+        return self.reg_sct_sdm.s_ind_regression_scatter(0, 1, xlab='X', ylab='Y', 
                                             figsize=(5, 5))
 
     @pytest.mark.mpl_image_compare
     def test_s_ind_regression_scatter_custom_bool_ff(self):
-        sids = list("abcdef")
-        fids = list(map(lambda i: 'f{}'.format(i), range(10)))
-        sfm = eda.SampleFeatureMatrix(np.arange(60).reshape(6, 10), 
-                                      sids=sids, fids=fids)
-        return sfm.s_ind_regression_scatter(
+        return self.reg_sct_sdm.s_ind_regression_scatter(
             0, 1, feature_filter=[True]*2 + [False]*8, figsize=(5, 5))
 
     @pytest.mark.mpl_image_compare
     def test_s_ind_regression_scatter_custom_int_ff(self):
-        sids = list("abcdef")
-        fids = list(map(lambda i: 'f{}'.format(i), range(10)))
-        sfm = eda.SampleFeatureMatrix(np.arange(60).reshape(6, 10), 
-                                      sids=sids, fids=fids)
-        return sfm.s_ind_regression_scatter(
+        return self.reg_sct_sdm.s_ind_regression_scatter(
             0, 1, feature_filter=[0, 1], figsize=(5, 5))
 
     @pytest.mark.mpl_image_compare
     def test_s_ind_regression_scatter_custom_func_ff(self):
-        sids = list("abcdef")
-        fids = list(map(lambda i: 'f{}'.format(i), range(10)))
-        sfm = eda.SampleFeatureMatrix(np.arange(60).reshape(6, 10), 
-                                      sids=sids, fids=fids)
-        return sfm.s_ind_regression_scatter(
+        return self.reg_sct_sdm.s_ind_regression_scatter(
             0, 1, feature_filter=lambda x, y: (x in (0, 1, 2)) and (10 < y < 12), 
             figsize=(5, 5))
+
+    @pytest.mark.mpl_image_compare
+    def test_f_ind_regression_scatter_custom_func_sf(self):
+        # array([[ 0,  1,  2,  3,  4,  5,  6,  7,  8,  9],
+        #        [10, 11, 12, 13, 14, 15, 16, 17, 18, 19],
+        #        [20, 21, 22, 23, 24, 25, 26, 27, 28, 29],
+        #        [30, 31, 32, 33, 34, 35, 36, 37, 38, 39],
+        #        [40, 41, 42, 43, 44, 45, 46, 47, 48, 49],
+        #        [50, 51, 52, 53, 54, 55, 56, 57, 58, 59]])
+        return self.reg_sct_sdm.f_ind_regression_scatter(
+            0, 1, sample_filter=lambda x, y: (x in (0, 10, 20)) and (10 < y < 30), 
+            figsize=(5, 5))
+
+    @pytest.mark.mpl_image_compare
+    def test_f_ind_regression_scatter_no_ff(self):
+        # array([[ 0,  1,  2,  3,  4,  5,  6,  7,  8,  9],
+        #        [10, 11, 12, 13, 14, 15, 16, 17, 18, 19],
+        #        [20, 21, 22, 23, 24, 25, 26, 27, 28, 29],
+        #        [30, 31, 32, 33, 34, 35, 36, 37, 38, 39],
+        #        [40, 41, 42, 43, 44, 45, 46, 47, 48, 49],
+        #        [50, 51, 52, 53, 54, 55, 56, 57, 58, 59]])
+        return self.reg_sct_sdm.f_ind_regression_scatter(0, 1, figsize=(5, 5))
+
+    @pytest.mark.mpl_image_compare
+    def test_f_ind_regression_scatter_ind_ff(self):
+        # array([[ 0,  1,  2,  3,  4,  5,  6,  7,  8,  9],
+        #        [10, 11, 12, 13, 14, 15, 16, 17, 18, 19],
+        #        [20, 21, 22, 23, 24, 25, 26, 27, 28, 29],
+        #        [30, 31, 32, 33, 34, 35, 36, 37, 38, 39],
+        #        [40, 41, 42, 43, 44, 45, 46, 47, 48, 49],
+        #        [50, 51, 52, 53, 54, 55, 56, 57, 58, 59]])
+        return self.reg_sct_sdm.f_ind_regression_scatter(0, 1, sample_filter=[0, 2, 5], 
+                                            figsize=(5, 5))
+
+    @pytest.mark.mpl_image_compare
+    def test_f_ind_regression_scatter_labs(self):
+        # test for coverage purpose
+        # array([[ 0,  1,  2,  3,  4,  5,  6,  7,  8,  9],
+        #        [10, 11, 12, 13, 14, 15, 16, 17, 18, 19],
+        #        [20, 21, 22, 23, 24, 25, 26, 27, 28, 29],
+        #        [30, 31, 32, 33, 34, 35, 36, 37, 38, 39],
+        #        [40, 41, 42, 43, 44, 45, 46, 47, 48, 49],
+        #        [50, 51, 52, 53, 54, 55, 56, 57, 58, 59]])
+        return self.reg_sct_sdm.f_ind_regression_scatter(0, 1, sample_filter=[0, 2, 5], 
+                                            figsize=(5, 5), 
+                                            xlab='x', ylab='y')
+
+    @pytest.mark.mpl_image_compare
+    def test_f_id_regression_scatter(self):
+        # test for coverage purpose
+        # array([[ 0,  1,  2,  3,  4,  5,  6,  7,  8,  9],
+        #        [10, 11, 12, 13, 14, 15, 16, 17, 18, 19],
+        #        [20, 21, 22, 23, 24, 25, 26, 27, 28, 29],
+        #        [30, 31, 32, 33, 34, 35, 36, 37, 38, 39],
+        #        [40, 41, 42, 43, 44, 45, 46, 47, 48, 49],
+        #        [50, 51, 52, 53, 54, 55, 56, 57, 58, 59]])
+        return self.reg_sct_sdm.f_id_regression_scatter('f5', 'f6', sample_filter=[0, 2, 5], 
+                                           figsize=(5, 5))
 
     def test_getters(self):
         tsfm = eda.SampleFeatureMatrix(np.arange(10).reshape(5, 2),
