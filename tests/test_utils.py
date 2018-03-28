@@ -56,7 +56,8 @@ def test_parmap_gen_mp():
 
 def test_parmap_exception_mp():
     n = 1000
-    pm_res = utils.parmap(lambda x: x/0, range(n), nprocs=10)
+    with pytest.warns(UserWarning, match='division by zero'):
+        pm_res = utils.parmap(lambda x: x/0, range(n), nprocs=10)
     assert all(map(lambda x: isinstance(x, ZeroDivisionError), pm_res))
 
 

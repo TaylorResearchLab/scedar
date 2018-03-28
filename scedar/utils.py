@@ -3,7 +3,7 @@ import multiprocessing as mp
 import numpy as np
 import gzip
 import os
-
+import warnings
 
 def _parmap_fun(f, q_in, q_out):
     def ehf(x):
@@ -44,8 +44,13 @@ def parmap(f, X, nprocs=1):
     res = [q_out.get() for _ in range(len(sent))]
 
     [p.join() for p in proc]
-
-    return [x for i, x in sorted(res)]
+    # maintain the order of X
+    ordered_res = [x for i, x in sorted(res)]
+    for i, x in enumerate(ordered_res):
+        if isinstance(x, Exception):
+            warnings.warn("{} encountered in parmap {}th arg {}".format(
+                x, i, X[i]))
+    return ordered_res
 
 
 def is_valid_full_cut_tree_mat(cmat):
