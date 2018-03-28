@@ -71,3 +71,19 @@ class TestSampleKNNFilter(object):
         with pytest.raises(ValueError) as excinfo:
             skf.knn_filter_samples(1, 1, [1, 2])
 
+def test_remove_constant_features():
+    tsfm = eda.SampleFeatureMatrix([[0, 1, 2, 5],
+                                    [0, 1, 0, 2],
+                                    [0, 1, 0, 5],
+                                    [0, 1, 0, 5],
+                                    [0, 1, 0, 5]])
+    f_tsfm = qc.remove_constant_features(tsfm)
+    assert f_tsfm.x == [[2, 5],
+                        [0, 2],
+                        [0, 5],
+                        [0, 5],
+                        [0, 5]]
+    tsfm2 = eda.SampleFeatureMatrix([[0, 1, 2, 5]])
+    with pytest.raises(ValueError) as excinfo:
+        f_tsfm2 = qc.remove_constant_features(tsfm2)
+    

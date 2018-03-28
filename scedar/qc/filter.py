@@ -16,7 +16,7 @@ class SampleKNNFilter(object):
 
     Parameters
     ----------
-    sdm: SampleDistanceMatrix
+    sdm: SampleDistanceMatrix or its subclass
     
     Attributes
     ----------
@@ -165,3 +165,13 @@ class SampleKNNFilter(object):
             self._res_lut[param_tups[i]] = res_list[i][1]
 
         return [res_list[i][0] for i in range(n_param_tups)]
+
+
+def remove_constant_features(sfm):
+    """
+    Remove features that are constant across all samples
+    """
+    # boolean matrix of whether x == first column (feature)
+    x_not_equal_to_1st_row = sfm._x != sfm._x[0]
+    non_const_f_bool_ind = x_not_equal_to_1st_row.sum(axis=0) >= 1
+    return sfm.ind_x(selected_f_inds=non_const_f_bool_ind)
