@@ -225,40 +225,40 @@ class TestSampleFeatureMatrix(object):
     def test_s_ind_regression_scatter_ax(self):
         fig, axs = plt.subplots(ncols=2)
         fig = self.plt_sdm.s_ind_regression_scatter(
-            0, 1, figsize=(5, 5), ax=axs[0], x_ci='sd')
+            0, 1, figsize=(5, 5), ax=axs[0], ci=None)
         plt.close()
         return fig
 
     @pytest.mark.mpl_image_compare
     def test_s_ind_regression_scatter(self):
-        return self.plt_sdm.s_ind_regression_scatter(0, 1, figsize=(5, 5), x_ci='sd')
+        return self.plt_sdm.s_ind_regression_scatter(0, 1, figsize=(5, 5), ci=None)
 
     @pytest.mark.mpl_image_compare
     def test_s_id_regression_scatter(self):
         return self.plt_sdm.s_id_regression_scatter("a", "b", 
                                            feature_filter=[1,2,3],
-                                           figsize=(5, 5), x_ci='sd')
+                                           figsize=(5, 5), ci=None)
 
     @pytest.mark.mpl_image_compare
     def test_s_ind_regression_scatter_custom_labs(self):
         return self.plt_sdm.s_ind_regression_scatter(0, 1, xlab='X', ylab='Y', 
-                                            figsize=(5, 5), x_ci='sd')
+                                            figsize=(5, 5), ci=None)
 
     @pytest.mark.mpl_image_compare
     def test_s_ind_regression_scatter_custom_bool_ff(self):
         return self.plt_sdm.s_ind_regression_scatter(
-            0, 1, feature_filter=[True]*2 + [False]*8, figsize=(5, 5), x_ci='sd')
+            0, 1, feature_filter=[True]*2 + [False]*8, figsize=(5, 5), ci=None)
 
     @pytest.mark.mpl_image_compare
     def test_s_ind_regression_scatter_custom_int_ff(self):
         return self.plt_sdm.s_ind_regression_scatter(
-            0, 1, feature_filter=[0, 1], figsize=(5, 5), x_ci='sd')
+            0, 1, feature_filter=[0, 1], figsize=(5, 5), ci=None)
 
     @pytest.mark.mpl_image_compare
     def test_s_ind_regression_scatter_custom_func_ff(self):
         return self.plt_sdm.s_ind_regression_scatter(
             0, 1, feature_filter=lambda x, y: (x in (0, 1, 2)) and (10 < y < 12), 
-            figsize=(5, 5), x_ci='sd')
+            figsize=(5, 5), ci=None)
 
     @pytest.mark.mpl_image_compare
     def test_f_ind_regression_scatter_custom_func_sf(self):
@@ -270,27 +270,27 @@ class TestSampleFeatureMatrix(object):
         #        [50, 51, 52, 53, 54, 55, 56, 57, 58, 59]])
         return self.plt_sdm.f_ind_regression_scatter(
             0, 1, sample_filter=lambda x, y: (x in (0, 10, 20)) and (10 < y < 30), 
-            figsize=(5, 5), x_ci='sd')
+            figsize=(5, 5), ci=None)
 
     @pytest.mark.mpl_image_compare
     def test_f_ind_regression_scatter_no_ff(self):
-        return self.plt_sdm.f_ind_regression_scatter(0, 1, figsize=(5, 5), x_ci='sd')
+        return self.plt_sdm.f_ind_regression_scatter(0, 1, figsize=(5, 5), ci=None)
 
     @pytest.mark.mpl_image_compare
     def test_f_ind_regression_scatter_ind_ff(self):
         return self.plt_sdm.f_ind_regression_scatter(0, 1, sample_filter=[0, 2, 5], 
-                                            figsize=(5, 5), x_ci='sd')
+                                            figsize=(5, 5), ci=None)
 
     @pytest.mark.mpl_image_compare
     def test_f_ind_regression_scatter_labs(self):
         return self.plt_sdm.f_ind_regression_scatter(0, 1, sample_filter=[0, 2, 5], 
                                             figsize=(5, 5), title='testregscat',
-                                            xlab='x', ylab='y', x_ci='sd')
+                                            xlab='x', ylab='y', ci=None)
 
     @pytest.mark.mpl_image_compare
     def test_f_id_regression_scatter(self):
         return self.plt_sdm.f_id_regression_scatter(
-            'f5', 'f6', sample_filter=[0, 2, 5], figsize=(5, 5), x_ci='sd')
+            'f5', 'f6', sample_filter=[0, 2, 5], figsize=(5, 5), ci=None)
 
     @pytest.mark.mpl_image_compare
     @pytest.mark.filterwarnings("ignore:The 'normed' kwarg is depreca")
