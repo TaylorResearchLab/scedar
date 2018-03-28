@@ -102,7 +102,7 @@ def cluster_scatter(projection2d, labels=None, gradient=None,
                        alpha=alpha, **kwargs)
         else:
             cmap = kwargs.pop("cmap", "viridis")
-            plt.clf()
+            plt.figure(figsize=figsize)
             # matplotlib.collections.PathCollection
             mpc = plt.scatter(x=projection2d[:, 0], y=projection2d[:, 1], 
                               c=gradient, cmap=cmap, s=s, alpha=alpha, 
