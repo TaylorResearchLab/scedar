@@ -6,12 +6,17 @@ import os
 
 
 def _parmap_fun(f, q_in, q_out):
+    def ehf(x):
+        try:
+            res = f(x)
+        except Exception as e:
+            res = e
+        return res
     while True:
         i, x = q_in.get()
         if i is None:
             break
-        q_out.put((i, f(x)))
-
+        q_out.put((i, ehf(x)))
 
 def parmap(f, X, nprocs=1):
     """
