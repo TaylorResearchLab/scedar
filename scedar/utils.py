@@ -20,6 +20,8 @@ def parmap(f, X, nprocs=1):
     
     parmap allows map on lambda and class static functions.
     """
+    if nprocs < 1:
+        raise ValueError("nprocs should be >= 1. nprocs: {}".format(nprocs))
     q_in = mp.Queue(1)
     q_out = mp.Queue()
     proc = [mp.Process(target=_parmap_fun, args=(f, q_in, q_out))

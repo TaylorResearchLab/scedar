@@ -43,6 +43,10 @@ def test_parmap_arr2d():
     assert np.all(pm_res[0] == np.array([1, 4]))
     assert np.all(pm_res[1] == np.array([9, 16]))
 
+def test_parmap_invalid_nprocs():
+    with pytest.raises(ValueError) as excinfo:
+        pm_res = utils.parmap(lambda x: x ** 2,
+                              np.array([[1, 2], [3, 4]]), nprocs=0.5)
 
 def test_parmap_gen_mp():
     n = 1000
