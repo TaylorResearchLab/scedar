@@ -26,9 +26,6 @@ class TestMType(object):
             eda.mtype.check_is_valid_sfids(None)
 
         with pytest.raises(Exception) as excinfo:
-            eda.mtype.check_is_valid_sfids([])
-
-        with pytest.raises(Exception) as excinfo:
             eda.mtype.check_is_valid_sfids([[1], [2]])
 
         with pytest.raises(Exception) as excinfo:
@@ -65,9 +62,6 @@ class TestMType(object):
 
         with pytest.raises(Exception) as excinfo:
             eda.mtype.check_is_valid_labs(None)
-
-        with pytest.raises(Exception) as excinfo:
-            eda.mtype.check_is_valid_labs([])
 
         with pytest.raises(Exception) as excinfo:
             eda.mtype.check_is_valid_labs([[1], [2]])
