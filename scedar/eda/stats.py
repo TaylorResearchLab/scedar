@@ -21,6 +21,8 @@ def gc1d(x):
     Ecology 69, 1307, 1988.
 
     [5] <https://en.wikipedia.org/wiki/Gini_coefficient>
+
+    [6] <https://github.com/oliviaguest/gini/blob/master/gini.py>
     """
     x = np.array(x, dtype="float64")
     if x.ndim != 1:
