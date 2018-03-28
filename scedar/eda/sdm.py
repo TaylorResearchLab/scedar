@@ -176,6 +176,8 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
         tsne_res: float array
             t-SNE projections, (n_samples, m dimensions).
         """
+        # TODO: make parameter keys consistent such that same set of 
+        # parameters but different order will sill be the same.
         # check input args
         if ("metric" in kwargs
             and kwargs["metric"] not in ("precomputed", self._metric)):
