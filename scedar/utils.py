@@ -85,3 +85,27 @@ def is_uniq_np1darr(x):
         return False
 
     return True
+
+def dict_str_key(d):
+    """
+    Get a hash key for a dictionary, usually used for **kwargs.
+    
+
+    Examples
+    --------
+    >>> dict_str_key({"a": 1, "b": 2}) 
+    "[('a', 1), ('b', 2)]"
+    >>> dict_str_key({"b": 2, "a": 1}) 
+    "[('a', 1), ('b', 2)]"
+
+    Notes
+    -----
+    Non-string keys will be converted to strings before sorting, but the 
+    original value is preserved in the generated key.
+    """
+    if type(d) != dict:
+        raise ValueError("d must be dictionary. {}".format(d))
+    key_str_pair = [(k, str(k)) for k in d.keys()]
+    sorted_key_str_pair = sorted(key_str_pair, key=lambda p: p[1])
+    sorted_keys = map(lambda p: p[0], sorted_key_str_pair)
+    return str([(k, d[k]) for k in sorted_keys])

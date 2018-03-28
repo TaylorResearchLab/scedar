@@ -124,3 +124,36 @@ def test_is_uniq_np1darr():
     assert utils.is_uniq_np1darr(np.array([1, 3]))
     assert utils.is_uniq_np1darr(np.array(['1', '3']))
     assert utils.is_uniq_np1darr(np.array(['1']))
+
+def test_dict_str_key():
+    # empty dict should work
+    assert utils.dict_str_key({}) == '[]'
+    # general case
+    assert utils.dict_str_key({"a": 1, "b": 2}) == "[('a', 1), ('b', 2)]"
+    # same
+    d1 = {'1': 2, '3': 'b', '5': [1,2,3]}
+    d11 = {'1': 2, '3': 'b', '5': [1,2,3]}
+    d2 = {'3': 'b', '1': 2, '5': [1,2,3]}
+    assert utils.dict_str_key(d1) == utils.dict_str_key(d11)
+    assert utils.dict_str_key(d1) == utils.dict_str_key(d2)
+    # diff
+    d3 = {'3': 'b', '1': 2, '5': (1,2,3)}
+    d4 = {'3': 'b', '1': '2', '5': [1,2,3]}
+    d5 = {'3': 'b', 1: 2, '5': [1,2,3]}
+    assert utils.dict_str_key(d1) != utils.dict_str_key(d3)
+    assert utils.dict_str_key(d1) != utils.dict_str_key(d4)
+    assert utils.dict_str_key(d1) != utils.dict_str_key(d5)
+    assert utils.dict_str_key(d4) != utils.dict_str_key(d5)
+    assert utils.dict_str_key(d3) != utils.dict_str_key(d5)
+
+def test_dict_str_key_wrong_arg():
+    with pytest.raises(ValueError) as excinfo:
+        utils.dict_str_key(1)
+    with pytest.raises(ValueError) as excinfo:
+        utils.dict_str_key('1')
+    with pytest.raises(ValueError) as excinfo:
+        utils.dict_str_key([1])
+    with pytest.raises(ValueError) as excinfo:
+        utils.dict_str_key((1, 2))
+    with pytest.raises(ValueError) as excinfo:
+        utils.dict_str_key(1.1)
