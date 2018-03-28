@@ -22,6 +22,9 @@ def parmap(f, X, nprocs=1):
     """
     if nprocs < 1:
         raise ValueError("nprocs should be >= 1. nprocs: {}".format(nprocs))
+
+    nprocs = min(int(nprocs), mp.cpu_count())
+    
     q_in = mp.Queue(1)
     q_out = mp.Queue()
     proc = [mp.Process(target=_parmap_fun, args=(f, q_in, q_out))
