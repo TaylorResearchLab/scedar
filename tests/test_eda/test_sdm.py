@@ -102,6 +102,30 @@ class TestSampleDistanceMatrix(object):
         with pytest.raises(Exception) as excinfo:
             eda.SampleDistanceMatrix(self.x_3x2, d_1x6)
 
+    def test_get_tsne_kv(self):
+        tmet = 'euclidean'
+        sdm = eda.SampleDistanceMatrix(self.x_3x2, metric=tmet)
+        assert sdm.get_tsne_kv(1) is None
+        assert sdm.get_tsne_kv(1) is None
+        assert sdm.get_tsne_kv(0) is None
+        assert sdm.get_tsne_kv(2) is None
+
+    def test_get_tsne_kv_wrong_args(self):
+        tmet = 'euclidean'
+        sdm = eda.SampleDistanceMatrix(self.x_3x2, metric=tmet)
+        with pytest.raises(ValueError) as excinfo:
+            sdm.get_tsne_kv([1,2,3])
+        with pytest.raises(ValueError) as excinfo:
+            sdm.get_tsne_kv({1:2})
+
+    def test_put_tsne_wrong_args(self):
+        tmet = 'euclidean'
+        sdm = eda.SampleDistanceMatrix(self.x_3x2, metric=tmet)
+        with pytest.raises(ValueError) as excinfo:
+            sdm.put_tsne(1, [1,2,3])
+        with pytest.raises(ValueError) as excinfo:
+            sdm.put_tsne({1:2}, [1,2,3])
+
     def test_tsne(self):
         tmet = 'euclidean'
         tsne_kwargs = {'metric': tmet, 'n_iter': 250,
@@ -127,27 +151,74 @@ class TestSampleDistanceMatrix(object):
         assert len(sdm.tsne_lut) == 1
 
         tsne3 = sdm.tsne(store_res=True, **tsne_kwargs)
-        np.testing.assert_allclose(ref_tsne, tsne2)
+        np.testing.assert_allclose(ref_tsne, tsne3)
+        # (param, ind) as key, so same params get an extra entry.
         assert len(sdm.tsne_lut) == 2
 
-        tsne_res_list = [tsne1, tsne3]
-        tsne_res_lut = sdm.tsne_lut
-        tsne_res_lut_sorted_keys = sorted(tsne_res_lut.keys())
-        for i in range(len(tsne_res_lut)):
-            iter_key = tsne_res_lut_sorted_keys[i]
-            iter_key[1] == i
-            np.testing.assert_allclose(tsne_res_lut[iter_key],
-                                       tsne_res_list[i])
-            assert tsne_res_lut[iter_key] is not tsne_res_list[i]
+        np.testing.assert_allclose(tsne1, sdm.get_tsne_kv(1)[1])
+        np.testing.assert_allclose(tsne3, sdm.get_tsne_kv(2)[1])
+        assert tsne1 is not sdm.get_tsne_kv(1)[1]
+        assert tsne3 is not sdm.get_tsne_kv(2)[1]
 
         tsne4 = sdm.tsne(store_res=True, n_iter=250, random_state=123)
         np.testing.assert_allclose(ref_tsne, tsne4)
+        np.testing.assert_allclose(sdm.get_tsne_kv(3)[1], tsne4)
         assert len(sdm.tsne_lut) == 3
 
         tsne5 = sdm.tsne(store_res=True, n_iter=251, random_state=123)
         tsne6 = sdm.tsne(store_res=True, n_iter=251, random_state=123)
         np.testing.assert_allclose(tsne6, tsne5)
+        np.testing.assert_allclose(tsne5, sdm.get_tsne_kv(4)[1])
+        np.testing.assert_allclose(tsne6, sdm.get_tsne_kv(5)[1])
         assert len(sdm.tsne_lut) == 5
+
+    def test_par_tsne(self):
+        tmet = 'euclidean'
+        param_list = [{'metric': tmet, 'n_iter': 250, 'random_state': 123},
+                      {'metric': tmet, 'n_iter': 250, 'random_state': 125},
+                      {'metric': tmet, 'n_iter': 250, 'random_state': 123}]
+        ref_tsne = eda.tsne(self.x_3x2, **param_list[0])
+        sdm = eda.SampleDistanceMatrix(self.x_3x2, metric=tmet)
+        # If not store, should not update lut
+        sdm.par_tsne(param_list, store_res=False)
+        assert sdm._lazy_load_last_tsne is None
+        assert sdm.tsne_lut == {}
+        # store results
+        tsne1, tsne2, tsne3 = sdm.par_tsne(param_list)
+        np.testing.assert_allclose(ref_tsne, tsne1)
+        np.testing.assert_allclose(ref_tsne, tsne3)
+        np.testing.assert_allclose(ref_tsne, sdm._last_tsne)
+        assert tsne1.shape == (3, 2)
+        assert len(sdm.tsne_lut) == 3
+
+        np.testing.assert_allclose(tsne1, sdm.get_tsne_kv(1)[1])
+        np.testing.assert_allclose(tsne2, sdm.get_tsne_kv(2)[1])
+        np.testing.assert_allclose(tsne3, sdm.get_tsne_kv(3)[1])
+        np.testing.assert_allclose(tsne3, sdm.get_tsne_kv(1)[1])
+
+    def test_par_tsne_mp(self):
+        tmet = 'euclidean'
+        param_list = [{'metric': tmet, 'n_iter': 250, 'random_state': 123},
+                      {'metric': tmet, 'n_iter': 250, 'random_state': 125},
+                      {'metric': tmet, 'n_iter': 250, 'random_state': 123}]
+        ref_tsne = eda.tsne(self.x_3x2, **param_list[0])
+        sdm = eda.SampleDistanceMatrix(self.x_3x2, metric=tmet)
+        # If not store, should not update lut
+        sdm.par_tsne(param_list, store_res=False, nprocs=3)
+        assert sdm._lazy_load_last_tsne is None
+        assert sdm.tsne_lut == {}
+        # store results
+        tsne1, tsne2, tsne3 = sdm.par_tsne(param_list, nprocs=3)
+        np.testing.assert_allclose(ref_tsne, tsne1)
+        np.testing.assert_allclose(ref_tsne, tsne3)
+        np.testing.assert_allclose(ref_tsne, sdm._last_tsne)
+        assert tsne1.shape == (3, 2)
+        assert len(sdm.tsne_lut) == 3
+
+        np.testing.assert_allclose(tsne1, sdm.get_tsne_kv(1)[1])
+        np.testing.assert_allclose(tsne2, sdm.get_tsne_kv(2)[1])
+        np.testing.assert_allclose(tsne3, sdm.get_tsne_kv(3)[1])
+        np.testing.assert_allclose(tsne3, sdm.get_tsne_kv(1)[1])
 
     def test_tsne_default_init(self):
         tmet = 'euclidean'

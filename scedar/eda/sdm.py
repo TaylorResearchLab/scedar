@@ -45,6 +45,12 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
         sample ids.
     _fids : ndarray
         sample ids.
+    _tsne_lut: dict
+        lookup table for previous tsne calculations. Each run has an 
+        indexed entry, {(param_str, index) : tsne_res}
+    _last_tsne: float array
+        The last *stored* tsne results. In no tsne performed before, a run 
+        with default parameters will be performed.
     """
 
     def __init__(self, x, d=None, metric="correlation",
@@ -119,9 +125,57 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
         dmat[np.triu_indices_from(dmat)] = dmat.T[np.triu_indices_from(dmat)]
         return dmat
 
-    # store_res : bool. Wheter to keep the tsne results in a dictionalry keyed
-    # by the parameters.
+    def put_tsne(self, str_params, res):
+        """
+        Put t-SNE results into the lookup table. 
+        """
+        if type(str_params) != str:
+            raise ValueError("Unknown key type: {}".format(str_params))
+        curr_store_ind = len(self._tsne_lut) + 1
+        tsne_params_key = (str_params, curr_store_ind)
+        res_copy = res.copy()
+        self._tsne_lut[tsne_params_key] = res_copy
+        self._lazy_load_last_tsne = res_copy
+
+    def get_tsne_kv(self, key):
+        """
+        Get t-SNE results from the lookup table. Return None if non-existent.
+
+        Returns
+        -------
+        res_tuple: tuple
+            (key, val) pair of tsne result.
+        """
+        if type(key) == int:
+            # tuple key (param_str, ind)
+            for tk in self._tsne_lut:
+                if key == tk[1]:
+                    return (tk, self._tsne_lut[tk])
+        elif type(key) == str:
+            for tk in self._tsne_lut:
+                if key == tk[0]:
+                    return (tk, self._tsne_lut[tk])
+        else:
+            raise ValueError("Unknown key type: {}".format(key))
+        # key cannot be found
+        return None
+
     def tsne(self, store_res=True, **kwargs):
+        """
+        Run t-SNE on distance matrix. 
+
+        Parameters
+        ----------
+        store_res: bool
+            Store the results in lookup table or not.
+        **kwargs
+            Keyword arguments passed to tsne computation. 
+
+        Returns
+        -------
+        tsne_res: float array
+            t-SNE projections, (n_samples, m dimensions).
+        """
         # check input args
         if ("metric" in kwargs
             and kwargs["metric"] not in ("precomputed", self._metric)):
@@ -130,22 +184,49 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
                              "instance of the desired metric.")
         else:
             kwargs["metric"] = "precomputed"
-        # look for cached tsne with param key
-        curr_store_ind = len(self._tsne_lut) + 1
-        tsne_params_key = (str(kwargs), curr_store_ind)
-        for key, val in self._tsne_lut.items():
-            if key[0] == tsne_params_key[0]:
-                tsne_res = val
-                break
-        else:
+        str_params = str(kwargs)
+        tsne_kv = self.get_tsne_kv(str_params)
+        if tsne_kv is None:
             tsne_res = tsne(self._d, **kwargs)
-
+        else:
+            tsne_res = tsne_kv[1]
         if store_res:
-            tsne_res_copy = tsne_res.copy()
-            self._tsne_lut[tsne_params_key] = tsne_res_copy
-            self._lazy_load_last_tsne = tsne_res_copy
+            self.put_tsne(str_params, tsne_res)
 
         return tsne_res
+
+    def par_tsne(self, param_list, store_res=True, nprocs=1):
+        """
+        Run t-SNE with multiple sets of parameters parallely. 
+
+        Parameters
+        ----------
+        param_list: list of dict
+            List of parameters being passed to t-SNE. 
+        nprocs: int
+            Number of processes.
+
+        Returns
+        -------
+        tsne_res_list: list of float arrays
+            List of t-SNE results of corresponding parameter set.
+
+        Notes
+        -----
+        Parallel running results cannot be stored during the run, because
+        racing conditions may happen.
+        """
+        nprocs = min(int(nprocs), len(param_list))
+
+        f = lambda param_dict: self.tsne(store_res=False, **param_dict)
+        if nprocs <= 1:
+            resl = list(map(f, param_list))
+        else:
+            resl = utils.parmap(f, param_list, nprocs)
+        if store_res:
+            for i in range(len(param_list)):
+                self.put_tsne(str(param_list[i]), resl[i])
+        return resl
 
     def tsne_gradient_plot(self, gradient=None, labels=None, 
                            title=None, xlab=None, ylab=None,
