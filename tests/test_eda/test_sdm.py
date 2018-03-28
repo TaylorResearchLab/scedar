@@ -297,3 +297,35 @@ class TestSampleDistanceMatrix(object):
 
         with pytest.raises(Exception) as excinfo:
             eda.SampleDistanceMatrix.num_correct_dist_mat(tdmat3)
+
+    def test_ith_nn_d(self):
+        nn_sdm = eda.SampleDistanceMatrix([[0], [1], [5], [6], [10], [20]], 
+                                          metric='euclidean')
+        np.testing.assert_allclose([0, 0, 0, 0, 0, 0],
+                                   nn_sdm.ith_nn_d(0))
+        np.testing.assert_allclose([1, 1, 1, 1, 4, 10],
+                                   nn_sdm.ith_nn_d(1))
+        np.testing.assert_allclose([5, 4, 4, 4, 5, 14],
+                                   nn_sdm.ith_nn_d(2))
+
+    def test_ith_nn_ind(self):
+        nn_sdm = eda.SampleDistanceMatrix([[0], [1], [5], [6], [10], [20]], 
+                                          metric='euclidean')
+        np.testing.assert_allclose([0, 1, 2, 3, 4, 5],
+                                   nn_sdm.ith_nn_ind(0))
+        np.testing.assert_allclose([1, 0, 3, 2, 3, 4],
+                                   nn_sdm.ith_nn_ind(1))
+        np.testing.assert_allclose([2, 2, 1, 4, 2, 3],
+                                   nn_sdm.ith_nn_ind(2))
+
+    # Because summary dist plot calls hist_dens_plot immediately after 
+    # obtaining the summary statistics vector, the correctness of summary
+    # statistics vector and hist_dens_plot implies the correctness of the
+    # plots.
+    @pytest.mark.filterwarnings("ignore:The 'normed' kwarg is depreca")
+    def test_ith_nn_d_dist(self):
+        nn_sdm = eda.SampleDistanceMatrix([[0], [1], [5], [6], [10], [20]], 
+                                          metric='euclidean')
+        nn_sdm.ith_nn_d_dist(1)
+
+    

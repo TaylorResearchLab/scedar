@@ -1,5 +1,6 @@
 import scedar.qc as qc
 import scedar.eda as eda
+import numpy as np
 import pytest
 
 class TestSampleKNNFilter(object):
@@ -11,6 +12,7 @@ class TestSampleKNNFilter(object):
 
     def test_knn_filter_samples(self):
         skf = qc.SampleKNNFilter(self.tsdm)
+        d = skf._sdm._d
         resl = skf.knn_filter_samples([3, 4, 5], [10]*3, [5, 6, 7])
         assert resl == [list(range(5, 10)), list(range(5, 10)), []]
         assert len(skf._res_lut) == 3
@@ -21,10 +23,11 @@ class TestSampleKNNFilter(object):
         assert [t[0] for t in skf._res_lut[(3, 10, 5)]] == list(range(5+1))
         assert [t[0] for t in skf._res_lut[(4, 10, 6)]] == list(range(6+1))
         assert [t[0] for t in skf._res_lut[(5, 10, 7)]] == list(range(7+1))
-
+        np.testing.assert_equal(skf._sdm._d, d)
         
     def test_knn_filter_samples_par(self):
         skf = qc.SampleKNNFilter(self.tsdm)
+        d = skf._sdm._d
         resl = skf.knn_filter_samples([3, 4, 5], [10]*3, [5, 6, 7], 3)
         assert resl == [list(range(5, 10)), list(range(5, 10)), []]
         assert len(skf._res_lut) == 3
@@ -35,6 +38,7 @@ class TestSampleKNNFilter(object):
         assert [t[0] for t in skf._res_lut[(3, 10, 5)]] == list(range(5+1))
         assert [t[0] for t in skf._res_lut[(4, 10, 6)]] == list(range(6+1))
         assert [t[0] for t in skf._res_lut[(5, 10, 7)]] == list(range(7+1))
+        np.testing.assert_equal(skf._sdm._d, d)
 
     def test_knn_filter_samples_single_run(self):
         skf = qc.SampleKNNFilter(self.tsdm)

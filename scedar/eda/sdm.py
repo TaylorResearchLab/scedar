@@ -9,7 +9,7 @@ import sklearn.manifold
 import warnings
 
 from .. import utils
-from .plot import cluster_scatter, heatmap
+from .plot import cluster_scatter, heatmap, hist_dens_plot
 from .sfm import SampleFeatureMatrix
 from . import mtype
 
@@ -77,6 +77,9 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
         self._tsne_lut = {}
         self._lazy_load_last_tsne = None
         self._metric = metric
+        # Sorted distance matrix. Each column ascending from top to bottom.
+        self._lazy_load_col_sorted_d = None
+        self._lazy_load_col_argsorted_d = None
 
     # numerically correct dmat
     @staticmethod
@@ -245,6 +248,28 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
             selected_f_inds = self.f_id_to_ind(selected_fids)
         return self.ind_x(selected_s_inds, selected_f_inds)
 
+    def ith_nn_d(self, i):
+        """
+        Computes the distances of the i-th nearest neighbor of all samples.
+        """
+        return self._col_sorted_d[i, :]
+
+    def ith_nn_ind(self, i):
+        """
+        Computes the sample indices of the i-th nearest neighbor of all 
+        samples.
+        """
+        return self._col_argsorted_d[i, :]
+
+    def ith_nn_d_dist(self, i, xlab=None, ylab=None, title=None, 
+                      figsize=(5, 5), ax=None, **kwargs):
+        """
+        Plot the distances of the i-th nearest neighbor of all samples.
+        """
+        x = self.ith_nn_d(i)
+        return hist_dens_plot(x, title=title, xlab=xlab, ylab=ylab,
+                              figsize=figsize, ax=ax, **kwargs)
+
     @property
     def d(self):
         return self._d.tolist()
@@ -257,6 +282,18 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
                                                         metric=self._metric,
                                                         n_jobs=self._nprocs))
         return self._lazy_load_d
+
+    @property
+    def _col_sorted_d(self):
+        if self._lazy_load_col_sorted_d is None:
+            self._lazy_load_col_sorted_d = np.sort(self._d, axis=0)
+        return self._lazy_load_col_sorted_d
+
+    @property
+    def _col_argsorted_d(self):
+        if self._lazy_load_col_argsorted_d is None:
+            self._lazy_load_col_argsorted_d = np.argsort(self._d, axis=0)
+        return self._lazy_load_col_argsorted_d
 
     @property
     def _last_tsne(self):
