@@ -4,7 +4,7 @@ import pytest
 
 
 def test_gc1d():
-    assert eda.stats.gc1d([1]) == 0
+    assert np.isnan(eda.stats.gc1d([1]))
     # order should not matter
     np.testing.assert_equal(eda.stats.gc1d([1, 0]), eda.stats.gc1d([0, 1]))
     np.testing.assert_equal(eda.stats.gc1d([1, 0, 0]), 

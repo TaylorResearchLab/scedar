@@ -27,6 +27,8 @@ def gc1d(x):
         raise ValueError("Only support 1D array.")
     if x.shape[0] == 0:
         raise ValueError("Array size cannot be 0.")
+    if x.shape[0] == 1:
+        return np.nan
     # sort into ascending order
     xs = np.sort(x)
     if xs[0] == xs[-1]:
