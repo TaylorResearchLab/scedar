@@ -11,11 +11,28 @@ class TestSampleFeatureMatrix(object):
     sfm5x10_arr = np.random.ranf(50).reshape(5, 10)
     sfm3x3_arr = np.random.ranf(9).reshape(3, 3)
     sfm5x10_lst = list(map(list, np.random.ranf(50).reshape(5, 10)))
-    plt_sdm = eda.SampleFeatureMatrix(np.arange(60).reshape(6, 10), 
+    plt_arr = np.arange(60).reshape(6, 10)
+    plt_sdm = eda.SampleFeatureMatrix(plt_arr, 
                                       sids=list("abcdef"), 
                                       fids=list(map(lambda i: 'f{}'.format(i), 
                                                     range(10))))
+    # array([[ 0,  1,  2,  3,  4,  5,  6,  7,  8,  9],
+    #        [10, 11, 12, 13, 14, 15, 16, 17, 18, 19],
+    #        [20, 21, 22, 23, 24, 25, 26, 27, 28, 29],
+    #        [30, 31, 32, 33, 34, 35, 36, 37, 38, 39],
+    #        [40, 41, 42, 43, 44, 45, 46, 47, 48, 49],
+    #        [50, 51, 52, 53, 54, 55, 56, 57, 58, 59]])
 
+    ref_plt_f_sum = np.arange(0, 501, 100) + np.arange(10).sum()
+    ref_plt_s_sum = np.arange(0, 55, 6) + np.arange(0, 51, 10).sum()
+    ref_plt_f_mean = ref_plt_f_sum / 10
+    ref_plt_s_mean = ref_plt_s_sum / 6
+    ref_plt_f_cv = np.arange(10).std(ddof=1) / ref_plt_f_mean
+    ref_plt_s_cv = np.arange(0, 51, 10).std(ddof=1) / ref_plt_s_mean
+    ref_plt_f_gc = np.apply_along_axis(eda.stats.gc1d, 1, plt_arr)
+    ref_plt_s_gc = np.apply_along_axis(eda.stats.gc1d, 0, plt_arr)
+    ref_plt_f_a15 = np.array([0, 5, 10, 10, 10, 10])
+    ref_plt_s_a35 = np.array([2, 2, 2, 2, 2, 3, 3, 3, 3, 3])
 
     def test_init_x_none(self):
         with pytest.raises(Exception) as excinfo:
@@ -208,40 +225,40 @@ class TestSampleFeatureMatrix(object):
     def test_s_ind_regression_scatter_ax(self):
         fig, axs = plt.subplots(ncols=2)
         fig = self.plt_sdm.s_ind_regression_scatter(
-            0, 1, figsize=(5, 5), ax=axs[0])
+            0, 1, figsize=(5, 5), ax=axs[0], x_ci='sd')
         plt.close()
         return fig
 
     @pytest.mark.mpl_image_compare
     def test_s_ind_regression_scatter(self):
-        return self.plt_sdm.s_ind_regression_scatter(0, 1, figsize=(5, 5))
+        return self.plt_sdm.s_ind_regression_scatter(0, 1, figsize=(5, 5), x_ci='sd')
 
     @pytest.mark.mpl_image_compare
     def test_s_id_regression_scatter(self):
         return self.plt_sdm.s_id_regression_scatter("a", "b", 
                                            feature_filter=[1,2,3],
-                                           figsize=(5, 5))
+                                           figsize=(5, 5), x_ci='sd')
 
     @pytest.mark.mpl_image_compare
     def test_s_ind_regression_scatter_custom_labs(self):
         return self.plt_sdm.s_ind_regression_scatter(0, 1, xlab='X', ylab='Y', 
-                                            figsize=(5, 5))
+                                            figsize=(5, 5), x_ci='sd')
 
     @pytest.mark.mpl_image_compare
     def test_s_ind_regression_scatter_custom_bool_ff(self):
         return self.plt_sdm.s_ind_regression_scatter(
-            0, 1, feature_filter=[True]*2 + [False]*8, figsize=(5, 5))
+            0, 1, feature_filter=[True]*2 + [False]*8, figsize=(5, 5), x_ci='sd')
 
     @pytest.mark.mpl_image_compare
     def test_s_ind_regression_scatter_custom_int_ff(self):
         return self.plt_sdm.s_ind_regression_scatter(
-            0, 1, feature_filter=[0, 1], figsize=(5, 5))
+            0, 1, feature_filter=[0, 1], figsize=(5, 5), x_ci='sd')
 
     @pytest.mark.mpl_image_compare
     def test_s_ind_regression_scatter_custom_func_ff(self):
         return self.plt_sdm.s_ind_regression_scatter(
             0, 1, feature_filter=lambda x, y: (x in (0, 1, 2)) and (10 < y < 12), 
-            figsize=(5, 5))
+            figsize=(5, 5), x_ci='sd')
 
     @pytest.mark.mpl_image_compare
     def test_f_ind_regression_scatter_custom_func_sf(self):
@@ -253,27 +270,27 @@ class TestSampleFeatureMatrix(object):
         #        [50, 51, 52, 53, 54, 55, 56, 57, 58, 59]])
         return self.plt_sdm.f_ind_regression_scatter(
             0, 1, sample_filter=lambda x, y: (x in (0, 10, 20)) and (10 < y < 30), 
-            figsize=(5, 5))
+            figsize=(5, 5), x_ci='sd')
 
     @pytest.mark.mpl_image_compare
     def test_f_ind_regression_scatter_no_ff(self):
-        return self.plt_sdm.f_ind_regression_scatter(0, 1, figsize=(5, 5))
+        return self.plt_sdm.f_ind_regression_scatter(0, 1, figsize=(5, 5), x_ci='sd')
 
     @pytest.mark.mpl_image_compare
     def test_f_ind_regression_scatter_ind_ff(self):
         return self.plt_sdm.f_ind_regression_scatter(0, 1, sample_filter=[0, 2, 5], 
-                                            figsize=(5, 5))
+                                            figsize=(5, 5), x_ci='sd')
 
     @pytest.mark.mpl_image_compare
     def test_f_ind_regression_scatter_labs(self):
         return self.plt_sdm.f_ind_regression_scatter(0, 1, sample_filter=[0, 2, 5], 
                                             figsize=(5, 5), title='testregscat',
-                                            xlab='x', ylab='y')
+                                            xlab='x', ylab='y', x_ci='sd')
 
     @pytest.mark.mpl_image_compare
     def test_f_id_regression_scatter(self):
         return self.plt_sdm.f_id_regression_scatter(
-            'f5', 'f6', sample_filter=[0, 2, 5], figsize=(5, 5))
+            'f5', 'f6', sample_filter=[0, 2, 5], figsize=(5, 5), x_ci='sd')
 
     @pytest.mark.mpl_image_compare
     @pytest.mark.filterwarnings("ignore:The 'normed' kwarg is depreca")
@@ -363,3 +380,87 @@ class TestSampleFeatureMatrix(object):
         assert tsfm.x is not tsfm._x
         assert tsfm.sids is not tsfm._sids
         assert tsfm.fids is not tsfm._fids
+
+    # array([[ 0,  1,  2,  3,  4,  5,  6,  7,  8,  9],
+    #        [10, 11, 12, 13, 14, 15, 16, 17, 18, 19],
+    #        [20, 21, 22, 23, 24, 25, 26, 27, 28, 29],
+    #        [30, 31, 32, 33, 34, 35, 36, 37, 38, 39],
+    #        [40, 41, 42, 43, 44, 45, 46, 47, 48, 49],
+    #        [50, 51, 52, 53, 54, 55, 56, 57, 58, 59]])
+    def test_f_sum(self):
+        x = self.plt_sdm.f_sum()
+        assert x.ndim == 1
+        assert x.shape[0] == 6
+        np.testing.assert_allclose(x, self.ref_plt_f_sum)
+        # only need to test that filter has been passed correctly
+        np.testing.assert_allclose(self.plt_sdm.f_sum([0, 1, 2]), 
+            self.ref_plt_f_sum[:3])
+
+    def test_s_sum(self):
+        x = self.plt_sdm.s_sum()
+        assert x.ndim == 1
+        assert x.shape[0] == 10
+        np.testing.assert_allclose(x, self.ref_plt_s_sum)
+        np.testing.assert_allclose(self.plt_sdm.s_sum([0, 1, 2]), 
+            self.ref_plt_s_sum[:3])
+
+    def test_f_cv(self):
+        x = self.plt_sdm.f_cv()
+        assert x.ndim == 1
+        assert x.shape[0] == 6
+        np.testing.assert_allclose(self.plt_sdm.f_cv(), self.ref_plt_f_cv)
+        np.testing.assert_allclose(self.plt_sdm.f_cv([0, 1, 2]), 
+            self.ref_plt_f_cv[:3])
+
+    def test_s_cv(self):
+        x = self.plt_sdm.s_cv()
+        assert x.ndim == 1
+        assert x.shape[0] == 10
+        np.testing.assert_allclose(x, self.ref_plt_s_cv)
+        np.testing.assert_allclose(self.plt_sdm.s_cv([0, 1, 2]),
+            self.ref_plt_s_cv[:3])
+
+    def test_f_gc(self):
+        x = self.plt_sdm.f_gc()
+        assert x.ndim == 1
+        assert x.shape[0] == 6
+        np.testing.assert_allclose(x, self.ref_plt_f_gc)
+        np.testing.assert_allclose(self.plt_sdm.f_gc([0, 1, 2]), 
+            self.ref_plt_f_gc[:3])
+
+    def test_s_gc(self):
+        x = self.plt_sdm.s_gc()
+        assert x.ndim == 1
+        assert x.shape[0] == 10
+        np.testing.assert_allclose(x, self.ref_plt_s_gc)
+        np.testing.assert_allclose(self.plt_sdm.s_gc([0, 1, 2]),
+            self.ref_plt_s_gc[:3])
+
+    def test_f_ath(self):
+        x = self.plt_sdm.f_n_above_threshold(15)
+        assert x.ndim == 1
+        assert x.shape[0] == 6
+        np.testing.assert_allclose(x, self.ref_plt_f_a15)
+
+    def test_s_ath(self):
+        x = self.plt_sdm.s_n_above_threshold(35)
+        assert x.ndim == 1
+        assert x.shape[0] == 10
+        np.testing.assert_allclose(x, self.ref_plt_s_a35)
+
+    # Because summary dist plot calls hist_dens_plot immediately after 
+    # obtaining the summary statistics vector, the correctness of summary
+    # statistics vector and hist_dens_plot implies the correctness of the
+    # plots.
+    @pytest.mark.filterwarnings("ignore:The 'normed' kwarg is depreca")
+    def test_summary_stat_dist(self):
+        self.plt_sdm.f_sum_dist([0, 1, 2])
+        self.plt_sdm.s_sum_dist([0, 1, 2])
+        self.plt_sdm.f_cv_dist([0, 1, 2])
+        self.plt_sdm.s_cv_dist([0, 1, 2])
+        self.plt_sdm.f_gc_dist([0, 1, 2])
+        self.plt_sdm.s_gc_dist([0, 1, 2])
+        self.plt_sdm.f_n_above_threshold_dist(15)
+        self.plt_sdm.s_n_above_threshold_dist(15)
+
+

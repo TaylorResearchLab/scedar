@@ -3,6 +3,8 @@ from .. import utils
 
 from .plot import regression_scatter, hist_dens_plot
 from . import mtype
+from . import stats
+
 
 class SampleFeatureMatrix(object):
     """
@@ -343,7 +345,7 @@ class SampleFeatureMatrix(object):
         return hist_dens_plot(xf, title=title, xlab=xlab, ylab=ylab,
                               figsize=figsize, ax=ax, **kwargs)
 
-    def s_sum(self, s_sum_filter):
+    def s_sum(self, s_sum_filter=None):
         """
         For each feature, computer the sum of all samples.
 
@@ -366,7 +368,7 @@ class SampleFeatureMatrix(object):
         return hist_dens_plot(xf, title=title, xlab=xlab, ylab=ylab,
                               figsize=figsize, ax=ax, **kwargs)
 
-    def f_cv(self, f_cv_filter):
+    def f_cv(self, f_cv_filter=None):
         """
         For each sample, compute the coefficient of variation of all features.
 
@@ -391,7 +393,7 @@ class SampleFeatureMatrix(object):
         return hist_dens_plot(xf, title=title, xlab=xlab, ylab=ylab,
                               figsize=figsize, ax=ax, **kwargs)
 
-    def s_cv(self, s_cv_filter):
+    def s_cv(self, s_cv_filter=None):
         """
         For each feature, compute the coefficient of variation of all samples.
 
@@ -422,7 +424,7 @@ class SampleFeatureMatrix(object):
         For each sample, compute the number of features above a closed 
         threshold.
         """
-        row_ath_sum = (self._x >= close_threshold).sum(axis=1)
+        row_ath_sum = (self._x >= closed_threshold).sum(axis=1)
         return row_ath_sum
 
     def f_n_above_threshold_dist(self, closed_threshold, xlab=None, ylab=None,
@@ -435,12 +437,12 @@ class SampleFeatureMatrix(object):
         return hist_dens_plot(xf, title=title, xlab=xlab, ylab=ylab,
                               figsize=figsize, ax=ax, **kwargs)
     
-    def s_n_abover_threshold(self, close_threshold):
+    def s_n_above_threshold(self, closed_threshold):
         """
         For each feature, compute the number of samples above a closed 
         threshold.
         """
-        col_ath_sum = (self._x >= close_threshold).sum(axis=0)
+        col_ath_sum = (self._x >= closed_threshold).sum(axis=0)
         return col_ath_sum
 
     def s_n_above_threshold_dist(self, closed_threshold, xlab=None, ylab=None,
@@ -449,45 +451,11 @@ class SampleFeatureMatrix(object):
         Plot the distribution of the the number of above threshold samples
         of each feature, (n_features,).
         """
-        xf = self.s_n_abover_threshold(closed_threshold)
+        xf = self.s_n_above_threshold(closed_threshold)
         return hist_dens_plot(xf, title=title, xlab=xlab, ylab=ylab,
                               figsize=figsize, ax=ax, **kwargs)
 
-    @staticmethod
-    def gc_1d(x):
-        """
-        Compute Gini Index for 1D array.
-
-        Refs
-        ----
-        [1] http://mathworld.wolfram.com/GiniCoefficient.html
-
-        [2] Damgaard, C. and Weiner, J. "Describing Inequality in Plant Size 
-        or Fecundity." Ecology 81, 1139-1142, 2000.
-
-        [3] Dixon, P. M.; Weiner, J.; Mitchell-Olds, T.; and Woodley, R. 
-        "Bootstrapping the Gini Coefficient of Inequality." 
-        Ecology 68, 1548-1551, 1987.
-
-        [4] Dixon, P. M.; Weiner, J.; Mitchell-Olds, T.; and Woodley, R. 
-        "Erratum to 'Bootstrapping the Gini Coefficient of Inequality.' " 
-        Ecology 69, 1307, 1988.
-        """
-        x = np.array(x, dtype="float64")
-        if x.ndim != 1:
-            raise ValueError("Only support 1D array.")
-        # Wrap with np.int64 to prevent division by 0
-        n = np.int64(x.shape[0])
-        # Times this to achieve unbiased estimator
-        correction_factor = n / (n-1)
-        xmean = x.mean()
-        xs = np.sort(x)
-        xs_ranks = np.arange(1, n+1)
-        gc = (correction_factor
-              * ((2 * xs_rank - n - 1) * xs).sum() / (n**2 * xmean))
-        return gc
-
-    def f_gc(self, f_gc_filter):
+    def f_gc(self, f_gc_filter=None):
         """
         For each sample, compute the Gini coefficients of all features.
 
@@ -496,57 +464,7 @@ class SampleFeatureMatrix(object):
         xf: float array
             (filtered_n_samples,)
         """
-        rowgc = np.apply_along_axis(gc_1d, 1, self._x)
-        s_inds = self.filter_1d_inds(f_gc_filter, rowgc)
-        rowgcf = rowcv[s_inds]
-        return rowgcf
-
-    def f_gc_dist(self, f_gc_filter=None, xlab=None, ylab=None,
-                   title=None, figsize=(5, 5), ax=None, **kwargs):
-        """
-        Plot the distribution of the feature Gini coefficient of each 
-        sample, (n_samples,).
-        """
-        xf = self.f_gc(f_cv_filter)
-        return hist_dens_plot(xf, title=title, xlab=xlab, ylab=ylab,
-                              figsize=figsize, ax=ax, **kwargs)
-
-    def s_cv(self, s_cv_filter):
-        """
-        For each feature, compute the Gini coefficient of all samples.
-
-        Returns
-        -------
-        xf: float array
-            (n_features,)
-        """
-        colsd = self._x.std(axis=0, ddof=1)
-        colmean = self._x.mean(axis=0)
-        colcv = colsd / colmean
-        f_inds = self.filter_1d_inds(s_cv_filter, colcv)
-        colcvf = colcv[f_inds]
-        return colcvf
-
-    def s_cv_dist(self, s_cv_filter=None, xlab=None, ylab=None,
-                   title=None, figsize=(5, 5), ax=None, **kwargs):
-        """
-        Plot the distribution of the sample Gini coefficients
-        of each feature, (n_features,).
-        """
-        xf = self.s_cv(s_cv_filter)
-        return hist_dens_plot(xf, title=title, xlab=xlab, ylab=ylab,
-                              figsize=figsize, ax=ax, **kwargs)
-
-    def f_gc(self, f_gc_filter):
-        """
-        For each sample, compute the Gini coefficients of all features.
-
-        Returns
-        -------
-        xf: float array
-            (filtered_n_samples,)
-        """
-        rowgc = np.apply_along_axis(gc_1d, 1, self._x)
+        rowgc = np.apply_along_axis(stats.gc1d, 1, self._x)
         s_inds = self.filter_1d_inds(f_gc_filter, rowgc)
         rowgcf = rowgc[s_inds]
         return rowgcf
@@ -561,7 +479,7 @@ class SampleFeatureMatrix(object):
         return hist_dens_plot(xf, title=title, xlab=xlab, ylab=ylab,
                               figsize=figsize, ax=ax, **kwargs)
 
-    def s_gc(self, s_gc_filter):
+    def s_gc(self, s_gc_filter=None):
         """
         For each feature, compute the Gini coefficient of all samples.
 
@@ -570,7 +488,7 @@ class SampleFeatureMatrix(object):
         xf: float array
             (n_features,)
         """
-        colgc = np.apply_along_axis(gc_1d, 0, self._x)
+        colgc = np.apply_along_axis(stats.gc1d, 0, self._x)
         f_inds = self.filter_1d_inds(s_gc_filter, colgc)
         colgcf = colgc[f_inds]
         return colgcf
