@@ -331,25 +331,39 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
             selected_f_inds = self.f_id_to_ind(selected_fids)
         return self.ind_x(selected_s_inds, selected_f_inds)
 
-    def ith_nn_d(self, i):
+    def s_ith_nn_d(self, i):
         """
         Computes the distances of the i-th nearest neighbor of all samples.
         """
         return self._col_sorted_d[i, :]
 
-    def ith_nn_ind(self, i):
+    def s_ith_nn_ind(self, i):
         """
         Computes the sample indices of the i-th nearest neighbor of all 
         samples.
         """
         return self._col_argsorted_d[i, :]
 
-    def ith_nn_d_dist(self, i, xlab=None, ylab=None, title=None, 
+    def s_knn_ind_lut(self, k):
+        """
+        Computes the lookup table for sample i and its KNN indices, i.e.
+        `{i : [1st_NN_ind, 2nd_NN_ind, ..., nth_NN_ind], ...}`
+        """
+        # each column is its KNN index from 1 to k
+        if k < 0 or k >= self._col_argsorted_d.shape[0] - 1:
+            raise ValueError("k ({}) should >= 0 and <= n_samples-1".format(k))
+        k = int(k)
+        knn_ind_arr = self._col_argsorted_d[1:k+1, :].copy()
+        knn_order_ind_lut = dict(zip(range(knn_ind_arr.shape[1]),
+                                           knn_ind_arr.T.tolist()))
+        return knn_order_ind_lut
+        
+    def s_ith_nn_d_dist(self, i, xlab=None, ylab=None, title=None, 
                       figsize=(5, 5), ax=None, **kwargs):
         """
         Plot the distances of the i-th nearest neighbor of all samples.
         """
-        x = self.ith_nn_d(i)
+        x = self.s_ith_nn_d(i)
         return hist_dens_plot(x, title=title, xlab=xlab, ylab=ylab,
                               figsize=figsize, ax=ax, **kwargs)
 
@@ -368,14 +382,20 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
 
     @property
     def _col_sorted_d(self):
+        # Use mergesort to be stable
         if self._lazy_load_col_sorted_d is None:
-            self._lazy_load_col_sorted_d = np.sort(self._d, axis=0)
+            self._lazy_load_col_sorted_d = np.sort(self._d,
+                                                   kind="mergesort",
+                                                   axis=0)
         return self._lazy_load_col_sorted_d
 
     @property
     def _col_argsorted_d(self):
+        # Use mergesort to be stable
         if self._lazy_load_col_argsorted_d is None:
-            self._lazy_load_col_argsorted_d = np.argsort(self._d, axis=0)
+            self._lazy_load_col_argsorted_d = np.argsort(self._d,
+                                                         kind="mergesort",
+                                                         axis=0)
         return self._lazy_load_col_argsorted_d
 
     @property

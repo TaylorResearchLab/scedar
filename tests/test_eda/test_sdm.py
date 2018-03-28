@@ -369,34 +369,111 @@ class TestSampleDistanceMatrix(object):
         with pytest.raises(Exception) as excinfo:
             eda.SampleDistanceMatrix.num_correct_dist_mat(tdmat3)
 
-    def test_ith_nn_d(self):
-        nn_sdm = eda.SampleDistanceMatrix([[0], [1], [5], [6], [10], [20]], 
+    def test_s_ith_nn_d(self):
+        nn_sdm = eda.SampleDistanceMatrix([[0], [1], [5], [6], [10], [20]],
                                           metric='euclidean')
         np.testing.assert_allclose([0, 0, 0, 0, 0, 0],
-                                   nn_sdm.ith_nn_d(0))
+                                   nn_sdm.s_ith_nn_d(0))
         np.testing.assert_allclose([1, 1, 1, 1, 4, 10],
-                                   nn_sdm.ith_nn_d(1))
+                                   nn_sdm.s_ith_nn_d(1))
         np.testing.assert_allclose([5, 4, 4, 4, 5, 14],
-                                   nn_sdm.ith_nn_d(2))
+                                   nn_sdm.s_ith_nn_d(2))
 
-    def test_ith_nn_ind(self):
-        nn_sdm = eda.SampleDistanceMatrix([[0], [1], [5], [6], [10], [20]], 
+    def test_s_ith_nn_ind(self):
+        nn_sdm = eda.SampleDistanceMatrix([[0, 0, 0], [1, 1, 1], [5, 5, 5], 
+                                           [6, 6, 6], [10, 10, 10], 
+                                           [20, 20, 20]], 
                                           metric='euclidean')
         np.testing.assert_allclose([0, 1, 2, 3, 4, 5],
-                                   nn_sdm.ith_nn_ind(0))
+                                   nn_sdm.s_ith_nn_ind(0))
         np.testing.assert_allclose([1, 0, 3, 2, 3, 4],
-                                   nn_sdm.ith_nn_ind(1))
+                                   nn_sdm.s_ith_nn_ind(1))
         np.testing.assert_allclose([2, 2, 1, 4, 2, 3],
-                                   nn_sdm.ith_nn_ind(2))
+                                   nn_sdm.s_ith_nn_ind(2))
 
     # Because summary dist plot calls hist_dens_plot immediately after 
     # obtaining the summary statistics vector, the correctness of summary
     # statistics vector and hist_dens_plot implies the correctness of the
     # plots.
     @pytest.mark.filterwarnings("ignore:The 'normed' kwarg is depreca")
-    def test_ith_nn_d_dist(self):
-        nn_sdm = eda.SampleDistanceMatrix([[0], [1], [5], [6], [10], [20]], 
+    def test_s_ith_nn_d_dist(self):
+        nn_sdm = eda.SampleDistanceMatrix([[0, 0, 0], [1, 1, 1], [5, 5, 5], 
+                                           [6, 6, 6], [10, 10, 10], 
+                                           [20, 20, 20]], 
                                           metric='euclidean')
-        nn_sdm.ith_nn_d_dist(1)
+        nn_sdm.s_ith_nn_d_dist(1)
 
-    
+    def test_knn_ind_lut(self):
+        nn_sdm = eda.SampleDistanceMatrix([[0, 0, 0], [1, 1, 1], [5, 5, 5], 
+                                           [6, 6, 6], [10, 10, 10], 
+                                           [20, 20, 20]], 
+                                          metric='euclidean')
+        assert nn_sdm.s_knn_ind_lut(0) == dict(zip(range(6), [[]]*6))
+        assert (nn_sdm.s_knn_ind_lut(1) == 
+                dict(zip(range(6), [[1], [0], [3], [2], [3], [4]])))
+        assert (nn_sdm.s_knn_ind_lut(2) == 
+                dict(zip(range(6), [[1, 2], [0, 2], [3, 1], 
+                                    [2, 4], [3, 2], [4, 3]])))
+        assert (nn_sdm.s_knn_ind_lut(3) == 
+                dict(zip(range(6), [[1, 2, 3], [0, 2, 3], [3, 1, 0], 
+                                    [2, 4, 1], [3, 2, 1], [4, 3, 2]])))
+
+    def test_knn_ind_lut_wrong_args(self):
+        nn_sdm = eda.SampleDistanceMatrix([[0, 0, 0], [1, 1, 1], [5, 5, 5], 
+                                           [6, 6, 6], [10, 10, 10], 
+                                           [20, 20, 20]], 
+                                          metric='euclidean')
+        with pytest.raises(ValueError) as excinfo:
+            nn_sdm.s_knn_ind_lut(-1)
+        with pytest.raises(ValueError) as excinfo:
+            nn_sdm.s_knn_ind_lut(-0.5)
+        with pytest.raises(ValueError) as excinfo:
+            nn_sdm.s_knn_ind_lut(6)
+        with pytest.raises(ValueError) as excinfo:
+            nn_sdm.s_knn_ind_lut(6.5)
+        with pytest.raises(ValueError) as excinfo:
+            nn_sdm.s_knn_ind_lut(7)
+
+    @pytest.mark.mpl_image_compare
+    def test_sdm_tsne_feature_gradient_plot(self):
+        sids = list(range(8))
+        fids = [str(i) for i in range(10)]
+        np.random.seed(123)
+        x = np.random.ranf(80).reshape(8, -1)
+        x_sorted = x[np.argsort(x[:, 5])]
+        sdm = eda.SampleDistanceMatrix(
+            x_sorted, sids=sids, fids=fids)
+        return sdm.tsne_feature_gradient_plot(
+            '5', figsize=(10, 10), s=50)
+
+    @pytest.mark.mpl_image_compare
+    def test_sdm_tsne_gradient_plot(self):
+        sids = list(range(8))
+        fids = [str(i) for i in range(10)]
+        np.random.seed(123)
+        x = np.random.ranf(80).reshape(8, -1)
+        x_sorted = x[np.argsort(x[:, 5])]
+        g = x_sorted[:, 5]
+        sdm = eda.SampleDistanceMatrix(x_sorted, sids=sids, fids=fids)
+        return sdm.tsne_gradient_plot(g, figsize=(10, 10), s=50)
+
+    def test_sdm_tsne_feature_gradient_plot_wrong_args(self):
+        sids = list(range(8))
+        fids = [str(i) for i in range(10)]
+        np.random.seed(123)
+        x = np.random.ranf(80).reshape(8, -1)
+        x_sorted = x[np.argsort(x[:, 5])]
+        sdm = eda.SampleDistanceMatrix(x, sids=sids, fids=fids)
+        with pytest.raises(ValueError):
+            sdm.tsne_feature_gradient_plot([0, 1])
+        with pytest.raises(ValueError):
+            sdm.tsne_feature_gradient_plot(11)
+        with pytest.raises(ValueError):
+            sdm.tsne_feature_gradient_plot(11)
+        with pytest.raises(ValueError):
+            sdm.tsne_feature_gradient_plot(-1)
+        with pytest.raises(ValueError):
+            sdm.tsne_feature_gradient_plot(5)
+        with pytest.raises(ValueError):
+            sdm.tsne_feature_gradient_plot('123')
+
