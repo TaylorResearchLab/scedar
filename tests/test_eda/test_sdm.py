@@ -529,13 +529,28 @@ class TestSampleDistanceMatrix(object):
         with pytest.raises(ValueError):
             sdm.tsne_feature_gradient_plot('123')
 
+    def test_s_knn_connectivity_matrix(self):
+        nn_sdm = eda.SampleDistanceMatrix([[0], [1], [5]],
+                                          metric='euclidean')
+        np.testing.assert_allclose([[0, 1, 0],
+                                    [1, 0, 0],
+                                    [0, 4, 0]],
+                                   nn_sdm.s_knn_connectivity_matrix(1))
+
     @pytest.mark.mpl_image_compare
     def test_draw_s_knn_graph(self):
         np.random.seed(123)
         x = np.concatenate((np.random.normal(0, 1, 10),
                             np.random.normal(20, 1, 20))).reshape(30, -1)
         sdm = eda.SampleDistanceMatrix(x, metric='euclidean')
-        gradient = np.arange(30)
         sdm.draw_s_knn_graph(5, figsize=(5, 5))
+        assert (5, 1) in sdm._knn_ng_lut
+        assert len(sdm._knn_ng_lut) == 1
+        # use cache
+        sdm.draw_s_knn_graph(5, figsize=(5, 5))
+        sdm.draw_s_knn_graph(5, figsize=(5, 5), fa2_kwargs={})
+        sdm.draw_s_knn_graph(5, figsize=(5, 5), nx_draw_kwargs={})
+        assert len(sdm._knn_ng_lut) == 1
+        gradient = np.array([1] * 10 + [10] * 20)
         return sdm.draw_s_knn_graph(5, gradient=gradient, figsize=(5, 5),
-                                    random_state=123)
+                                    alpha=0.8, random_state=123)

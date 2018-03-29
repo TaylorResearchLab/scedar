@@ -59,6 +59,8 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
     _last_tsne: float array
         The last *stored* tsne results. In no tsne performed before, a run
         with default parameters will be performed.
+    _knn_ng_lut: dict
+        {(k, aff_scale): knn_graph}
     """
 
     def __init__(self, x, d=None, metric="correlation",
@@ -94,6 +96,7 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
         # Sorted distance matrix. Each column ascending from top to bottom.
         self._lazy_load_col_sorted_d = None
         self._lazy_load_col_argsorted_d = None
+        self._knn_ng_lut = {}
 
     # numerically correct dmat
     @staticmethod
@@ -383,10 +386,10 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
 
     def s_knn_connectivity_matrix(self, k):
         """
-        Computes the connectivity matrix of KNN of samples. If an entry 
+        Computes the connectivity matrix of KNN of samples. If an entry
         `(i, j)` has value 0, node `i` is not in node `j`'s KNN. If an entry
         `(i, j)` has value > 0, node `i` is in `j`'s KNN, and their distance
-        is the entry value. 
+        is the entry value.
 
         Parameters
         ----------
@@ -397,56 +400,102 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
         knn_conn_mat: float array
             (n_samples, n_samles)
         """
-        knn_d_arr = kneighbors_graph(self._d, k, mode="distance",
-                                     metric="precomputed",
-                                     include_self=False).toarray()
-        return knn_d_arr
+        knn_conn_mat = kneighbors_graph(self._d, k, mode="distance",
+                                        metric="precomputed",
+                                        include_self=False).toarray()
+        return knn_conn_mat
 
-    def draw_s_knn_graph(self, k, aff_scale=1, random_state=None,
+    def draw_s_knn_graph(self, k, aff_scale=1, gradient=None, iterations=2000,
                          figsize=(20, 20), node_size=30, alpha=0.05,
-                         with_labels=False, gradient=None, **kwargs):
+                         random_state=None, init_pos=None,
+                         with_labels=False, fa2_kwargs=None,
+                         nx_draw_kwargs=None):
+        """
+        Draw KNN graph of SampleDistanceMatrix. Graph layout using
+        forceatlas2 for its speed on large graph.
+
+        Parameters:
+        k: int
+        aff_scale: float
+            Affinity is calculated by `(max(distance) - distance) * aff_scale`
+        gradient: float array
+            (n_samples,) color gradient
+        iterations: int
+            ForceAtlas2 iterations
+        figsize: (float, float)
+        node_size: float
+        alpha: float
+        random_state: int
+        init_pos: float array
+            Initial position of ForceAtlas2, (n_samples, 2).
+        with_labels: bool
+        fa2_kwargs: dict
+        nx_draw_kwargs: dict
+
+        Returns
+        -------
+        fig: matplotlib figure
+            KNN graph.
+        """
         # TODO: Docstring. Feature gradient.
         # (n_samples, n_samples). Non-neighbor entries are 0.
-        # Undirected graph
-        knn_d_arr = kneighbors_graph(self._d, k, mode="distance",
-                                     metric="precomputed",
-                                     include_self=False).toarray()
-        ng = nx.Graph()
-        # affinity shoud negatively correlate to distance
-        aff_mat = (knn_d_arr.max() - knn_d_arr) * aff_scale
+        knn_ng_param_key = (k, aff_scale)
+        if knn_ng_param_key in self._knn_ng_lut:
+            ng = self._knn_ng_lut[knn_ng_param_key]
+        else:
+            knn_d_arr = self.s_knn_connectivity_matrix(k)
+            # Undirected graph
+            ng = nx.Graph()
+            # affinity shoud negatively correlate to distance
+            aff_mat = (knn_d_arr.max() - knn_d_arr) * aff_scale
+            # Add graph edges
+            # Nodes are in the same order with their indices
+            for i in range(knn_d_arr.shape[0]):
+                for j in range(i+1, knn_d_arr.shape[0]):
+                    if knn_d_arr[i, j] > 0:
+                        ng.add_edge(self._sids[i], self._sids[j],
+                                    weight=aff_mat[i, j])
+            self._knn_ng_lut[knn_ng_param_key] = ng.copy()
 
-        for i in range(knn_d_arr.shape[0]):
-            for j in range(i+1, knn_d_arr.shape[0]):
-                if knn_d_arr[i, j] > 0:
-                    ng.add_edge(i, j, weight=aff_mat[i, j])
-
+        if fa2_kwargs is None:
+            fa2_kwargs = {}
+        else:
+            fa2_kwargs = fa2_kwargs.copy()
         random.seed(random_state)
-        forceatlas2 = ForceAtlas2(# Dissuade hubs
-                                  outboundAttractionDistribution=True,
-                                  edgeWeightInfluence=1.0,
+        forceatlas2 = ForceAtlas2(
+            # Dissuade hubs
+            outboundAttractionDistribution=fa2_kwargs.pop(
+                "outboundAttractionDistribution", True),
+            edgeWeightInfluence=fa2_kwargs.pop("edgeWeightInfluence", 1.0),
+            # Performance
+            # Tolerance
+            jitterTolerance=fa2_kwargs.pop("jitterTolerance", 1.0),
+            barnesHutOptimize=fa2_kwargs.pop("barnesHutOptimize", True),
+            barnesHutTheta=fa2_kwargs.pop("barnesHutTheta", 1.2),
+            # Tuning
+            scalingRatio=fa2_kwargs.pop("scalingRatio", 2.0),
+            strongGravityMode=fa2_kwargs.pop("strongGravityMode", True),
+            gravity=fa2_kwargs.pop("gravity", 1.0),
+            # Log
+            verbose=fa2_kwargs.pop("verbose", False), **fa2_kwargs)
+        knn_fa2pos = forceatlas2.forceatlas2_networkx_layout(
+            ng, pos=init_pos, iterations=iterations)
 
-                                  # Performance
-                                  jitterTolerance=1.0,  # Tolerance
-                                  barnesHutOptimize=True,
-                                  barnesHutTheta=1.2,
-                                  multiThreaded=False,  # NOT IMPLEMENTED
-
-                                  # Tuning
-                                  scalingRatio=2.0,
-                                  strongGravityMode=True,
-                                  gravity=1.0,
-
-                                  # Log
-                                  verbose=False)
-        knn_fa2pos = forceatlas2.forceatlas2_networkx_layout(ng, pos=None,
-                                                             iterations=2000)
+        if nx_draw_kwargs is None:
+            nx_draw_kwargs = {}
+        else:
+            nx_draw_kwargs = nx_draw_kwargs.copy()
         if gradient is None:
-            node_color = "b"
+            node_color = nx_draw_kwargs.pop("node_color", "b")
+            cmap = nx_draw_kwargs.pop("cmap", None)
         else:
             node_color = gradient
+            cmap = nx_draw_kwargs.pop("cmap", "viridis")
+
         fig = networkx_graph(ng, knn_fa2pos, alpha=alpha, figsize=figsize,
                              node_color=node_color, node_size=node_size,
-                             with_labels=with_labels, **kwargs)
+                             cmap=cmap, with_labels=with_labels, 
+                             **nx_draw_kwargs)
         return fig
 
     @property
