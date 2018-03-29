@@ -12,15 +12,15 @@ def check_is_valid_labs(labs):
     if type(labs) != list:
         raise ValueError("labs must be a homogenous list of int or str")
 
-    if len(set(map(type, labs))) != 1:
+    n_uniq_types = len(set(map(type, labs)))
+    if n_uniq_types > 1:
         raise ValueError("labs must be a homogenous list of int or str")
-
-    if not is_valid_lab(labs[0]):
-        raise ValueError("labs must be a homogenous list of int or str")
-
+    elif n_uniq_types == 1:
+        if not is_valid_lab(labs[0]):
+            raise ValueError("labs must be a homogenous list of int or str")
+    # At this point labs can either be an empty list or a list of ints/strs,
+    # so it can only be 1d.
     labs = np.array(labs)
-    assert labs.ndim == 1, "Labels must be 1D"
-    assert labs.shape[0] > 0
 
 
 def is_valid_sfid(sfid):
@@ -34,15 +34,14 @@ def check_is_valid_sfids(sfids):
     if type(sfids) != list:
         raise ValueError("[sf]ids must be a homogenous list of int or str")
 
-    sid_types = tuple(map(type, sfids))
-    if len(set(sid_types)) != 1:
+    n_uniq_types = len(set(map(type, sfids)))
+    if n_uniq_types > 1:
         raise ValueError("[sf]ids must be a homogenous list of int or str")
-
-    if not is_valid_sfid(sfids[0]):
-        raise ValueError("[sf]ids must be a homogenous list of int or str")
-
+    elif n_uniq_types == 1:
+        if not is_valid_sfid(sfids[0]):
+            raise ValueError("[sf]ids must be a homogenous list of int or str")
+    # At this point sfids can either be an empty list or a list of ints/strs,
+    # so it can only be 1d.
     sfids = np.array(sfids)
-    assert sfids.ndim == 1
-    assert sfids.shape[0] > 0
     if not utils.is_uniq_np1darr(sfids):
         raise ValueError("[sf]ids must not contain duplicated values")

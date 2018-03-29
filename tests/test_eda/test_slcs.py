@@ -17,6 +17,17 @@ class TestSingleLabelClassifiedSamples(object):
     def test_init_empty_labs(self):
         with pytest.raises(Exception) as excinfo:
             eda.SingleLabelClassifiedSamples(self.sfm_2x0, [])
+        sfm1 = eda.SingleLabelClassifiedSamples(np.array([[], []]), [1, 0])
+        assert sfm1._x.shape == (2, 0)
+        assert sfm1._sids.shape == (2,)
+        assert sfm1.labs == [1, 0]
+        assert sfm1._fids.shape == (0,)
+
+        sfm2 = eda.SingleLabelClassifiedSamples(np.empty((0, 0)), [])
+        assert sfm2._x.shape == (0, 0)
+        assert sfm2._sids.shape == (0,)
+        assert sfm2.labs == []
+        assert sfm2._fids.shape == (0,)
 
     def test_init_wrong_lab_len(self):
         with pytest.raises(Exception) as excinfo:
@@ -101,97 +112,139 @@ class TestSingleLabelClassifiedSamples(object):
         fids = list(range(10, 20))
         labs = [0, 0, 0, 1, 2, 2]
 
-        sdm = eda.SingleLabelClassifiedSamples(
+        slcs = eda.SingleLabelClassifiedSamples(
             np.random.ranf(60).reshape(6, -1), labs=labs,
             sids=sids, fids=fids)
         # select sf
-        ss_sdm = sdm.ind_x([0, 5], list(range(9)))
-        assert ss_sdm._x.shape == (2, 9)
-        assert ss_sdm.sids == ['a', 'f']
-        assert ss_sdm.labs == [0, 2]
-        assert ss_sdm.fids == list(range(10, 19))
+        ss_slcs = slcs.ind_x([0, 5], list(range(9)))
+        assert ss_slcs._x.shape == (2, 9)
+        assert ss_slcs.sids == ['a', 'f']
+        assert ss_slcs.labs == [0, 2]
+        assert ss_slcs.fids == list(range(10, 19))
         np.testing.assert_equal(
-            ss_sdm.d, sdm._d[np.ix_((0, 5), (0, 5))])
+            ss_slcs.d, slcs._d[np.ix_((0, 5), (0, 5))])
 
         # select with Default
-        ss_sdm = sdm.ind_x()
-        assert ss_sdm._x.shape == (6, 10)
-        assert ss_sdm.sids == list("abcdef")
-        assert ss_sdm.labs == labs
-        assert ss_sdm.fids == list(range(10, 20))
-        np.testing.assert_equal(ss_sdm.d, sdm._d)
+        ss_slcs = slcs.ind_x()
+        assert ss_slcs._x.shape == (6, 10)
+        assert ss_slcs.sids == list("abcdef")
+        assert ss_slcs.labs == labs
+        assert ss_slcs.fids == list(range(10, 20))
+        np.testing.assert_equal(ss_slcs.d, slcs._d)
 
         # select with None
-        ss_sdm = sdm.ind_x(None, None)
-        assert ss_sdm._x.shape == (6, 10)
-        assert ss_sdm.sids == list("abcdef")
-        assert ss_sdm.labs == labs
-        assert ss_sdm.fids == list(range(10, 20))
-        np.testing.assert_equal(ss_sdm.d, sdm._d)
+        ss_slcs = slcs.ind_x(None, None)
+        assert ss_slcs._x.shape == (6, 10)
+        assert ss_slcs.sids == list("abcdef")
+        assert ss_slcs.labs == labs
+        assert ss_slcs.fids == list(range(10, 20))
+        np.testing.assert_equal(ss_slcs.d, slcs._d)
 
         # select non-existent inds
         with pytest.raises(IndexError) as excinfo:
-            sdm.ind_x([6])
+            slcs.ind_x([6])
 
         with pytest.raises(IndexError) as excinfo:
-            sdm.ind_x(None, ['a'])
+            slcs.ind_x(None, ['a'])
 
-        # select 0 ind
-        # does not support empty matrix
-        with pytest.raises(ValueError) as excinfo:
-            sdm.ind_x([])
+    def test_ind_x_empty(self):
+        sids = list("abcdef")
+        fids = list(range(10, 20))
+        labs = [0, 0, 0, 1, 2, 2]
 
-        with pytest.raises(ValueError) as excinfo:
-            sdm.ind_x(None, [])
+        slcs = eda.SingleLabelClassifiedSamples(
+            np.random.ranf(60).reshape(6, -1), labs=labs,
+            sids=sids, fids=fids)
+        empty_s = slcs.ind_x([])
+        assert empty_s._x.shape == (0, 10)
+        assert empty_s._d.shape == (0, 0)
+        assert empty_s._sids.shape == (0,)
+        assert empty_s._fids.shape == (10,)
+        assert empty_s._labs.shape == (0,)
+
+        empty_f = slcs.ind_x(None, [])
+        assert empty_f._x.shape == (6, 0)
+        assert empty_f._d.shape == (6, 6)
+        assert empty_f._sids.shape == (6,)
+        assert empty_f._fids.shape == (0,)
+        assert empty_f._labs.shape == (6,)
+
+        empty_sf = slcs.ind_x([], [])
+        assert empty_sf._x.shape == (0, 0)
+        assert empty_sf._d.shape == (0, 0)
+        assert empty_sf._sids.shape == (0,)
+        assert empty_sf._fids.shape == (0,)
+        assert empty_sf._labs.shape == (0,)
 
     def test_id_x(self):
         sids = list("abcdef")
         fids = list(range(10, 20))
         labs = [0, 0, 0, 1, 2, 2]
 
-        sdm = eda.SingleLabelClassifiedSamples(
+        slcs = eda.SingleLabelClassifiedSamples(
             np.random.ranf(60).reshape(6, -1), labs=labs,
             sids=sids, fids=fids)
         # select sf
-        ss_sdm = sdm.id_x(['a', 'f'], list(range(10, 15)))
-        assert ss_sdm._x.shape == (2, 5)
-        assert ss_sdm.sids == ['a', 'f']
-        assert ss_sdm.labs == [0, 2]
-        assert ss_sdm.fids == list(range(10, 15))
+        ss_slcs = slcs.id_x(['a', 'f'], list(range(10, 15)))
+        assert ss_slcs._x.shape == (2, 5)
+        assert ss_slcs.sids == ['a', 'f']
+        assert ss_slcs.labs == [0, 2]
+        assert ss_slcs.fids == list(range(10, 15))
         np.testing.assert_equal(
-            ss_sdm.d, sdm._d[np.ix_((0, 5), (0, 5))])
+            ss_slcs.d, slcs._d[np.ix_((0, 5), (0, 5))])
 
         # select with Default
-        ss_sdm = sdm.id_x()
-        assert ss_sdm._x.shape == (6, 10)
-        assert ss_sdm.sids == list("abcdef")
-        assert ss_sdm.labs == labs
-        assert ss_sdm.fids == list(range(10, 20))
-        np.testing.assert_equal(ss_sdm.d, sdm._d)
+        ss_slcs = slcs.id_x()
+        assert ss_slcs._x.shape == (6, 10)
+        assert ss_slcs.sids == list("abcdef")
+        assert ss_slcs.labs == labs
+        assert ss_slcs.fids == list(range(10, 20))
+        np.testing.assert_equal(ss_slcs.d, slcs._d)
 
         # select with None
-        ss_sdm = sdm.id_x(None, None)
-        assert ss_sdm._x.shape == (6, 10)
-        assert ss_sdm.sids == list("abcdef")
-        assert ss_sdm.labs == labs
-        assert ss_sdm.fids == list(range(10, 20))
-        np.testing.assert_equal(ss_sdm.d, sdm._d)
+        ss_slcs = slcs.id_x(None, None)
+        assert ss_slcs._x.shape == (6, 10)
+        assert ss_slcs.sids == list("abcdef")
+        assert ss_slcs.labs == labs
+        assert ss_slcs.fids == list(range(10, 20))
+        np.testing.assert_equal(ss_slcs.d, slcs._d)
 
         # select non-existent inds
         # id lookup raises ValueError
         with pytest.raises(ValueError) as excinfo:
-            sdm.id_x([6])
+            slcs.id_x([6])
 
         with pytest.raises(ValueError) as excinfo:
-            sdm.id_x(None, ['a'])
+            slcs.id_x(None, ['a'])
 
-        # select 0 ind
-        # does not support empty matrix
-        with pytest.raises(ValueError) as excinfo:
-            sdm.id_x([])
+    def test_id_x_empty(self):
+        sids = list("abcdef")
+        fids = list(range(10, 20))
+        labs = [0, 0, 0, 1, 2, 2]
 
-        with pytest.raises(ValueError) as excinfo:
-            sdm.id_x(None, [])
+        slcs = eda.SingleLabelClassifiedSamples(
+            np.random.ranf(60).reshape(6, -1), labs=labs,
+            sids=sids, fids=fids)
+        empty_s = slcs.id_x([])
+        assert empty_s._x.shape == (0, 10)
+        assert empty_s._d.shape == (0, 0)
+        assert empty_s._sids.shape == (0,)
+        assert empty_s._fids.shape == (10,)
+        assert empty_s._labs.shape == (0,)
+
+        empty_f = slcs.id_x(None, [])
+        assert empty_f._x.shape == (6, 0)
+        assert empty_f._d.shape == (6, 6)
+        assert empty_f._sids.shape == (6,)
+        assert empty_f._fids.shape == (0,)
+        assert empty_f._labs.shape == (6,)
+
+        empty_sf = slcs.id_x([], [])
+        assert empty_sf._x.shape == (0, 0)
+        assert empty_sf._d.shape == (0, 0)
+        assert empty_sf._sids.shape == (0,)
+        assert empty_sf._fids.shape == (0,)
+        assert empty_sf._labs.shape == (0,)
 
     def test_cross_labs(self):
         rsids = [0, 1, 2, 3, 4]

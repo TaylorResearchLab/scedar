@@ -189,7 +189,12 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
         str_params = str(kwargs)
         tsne_kv = self.get_tsne_kv(str_params)
         if tsne_kv is None:
-            tsne_res = tsne(self._d, **kwargs)
+            if self._x.shape[0] == 0:
+                tsne_res = np.empty((0, 0))
+            elif self._x.shape[0] == 1:
+                tsne_res = np.zeros((1, 2))
+            else:
+                tsne_res = tsne(self._d, **kwargs)
         else:
             tsne_res = tsne_kv[1]
         if store_res:
@@ -374,10 +379,12 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
     @property
     def _d(self):
         if self._lazy_load_d is None:
-            self._lazy_load_d = self.num_correct_dist_mat(
-                skl.metrics.pairwise.pairwise_distances(self._x,
-                                                        metric=self._metric,
-                                                        n_jobs=self._nprocs))
+            if self._x.shape[0] == 0:
+                self._lazy_load_d = np.empty((0, 0))
+            else:
+                self._lazy_load_d = self.num_correct_dist_mat(
+                    skl.metrics.pairwise.pairwise_distances(
+                        self._x, metric=self._metric, n_jobs=self._nprocs))
         return self._lazy_load_d
 
     @property

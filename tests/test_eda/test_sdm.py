@@ -42,6 +42,20 @@ class TestSampleDistanceMatrix(object):
         sdm4 = eda.SampleDistanceMatrix(self.x_3x2, dist_mat)
         sdm5 = eda.SampleDistanceMatrix(
             self.x_3x2, dist_mat, metric='euclidean')
+        sdm5 = eda.SampleDistanceMatrix([[1, 2]], metric='euclidean')
+        assert sdm5.tsne(n_iter=250).shape == (1, 2)
+
+    def test_empty_init(self):
+        with pytest.raises(ValueError) as excinfo:
+            eda.SampleDistanceMatrix(np.empty(0), metric='euclidean')
+        sdm = eda.SampleDistanceMatrix(np.empty((0, 0)), metric='euclidean')
+        assert len(sdm.sids) == 0
+        assert len(sdm.fids) == 0
+        assert sdm._x.shape == (0, 0)
+        assert sdm._d.shape == (0, 0)
+        assert sdm._col_sorted_d.shape == (0, 0)
+        assert sdm._col_argsorted_d.shape == (0, 0)
+        assert sdm.tsne(n_iter=250).shape == (0, 0)
 
     def test_init_wrong_metric(self):
         # when d is None, metric cannot be precomputed
@@ -270,13 +284,28 @@ class TestSampleDistanceMatrix(object):
         with pytest.raises(IndexError) as excinfo:
             sdm.ind_x(None, ['a'])
 
-        # select 0 ind
-        # does not support empty matrix
-        with pytest.raises(ValueError) as excinfo:
-            sdm.ind_x([])
+    def test_ind_x_empty(self):
+        sids = list("abcdef")
+        fids = list(range(10, 20))
+        sdm = eda.SampleDistanceMatrix(
+            np.random.ranf(60).reshape(6, -1), sids=sids, fids=fids)
+        empty_s = sdm.ind_x([])
+        assert empty_s._x.shape == (0, 10)
+        assert empty_s._d.shape == (0, 0)
+        assert empty_s._sids.shape == (0,)
+        assert empty_s._fids.shape == (10,)
 
-        with pytest.raises(ValueError) as excinfo:
-            sdm.ind_x(None, [])
+        empty_f = sdm.ind_x(None, [])
+        assert empty_f._x.shape == (6, 0)
+        assert empty_f._d.shape == (6, 6)
+        assert empty_f._sids.shape == (6,)
+        assert empty_f._fids.shape == (0,)
+
+        empty_sf = sdm.ind_x([], [])
+        assert empty_sf._x.shape == (0, 0)
+        assert empty_sf._d.shape == (0, 0)
+        assert empty_sf._sids.shape == (0,)
+        assert empty_sf._fids.shape == (0,)
 
     def test_id_x(self):
         sids = list("abcdef")
@@ -313,13 +342,28 @@ class TestSampleDistanceMatrix(object):
         with pytest.raises(ValueError) as excinfo:
             sdm.id_x(None, ['a'])
 
-        # select 0 ind
-        # does not support empty matrix
-        with pytest.raises(ValueError) as excinfo:
-            sdm.id_x([])
+    def test_id_x_empty(self):
+        sids = list("abcdef")
+        fids = list(range(10, 20))
+        sdm = eda.SampleDistanceMatrix(
+            np.random.ranf(60).reshape(6, -1), sids=sids, fids=fids)
+        empty_s = sdm.id_x([])
+        assert empty_s._x.shape == (0, 10)
+        assert empty_s._d.shape == (0, 0)
+        assert empty_s._sids.shape == (0,)
+        assert empty_s._fids.shape == (10,)
 
-        with pytest.raises(ValueError) as excinfo:
-            sdm.id_x(None, [])
+        empty_f = sdm.id_x(None, [])
+        assert empty_f._x.shape == (6, 0)
+        assert empty_f._d.shape == (6, 6)
+        assert empty_f._sids.shape == (6,)
+        assert empty_f._fids.shape == (0,)
+
+        empty_sf = sdm.id_x([], [])
+        assert empty_sf._x.shape == (0, 0)
+        assert empty_sf._d.shape == (0, 0)
+        assert empty_sf._sids.shape == (0,)
+        assert empty_sf._fids.shape == (0,)
 
     def test_getter(self):
         tmet = 'euclidean'

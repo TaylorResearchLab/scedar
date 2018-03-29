@@ -13,31 +13,27 @@ class TestSampleKNNFilter(object):
     def test_knn_filter_samples(self):
         skf = qc.SampleKNNFilter(self.tsdm)
         d = skf._sdm._d
-        resl = skf.knn_filter_samples([3, 4, 5], [10]*3, [5, 6, 7])
+        res_sdml = skf.knn_filter_samples([3, 4, 5], [10]*3, [5, 6, 7])
+        resl = [x.sids for x in res_sdml]
         assert resl == [list(range(5, 10)), list(range(5, 10)), []]
         assert len(skf._res_lut) == 3
-        assert skf._res_lut[(3, 10, 5)][-1][1] == resl[0]
-        assert skf._res_lut[(4, 10, 6)][-1][1] == resl[1]
-        assert skf._res_lut[(5, 10, 7)][-1][1] == resl[2]
-        # 0 is also stored in res lut
-        assert [t[0] for t in skf._res_lut[(3, 10, 5)]] == list(range(5+1))
-        assert [t[0] for t in skf._res_lut[(4, 10, 6)]] == list(range(6+1))
-        assert [t[0] for t in skf._res_lut[(5, 10, 7)]] == list(range(7+1))
+        assert skf._res_lut[(3, 10, 5)][1][-1] == resl[0]
+        assert skf._res_lut[(4, 10, 6)][1][-1] == resl[1]
+        assert skf._res_lut[(5, 10, 7)][1][-1] == resl[2]
+        # d should not be changed
         np.testing.assert_equal(skf._sdm._d, d)
         
     def test_knn_filter_samples_par(self):
         skf = qc.SampleKNNFilter(self.tsdm)
         d = skf._sdm._d
-        resl = skf.knn_filter_samples([3, 4, 5], [10]*3, [5, 6, 7], 3)
+        res_sdml = skf.knn_filter_samples([3, 4, 5], [10]*3, [5, 6, 7], 3)
+        resl = [x.sids for x in res_sdml]
         assert resl == [list(range(5, 10)), list(range(5, 10)), []]
         assert len(skf._res_lut) == 3
-        assert skf._res_lut[(3, 10, 5)][-1][1] == resl[0]
-        assert skf._res_lut[(4, 10, 6)][-1][1] == resl[1]
-        assert skf._res_lut[(5, 10, 7)][-1][1] == resl[2]
-        # 0 is also stored in res lut
-        assert [t[0] for t in skf._res_lut[(3, 10, 5)]] == list(range(5+1))
-        assert [t[0] for t in skf._res_lut[(4, 10, 6)]] == list(range(6+1))
-        assert [t[0] for t in skf._res_lut[(5, 10, 7)]] == list(range(7+1))
+        assert skf._res_lut[(3, 10, 5)][1][-1] == resl[0]
+        assert skf._res_lut[(4, 10, 6)][1][-1] == resl[1]
+        assert skf._res_lut[(5, 10, 7)][1][-1] == resl[2]
+        # d should not be changed
         np.testing.assert_equal(skf._sdm._d, d)
 
     def test_knn_filter_samples_single_run(self):
@@ -45,10 +41,10 @@ class TestSampleKNNFilter(object):
         resl = skf.knn_filter_samples(1, 10, 5)
         resl2 = skf.knn_filter_samples([1], [10], 5)
         # scalar and list params should have the same results
-        assert resl == resl2
+        assert [x.sids for x in resl] == [x.sids for x in resl2]
         # result lut should be the same length
         assert len(skf._res_lut) == 1
-        assert skf._res_lut[1, 10, 5][-1][1] == resl[0]
+        assert skf._res_lut[(1, 10, 5)][1][-1] == resl[0].sids
 
     def test_knn_filter_samples_wrong_args(self):
         skf = qc.SampleKNNFilter(self.tsdm)
@@ -88,6 +84,8 @@ def test_remove_constant_features():
                         [0, 5],
                         [0, 5]]
     tsfm2 = eda.SampleFeatureMatrix([[0, 1, 2, 5]])
-    with pytest.raises(ValueError) as excinfo:
-        f_tsfm2 = qc.remove_constant_features(tsfm2)
+    f_tsfm2 = qc.remove_constant_features(tsfm2)
+    assert f_tsfm2._x.shape == (1, 0)
+    assert f_tsfm2._sids.shape == (1,)
+    assert f_tsfm2._fids.shape == (0,)
     

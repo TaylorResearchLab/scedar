@@ -26,8 +26,6 @@ class SampleFeatureMatrix(object):
     ----------
     _x : ndarray
         data matrix (n_samples, n_features)
-    _d : ndarray
-        distance matrix (n_samples, n_samples)
     _sids : ndarray
         sample ids.
     _fids : ndarray
@@ -47,8 +45,6 @@ class SampleFeatureMatrix(object):
             if x.ndim != 2:
                 raise ValueError("x has shape (n_samples, n_features)")
 
-            if x.size == 0:
-                raise ValueError("size of x cannot be 0")
 
         if sids is None:
             sids = list(range(x.shape[0]))

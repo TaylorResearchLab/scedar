@@ -58,15 +58,30 @@ class TestSampleFeatureMatrix(object):
             eda.SampleFeatureMatrix(self.sfm5x10_lst, None, [0, 0, 1, 2, 3])
 
         with pytest.raises(Exception) as excinfo:
-            eda.SampleFeatureMatrix(self.sfm5x10_lst, None, [
-                                    '0', '0', '1', '2', '3'])
+            eda.SampleFeatureMatrix(self.sfm5x10_lst, None, 
+                                    ['0', '0', '1', '2', '3'])
 
     def test_init_empty_x_sfids(self):
-        with pytest.raises(Exception) as excinfo:
-            eda.SampleFeatureMatrix(np.array([[], []]), [])
+        sfm1 = eda.SampleFeatureMatrix(np.array([[], []]), None, [])
+        assert sfm1._x.shape == (2, 0)
+        assert sfm1._sids.shape == (2,)
+        assert sfm1._fids.shape == (0,)
+        np.testing.assert_equal(sfm1.s_sum(), [])
+        np.testing.assert_equal(sfm1.f_sum(), [0, 0])
+        np.testing.assert_equal(sfm1.s_cv(), [])
+        with pytest.warns(RuntimeWarning):
+            np.testing.assert_equal(np.isnan(sfm1.f_cv()), [True, True])
 
-        with pytest.raises(Exception) as excinfo:
-            eda.SampleFeatureMatrix(np.array([[], []]), None, [])
+        sfm2 = eda.SampleFeatureMatrix(np.empty((0, 0)))
+        assert sfm2._x.shape == (0, 0)
+        assert sfm2._sids.shape == (0,)
+        assert sfm2._fids.shape == (0,)
+        np.testing.assert_equal(sfm2.s_sum(), [])
+        np.testing.assert_equal(sfm2.f_sum(), [])
+        with pytest.warns(RuntimeWarning):
+            np.testing.assert_equal(sfm2.s_cv(), [])
+        with pytest.warns(RuntimeWarning):
+            np.testing.assert_equal(sfm2.f_cv(), [])
 
     def test_init_wrong_sid_len(self):
         # wrong sid size
@@ -147,79 +162,103 @@ class TestSampleFeatureMatrix(object):
     def test_ind_x(self):
         sids = list("abcdef")
         fids = list(range(10, 20))
-        sdm = eda.SampleFeatureMatrix(
+        sfm = eda.SampleFeatureMatrix(
             np.random.ranf(60).reshape(6, -1), sids=sids, fids=fids)
         # select sf
-        ss_sdm = sdm.ind_x([0, 5], list(range(9)))
-        assert ss_sdm._x.shape == (2, 9)
-        assert ss_sdm.sids == ['a', 'f']
-        assert ss_sdm.fids == list(range(10, 19))
+        ss_sfm = sfm.ind_x([0, 5], list(range(9)))
+        assert ss_sfm._x.shape == (2, 9)
+        assert ss_sfm.sids == ['a', 'f']
+        assert ss_sfm.fids == list(range(10, 19))
 
         # select with Default
-        ss_sdm = sdm.ind_x()
-        assert ss_sdm._x.shape == (6, 10)
-        assert ss_sdm.sids == list("abcdef")
-        assert ss_sdm.fids == list(range(10, 20))
+        ss_sfm = sfm.ind_x()
+        assert ss_sfm._x.shape == (6, 10)
+        assert ss_sfm.sids == list("abcdef")
+        assert ss_sfm.fids == list(range(10, 20))
         
         # select with None
-        ss_sdm = sdm.ind_x(None, None)
-        assert ss_sdm._x.shape == (6, 10)
-        assert ss_sdm.sids == list("abcdef")
-        assert ss_sdm.fids == list(range(10, 20))
+        ss_sfm = sfm.ind_x(None, None)
+        assert ss_sfm._x.shape == (6, 10)
+        assert ss_sfm.sids == list("abcdef")
+        assert ss_sfm.fids == list(range(10, 20))
                         
         # select non-existent inds
         with pytest.raises(IndexError) as excinfo:
-            sdm.ind_x([6])
+            sfm.ind_x([6])
 
         with pytest.raises(IndexError) as excinfo:
-            sdm.ind_x(None, ['a'])
+            sfm.ind_x(None, ['a'])
 
-        # select 0 ind
-        # does not support empty matrix
-        with pytest.raises(ValueError) as excinfo:
-            sdm.ind_x([])
+    def test_ind_x_empty(self):
+        sids = list("abcdef")
+        fids = list(range(10, 20))
+        sfm = eda.SampleFeatureMatrix(
+            np.random.ranf(60).reshape(6, -1), sids=sids, fids=fids)
+        empty_s = sfm.ind_x([])
+        assert empty_s._x.shape == (0, 10)
+        assert empty_s._sids.shape == (0,)
+        assert empty_s._fids.shape == (10,)
 
-        with pytest.raises(ValueError) as excinfo:
-            sdm.ind_x(None, [])
+        empty_f = sfm.ind_x(None, [])
+        assert empty_f._x.shape == (6, 0)
+        assert empty_f._sids.shape == (6,)
+        assert empty_f._fids.shape == (0,)
+
+        empty_sf = sfm.ind_x([], [])
+        assert empty_sf._x.shape == (0, 0)
+        assert empty_sf._sids.shape == (0,)
+        assert empty_sf._fids.shape == (0,)
 
     def test_id_x(self):
         sids = list("abcdef")
         fids = list(range(10, 20))
-        sdm = eda.SampleFeatureMatrix(
+        sfm = eda.SampleFeatureMatrix(
             np.random.ranf(60).reshape(6, -1), sids=sids, fids=fids)
         # select sf
-        ss_sdm = sdm.id_x(['a', 'f'], list(range(10, 15)))
-        assert ss_sdm._x.shape == (2, 5)
-        assert ss_sdm.sids == ['a', 'f']
-        assert ss_sdm.fids == list(range(10, 15))
+        ss_sfm = sfm.id_x(['a', 'f'], list(range(10, 15)))
+        assert ss_sfm._x.shape == (2, 5)
+        assert ss_sfm.sids == ['a', 'f']
+        assert ss_sfm.fids == list(range(10, 15))
 
         # select with Default
-        ss_sdm = sdm.id_x()
-        assert ss_sdm._x.shape == (6, 10)
-        assert ss_sdm.sids == list("abcdef")
-        assert ss_sdm.fids == list(range(10, 20))
+        ss_sfm = sfm.id_x()
+        assert ss_sfm._x.shape == (6, 10)
+        assert ss_sfm.sids == list("abcdef")
+        assert ss_sfm.fids == list(range(10, 20))
         
         # select with None
-        ss_sdm = sdm.id_x(None, None)
-        assert ss_sdm._x.shape == (6, 10)
-        assert ss_sdm.sids == list("abcdef")
-        assert ss_sdm.fids == list(range(10, 20))
+        ss_sfm = sfm.id_x(None, None)
+        assert ss_sfm._x.shape == (6, 10)
+        assert ss_sfm.sids == list("abcdef")
+        assert ss_sfm.fids == list(range(10, 20))
                         
         # select non-existent inds
         # id lookup raises ValueError
         with pytest.raises(ValueError) as excinfo:
-            sdm.id_x([6])
+            sfm.id_x([6])
 
         with pytest.raises(ValueError) as excinfo:
-            sdm.id_x(None, ['a'])
+            sfm.id_x(None, ['a'])
 
-        # select 0 ind
-        # does not support empty matrix
-        with pytest.raises(ValueError) as excinfo:
-            sdm.id_x([])
+    def test_id_x_empty(self):
+        sids = list("abcdef")
+        fids = list(range(10, 20))
+        sfm = eda.SampleFeatureMatrix(
+            np.random.ranf(60).reshape(6, -1), sids=sids, fids=fids)
+        empty_s = sfm.id_x([])
+        assert empty_s._x.shape == (0, 10)
+        assert empty_s._sids.shape == (0,)
+        assert empty_s._fids.shape == (10,)
 
-        with pytest.raises(ValueError) as excinfo:
-            sdm.id_x(None, [])
+        empty_f = sfm.id_x(None, [])
+        assert empty_f._x.shape == (6, 0)
+        assert empty_f._sids.shape == (6,)
+        assert empty_f._fids.shape == (0,)
+
+        empty_sf = sfm.id_x([], [])
+        assert empty_sf._x.shape == (0, 0)
+        assert empty_sf._sids.shape == (0,)
+        assert empty_sf._fids.shape == (0,)
 
     @pytest.mark.mpl_image_compare
     def test_s_ind_regression_scatter_ax(self):
