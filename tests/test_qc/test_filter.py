@@ -3,6 +3,7 @@ import scedar.eda as eda
 import numpy as np
 import pytest
 
+
 class TestSampleKNNFilter(object):
     """docstring for TestSampleKNNFilter"""
     tsdm = eda.SampleDistanceMatrix(
@@ -12,7 +13,7 @@ class TestSampleKNNFilter(object):
 
     def test_knn_filter_samples(self):
         skf = qc.SampleKNNFilter(self.tsdm)
-        d = skf._sdm._d
+        d = skf._sdm._d.copy()
         res_sdml = skf.knn_filter_samples([3, 4, 5], [10]*3, [5, 6, 7])
         resl = [x.sids for x in res_sdml]
         assert resl == [list(range(5, 10)), list(range(5, 10)), []]
@@ -25,7 +26,7 @@ class TestSampleKNNFilter(object):
         
     def test_knn_filter_samples_par(self):
         skf = qc.SampleKNNFilter(self.tsdm)
-        d = skf._sdm._d
+        d = skf._sdm._d.copy()
         res_sdml = skf.knn_filter_samples([3, 4, 5], [10]*3, [5, 6, 7], 3)
         resl = [x.sids for x in res_sdml]
         assert resl == [list(range(5, 10)), list(range(5, 10)), []]
