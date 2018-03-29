@@ -144,8 +144,9 @@ class SampleKNNFilter(object):
         n_param_tups = len(k_list)
         # type check all parameters
         for i in range(n_param_tups):
-            if k_list[i] < 1:
-                raise ValueError("k should be >= 1. k: {}".format(k))
+            if k_list[i] < 1 or k_list[i] > self._sdm._x.shape[0] - 1:
+                raise ValueError("k should be >= 1 and <= n_samples-1. "
+                                 "k: {}".format(k))
             else:
                 k_list[i] = int(k_list[i])
 

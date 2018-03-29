@@ -355,7 +355,7 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
         `{i : [1st_NN_ind, 2nd_NN_ind, ..., nth_NN_ind], ...}`
         """
         # each column is its KNN index from 1 to k
-        if k < 0 or k >= self._col_argsorted_d.shape[0] - 1:
+        if k < 0 or k > self._col_argsorted_d.shape[0] - 1:
             raise ValueError("k ({}) should >= 0 and <= n_samples-1".format(k))
         k = int(k)
         knn_ind_arr = self._col_argsorted_d[1:k+1, :].copy()

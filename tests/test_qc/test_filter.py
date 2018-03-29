@@ -77,6 +77,8 @@ class TestSampleKNNFilter(object):
             skf.knn_filter_samples(1, -0.1, 1)
         with pytest.raises(ValueError) as excinfo:
             skf.knn_filter_samples(1, 1, 1, 0.5)
+        with pytest.raises(ValueError) as excinfo:
+            skf.knn_filter_samples(self.tsdm._x.shape[0], 1, 1, 1)
         # Parameters of different length
         with pytest.raises(ValueError) as excinfo:
             skf.knn_filter_samples([1, 2], 1, 1)
