@@ -37,6 +37,19 @@ class TestSampleKNNFilter(object):
         np.testing.assert_equal(skf._sdm._d, d)
 
     def test_knn_filter_samples_single_run(self):
+        tsdm = eda.SampleDistanceMatrix(
+            [[0,0], [1, 1], [200, 200], [101, 101],
+             [99, 99], [100, 100], [102, 102]],
+            metric="euclidean")
+        skf = qc.SampleKNNFilter(tsdm)
+        resl = skf.knn_filter_samples(1, 0.1, 1)
+        assert resl[0]._x.shape == (0, 2)
+        assert resl[0].sids == []
+        resl2 = skf.knn_filter_samples(1, 0.1, 5)
+        assert resl2[0]._x.shape == (0, 2)
+        assert resl2[0].sids == []
+
+    def test_knn_filter_samples_empty_subset(self):
         skf = qc.SampleKNNFilter(self.tsdm)
         resl = skf.knn_filter_samples(1, 10, 5)
         resl2 = skf.knn_filter_samples([1], [10], 5)

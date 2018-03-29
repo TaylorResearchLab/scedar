@@ -17,7 +17,7 @@ class SampleKNNFilter(object):
     Parameters
     ----------
     sdm: SampleDistanceMatrix or its subclass
-    
+
     Attributes
     ----------
     _sdm: SampleDistanceMatrix
@@ -29,32 +29,41 @@ class SampleKNNFilter(object):
         self._sdm = sdm
         self._res_lut = {}
 
-    def _ind_param_tup_knn_filter_samples(self, k, d_cutoff, n_iter):
+    def _knn_filter_samples_runner(self, k, d_cutoff, n_iter):
         """
         KNN filter on samples with scalar tuple of parameters. 
         """
+        # TODO: copy lookup results
+        param_key = (k, d_cutoff, n_iter)
+        if param_key in self._res_lut:
+            return self._res_lut[param_key]
+
         d_max = self._sdm._d.max()
-        curr_dist_mat = self._sdm._d.copy()
-        curr_ind = np.arange(curr_dist_mat.shape[0])
-        progress_list = []
-        progress_list.append((0, curr_ind))
+        # curr_dist_mat being reduced by removing samples, but the data matrix
+        # is not edited. Thus, no need to copy.
+        curr_dist_mat = self._sdm._d
+        curr_s_inds = np.arange(curr_dist_mat.shape[0])
+        progress_list = [curr_s_inds.tolist()]
 
         for i in range(1, n_iter+1):
-            i_d_cutoff = d_cutoff + (n_iter - i) / n_iter * (d_max - d_cutoff)
-            i_k = min(curr_dist_mat.shape[0], k)
-            kept_curr_cell_ind = []
-
+            i_d_cutoff = (d_cutoff 
+                          + (n_iter - i) / n_iter * max(0, d_max - d_cutoff))
+            i_k = min(curr_dist_mat.shape[0]-1, k)
+            kept_curr_s_inds = []
+            # each column is sorted. Not in-place.
             sorted_curr_dist_mat = np.sort(curr_dist_mat, axis=0)
-            for j in range(curr_dist_mat.shape[0]):
-                if sorted_curr_dist_mat[i_k, j] <= i_d_cutoff:
-                    kept_curr_cell_ind.append(j)
+            # size of curr_dist_mat is updated each iteration
+            for s_ind in range(curr_dist_mat.shape[0]):
+                # i_k'th neighbor distance of sample s_ind
+                if sorted_curr_dist_mat[i_k, s_ind] <= i_d_cutoff:
+                    kept_curr_s_inds.append(s_ind)
+            # no change of value. No need to copy.
+            curr_dist_mat = curr_dist_mat[np.ix_(kept_curr_s_inds,
+                                                 kept_curr_s_inds)]
+            curr_s_inds = curr_s_inds[kept_curr_s_inds]
+            progress_list.append(curr_s_inds.tolist())
 
-            curr_dist_mat = curr_dist_mat[np.ix_(
-                kept_curr_cell_ind, kept_curr_cell_ind)].copy()
-            curr_ind = curr_ind[kept_curr_cell_ind]
-            progress_list.append((i, curr_ind.tolist()))
-
-        return (curr_ind.tolist(), progress_list)
+        return self._sdm.ind_x(curr_s_inds), progress_list
 
     def knn_filter_samples(self, k, d_cutoff, n_iter, nprocs=1):
         """
@@ -74,10 +83,10 @@ class SampleKNNFilter(object):
         Parameters
         ----------
         k: int list or scalar
-            K-th neighbor to cutoff
+            K nearest neighbors to filter samples.
         d_cutoff: float list or scalar
-            Minimum (>=) distance to be called as distinct. Samples with >=
-            d_cutoff distances are distinct from each other.
+            Samples with >= d_cutoff distances are distinct from each other.
+            Minimum (>=) distance to be called as distinct. 
         n_iter: int list or scalar
             N progressive iNN filters on the dataset. See description for more 
             details.
@@ -87,7 +96,8 @@ class SampleKNNFilter(object):
         Returns
         -------
         res_list
-            Filtered indices of each corresponding parameter tuple.
+            Filtered SampleDistanceMatrix of each corresponding parameter 
+            tuple.
 
         Notes
         -----
@@ -155,18 +165,19 @@ class SampleKNNFilter(object):
                       for i in range(n_param_tups)]
         nprocs = int(nprocs)
         nprocs = min(nprocs, n_param_tups)
-        # TODO: implement cache access
-        f = lambda ptup: self._ind_param_tup_knn_filter_samples(*ptup)
 
+        f = lambda ptup: self._knn_filter_samples_runner(*ptup)
+        # returns (filtered_sdm, progress_list (list of kept indices))
         if nprocs != 1:
             res_list = utils.parmap(f, param_tups, nprocs)
         else:
             res_list = list(map(f, param_tups))
 
         for i in range(n_param_tups):
-            self._res_lut[param_tups[i]] = res_list[i][1]
+            if param_tups[i] not in self._res_lut:
+                self._res_lut[param_tups[i]] = res_list[i]
 
-        return [res_list[i][0] for i in range(n_param_tups)]
+        return [res[0] for res in res_list]
 
 
 def remove_constant_features(sfm):
