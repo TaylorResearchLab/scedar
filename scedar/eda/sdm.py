@@ -54,10 +54,10 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
     _fids : ndarray
         sample ids.
     _tsne_lut: dict
-        lookup table for previous tsne calculations. Each run has an 
+        lookup table for previous tsne calculations. Each run has an
         indexed entry, {(param_str, index) : tsne_res}
     _last_tsne: float array
-        The last *stored* tsne results. In no tsne performed before, a run 
+        The last *stored* tsne results. In no tsne performed before, a run
         with default parameters will be performed.
     """
 
@@ -135,7 +135,7 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
 
     def put_tsne(self, str_params, res):
         """
-        Put t-SNE results into the lookup table. 
+        Put t-SNE results into the lookup table.
         """
         if type(str_params) != str:
             raise ValueError("Unknown key type: {}".format(str_params))
@@ -170,21 +170,21 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
 
     def tsne(self, store_res=True, **kwargs):
         """
-        Run t-SNE on distance matrix. 
+        Run t-SNE on distance matrix.
 
         Parameters
         ----------
         store_res: bool
             Store the results in lookup table or not.
         **kwargs
-            Keyword arguments passed to tsne computation. 
+            Keyword arguments passed to tsne computation.
 
         Returns
         -------
         tsne_res: float array
             t-SNE projections, (n_samples, m dimensions).
         """
-        # TODO: make parameter keys consistent such that same set of 
+        # TODO: make parameter keys consistent such that same set of
         # parameters but different order will sill be the same.
         # check input args
         if ("metric" in kwargs
@@ -212,12 +212,12 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
 
     def par_tsne(self, param_list, store_res=True, nprocs=1):
         """
-        Run t-SNE with multiple sets of parameters parallely. 
+        Run t-SNE with multiple sets of parameters parallely.
 
         Parameters
         ----------
         param_list: list of dict
-            List of parameters being passed to t-SNE. 
+            List of parameters being passed to t-SNE.
         nprocs: int
             Number of processes.
 
@@ -243,9 +243,9 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
                 self.put_tsne(str(param_list[i]), resl[i])
         return resl
 
-    def tsne_gradient_plot(self, gradient=None, labels=None, 
+    def tsne_gradient_plot(self, gradient=None, labels=None,
                            title=None, xlab=None, ylab=None,
-                           figsize=(20, 20), add_legend=True, 
+                           figsize=(20, 20), add_legend=True,
                            n_txt_per_cluster=3, alpha=1, s=0.5,
                            random_state=None, **kwargs):
         """
@@ -279,7 +279,7 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
             raise ValueError("Invalid fid {}."
                              "Currently only support 1 "
                              "feature gradient plot.".format(fid))
-            
+
         fx = self._x[:, f_ind]
         return cluster_scatter(self._last_tsne, labels=labels,
                                gradient=fx,
@@ -292,7 +292,7 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
     def ind_x(self, selected_s_inds=None, selected_f_inds=None):
         """
         Subset samples by (sample IDs, feature IDs).
-        
+
         Parameters
         ----------
         selected_s_inds: int array
@@ -321,7 +321,7 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
     def id_x(self, selected_sids=None, selected_fids=None):
         """
         Subset samples by (sample IDs, feature IDs).
-        
+
         Parameters
         ----------
         selected_s_inds: int array
@@ -352,7 +352,7 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
 
     def s_ith_nn_ind(self, i):
         """
-        Computes the sample indices of the i-th nearest neighbor of all 
+        Computes the sample indices of the i-th nearest neighbor of all
         samples.
         """
         return self._col_argsorted_d[i, :]
@@ -370,8 +370,8 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
         knn_order_ind_lut = dict(zip(range(knn_ind_arr.shape[1]),
                                            knn_ind_arr.T.tolist()))
         return knn_order_ind_lut
-        
-    def s_ith_nn_d_dist(self, i, xlab=None, ylab=None, title=None, 
+
+    def s_ith_nn_d_dist(self, i, xlab=None, ylab=None, title=None,
                       figsize=(5, 5), ax=None, **kwargs):
         """
         Plot the distances of the i-th nearest neighbor of all samples.
@@ -380,12 +380,12 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
         return hist_dens_plot(x, title=title, xlab=xlab, ylab=ylab,
                               figsize=figsize, ax=ax, **kwargs)
 
-    def draw_s_knn_graph(self, k, aff_scale=1, random_state=None, 
-                         figsize=(20, 20), node_size=30, alpha=0.05, 
+    def draw_s_knn_graph(self, k, aff_scale=1, random_state=None,
+                         figsize=(20, 20), node_size=30, alpha=0.05,
                          with_labels=False, gradient=None, **kwargs):
         # TODO: Docstring. Feature gradient.
         # (n_samples, n_samples). Non-neighbor entries are 0.
-        knn_d_arr = kneighbors_graph(self._d, k, mode="distance", 
+        knn_d_arr = kneighbors_graph(self._d, k, mode="distance",
                                      metric="precomputed",
                                      include_self=False).toarray()
         ng = nx.Graph()
@@ -425,7 +425,7 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
                              node_color=node_color, node_size=node_size,
                              with_labels=with_labels, **kwargs)
         return fig
-        
+
     @property
     def d(self):
         return self._d.tolist()
@@ -481,13 +481,13 @@ def tsne(x, n_components=2, perplexity=30.0, early_exaggeration=12.0,
          min_grad_norm=1e-07, metric="euclidean", init="random", verbose=0,
          random_state=None, method="barnes_hut", angle=0.5):
     x_tsne = sklearn.manifold.TSNE(
-        n_components=n_components, perplexity=perplexity, 
-        early_exaggeration=early_exaggeration, 
-        learning_rate=learning_rate, n_iter=n_iter, 
-        n_iter_without_progress=n_iter_without_progress, 
-        min_grad_norm=min_grad_norm, metric=metric, 
-        init=init, verbose=verbose, 
-        random_state=random_state, method=method, 
+        n_components=n_components, perplexity=perplexity,
+        early_exaggeration=early_exaggeration,
+        learning_rate=learning_rate, n_iter=n_iter,
+        n_iter_without_progress=n_iter_without_progress,
+        min_grad_norm=min_grad_norm, metric=metric,
+        init=init, verbose=verbose,
+        random_state=random_state, method=method,
         angle=angle).fit_transform(x)
     return x_tsne
 

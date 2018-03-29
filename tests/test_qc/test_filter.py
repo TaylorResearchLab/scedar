@@ -23,7 +23,7 @@ class TestSampleKNNFilter(object):
         assert skf._res_lut[(5, 10, 7)][1][-1] == resl[2]
         # d should not be changed
         np.testing.assert_equal(skf._sdm._d, d)
-        
+
     def test_knn_filter_samples_par(self):
         skf = qc.SampleKNNFilter(self.tsdm)
         d = skf._sdm._d.copy()
@@ -104,4 +104,3 @@ def test_remove_constant_features():
     assert f_tsfm2._x.shape == (1, 0)
     assert f_tsfm2._sids.shape == (1,)
     assert f_tsfm2._fids.shape == (0,)
-    

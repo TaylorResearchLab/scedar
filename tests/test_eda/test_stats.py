@@ -7,9 +7,9 @@ def test_gc1d():
     assert np.isnan(eda.stats.gc1d([1]))
     # order should not matter
     np.testing.assert_equal(eda.stats.gc1d([1, 0]), eda.stats.gc1d([0, 1]))
-    np.testing.assert_equal(eda.stats.gc1d([1, 0, 0]), 
+    np.testing.assert_equal(eda.stats.gc1d([1, 0, 0]),
                             eda.stats.gc1d([0, 1, 0]))
-    np.testing.assert_equal(eda.stats.gc1d([1, 0, 0]), 
+    np.testing.assert_equal(eda.stats.gc1d([1, 0, 0]),
                             eda.stats.gc1d([0, 0, 1]))
     # equal vals
     np.testing.assert_equal(eda.stats.gc1d([0, 0]), 0)
@@ -18,7 +18,7 @@ def test_gc1d():
     np.testing.assert_equal(eda.stats.gc1d([0, 0, 0]), 0)
     np.testing.assert_equal(eda.stats.gc1d([1, 1]), 0)
     np.testing.assert_equal(eda.stats.gc1d([10, 10]), 0)
-    # In the formula of unbiased estimator, [0, 0, ..., 0, n] will always 
+    # In the formula of unbiased estimator, [0, 0, ..., 0, n] will always
     # get 1.
     np.testing.assert_equal(eda.stats.gc1d([0, 0, 10]), 1)
     np.testing.assert_equal(eda.stats.gc1d([0, 0, 5]), 1)

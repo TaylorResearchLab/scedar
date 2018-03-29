@@ -24,20 +24,20 @@ class MIRAC(object):
     nprocs: int
         Number of processes to run MIRAC parallely.
     cl_mdl_scale_factor: float
-        Scale factor of cluster overhead mdl. 
+        Scale factor of cluster overhead mdl.
     minimax_n: int
         Estimated minimum # samples in a cluster
     maxmini_n: int
         Estimated max # samples in a cluster. If none, 10 * minimax is used.
     linkage: str
-        Linkage type for generating the hierarchy. 
+        Linkage type for generating the hierarchy.
     verbose: bool
         Print stats for each iteration.
 
     Attributes
     ----------
     _sdm: SampleDistanceMatrix
-        Data and distance matrices. 
+        Data and distance matrices.
     _minimax_n: int
         Stored parameter.
     _maxmini_n: int
@@ -49,7 +49,7 @@ class MIRAC(object):
     _hac_tree_root: HClustTree
         Root node of the hierarchical agglomerative clustering tree.
     _run_log: str
-        String containing the log of the MIRAC run. 
+        String containing the log of the MIRAC run.
 
     TODO
     ----
@@ -276,7 +276,7 @@ class MIRAC(object):
                  cluster_mdl) = mdl_sdm.lab_mdl(cl_mdl_scale_factor, nprocs,
                                                 verbose)
 
-                subtree_s_ind_list = [[s_inds[i] for i in x] 
+                subtree_s_ind_list = [[s_inds[i] for i in x]
                                       for x in subtree_subset_s_ind_list]
                 # compensation factor: large when s_cnt >> minimax and s_cnt
                 # close to n_samples

@@ -40,7 +40,7 @@ def labs_to_cmap(labels, return_lut=False):
         return lab_cmap
 
 
-def cluster_scatter(projection2d, labels=None, gradient=None, 
+def cluster_scatter(projection2d, labels=None, gradient=None,
                     title=None, xlab=None, ylab=None,
                     figsize=(20, 20), add_legend=True, n_txt_per_cluster=3,
                     alpha=1, s=0.5, random_state=None, **kwargs):
@@ -63,8 +63,8 @@ def cluster_scatter(projection2d, labels=None, gradient=None,
             cmap = kwargs.pop("cmap", "viridis")
             plt.figure(figsize=figsize)
             # matplotlib.collections.PathCollection
-            mpc = plt.scatter(x=projection2d[:, 0], y=projection2d[:, 1], 
-                              c=gradient, cmap=cmap, s=s, alpha=alpha, 
+            mpc = plt.scatter(x=projection2d[:, 0], y=projection2d[:, 1],
+                              c=gradient, cmap=cmap, s=s, alpha=alpha,
                               **kwargs)
             if add_legend:
                 plt.colorbar(mpc)
@@ -82,7 +82,7 @@ def cluster_scatter(projection2d, labels=None, gradient=None,
             if add_legend:
                 box = ax.get_position()
                 ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
-                ax.legend(handles=[mpl.patches.Patch(color=color_lut[ulab], 
+                ax.legend(handles=[mpl.patches.Patch(color=color_lut[ulab],
                                                      label=ulab)
                                    for ulab in uniq_labels],
                           bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
@@ -106,8 +106,8 @@ def cluster_scatter(projection2d, labels=None, gradient=None,
             cmap = kwargs.pop("cmap", "viridis")
             plt.figure(figsize=figsize)
             # matplotlib.collections.PathCollection
-            mpc = plt.scatter(x=projection2d[:, 0], y=projection2d[:, 1], 
-                              c=gradient, cmap=cmap, s=s, alpha=alpha, 
+            mpc = plt.scatter(x=projection2d[:, 0], y=projection2d[:, 1],
+                              c=gradient, cmap=cmap, s=s, alpha=alpha,
                               **kwargs)
             if add_legend:
                 plt.colorbar(mpc)
@@ -126,7 +126,7 @@ def cluster_scatter(projection2d, labels=None, gradient=None,
     return fig
 
 
-def regression_scatter(x, y, title=None, xlab=None, ylab=None, 
+def regression_scatter(x, y, title=None, xlab=None, ylab=None,
                        figsize=(5, 5), alpha=1, s=0.5, ax=None, **kwargs):
     """
     Paired vector scatter plot.
@@ -158,7 +158,7 @@ def regression_scatter(x, y, title=None, xlab=None, ylab=None,
     plt.close()
     return fig
 
-def hist_dens_plot(x, title=None, xlab=None, ylab=None, figsize=(5, 5), 
+def hist_dens_plot(x, title=None, xlab=None, ylab=None, figsize=(5, 5),
                    ax=None, **kwargs):
     """
     Plot histogram and density plot of x.
@@ -271,7 +271,7 @@ def heatmap(x, row_labels=None, col_labels=None, title=None, xlab=None,
     cr_labs = (col_labels, row_labels)
     for i in range(2):
         if cr_labs[i] is not None:
-            cmap, ind, ulab_col_lut, ulab_lut = labs_to_cmap(cr_labs[i], 
+            cmap, ind, ulab_col_lut, ulab_lut = labs_to_cmap(cr_labs[i],
                                                              return_lut=True)
             if i == 0:
                 # col color labels
@@ -295,7 +295,7 @@ def heatmap(x, row_labels=None, col_labels=None, title=None, xlab=None,
     plt.close()
     return fig
 
-def networkx_graph(ng, pos, figsize=(20, 20), node_size=30, alpha=0.05, 
+def networkx_graph(ng, pos, figsize=(20, 20), node_size=30, alpha=0.05,
                    with_labels=False, node_color="b", **kwargs):
     fig = plt.figure(figsize=figsize)
     nx.draw_networkx(ng, pos, alpha=alpha, node_color=node_color,

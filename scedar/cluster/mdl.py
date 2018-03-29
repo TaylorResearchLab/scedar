@@ -55,7 +55,7 @@ class ZeroIdcGKdeMdl(object):
     Zero indicator Gaussian KDE MDL
 
     Encode the 0s and non-0s using bernoulli distribution.
-    Then, encode non-0s using gaussian kde. Finally, one ternary val indicates 
+    Then, encode non-0s using gaussian kde. Finally, one ternary val indicates
     all 0s, all non-0s, or otherwise
 
 
@@ -64,13 +64,13 @@ class ZeroIdcGKdeMdl(object):
     x: 1d float array
         Should be non-negative
     bandwidth_method: string
-        KDE bandwidth estimation method bing passed to 
+        KDE bandwidth estimation method bing passed to
         `scipy.stats.gaussian_kde`.
-        Types: 
+        Types:
         * `"scott"`: Scott's rule of thumb.
         * `"silverman"`: Silverman"s rule of thumb.
-        * `constant`: constant will be timed by x.std(ddof=1) internally, 
-        because scipy times bw_method value by std. "Scipy weights its 
+        * `constant`: constant will be timed by x.std(ddof=1) internally,
+        because scipy times bw_method value by std. "Scipy weights its
         bandwidth by the ovariance of the input data" [3].
         * `callable`: scipy calls the function on self
 
@@ -120,13 +120,13 @@ class ZeroIdcGKdeMdl(object):
         Parameters
         ----------
         x: float array of shape `(n_samples)` or `(n_samples, n_features)`
-            Data points for KDE estimation. 
+            Data points for KDE estimation.
         bandwidth_method: string
-            KDE bandwidth estimation method bing passed to 
+            KDE bandwidth estimation method bing passed to
             `scipy.stats.gaussian_kde`.
 
         """
-    
+
         # This package uses (n_samples, n_features) convention
         # scipy uses (n_featues, n_samples) convention
         # so it is necessary to reshape the data
@@ -211,8 +211,8 @@ class ZeroIdcGKdeMdl(object):
 
 class MDLSampleDistanceMatrix(eda.SingleLabelClassifiedSamples):
     """
-    MDLSampleDistanceMatrix inherits SingleLabelClassifiedSamples to offer MDL 
-    operations. 
+    MDLSampleDistanceMatrix inherits SingleLabelClassifiedSamples to offer MDL
+    operations.
     """
 
     def __init__(self, x, labs, sids=None, fids=None,

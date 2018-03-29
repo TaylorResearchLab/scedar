@@ -12,9 +12,9 @@ class TestSampleFeatureMatrix(object):
     sfm3x3_arr = np.random.ranf(9).reshape(3, 3)
     sfm5x10_lst = list(map(list, np.random.ranf(50).reshape(5, 10)))
     plt_arr = np.arange(60).reshape(6, 10)
-    plt_sdm = eda.SampleFeatureMatrix(plt_arr, 
-                                      sids=list("abcdef"), 
-                                      fids=list(map(lambda i: 'f{}'.format(i), 
+    plt_sdm = eda.SampleFeatureMatrix(plt_arr,
+                                      sids=list("abcdef"),
+                                      fids=list(map(lambda i: 'f{}'.format(i),
                                                     range(10))))
     # array([[ 0,  1,  2,  3,  4,  5,  6,  7,  8,  9],
     #        [10, 11, 12, 13, 14, 15, 16, 17, 18, 19],
@@ -58,7 +58,7 @@ class TestSampleFeatureMatrix(object):
             eda.SampleFeatureMatrix(self.sfm5x10_lst, None, [0, 0, 1, 2, 3])
 
         with pytest.raises(Exception) as excinfo:
-            eda.SampleFeatureMatrix(self.sfm5x10_lst, None, 
+            eda.SampleFeatureMatrix(self.sfm5x10_lst, None,
                                     ['0', '0', '1', '2', '3'])
 
     def test_init_empty_x_sfids(self):
@@ -175,13 +175,13 @@ class TestSampleFeatureMatrix(object):
         assert ss_sfm._x.shape == (6, 10)
         assert ss_sfm.sids == list("abcdef")
         assert ss_sfm.fids == list(range(10, 20))
-        
+
         # select with None
         ss_sfm = sfm.ind_x(None, None)
         assert ss_sfm._x.shape == (6, 10)
         assert ss_sfm.sids == list("abcdef")
         assert ss_sfm.fids == list(range(10, 20))
-                        
+
         # select non-existent inds
         with pytest.raises(IndexError) as excinfo:
             sfm.ind_x([6])
@@ -225,13 +225,13 @@ class TestSampleFeatureMatrix(object):
         assert ss_sfm._x.shape == (6, 10)
         assert ss_sfm.sids == list("abcdef")
         assert ss_sfm.fids == list(range(10, 20))
-        
+
         # select with None
         ss_sfm = sfm.id_x(None, None)
         assert ss_sfm._x.shape == (6, 10)
         assert ss_sfm.sids == list("abcdef")
         assert ss_sfm.fids == list(range(10, 20))
-                        
+
         # select non-existent inds
         # id lookup raises ValueError
         with pytest.raises(ValueError) as excinfo:
@@ -274,13 +274,13 @@ class TestSampleFeatureMatrix(object):
 
     @pytest.mark.mpl_image_compare
     def test_s_id_regression_scatter(self):
-        return self.plt_sdm.s_id_regression_scatter("a", "b", 
+        return self.plt_sdm.s_id_regression_scatter("a", "b",
                                            feature_filter=[1,2,3],
                                            figsize=(5, 5), ci=None)
 
     @pytest.mark.mpl_image_compare
     def test_s_ind_regression_scatter_custom_labs(self):
-        return self.plt_sdm.s_ind_regression_scatter(0, 1, xlab='X', ylab='Y', 
+        return self.plt_sdm.s_ind_regression_scatter(0, 1, xlab='X', ylab='Y',
                                             figsize=(5, 5), ci=None)
 
     @pytest.mark.mpl_image_compare
@@ -296,7 +296,7 @@ class TestSampleFeatureMatrix(object):
     @pytest.mark.mpl_image_compare
     def test_s_ind_regression_scatter_custom_func_ff(self):
         return self.plt_sdm.s_ind_regression_scatter(
-            0, 1, feature_filter=lambda x, y: (x in (0, 1, 2)) and (10 < y < 12), 
+            0, 1, feature_filter=lambda x, y: (x in (0, 1, 2)) and (10 < y < 12),
             figsize=(5, 5), ci=None)
 
     @pytest.mark.mpl_image_compare
@@ -308,7 +308,7 @@ class TestSampleFeatureMatrix(object):
         #        [40, 41, 42, 43, 44, 45, 46, 47, 48, 49],
         #        [50, 51, 52, 53, 54, 55, 56, 57, 58, 59]])
         return self.plt_sdm.f_ind_regression_scatter(
-            0, 1, sample_filter=lambda x, y: (x in (0, 10, 20)) and (10 < y < 30), 
+            0, 1, sample_filter=lambda x, y: (x in (0, 10, 20)) and (10 < y < 30),
             figsize=(5, 5), ci=None)
 
     @pytest.mark.mpl_image_compare
@@ -317,12 +317,12 @@ class TestSampleFeatureMatrix(object):
 
     @pytest.mark.mpl_image_compare
     def test_f_ind_regression_scatter_ind_ff(self):
-        return self.plt_sdm.f_ind_regression_scatter(0, 1, sample_filter=[0, 2, 5], 
+        return self.plt_sdm.f_ind_regression_scatter(0, 1, sample_filter=[0, 2, 5],
                                             figsize=(5, 5), ci=None)
 
     @pytest.mark.mpl_image_compare
     def test_f_ind_regression_scatter_labs(self):
-        return self.plt_sdm.f_ind_regression_scatter(0, 1, sample_filter=[0, 2, 5], 
+        return self.plt_sdm.f_ind_regression_scatter(0, 1, sample_filter=[0, 2, 5],
                                             figsize=(5, 5), title='testregscat',
                                             xlab='x', ylab='y', ci=None)
 
@@ -347,7 +347,7 @@ class TestSampleFeatureMatrix(object):
     @pytest.mark.mpl_image_compare
     @pytest.mark.filterwarnings("ignore:The 'normed' kwarg is depreca")
     def test_s_id_dist(self):
-        return self.plt_sdm.s_id_dist("a", feature_filter=[1,2,3], 
+        return self.plt_sdm.s_id_dist("a", feature_filter=[1,2,3],
                                       figsize=(5, 5))
 
     @pytest.mark.mpl_image_compare
@@ -372,14 +372,14 @@ class TestSampleFeatureMatrix(object):
     @pytest.mark.filterwarnings("ignore:The 'normed' kwarg is depreca")
     def test_s_ind_dist_custom_func_ff(self):
         return self.plt_sdm.s_ind_dist(
-            0, feature_filter=lambda x: x in (0, 1, 2), 
+            0, feature_filter=lambda x: x in (0, 1, 2),
             figsize=(5, 5))
 
     @pytest.mark.mpl_image_compare
     @pytest.mark.filterwarnings("ignore:The 'normed' kwarg is depreca")
     def test_f_ind_dist_custom_func_sf(self):
         return self.plt_sdm.f_ind_dist(
-            0, sample_filter=lambda x: x in (0, 10, 20), 
+            0, sample_filter=lambda x: x in (0, 10, 20),
             figsize=(5, 5))
 
     @pytest.mark.mpl_image_compare
@@ -390,20 +390,20 @@ class TestSampleFeatureMatrix(object):
     @pytest.mark.mpl_image_compare
     @pytest.mark.filterwarnings("ignore:The 'normed' kwarg is depreca")
     def test_f_ind_dist_ind_ff(self):
-        return self.plt_sdm.f_ind_dist(0, sample_filter=[0, 2, 5], 
+        return self.plt_sdm.f_ind_dist(0, sample_filter=[0, 2, 5],
                                        figsize=(5, 5))
 
     @pytest.mark.mpl_image_compare
     @pytest.mark.filterwarnings("ignore:The 'normed' kwarg is depreca")
     def test_f_ind_dist_labs(self):
-        return self.plt_sdm.f_ind_dist(0, sample_filter=[0, 2, 5], 
-                                       figsize=(5, 5), 
+        return self.plt_sdm.f_ind_dist(0, sample_filter=[0, 2, 5],
+                                       figsize=(5, 5),
                                        xlab='x', ylab='y')
 
     @pytest.mark.mpl_image_compare
     @pytest.mark.filterwarnings("ignore:The 'normed' kwarg is depreca")
     def test_f_id_dist(self):
-        return self.plt_sdm.f_id_dist('f5', sample_filter=[0, 2, 5], 
+        return self.plt_sdm.f_id_dist('f5', sample_filter=[0, 2, 5],
                                       figsize=(5, 5))
 
     def test_getters(self):
@@ -432,7 +432,7 @@ class TestSampleFeatureMatrix(object):
         assert x.shape[0] == 6
         np.testing.assert_allclose(x, self.ref_plt_f_sum)
         # only need to test that filter has been passed correctly
-        np.testing.assert_allclose(self.plt_sdm.f_sum([0, 1, 2]), 
+        np.testing.assert_allclose(self.plt_sdm.f_sum([0, 1, 2]),
             self.ref_plt_f_sum[:3])
 
     def test_s_sum(self):
@@ -440,7 +440,7 @@ class TestSampleFeatureMatrix(object):
         assert x.ndim == 1
         assert x.shape[0] == 10
         np.testing.assert_allclose(x, self.ref_plt_s_sum)
-        np.testing.assert_allclose(self.plt_sdm.s_sum([0, 1, 2]), 
+        np.testing.assert_allclose(self.plt_sdm.s_sum([0, 1, 2]),
             self.ref_plt_s_sum[:3])
 
     def test_f_cv(self):
@@ -448,7 +448,7 @@ class TestSampleFeatureMatrix(object):
         assert x.ndim == 1
         assert x.shape[0] == 6
         np.testing.assert_allclose(self.plt_sdm.f_cv(), self.ref_plt_f_cv)
-        np.testing.assert_allclose(self.plt_sdm.f_cv([0, 1, 2]), 
+        np.testing.assert_allclose(self.plt_sdm.f_cv([0, 1, 2]),
             self.ref_plt_f_cv[:3])
 
     def test_s_cv(self):
@@ -464,7 +464,7 @@ class TestSampleFeatureMatrix(object):
         assert x.ndim == 1
         assert x.shape[0] == 6
         np.testing.assert_allclose(x, self.ref_plt_f_gc)
-        np.testing.assert_allclose(self.plt_sdm.f_gc([0, 1, 2]), 
+        np.testing.assert_allclose(self.plt_sdm.f_gc([0, 1, 2]),
             self.ref_plt_f_gc[:3])
 
     def test_s_gc(self):
@@ -487,7 +487,7 @@ class TestSampleFeatureMatrix(object):
         assert x.shape[0] == 10
         np.testing.assert_allclose(x, self.ref_plt_s_a35)
 
-    # Because summary dist plot calls hist_dens_plot immediately after 
+    # Because summary dist plot calls hist_dens_plot immediately after
     # obtaining the summary statistics vector, the correctness of summary
     # statistics vector and hist_dens_plot implies the correctness of the
     # plots.

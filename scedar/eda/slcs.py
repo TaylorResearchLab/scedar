@@ -56,7 +56,7 @@ class SingleLabelClassifiedSamples(SampleDistanceMatrix):
     def ind_x(self, selected_s_inds=None, selected_f_inds=None):
         """
         Subset samples by (sample IDs, feature IDs).
-        
+
         Parameters
         ----------
         selected_s_inds: int array
@@ -85,7 +85,7 @@ class SingleLabelClassifiedSamples(SampleDistanceMatrix):
     def id_x(self, selected_sids=None, selected_fids=None):
         """
         Subset samples by (sample IDs, feature IDs).
-        
+
         Parameters
         ----------
         selected_s_inds: int array
@@ -108,42 +108,42 @@ class SingleLabelClassifiedSamples(SampleDistanceMatrix):
             selected_f_inds = self.f_id_to_ind(selected_fids)
         return self.ind_x(selected_s_inds, selected_f_inds)
 
-    def tsne_gradient_plot(self, gradient=None, labels=None, 
+    def tsne_gradient_plot(self, gradient=None, labels=None,
                            title=None, xlab=None, ylab=None,
-                           figsize=(20, 20), add_legend=True, 
+                           figsize=(20, 20), add_legend=True,
                            n_txt_per_cluster=3, alpha=1, s=0.5,
                            random_state=None, **kwargs):
         """
         Plot the last t-SNE projection with the provided gradient as color.
         """
-        return super(SingleLabelClassifiedSamples, 
+        return super(SingleLabelClassifiedSamples,
                      self).tsne_gradient_plot(
                         labels=self.labs, gradient=gradient,
                         title=title, xlab=xlab, ylab=ylab,
-                        figsize=figsize, 
-                        add_legend=add_legend, 
-                        n_txt_per_cluster=n_txt_per_cluster, 
-                        alpha=alpha, s=s, 
-                        random_state=random_state, 
+                        figsize=figsize,
+                        add_legend=add_legend,
+                        n_txt_per_cluster=n_txt_per_cluster,
+                        alpha=alpha, s=s,
+                        random_state=random_state,
                         **kwargs)
 
-    def tsne_feature_gradient_plot(self, fid, labels=None, 
+    def tsne_feature_gradient_plot(self, fid, labels=None,
                                    title=None, xlab=None, ylab=None,
-                                   figsize=(20, 20), add_legend=True, 
+                                   figsize=(20, 20), add_legend=True,
                                    n_txt_per_cluster=3, alpha=1, s=0.5,
                                    random_state=None, **kwargs):
         """
         Plot the last t-SNE projection with the provided gradient as color.
         """
-        return super(SingleLabelClassifiedSamples, 
+        return super(SingleLabelClassifiedSamples,
                      self).tsne_feature_gradient_plot(
                         fid=fid, labels=self.labs,
                         title=title, xlab=xlab, ylab=ylab,
-                        figsize=figsize, 
-                        add_legend=add_legend, 
-                        n_txt_per_cluster=n_txt_per_cluster, 
-                        alpha=alpha, s=s, 
-                        random_state=random_state, 
+                        figsize=figsize,
+                        add_legend=add_legend,
+                        n_txt_per_cluster=n_txt_per_cluster,
+                        alpha=alpha, s=s,
+                        random_state=random_state,
                         **kwargs)
 
     @property

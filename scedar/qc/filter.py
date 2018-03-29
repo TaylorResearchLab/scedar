@@ -6,10 +6,10 @@ from .. import utils
 
 class SampleKNNFilter(object):
     """
-    K nearest neighbor filter on sample distance matrix. 
+    K nearest neighbor filter on sample distance matrix.
 
-    Perform filter with multiple filters in parallel, with each combination 
-    of parameters as a process. Because this filter runs iteratively, 
+    Perform filter with multiple filters in parallel, with each combination
+    of parameters as a process. Because this filter runs iteratively,
     parallelizing each individual parameter combination run is not implemented.
 
     Stores the results for further lookup.
@@ -31,7 +31,7 @@ class SampleKNNFilter(object):
 
     def _knn_filter_samples_runner(self, k, d_cutoff, n_iter):
         """
-        KNN filter on samples with scalar tuple of parameters. 
+        KNN filter on samples with scalar tuple of parameters.
         """
         # TODO: copy lookup results
         param_key = (k, d_cutoff, n_iter)
@@ -46,7 +46,7 @@ class SampleKNNFilter(object):
         progress_list = [curr_s_inds.tolist()]
 
         for i in range(1, n_iter+1):
-            i_d_cutoff = (d_cutoff 
+            i_d_cutoff = (d_cutoff
                           + (n_iter - i) / n_iter * max(0, d_max - d_cutoff))
             i_k = min(curr_dist_mat.shape[0]-1, k)
             kept_curr_s_inds = []
@@ -67,17 +67,17 @@ class SampleKNNFilter(object):
 
     def knn_filter_samples(self, k, d_cutoff, n_iter, nprocs=1):
         """
-        KNN filter on samples with multiple parameter combinations. 
+        KNN filter on samples with multiple parameter combinations.
 
-        Assuming that there are at least k samples look similar in this 
-        dataset, the samples with less than k similar neighbors may be 
-        outliers. The outliers can either be really distinct from the general 
-        populaton or caused by technical errors. 
+        Assuming that there are at least k samples look similar in this
+        dataset, the samples with less than k similar neighbors may be
+        outliers. The outliers can either be really distinct from the general
+        populaton or caused by technical errors.
 
         This filter iteratively filters samples according to their k-th nearest
-        neighbors. The samples most distinct from its k-th nearest neighbors 
-        are removed first. Then, the left samples are filtered by less 
-        stringent distance cutoff. The distance cutoff decreases linearly 
+        neighbors. The samples most distinct from its k-th nearest neighbors
+        are removed first. Then, the left samples are filtered by less
+        stringent distance cutoff. The distance cutoff decreases linearly
         from maximum distance to d_cutoff with n_iter iterations.
 
         Parameters
@@ -86,23 +86,23 @@ class SampleKNNFilter(object):
             K nearest neighbors to filter samples.
         d_cutoff: float list or scalar
             Samples with >= d_cutoff distances are distinct from each other.
-            Minimum (>=) distance to be called as distinct. 
+            Minimum (>=) distance to be called as distinct.
         n_iter: int list or scalar
-            N progressive iNN filters on the dataset. See description for more 
+            N progressive iNN filters on the dataset. See description for more
             details.
         nproces: int
-            N processes to run all parameter tuples. 
+            N processes to run all parameter tuples.
 
         Returns
         -------
         res_list
-            Filtered SampleDistanceMatrix of each corresponding parameter 
+            Filtered SampleDistanceMatrix of each corresponding parameter
             tuple.
 
         Notes
         -----
-        If parameters are provided as lists of equal length n, the n 
-        corresponding parameter tuples will be executed parallely. 
+        If parameters are provided as lists of equal length n, the n
+        corresponding parameter tuples will be executed parallely.
 
         Example:
 
@@ -115,11 +115,11 @@ class SampleKNNFilter(object):
         `(k, d_cutoff, n_iter)` tuples `(10, 1, 10), (15, 2, 20), (20, 3, 30)`
         will be tried parallely with nprocs.
 
-        This filter can be applied on filters by transforming the data matrix 
+        This filter can be applied on filters by transforming the data matrix
         when creating SampleDistanceMatrix, but it might not be
         very meaningful. For example, if there is 100 features all have values
         of 1 across all samples, they will always be kept with KNN filter
-        strategy with k < 100. 
+        strategy with k < 100.
         """
         # Convert scalar to list
         if np.isscalar(k):

@@ -9,15 +9,15 @@ def gc1d(x):
     ----
     [1] <http://mathworld.wolfram.com/GiniCoefficient.html>
 
-    [2] Damgaard, C. and Weiner, J. "Describing Inequality in Plant Size 
+    [2] Damgaard, C. and Weiner, J. "Describing Inequality in Plant Size
     or Fecundity." Ecology 81, 1139-1142, 2000.
 
-    [3] Dixon, P. M.; Weiner, J.; Mitchell-Olds, T.; and Woodley, R. 
-    "Bootstrapping the Gini Coefficient of Inequality." 
+    [3] Dixon, P. M.; Weiner, J.; Mitchell-Olds, T.; and Woodley, R.
+    "Bootstrapping the Gini Coefficient of Inequality."
     Ecology 68, 1548-1551, 1987.
 
-    [4] Dixon, P. M.; Weiner, J.; Mitchell-Olds, T.; and Woodley, R. 
-    "Erratum to 'Bootstrapping the Gini Coefficient of Inequality.' " 
+    [4] Dixon, P. M.; Weiner, J.; Mitchell-Olds, T.; and Woodley, R.
+    "Erratum to 'Bootstrapping the Gini Coefficient of Inequality.' "
     Ecology 69, 1307, 1988.
 
     [5] <https://en.wikipedia.org/wiki/Gini_coefficient>

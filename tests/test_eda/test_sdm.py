@@ -240,7 +240,7 @@ class TestSampleDistanceMatrix(object):
                        'random_state': 123}
         ref_tsne = eda.tsne(self.x_3x2, **tsne_kwargs)
         sdm = eda.SampleDistanceMatrix(self.x_3x2, metric=tmet)
-        
+
         init_tsne = sdm._last_tsne
 
         assert init_tsne.shape == (3, 2)
@@ -269,14 +269,14 @@ class TestSampleDistanceMatrix(object):
         assert ss_sdm.sids == list("abcdef")
         assert ss_sdm.fids == list(range(10, 20))
         np.testing.assert_equal(ss_sdm.d, sdm._d)
-        
+
         # select with None
         ss_sdm = sdm.ind_x(None, None)
         assert ss_sdm._x.shape == (6, 10)
         assert ss_sdm.sids == list("abcdef")
         assert ss_sdm.fids == list(range(10, 20))
         np.testing.assert_equal(ss_sdm.d, sdm._d)
-                        
+
         # select non-existent inds
         with pytest.raises(IndexError) as excinfo:
             sdm.ind_x([6])
@@ -326,14 +326,14 @@ class TestSampleDistanceMatrix(object):
         assert ss_sdm.sids == list("abcdef")
         assert ss_sdm.fids == list(range(10, 20))
         np.testing.assert_equal(ss_sdm.d, sdm._d)
-        
+
         # select with None
         ss_sdm = sdm.id_x(None, None)
         assert ss_sdm._x.shape == (6, 10)
         assert ss_sdm.sids == list("abcdef")
         assert ss_sdm.fids == list(range(10, 20))
         np.testing.assert_equal(ss_sdm.d, sdm._d)
-                        
+
         # select non-existent inds
         # id lookup raises ValueError
         with pytest.raises(ValueError) as excinfo:
@@ -424,9 +424,9 @@ class TestSampleDistanceMatrix(object):
                                    nn_sdm.s_ith_nn_d(2))
 
     def test_s_ith_nn_ind(self):
-        nn_sdm = eda.SampleDistanceMatrix([[0, 0, 0], [1, 1, 1], [5, 5, 5], 
-                                           [6, 6, 6], [10, 10, 10], 
-                                           [20, 20, 20]], 
+        nn_sdm = eda.SampleDistanceMatrix([[0, 0, 0], [1, 1, 1], [5, 5, 5],
+                                           [6, 6, 6], [10, 10, 10],
+                                           [20, 20, 20]],
                                           metric='euclidean')
         np.testing.assert_allclose([0, 1, 2, 3, 4, 5],
                                    nn_sdm.s_ith_nn_ind(0))
@@ -435,38 +435,38 @@ class TestSampleDistanceMatrix(object):
         np.testing.assert_allclose([2, 2, 1, 4, 2, 3],
                                    nn_sdm.s_ith_nn_ind(2))
 
-    # Because summary dist plot calls hist_dens_plot immediately after 
+    # Because summary dist plot calls hist_dens_plot immediately after
     # obtaining the summary statistics vector, the correctness of summary
     # statistics vector and hist_dens_plot implies the correctness of the
     # plots.
     @pytest.mark.filterwarnings("ignore:The 'normed' kwarg is depreca")
     def test_s_ith_nn_d_dist(self):
-        nn_sdm = eda.SampleDistanceMatrix([[0, 0, 0], [1, 1, 1], [5, 5, 5], 
-                                           [6, 6, 6], [10, 10, 10], 
-                                           [20, 20, 20]], 
+        nn_sdm = eda.SampleDistanceMatrix([[0, 0, 0], [1, 1, 1], [5, 5, 5],
+                                           [6, 6, 6], [10, 10, 10],
+                                           [20, 20, 20]],
                                           metric='euclidean')
         nn_sdm.s_ith_nn_d_dist(1)
 
     def test_knn_ind_lut(self):
-        nn_sdm = eda.SampleDistanceMatrix([[0, 0, 0], [1, 1, 1], [5, 5, 5], 
-                                           [6, 6, 6], [10, 10, 10], 
-                                           [20, 20, 20]], 
+        nn_sdm = eda.SampleDistanceMatrix([[0, 0, 0], [1, 1, 1], [5, 5, 5],
+                                           [6, 6, 6], [10, 10, 10],
+                                           [20, 20, 20]],
                                           metric='euclidean')
         assert nn_sdm.s_knn_ind_lut(0) == dict(zip(range(6), [[]]*6))
-        assert (nn_sdm.s_knn_ind_lut(1) == 
+        assert (nn_sdm.s_knn_ind_lut(1) ==
                 dict(zip(range(6), [[1], [0], [3], [2], [3], [4]])))
-        assert (nn_sdm.s_knn_ind_lut(2) == 
-                dict(zip(range(6), [[1, 2], [0, 2], [3, 1], 
+        assert (nn_sdm.s_knn_ind_lut(2) ==
+                dict(zip(range(6), [[1, 2], [0, 2], [3, 1],
                                     [2, 4], [3, 2], [4, 3]])))
-        assert (nn_sdm.s_knn_ind_lut(3) == 
-                dict(zip(range(6), [[1, 2, 3], [0, 2, 3], [3, 1, 0], 
+        assert (nn_sdm.s_knn_ind_lut(3) ==
+                dict(zip(range(6), [[1, 2, 3], [0, 2, 3], [3, 1, 0],
                                     [2, 4, 1], [3, 2, 1], [4, 3, 2]])))
         nn_sdm.s_knn_ind_lut(5)
 
     def test_knn_ind_lut_wrong_args(self):
-        nn_sdm = eda.SampleDistanceMatrix([[0, 0, 0], [1, 1, 1], [5, 5, 5], 
-                                           [6, 6, 6], [10, 10, 10], 
-                                           [20, 20, 20]], 
+        nn_sdm = eda.SampleDistanceMatrix([[0, 0, 0], [1, 1, 1], [5, 5, 5],
+                                           [6, 6, 6], [10, 10, 10],
+                                           [20, 20, 20]],
                                           metric='euclidean')
         with pytest.raises(ValueError) as excinfo:
             nn_sdm.s_knn_ind_lut(-1)

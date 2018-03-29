@@ -7,7 +7,7 @@ from .mdl import MultinomialMdl
 
 class HClustTree(object):
     """
-    Hierarchical clustering tree. 
+    Hierarchical clustering tree.
 
     Implement simple tree operation routines. HCT is binary unbalanced tree.
 
@@ -101,7 +101,7 @@ class HClustTree(object):
     def cluster_id_to_lab_list(cl_sid_list, sid_list):
         """
         Convert nested clustered ID list into cluster label list.
-        
+
         For example, convert `[[0, 1, 2], [3,4]]` to `[0, 0, 0, 1, 1]`
         according to id_arr `[0, 1, 2, 3, 4]`
 

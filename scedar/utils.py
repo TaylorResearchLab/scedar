@@ -22,14 +22,14 @@ def parmap(f, X, nprocs=1):
     """
     parmap_fun() and parmap() are obtained from klaus se's post
     on stackoverflow. <https://stackoverflow.com/a/16071616/4638182>
-    
+
     parmap allows map on lambda and class static functions.
     """
     if nprocs < 1:
         raise ValueError("nprocs should be >= 1. nprocs: {}".format(nprocs))
 
     nprocs = min(int(nprocs), mp.cpu_count())
-    
+
     q_in = mp.Queue(1)
     q_out = mp.Queue()
     proc = [mp.Process(target=_parmap_fun, args=(f, q_in, q_out))
@@ -94,18 +94,18 @@ def is_uniq_np1darr(x):
 def dict_str_key(d):
     """
     Get a hash key for a dictionary, usually used for **kwargs.
-    
+
 
     Examples
     --------
-    >>> dict_str_key({"a": 1, "b": 2}) 
+    >>> dict_str_key({"a": 1, "b": 2})
     "[('a', 1), ('b', 2)]"
-    >>> dict_str_key({"b": 2, "a": 1}) 
+    >>> dict_str_key({"b": 2, "a": 1})
     "[('a', 1), ('b', 2)]"
 
     Notes
     -----
-    Non-string keys will be converted to strings before sorting, but the 
+    Non-string keys will be converted to strings before sorting, but the
     original value is preserved in the generated key.
     """
     if type(d) != dict:

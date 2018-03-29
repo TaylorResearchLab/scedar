@@ -12,7 +12,7 @@ class SampleFeatureMatrix(object):
 
     In this package, we are only interested in float features as measured
     expression levels.
-    
+
     Parameters
     ----------
     x : ndarray or list
@@ -81,7 +81,7 @@ class SampleFeatureMatrix(object):
     def ind_x(self, selected_s_inds=None, selected_f_inds=None):
         """
         Subset samples by (sample IDs, feature IDs).
-        
+
         Parameters
         ----------
         selected_s_inds: int array
@@ -107,7 +107,7 @@ class SampleFeatureMatrix(object):
     def id_x(self, selected_sids=None, selected_fids=None):
         """
         Subset samples by (sample IDs, feature IDs).
-        
+
         Parameters
         ----------
         selected_s_inds: int array
@@ -167,8 +167,8 @@ class SampleFeatureMatrix(object):
         ys_ind: int
             Sample index of y.
         feature_filter: bool array, or int array, or callable(x, y)
-            If feature_filter is bool / int array, directly select features 
-            with it. If feature_filter is callable, it will be applied on each 
+            If feature_filter is bool / int array, directly select features
+            with it. If feature_filter is callable, it will be applied on each
             (x, y) value tuple.
         xlab: str
         ylab: str
@@ -180,8 +180,8 @@ class SampleFeatureMatrix(object):
 
         if ylab is None:
             ylab = self._sids[ys_ind]
-        
-        return regression_scatter(x=xf, y=yf, xlab=xlab, ylab=ylab, 
+
+        return regression_scatter(x=xf, y=yf, xlab=xlab, ylab=ylab,
                                   title=title, **kwargs)
 
     def s_id_regression_scatter(self, xs_id, ys_id, feature_filter=None,
@@ -196,17 +196,17 @@ class SampleFeatureMatrix(object):
         ys_ind: int
             Sample ID of y.
         feature_filter: bool array, or int array, or callable(x, y)
-            If feature_filter is bool / int array, directly select features 
-            with it. If feature_filter is callable, it will be applied on each 
+            If feature_filter is bool / int array, directly select features
+            with it. If feature_filter is callable, it will be applied on each
             (x, y) value tuple.
         xlab: str
         ylab: str
         title: str
         """
         xs_ind, ys_ind = self.s_id_to_ind([xs_id, ys_id])
-        return self.s_ind_regression_scatter(xs_ind, ys_ind, 
-                                             feature_filter=feature_filter, 
-                                             xlab=xlab, ylab=ylab, title=title, 
+        return self.s_ind_regression_scatter(xs_ind, ys_ind,
+                                             feature_filter=feature_filter,
+                                             xlab=xlab, ylab=ylab, title=title,
                                              **kwargs)
 
     def f_ind_x_pair(self, xf_ind, yf_ind, sample_filter=None):
@@ -220,7 +220,7 @@ class SampleFeatureMatrix(object):
         xf = x[s_inds]
         yf = y[s_inds]
         return (xf, yf)
-    
+
     def f_ind_regression_scatter(self, xf_ind, yf_ind, sample_filter=None,
                                  xlab=None, ylab=None, title=None,
                                  **kwargs):
@@ -234,8 +234,8 @@ class SampleFeatureMatrix(object):
         yf_ind: int
             Sample index of y.
         sample_filter: bool array, or int array, or callable(x, y)
-            If sample_filter is bool / int array, directly select features 
-            with it. If sample_filter is callable, it will be applied on each 
+            If sample_filter is bool / int array, directly select features
+            with it. If sample_filter is callable, it will be applied on each
             (x, y) value tuple.
         xlab: str
         ylab: str
@@ -247,8 +247,8 @@ class SampleFeatureMatrix(object):
 
         if ylab is None:
             ylab = self._fids[yf_ind]
-        
-        return regression_scatter(x=xf, y=yf, xlab=xlab, ylab=ylab, 
+
+        return regression_scatter(x=xf, y=yf, xlab=xlab, ylab=ylab,
                                   title=title, **kwargs)
 
     def f_id_regression_scatter(self, xf_id, yf_id, sample_filter=None,
@@ -263,32 +263,32 @@ class SampleFeatureMatrix(object):
         yf_ind: int
             Sample ID of y.
         sample_filter: bool array, or int array, or callable(x, y)
-            If sample_filter is bool / int array, directly select features 
-            with it. If sample_filter is callable, it will be applied on each 
+            If sample_filter is bool / int array, directly select features
+            with it. If sample_filter is callable, it will be applied on each
             (x, y) value tuple.
         xlab: str
         ylab: str
         title: str
         """
         xf_ind, yf_ind = self.f_id_to_ind([xf_id, yf_id])
-        return self.f_ind_regression_scatter(xf_ind, yf_ind, 
-                                             sample_filter=sample_filter, 
-                                             xlab=xlab, ylab=ylab, title=title, 
+        return self.f_ind_regression_scatter(xf_ind, yf_ind,
+                                             sample_filter=sample_filter,
+                                             xlab=xlab, ylab=ylab, title=title,
                                              **kwargs)
 
     def s_ind_x_vec(self, s_ind, feature_filter=None):
         """
-        Access a single vector of a sample.         
+        Access a single vector of a sample.
         """
         x = self._x[s_ind, :]
         f_inds = self.filter_1d_inds(feature_filter, x)
         xf = x[f_inds]
         return xf
-    
+
     def s_ind_dist(self, s_ind, feature_filter=None, xlab=None, ylab=None,
                    title=None, figsize=(5, 5), ax=None, **kwargs):
         xf = self.s_ind_x_vec(s_ind, feature_filter)
-        return hist_dens_plot(xf, title=title, xlab=xlab, ylab=ylab, 
+        return hist_dens_plot(xf, title=title, xlab=xlab, ylab=ylab,
                               figsize=figsize, ax=ax, **kwargs)
 
     def s_id_dist(self, s_id, feature_filter=None, xlab=None, ylab=None,
@@ -299,17 +299,17 @@ class SampleFeatureMatrix(object):
 
     def f_ind_x_vec(self, f_ind, sample_filter=None):
         """
-        Access a single vector of a sample.         
+        Access a single vector of a sample.
         """
         x = self._x[:, f_ind]
         s_inds = self.filter_1d_inds(sample_filter, x)
         xf = x[s_inds]
         return xf
-    
+
     def f_ind_dist(self, f_ind, sample_filter=None, xlab=None, ylab=None,
                    title=None, figsize=(5, 5), ax=None, **kwargs):
         xf = self.f_ind_x_vec(f_ind, sample_filter)
-        return hist_dens_plot(xf, title=title, xlab=xlab, ylab=ylab, 
+        return hist_dens_plot(xf, title=title, xlab=xlab, ylab=ylab,
                               figsize=figsize, ax=ax, **kwargs)
 
     def f_id_dist(self, f_id, sample_filter=None, xlab=None, ylab=None,
@@ -417,7 +417,7 @@ class SampleFeatureMatrix(object):
 
     def f_n_above_threshold(self, closed_threshold):
         """
-        For each sample, compute the number of features above a closed 
+        For each sample, compute the number of features above a closed
         threshold.
         """
         row_ath_sum = (self._x >= closed_threshold).sum(axis=1)
@@ -432,10 +432,10 @@ class SampleFeatureMatrix(object):
         xf = self.f_n_above_threshold(closed_threshold)
         return hist_dens_plot(xf, title=title, xlab=xlab, ylab=ylab,
                               figsize=figsize, ax=ax, **kwargs)
-    
+
     def s_n_above_threshold(self, closed_threshold):
         """
-        For each feature, compute the number of samples above a closed 
+        For each feature, compute the number of samples above a closed
         threshold.
         """
         col_ath_sum = (self._x >= closed_threshold).sum(axis=0)
@@ -468,7 +468,7 @@ class SampleFeatureMatrix(object):
     def f_gc_dist(self, f_gc_filter=None, xlab=None, ylab=None,
                    title=None, figsize=(5, 5), ax=None, **kwargs):
         """
-        Plot the distribution of the feature Gini coefficient of each 
+        Plot the distribution of the feature Gini coefficient of each
         sample, (n_samples,).
         """
         xf = self.f_gc(f_gc_filter)
