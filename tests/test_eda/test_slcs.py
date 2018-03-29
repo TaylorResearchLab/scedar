@@ -246,6 +246,51 @@ class TestSingleLabelClassifiedSamples(object):
         assert empty_sf._fids.shape == (0,)
         assert empty_sf._labs.shape == (0,)
 
+    def test_lab_x(self):
+        sids = list("abcdef")
+        fids = list(range(10, 20))
+        labs = [0, 0, 0, 1, 2, 2]
+
+        slcs = eda.SingleLabelClassifiedSamples(
+            np.random.ranf(60).reshape(6, -1), labs=labs,
+            sids=sids, fids=fids)
+        # select sf
+        ss_slcs = slcs.lab_x([0, 2])
+        assert ss_slcs._x.shape == (5, 10)
+        assert ss_slcs.sids == ['a', 'b', 'c', 'e', 'f']
+        assert ss_slcs.labs == [0, 0, 0, 2, 2]
+        assert ss_slcs.fids == list(range(10, 20))
+        ss_s_inds = [0, 1, 2, 4, 5]
+        np.testing.assert_equal(ss_slcs.d, 
+                                slcs._d[np.ix_(ss_s_inds, ss_s_inds)])
+        # should raise ValueError
+        # select with None
+        with pytest.raises(ValueError) as excinfo:
+            slcs.lab_x(None)
+        # select non-existent labs
+        with pytest.raises(ValueError) as excinfo:
+            slcs.lab_x([-1])
+        with pytest.raises(ValueError) as excinfo:
+            slcs.lab_x([0, 3])
+        with pytest.raises(ValueError) as excinfo:
+            slcs.lab_x([0, -3])
+
+    def test_lab_x_empty(self):
+        sids = list("abcdef")
+        fids = list(range(10, 20))
+        labs = [0, 0, 0, 1, 2, 2]
+
+        slcs = eda.SingleLabelClassifiedSamples(
+            np.random.ranf(60).reshape(6, -1), labs=labs,
+            sids=sids, fids=fids)
+        # select sf
+        empty_s = slcs.lab_x([])
+        assert empty_s._x.shape == (0, 10)
+        assert empty_s._d.shape == (0, 0)
+        assert empty_s._sids.shape == (0,)
+        assert empty_s._fids.shape == (10,)
+        assert empty_s._labs.shape == (0,)
+
     def test_cross_labs(self):
         rsids = [0, 1, 2, 3, 4]
         rlabs = [0, 0, 0, 1, 1]

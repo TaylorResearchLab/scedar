@@ -4,8 +4,12 @@ import matplotlib as mpl
 import matplotlib.colors
 import seaborn as sns
 
+import xgboost as xgb
+
 from .sdm import SampleDistanceMatrix
 from . import mtype
+from .. import utils
+
 
 class SingleLabelClassifiedSamples(SampleDistanceMatrix):
     """SingleLabelClassifiedSamples"""
@@ -39,6 +43,8 @@ class SingleLabelClassifiedSamples(SampleDistanceMatrix):
         for i in range(self._sids.shape[0]):
             lab_lut[self._sids[i]] = labs[i]
         self._lab_lut = lab_lut
+
+        self._xgb_lut = {}
         return
 
     def filter_min_class_n(self, min_class_n):
@@ -107,6 +113,29 @@ class SingleLabelClassifiedSamples(SampleDistanceMatrix):
         else:
             selected_f_inds = self.f_id_to_ind(selected_fids)
         return self.ind_x(selected_s_inds, selected_f_inds)
+
+    def lab_x(self, labs):
+        if not np.all(np.in1d(labs, self._uniq_labs)):
+            raise ValueError("labs: {} are not all existed in the SLCS unique"
+                             "labels {}".format(labs, self._uniq_labs))
+
+        lab_selected_s_bool_arr = np.in1d(self._labs, labs)
+        return self.ind_x(lab_selected_s_bool_arr)
+
+    def feature_importance_across_labs(self, labs, xgb_kwargs=None):
+        """
+        Use xgboost to determine the importance of features determining the
+        difference between samples with different labels.
+
+        Run cross validation on dataset and obtain import features. 
+
+        Parameters:
+        labs: label list
+            Labels to compare using xgboost.
+        xgb_kwargs: dict
+            Parameters for xgboost run. If None, default will be used.
+        """
+        pass
 
     def tsne_gradient_plot(self, gradient=None, labels=None,
                            title=None, xlab=None, ylab=None,
@@ -227,5 +256,4 @@ class SingleLabelClassifiedSamples(SampleDistanceMatrix):
                 return_counts=True)))
             cross_lab_lut[uniq_rlabs[i]] = (uniq_rlab_cnts[i],
                                             tuple(map(tuple, ref_ci_quniq)))
-
         return cross_lab_lut
