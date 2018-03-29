@@ -3,6 +3,7 @@ import seaborn as sns
 import scedar.eda as eda
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+import networkx as nx
 import pytest
 
 
@@ -287,3 +288,11 @@ class TestHeatmap(object):
                         title='test heatmap',
                         xlab='col label', ylab='row label',
                         figsize=(10, 10))
+
+@pytest.mark.mpl_image_compare
+def test_networkx_graph():
+    ng = nx.Graph()
+    ng.add_edge(1, 2, weight=1)
+    ng.add_edge(1, 3, weight=10)
+    return eda.networkx_graph(ng, nx.kamada_kawai_layout(ng),
+                              figsize=(5, 5), alpha=1, with_labels=True)

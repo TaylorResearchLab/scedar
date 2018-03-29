@@ -295,11 +295,11 @@ def heatmap(x, row_labels=None, col_labels=None, title=None, xlab=None,
     plt.close()
     return fig
 
-def networkx_graph(ng, pos, figsize=(20, 20), node_size=30, alpha=0.05,
+def networkx_graph(ng, pos=None, figsize=(20, 20), node_size=30, alpha=0.05,
                    with_labels=False, node_color="b", **kwargs):
+    # TODO: offset labels
     fig = plt.figure(figsize=figsize)
     nx.draw_networkx(ng, pos, alpha=alpha, node_color=node_color,
                      node_size=node_size, with_labels=with_labels, **kwargs)
     plt.close()
     return fig
-

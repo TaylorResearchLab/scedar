@@ -380,11 +380,34 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
         return hist_dens_plot(x, title=title, xlab=xlab, ylab=ylab,
                               figsize=figsize, ax=ax, **kwargs)
 
+
+    def s_knn_connectivity_matrix(self, k):
+        """
+        Computes the connectivity matrix of KNN of samples. If an entry 
+        `(i, j)` has value 0, node `i` is not in node `j`'s KNN. If an entry
+        `(i, j)` has value > 0, node `i` is in `j`'s KNN, and their distance
+        is the entry value. 
+
+        Parameters
+        ----------
+        k: int
+
+        Returns
+        -------
+        knn_conn_mat: float array
+            (n_samples, n_samles)
+        """
+        knn_d_arr = kneighbors_graph(self._d, k, mode="distance",
+                                     metric="precomputed",
+                                     include_self=False).toarray()
+        return knn_d_arr
+
     def draw_s_knn_graph(self, k, aff_scale=1, random_state=None,
                          figsize=(20, 20), node_size=30, alpha=0.05,
                          with_labels=False, gradient=None, **kwargs):
         # TODO: Docstring. Feature gradient.
         # (n_samples, n_samples). Non-neighbor entries are 0.
+        # Undirected graph
         knn_d_arr = kneighbors_graph(self._d, k, mode="distance",
                                      metric="precomputed",
                                      include_self=False).toarray()
