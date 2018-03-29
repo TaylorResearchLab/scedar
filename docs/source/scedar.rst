@@ -1,14 +1,20 @@
 scedar package
 ==============
 
+Subpackages
+-----------
+
+.. toctree::
+
+    scedar.cluster
+    scedar.eda
+    scedar.qc
+
 Submodules
 ----------
 
 .. toctree::
 
-   scedar.cluster
-   scedar.eda
-   scedar.qc
    scedar.utils
 
 Module contents

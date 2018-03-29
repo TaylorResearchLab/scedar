@@ -1,4 +1,4 @@
-scedar.cluster package
+tests.test\_qc package
 ======================
 
 Submodules
@@ -6,14 +6,13 @@ Submodules
 
 .. toctree::
 
-   scedar.cluster.hct
-   scedar.cluster.mdl
-   scedar.cluster.mirac
+   tests.test_qc.test_filter
+   tests.test_qc.test_pickup
 
 Module contents
 ---------------
 
-.. automodule:: scedar.cluster
+.. automodule:: tests.test_qc
     :members:
     :undoc-members:
     :show-inheritance:

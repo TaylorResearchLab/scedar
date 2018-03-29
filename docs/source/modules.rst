@@ -2,6 +2,8 @@ scedar
 ======
 
 .. toctree::
-   :maxdepth: 4
+   :maxdepth: 5
 
    scedar
+
+
