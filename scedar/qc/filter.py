@@ -112,18 +112,20 @@ class SampleKNNFilter(object):
         strategy with k < 100. 
         """
         # Convert scalar to list
-        try:
-            k_list = list(k)
-        except TypeError:
+        if np.isscalar(k):
             k_list = [k]
-        try:
-            d_cutoff_list = list(d_cutoff)
-        except TypeError:
+        else:
+            k_list = list(k)
+
+        if np.isscalar(d_cutoff):
             d_cutoff_list = [d_cutoff]
-        try:
-            n_iter_list = list(n_iter)
-        except TypeError:
+        else:
+            d_cutoff_list = list(d_cutoff)
+
+        if np.isscalar(n_iter):
             n_iter_list = [n_iter]
+        else:
+            n_iter_list = list(n_iter)
         # Check all param lists have the same length
         if not (len(k_list) == len(d_cutoff_list) == len(n_iter_list)):
             raise ValueError("Parameter should have the same length."
@@ -138,7 +140,7 @@ class SampleKNNFilter(object):
                 k_list[i] = int(k_list[i])
 
             if d_cutoff_list[i] <= 0:
-                raise ValueError("d_cutoff should be >0 1. "
+                raise ValueError("d_cutoff should be > 0. "
                                  "d_cutoff: {}".format(d_cutoff))
             else:
                 d_cutoff_list[i] = float(d_cutoff_list[i])
