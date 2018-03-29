@@ -22,8 +22,6 @@ setup(
     packages=find_packages(exclude=['contrib', 'docs', 'tests*']),
     python_requires='~=3.5',
     install_requires=[
-        'fa2',
-        'networkx',
         'numpy',
         'scipy',
         'matplotlib',
