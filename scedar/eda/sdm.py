@@ -5,13 +5,21 @@ import scipy.spatial
 import sklearn as skl
 import sklearn.metrics
 import sklearn.manifold
+from sklearn.neighbors import kneighbors_graph
+import sklearn.preprocessing
 
 import warnings
 
+import random
+
+import networkx as nx
+from fa2 import ForceAtlas2
+
 from .. import utils
-from .plot import cluster_scatter, heatmap, hist_dens_plot
+from .plot import cluster_scatter, heatmap, hist_dens_plot, networkx_graph
 from .sfm import SampleFeatureMatrix
 from . import mtype
+
 
 class SampleDistanceMatrix(SampleFeatureMatrix):
     """
@@ -372,6 +380,52 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
         return hist_dens_plot(x, title=title, xlab=xlab, ylab=ylab,
                               figsize=figsize, ax=ax, **kwargs)
 
+    def draw_s_knn_graph(self, k, aff_scale=1, random_state=None, 
+                         figsize=(20, 20), node_size=30, alpha=0.05, 
+                         with_labels=False, gradient=None, **kwargs):
+        # TODO: Docstring. Feature gradient.
+        # (n_samples, n_samples). Non-neighbor entries are 0.
+        knn_d_arr = kneighbors_graph(self._d, k, mode="distance", 
+                                     metric="precomputed",
+                                     include_self=False).toarray()
+        ng = nx.Graph()
+        # affinity shoud negatively correlate to distance
+        aff_mat = (knn_d_arr.max() - knn_d_arr) * aff_scale
+
+        for i in range(knn_d_arr.shape[0]):
+            for j in range(i+1, knn_d_arr.shape[0]):
+                if knn_d_arr[i, j] > 0:
+                    ng.add_edge(i, j, weight=aff_mat[i, j])
+
+        random.seed(random_state)
+        forceatlas2 = ForceAtlas2(# Dissuade hubs
+                                  outboundAttractionDistribution=True,
+                                  edgeWeightInfluence=1.0,
+
+                                  # Performance
+                                  jitterTolerance=1.0,  # Tolerance
+                                  barnesHutOptimize=True,
+                                  barnesHutTheta=1.2,
+                                  multiThreaded=False,  # NOT IMPLEMENTED
+
+                                  # Tuning
+                                  scalingRatio=2.0,
+                                  strongGravityMode=True,
+                                  gravity=1.0,
+
+                                  # Log
+                                  verbose=False)
+        knn_fa2pos = forceatlas2.forceatlas2_networkx_layout(ng, pos=None,
+                                                             iterations=2000)
+        if gradient is None:
+            node_color = "b"
+        else:
+            node_color = gradient
+        fig = networkx_graph(ng, knn_fa2pos, alpha=alpha, figsize=figsize,
+                             node_color=node_color, node_size=node_size,
+                             with_labels=with_labels, **kwargs)
+        return fig
+        
     @property
     def d(self):
         return self._d.tolist()
