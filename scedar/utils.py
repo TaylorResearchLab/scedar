@@ -20,8 +20,8 @@ def _parmap_fun(f, q_in, q_out):
 
 def parmap(f, X, nprocs=1):
     """
-    parmap_fun() and parmap() are obtained from klaus se's post
-    on stackoverflow. <https://stackoverflow.com/a/16071616/4638182>
+    parmap_fun() and parmap() are adapted from klaus se's post
+    on stackoverflow. https://stackoverflow.com/a/16071616/4638182
 
     parmap allows map on lambda and class static functions.
     """

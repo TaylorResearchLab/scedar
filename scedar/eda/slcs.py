@@ -155,9 +155,19 @@ class SingleLabelClassifiedSamples(SampleDistanceMatrix):
         before comparing different clusters, or you could also interpret the
         important features further after obtaining the important features.
 
-        For details about xgboost parameters, check this link
-        <https://www.analyticsvidhya.com/blog/2016/03/
-        complete-guide-parameter-tuning-xgboost-with-codes-python/> .
+        For details about xgboost parameters, check the following links:
+
+        [1] https://www.analyticsvidhya.com/blog/2016/03/\
+complete-guide-parameter-tuning-xgboost-with-codes-python/
+
+        [2] http://xgboost.readthedocs.io/en/latest/python/python_intro.html
+
+        [3] http://xgboost.readthedocs.io/en/latest/parameter.html
+        
+        [4] https://xgboost.readthedocs.io/en/latest/how_to/param_tuning.html
+
+        [5] https://www.analyticsvidhya.com/blog/2016/03/\
+complete-guide-parameter-tuning-xgboost-with-codes-python/
         """
         # This is for implementing caching in the future.
         selected_uniq_labs = np.unique(selected_labs).tolist()
