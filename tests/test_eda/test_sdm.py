@@ -499,6 +499,18 @@ class TestSampleDistanceMatrix(object):
             '5', figsize=(10, 10), s=50)
 
     @pytest.mark.mpl_image_compare
+    def test_sdm_tsne_feature_gradient_plus10_plot(self):
+        sids = list(range(8))
+        fids = [str(i) for i in range(10)]
+        np.random.seed(123)
+        x = np.random.ranf(80).reshape(8, -1)
+        x_sorted = x[np.argsort(x[:, 5])]
+        sdm = eda.SampleDistanceMatrix(
+            x_sorted, sids=sids, fids=fids)
+        return sdm.tsne_feature_gradient_plot(
+            '5', transform=lambda x: x + 10, figsize=(10, 10), s=50)
+
+    @pytest.mark.mpl_image_compare
     def test_sdm_tsne_gradient_plot(self):
         sids = list(range(8))
         fids = [str(i) for i in range(10)]
@@ -516,6 +528,8 @@ class TestSampleDistanceMatrix(object):
         x = np.random.ranf(80).reshape(8, -1)
         x_sorted = x[np.argsort(x[:, 5])]
         sdm = eda.SampleDistanceMatrix(x, sids=sids, fids=fids)
+        with pytest.raises(ValueError):
+            sdm.tsne_feature_gradient_plot('5', transform=2)
         with pytest.raises(ValueError):
             sdm.tsne_feature_gradient_plot([0, 1])
         with pytest.raises(ValueError):

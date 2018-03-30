@@ -262,7 +262,7 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
                                alpha=alpha, s=s, random_state=random_state,
                                **kwargs)
 
-    def tsne_feature_gradient_plot(self, fid, labels=None,
+    def tsne_feature_gradient_plot(self, fid, transform=None, labels=None,
                                    title=None, xlab=None, ylab=None,
                                    figsize=(20, 20), add_legend=True,
                                    n_txt_per_cluster=3, alpha=1, s=0.5,
@@ -274,6 +274,8 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
         ----------
         fid: feature id scalar
             ID of the feature to be used for gradient plot.
+        transform: callable
+            Map transform on feature before plotting.
         """
         if mtype.is_valid_sfid(fid):
             fid = [fid]
@@ -284,6 +286,11 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
                              "feature gradient plot.".format(fid))
 
         fx = self._x[:, f_ind]
+        if transform is not None:
+            if callable(transform):
+                fx = list(map(transform, fx))
+            else:
+                raise ValueError("transform must be a callable")
         return cluster_scatter(self._last_tsne, labels=labels,
                                gradient=fx,
                                title=title, xlab=xlab, ylab=ylab,
