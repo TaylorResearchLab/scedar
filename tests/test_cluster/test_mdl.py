@@ -94,9 +94,7 @@ class TestZeroIdcGKdeMdl(object):
         zikm3 = cluster.ZeroIdcGKdeMdl(self.x, 1)
         xnz_std = zikm.x_nonzero.std(ddof=1)
         np.testing.assert_allclose(1, zikm3.bandwidth / xnz_std)
-        np.testing.assert_raises(AssertionError,
-                                 np.testing.assert_allclose,
-                                 zikm2.bandwidth, zikm3.bandwidth)
+        assert not np.allclose(zikm2.bandwidth, zikm3.bandwidth)
 
     def test_wrong_x_shape(self):
         with pytest.raises(ValueError) as excinfo:
