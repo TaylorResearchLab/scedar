@@ -1,5 +1,7 @@
 import numpy as np
 
+from sklearn.model_selection import train_test_split
+
 import matplotlib as mpl
 import matplotlib.colors
 import seaborn as sns
@@ -114,28 +116,105 @@ class SingleLabelClassifiedSamples(SampleDistanceMatrix):
             selected_f_inds = self.f_id_to_ind(selected_fids)
         return self.ind_x(selected_s_inds, selected_f_inds)
 
-    def lab_x(self, labs):
-        if not np.all(np.in1d(labs, self._uniq_labs)):
-            raise ValueError("labs: {} are not all existed in the SLCS unique"
-                             "labels {}".format(labs, self._uniq_labs))
+    def lab_x(self, selected_labs):
+        if not np.all(np.in1d(selected_labs, self._uniq_labs)):
+            raise ValueError("selected_labs: {} are not all existed "
+                             "in the SLCS unique labels "
+                             "{}".format(selected_labs, self._uniq_labs))
 
-        lab_selected_s_bool_arr = np.in1d(self._labs, labs)
+        lab_selected_s_bool_arr = np.in1d(self._labs, selected_labs)
         return self.ind_x(lab_selected_s_bool_arr)
 
-    def feature_importance_across_labs(self, labs, xgb_kwargs=None):
+    def feature_importance_across_labs(self, selected_labs, test_size=0.3,
+                                       num_boost_round=10, random_state=None,
+                                       nprocs=1, xgb_params=None):
         """
         Use xgboost to determine the importance of features determining the
         difference between samples with different labels.
 
-        Run cross validation on dataset and obtain import features. 
+        Run cross validation on dataset and obtain import features.
 
-        Parameters:
+        Parameters
+        ----------
         labs: label list
             Labels to compare using xgboost.
-        xgb_kwargs: dict
+        xgb_params: dict
             Parameters for xgboost run. If None, default will be used.
+
+        Returns
+        -------
+        feature_importance: list of pairs
+            `[(feature_id, fscore), ...]`
+        bst: xgb Booster
+            Fitted boost tree model
+
+        Notes
+        -----
+        If multiple features are highly correlated, they may not all show up
+        in the resulting tree. You could try to reduce redundant features first
+        before comparing different clusters, or you could also interpret the
+        important features further after obtaining the important features.
+
+        For details about xgboost parameters, check this link
+        <https://www.analyticsvidhya.com/blog/2016/03/
+        complete-guide-parameter-tuning-xgboost-with-codes-python/> .
         """
-        pass
+        # This is for implementing caching in the future.
+        selected_uniq_labs = np.unique(selected_labs).tolist()
+        # subset SLCS
+        lab_selected_slcs = self.lab_x(selected_uniq_labs)
+        # unique labels in SLCS after subsetting
+        # Since lab_x checks whether selected labels are all existing, 
+        # the unique labels of the subset is equivalent to input selected
+        # labels.
+        uniq_labs = lab_selected_slcs._uniq_labs.tolist()
+        # convert labels into indices from 0 to n_classes
+        n_uniq_labs = len(uniq_labs)
+        lab_ind_lut = dict(zip(uniq_labs, range(n_uniq_labs)))
+        if n_uniq_labs <= 1:
+            raise ValueError("The number of unique labels should > 1. "
+                             "Provided uniq labs:"
+                             " {}".format(uniq_labs))
+        lab_inds = [lab_ind_lut[lab] for lab in lab_selected_slcs._labs]
+        # split subset SLCS into training and testing sets
+        train_x, test_x, train_labs, test_labs = train_test_split(
+            lab_selected_slcs._x, lab_inds, test_size=test_size,
+            random_state=random_state)
+        # xgb datastructure to hold data and labels
+        str_fids = list(map(str, lab_selected_slcs._fids))
+        dtrain = xgb.DMatrix(train_x, train_labs, feature_names=str_fids)
+        dtest = xgb.DMatrix(test_x, test_labs, feature_names=str_fids)
+        # Prepare default xgboost parameters
+        xgb_random_state = 0 if random_state is None else random_state
+        if xgb_params is None:
+            # Use log2(n_features) as default depth.
+            xgb_params = {
+                "eta": 0.3,
+                "max_depth": 6,
+                "silent": 0,
+                "nthread": nprocs,
+                "alpha": 1,
+                "lambda": 0,
+                "seed": xgb_random_state
+            }
+            if n_uniq_labs == 2:
+                # do binary classification
+                xgb_params["objective"] = "binary:logistic"
+                xgb_params["eval_metric"] = "error"
+            else:
+                # do multi-label classification
+                xgb_params["num_class"] = n_uniq_labs
+                xgb_params["objective"] = "multi:softmax"
+                xgb_params["eval_metric"] = "merror"
+        # list of data to evaluate
+        eval_list = [(dtest, 'test'), (dtrain, 'train')]
+        # bst is the train boost tree model
+        bst = xgb.train(xgb_params, dtrain, num_boost_round, eval_list)
+        # {feature_name: fscore, ...}
+        fscore_dict = bst.get_fscore()
+        sorted_fscore_list = sorted(fscore_dict.items(), key=lambda t: t[1],
+                                    reverse=True)
+        return sorted_fscore_list, bst
 
     def tsne_gradient_plot(self, gradient=None, labels=None,
                            title=None, xlab=None, ylab=None,
