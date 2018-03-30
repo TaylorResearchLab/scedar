@@ -253,7 +253,9 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
                            random_state=None, **kwargs):
         """
         Plot the last t-SNE projection with the provided gradient as color.
+        Gradient is None by default.
         """
+        # labels are checked in cluster_scatter
         return cluster_scatter(self._last_tsne, labels=labels,
                                gradient=gradient,
                                title=title, xlab=xlab, ylab=ylab,
@@ -263,6 +265,7 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
                                **kwargs)
 
     def tsne_feature_gradient_plot(self, fid, transform=None, labels=None,
+                                   selected_labels=None,
                                    title=None, xlab=None, ylab=None,
                                    figsize=(20, 20), add_legend=True,
                                    n_txt_per_cluster=3, alpha=1, s=0.5,
@@ -276,6 +279,10 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
             ID of the feature to be used for gradient plot.
         transform: callable
             Map transform on feature before plotting.
+        labels: label array
+            Labels assigned to each point, (n_samples,).
+        selected_labels: label array
+            Show gradient only for selected labels. Do not show non-selected.
         """
         if mtype.is_valid_sfid(fid):
             fid = [fid]
@@ -291,6 +298,30 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
                 fx = list(map(transform, fx))
             else:
                 raise ValueError("transform must be a callable")
+
+        if labels is not None and len(labels) != fx.shape[0]:
+            raise ValueError("labels ({}) must have same length as "
+                             "n_samples.".format(labels))
+
+        if selected_labels is not None:
+            if labels is None:
+                raise ValueError("selected_labels needs labels to be "
+                                 "provided.")
+            else:
+                uniq_selected_labels = np.unique(selected_labels).tolist()
+                uniq_labels = np.unique(labels).tolist()
+                # np.in1d(uniq_selected_labels, uniq_labels) will cause
+                # future warning:
+                # https://stackoverflow.com/a/46721064/4638182
+                if not np.all([x in uniq_labels
+                               for x in uniq_selected_labels]):
+                    raise ValueError("selected_labels: {} must all "
+                                     "be included in the labels: "
+                                     "{}.".format(uniq_selected_labels,
+                                                  uniq_labels))
+                fx = [fx[i] if labels[i] in uniq_selected_labels else
+                      None for i in range(len(labels))]
+
         return cluster_scatter(self._last_tsne, labels=labels,
                                gradient=fx,
                                title=title, xlab=xlab, ylab=ylab,
@@ -502,7 +533,7 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
 
         fig = networkx_graph(ng, knn_fa2pos, alpha=alpha, figsize=figsize,
                              node_color=node_color, node_size=node_size,
-                             cmap=cmap, with_labels=with_labels, 
+                             cmap=cmap, with_labels=with_labels,
                              **nx_draw_kwargs)
         return fig
 

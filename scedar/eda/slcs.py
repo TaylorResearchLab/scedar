@@ -117,7 +117,13 @@ class SingleLabelClassifiedSamples(SampleDistanceMatrix):
         return self.ind_x(selected_s_inds, selected_f_inds)
 
     def lab_x(self, selected_labs):
-        if not np.all(np.in1d(selected_labs, self._uniq_labs)):
+        if selected_labs is None:
+            raise ValueError("selected_labs should be a non-empty list.")
+
+        if np.isscalar(selected_labs):
+            selected_labs = [selected_labs]
+
+        if not all([x in self._uniq_labs.tolist() for x in selected_labs]):
             raise ValueError("selected_labs: {} are not all existed "
                              "in the SLCS unique labels "
                              "{}".format(selected_labs, self._uniq_labs))
@@ -163,7 +169,7 @@ complete-guide-parameter-tuning-xgboost-with-codes-python/
         [2] http://xgboost.readthedocs.io/en/latest/python/python_intro.html
 
         [3] http://xgboost.readthedocs.io/en/latest/parameter.html
-        
+
         [4] https://xgboost.readthedocs.io/en/latest/how_to/param_tuning.html
 
         [5] https://www.analyticsvidhya.com/blog/2016/03/\
@@ -174,7 +180,7 @@ complete-guide-parameter-tuning-xgboost-with-codes-python/
         # subset SLCS
         lab_selected_slcs = self.lab_x(selected_uniq_labs)
         # unique labels in SLCS after subsetting
-        # Since lab_x checks whether selected labels are all existing, 
+        # Since lab_x checks whether selected labels are all existing,
         # the unique labels of the subset is equivalent to input selected
         # labels.
         uniq_labs = lab_selected_slcs._uniq_labs.tolist()
@@ -234,9 +240,12 @@ complete-guide-parameter-tuning-xgboost-with-codes-python/
         """
         Plot the last t-SNE projection with the provided gradient as color.
         """
+        if labels is None:
+            labels = self.labs
+
         return super(SingleLabelClassifiedSamples,
                      self).tsne_gradient_plot(
-                        labels=self.labs, gradient=gradient,
+                        gradient=gradient, labels=labels,
                         title=title, xlab=xlab, ylab=ylab,
                         figsize=figsize,
                         add_legend=add_legend,
@@ -245,17 +254,29 @@ complete-guide-parameter-tuning-xgboost-with-codes-python/
                         random_state=random_state,
                         **kwargs)
 
-    def tsne_feature_gradient_plot(self, fid, labels=None,
+    def tsne_feature_gradient_plot(self, fid, transform=None, labels=None,
+                                   selected_labels=None,
                                    title=None, xlab=None, ylab=None,
                                    figsize=(20, 20), add_legend=True,
                                    n_txt_per_cluster=3, alpha=1, s=0.5,
                                    random_state=None, **kwargs):
         """
         Plot the last t-SNE projection with the provided gradient as color.
+
+        Parameters
+        ----------
+        fid: feature id scalar
+            ID of the feature to be used for gradient plot.
+        transform: callable
+            Map transform on feature before plotting.
         """
+        if labels is None:
+            labels = self.labs
+
         return super(SingleLabelClassifiedSamples,
                      self).tsne_feature_gradient_plot(
-                        fid=fid, labels=self.labs,
+                        fid=fid, transform=transform, labels=labels,
+                        selected_labels=selected_labels,
                         title=title, xlab=xlab, ylab=ylab,
                         figsize=figsize,
                         add_legend=add_legend,

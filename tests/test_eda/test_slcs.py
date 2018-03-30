@@ -263,6 +263,15 @@ class TestSingleLabelClassifiedSamples(object):
         ss_s_inds = [0, 1, 2, 4, 5]
         np.testing.assert_equal(ss_slcs.d,
                                 slcs._d[np.ix_(ss_s_inds, ss_s_inds)])
+        # select sf
+        ss_slcs = slcs.lab_x(0)
+        assert ss_slcs._x.shape == (3, 10)
+        assert ss_slcs.sids == ['a', 'b', 'c']
+        assert ss_slcs.labs == [0, 0, 0]
+        assert ss_slcs.fids == list(range(10, 20))
+        ss_s_inds = [0, 1, 2]
+        np.testing.assert_equal(ss_slcs.d,
+                                slcs._d[np.ix_(ss_s_inds, ss_s_inds)])
         # should raise ValueError
         # select with None
         with pytest.raises(ValueError) as excinfo:
@@ -436,6 +445,35 @@ class TestSingleLabelClassifiedSamples(object):
             '5', figsize=(10, 10), s=50)
 
     @pytest.mark.mpl_image_compare
+    def test_tsne_feature_gradient_plot_abclabs(self):
+        sids = list(range(8))
+        fids = [str(i) for i in range(10)]
+        labs = list(range(8))
+        np.random.seed(123)
+        x = np.random.ranf(80).reshape(8, -1)
+        x_sorted = x[np.argsort(x[:, 5])]
+        g = x_sorted[:, 5]
+        slab_csamples = eda.SingleLabelClassifiedSamples(
+            x_sorted, labs, sids=sids, fids=fids)
+        return slab_csamples.tsne_feature_gradient_plot(
+            '5', labels=list('abcdefgh'), figsize=(10, 10), s=50)
+
+    # select specific labels to plot gradient
+    @pytest.mark.mpl_image_compare
+    def test_tsne_feature_gradient_plot_sslabs(self):
+        sids = list(range(8))
+        fids = [str(i) for i in range(10)]
+        labs = list(range(8))
+        np.random.seed(123)
+        x = np.random.ranf(80).reshape(8, -1)
+        x_sorted = x[np.argsort(x[:, 5])]
+        g = x_sorted[:, 5]
+        slab_csamples = eda.SingleLabelClassifiedSamples(
+            x_sorted, labs, sids=sids, fids=fids)
+        return slab_csamples.tsne_feature_gradient_plot(
+            '5', selected_labels=[5, 6, 7], figsize=(10, 10), s=50)
+
+    @pytest.mark.mpl_image_compare
     def test_tsne_gradient_plot(self):
         sids = list(range(8))
         fids = [str(i) for i in range(10)]
@@ -447,6 +485,21 @@ class TestSingleLabelClassifiedSamples(object):
         slab_csamples = eda.SingleLabelClassifiedSamples(
             x_sorted, labs, sids=sids, fids=fids)
         return slab_csamples.tsne_gradient_plot(g, figsize=(10, 10), s=50)
+
+    @pytest.mark.mpl_image_compare
+    def test_tsne_gradient_plot_abclabs(self):
+        sids = list(range(8))
+        fids = [str(i) for i in range(10)]
+        labs = list(range(8))
+        np.random.seed(123)
+        np.random.seed(123)
+        x = np.random.ranf(80).reshape(8, -1)
+        x_sorted = x[np.argsort(x[:, 5])]
+        g = x_sorted[:, 5]
+        slab_csamples = eda.SingleLabelClassifiedSamples(
+            x_sorted, labs, sids=sids, fids=fids)
+        return slab_csamples.tsne_gradient_plot(g, labels=list('abcdefgh'),
+                                                figsize=(10, 10), s=50)
 
     def test_tsne_feature_gradient_plot_wrong_args(self):
         sids = list(range(8))
