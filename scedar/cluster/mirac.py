@@ -51,8 +51,7 @@ class MIRAC(object):
     _run_log: str
         String containing the log of the MIRAC run.
 
-    TODO
-    ----
+    TODO:
     * Dendrogram representation of the splitting process.
 
     * Take HCTree as parameter. Computing it is non-trivial when n is large.

@@ -13,9 +13,14 @@ Subpackages
 Submodules
 ----------
 
-.. toctree::
+scedar.utils module
+-------------------
 
-   scedar.utils
+.. automodule:: scedar.utils
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 
 Module contents
 ---------------

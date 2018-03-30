@@ -4,10 +4,22 @@ scedar.qc package
 Submodules
 ----------
 
-.. toctree::
+scedar.qc.filter module
+-----------------------
 
-   scedar.qc.filter
-   scedar.qc.pickup
+.. automodule:: scedar.qc.filter
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+scedar.qc.pickup module
+-----------------------
+
+.. automodule:: scedar.qc.pickup
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 
 Module contents
 ---------------

@@ -414,7 +414,8 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
         Draw KNN graph of SampleDistanceMatrix. Graph layout using
         forceatlas2 for its speed on large graph.
 
-        Parameters:
+        Parameters
+        ----------
         k: int
         aff_scale: float
             Affinity is calculated by `(max(distance) - distance) * aff_scale`

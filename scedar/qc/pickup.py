@@ -19,10 +19,8 @@ class FeatureKNNPickUp(object):
     _sdm: SampleDistanceMatrix
     _res_lut: dict
         lookup table of the results.
-
-        .. code:: python
-            {(k, n_do, min_present_val, n_iter): (pu_sdm, pu_idc_arr, stats),
-             ...}
+        `{(k, n_do, min_present_val, n_iter): (pu_sdm, pu_idc_arr, stats), \
+          ...}`
     """
     def __init__(self, sdm):
         super(FeatureKNNPickUp, self).__init__()
@@ -117,17 +115,18 @@ class FeatureKNNPickUp(object):
         k: int
             Look at k nearest neighbors to decide whether to pickup or not.
         n_do: int
-            Minimum (>=) number of above min_present_val neighbors among KNN
+            Minimum (`>=`) number of above min_present_val neighbors among KNN
             to be callsed as drop-out, so that pick-up will be performed.
         min_present_val: float
-            Minimum (>=) values of a feature to be called as present
+            Minimum (`>=`) values of a feature to be called as present.
         n_iter: int
             The number of iterations to run.
 
         Returns
         -------
         resl: list
-            list of results, [(pu_sdm, pu_idc_arr, stats), ...].
+            list of results, `[(pu_sdm, pu_idc_arr, stats), ...]`.
+
             pu_sdm: SampleDistanceMatrix
                 SampleDistanceMatrix after pick-up
             pu_idc_arr: array of shape (n_samples, n_features)
@@ -136,14 +135,16 @@ class FeatureKNNPickUp(object):
             stats: str
                 Stats of the run.
 
+
         Notes
         -----
         If parameters are provided as lists of equal length n, the n
         corresponding parameter tuples will be executed parallely.
 
-        Example:
+        Example
+        -------
 
-        If `k = [10, 15]`, `n_do = [1, 2]`, `min_present_val = [5, 6]``, and
+        If `k = [10, 15]`, `n_do = [1, 2]`, `min_present_val = [5, 6]`, and
         `n_iter = [10, 20]`, `(k, n_do, min_present_val, n_iter)` tuples
         `(10, 1, 5, 10) and (15, 2, 6, 20)` will be tried parallely
         with nprocs.

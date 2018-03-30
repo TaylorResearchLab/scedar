@@ -4,11 +4,30 @@ scedar.cluster package
 Submodules
 ----------
 
-.. toctree::
+scedar.cluster.hct module
+-------------------------
 
-   scedar.cluster.hct
-   scedar.cluster.mdl
-   scedar.cluster.mirac
+.. automodule:: scedar.cluster.hct
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+scedar.cluster.mdl module
+-------------------------
+
+.. automodule:: scedar.cluster.mdl
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+scedar.cluster.mirac module
+---------------------------
+
+.. automodule:: scedar.cluster.mirac
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 
 Module contents
 ---------------

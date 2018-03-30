@@ -91,7 +91,8 @@ pygments_style = 'sphinx'
 #
 html_theme = 'sphinx_rtd_theme'
 html_theme_options = {
-    "collapse_navigation" : False
+    "collapse_navigation" : False,
+    'navigation_depth': 4,
 }
 
 # Theme options are theme-specific and customize the look and feel of a theme
