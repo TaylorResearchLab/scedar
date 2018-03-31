@@ -9,7 +9,7 @@ import pytest
 class TestSingleLabelClassifiedSamples(object):
     """docstring for TestSingleLabelClassifiedSamples"""
     np.random.seed(123)
-    sfm3x3_arr = np.arange(9, dtype="float64").reshape(3, 3)
+    sfm3x3_arr = np.arange(9, dtype='float64').reshape(3, 3)
     sfm_2x0 = np.array([[], []])
     sfm5x10_arr = np.random.ranf(50).reshape(5, 10)
     sfm5x10_lst = list(map(list, np.random.ranf(50).reshape(5, 10)))
@@ -108,7 +108,7 @@ class TestSingleLabelClassifiedSamples(object):
                                 slab_csamples._d[np.array([0, 1, 2, 4, 5])][:, np.array([0, 1, 2, 4, 5])])
 
     def test_ind_x(self):
-        sids = list("abcdef")
+        sids = list('abcdef')
         fids = list(range(10, 20))
         labs = [0, 0, 0, 1, 2, 2]
 
@@ -127,7 +127,7 @@ class TestSingleLabelClassifiedSamples(object):
         # select with Default
         ss_slcs = slcs.ind_x()
         assert ss_slcs._x.shape == (6, 10)
-        assert ss_slcs.sids == list("abcdef")
+        assert ss_slcs.sids == list('abcdef')
         assert ss_slcs.labs == labs
         assert ss_slcs.fids == list(range(10, 20))
         np.testing.assert_equal(ss_slcs.d, slcs._d)
@@ -135,7 +135,7 @@ class TestSingleLabelClassifiedSamples(object):
         # select with None
         ss_slcs = slcs.ind_x(None, None)
         assert ss_slcs._x.shape == (6, 10)
-        assert ss_slcs.sids == list("abcdef")
+        assert ss_slcs.sids == list('abcdef')
         assert ss_slcs.labs == labs
         assert ss_slcs.fids == list(range(10, 20))
         np.testing.assert_equal(ss_slcs.d, slcs._d)
@@ -148,7 +148,7 @@ class TestSingleLabelClassifiedSamples(object):
             slcs.ind_x(None, ['a'])
 
     def test_ind_x_empty(self):
-        sids = list("abcdef")
+        sids = list('abcdef')
         fids = list(range(10, 20))
         labs = [0, 0, 0, 1, 2, 2]
 
@@ -177,7 +177,7 @@ class TestSingleLabelClassifiedSamples(object):
         assert empty_sf._labs.shape == (0,)
 
     def test_id_x(self):
-        sids = list("abcdef")
+        sids = list('abcdef')
         fids = list(range(10, 20))
         labs = [0, 0, 0, 1, 2, 2]
 
@@ -196,7 +196,7 @@ class TestSingleLabelClassifiedSamples(object):
         # select with Default
         ss_slcs = slcs.id_x()
         assert ss_slcs._x.shape == (6, 10)
-        assert ss_slcs.sids == list("abcdef")
+        assert ss_slcs.sids == list('abcdef')
         assert ss_slcs.labs == labs
         assert ss_slcs.fids == list(range(10, 20))
         np.testing.assert_equal(ss_slcs.d, slcs._d)
@@ -204,7 +204,7 @@ class TestSingleLabelClassifiedSamples(object):
         # select with None
         ss_slcs = slcs.id_x(None, None)
         assert ss_slcs._x.shape == (6, 10)
-        assert ss_slcs.sids == list("abcdef")
+        assert ss_slcs.sids == list('abcdef')
         assert ss_slcs.labs == labs
         assert ss_slcs.fids == list(range(10, 20))
         np.testing.assert_equal(ss_slcs.d, slcs._d)
@@ -218,7 +218,7 @@ class TestSingleLabelClassifiedSamples(object):
             slcs.id_x(None, ['a'])
 
     def test_id_x_empty(self):
-        sids = list("abcdef")
+        sids = list('abcdef')
         fids = list(range(10, 20))
         labs = [0, 0, 0, 1, 2, 2]
 
@@ -247,7 +247,7 @@ class TestSingleLabelClassifiedSamples(object):
         assert empty_sf._labs.shape == (0,)
 
     def test_lab_x(self):
-        sids = list("abcdef")
+        sids = list('abcdef')
         fids = list(range(10, 20))
         labs = [0, 0, 0, 1, 2, 2]
 
@@ -285,7 +285,7 @@ class TestSingleLabelClassifiedSamples(object):
             slcs.lab_x([0, -3])
 
     def test_lab_x_empty(self):
-        sids = list("abcdef")
+        sids = list('abcdef')
         fids = list(range(10, 20))
         labs = [0, 0, 0, 1, 2, 2]
 
@@ -315,29 +315,82 @@ class TestSingleLabelClassifiedSamples(object):
         slcs = eda.SingleLabelClassifiedSamples(x, labs=labs)
         # binary logistic regression
         f_importance_list, bst = slcs.feature_importance_across_labs([0, 1])
-        assert f_importance_list[0][0] == "3"
+        assert f_importance_list[0][0] == '3'
         # multi class softmax
         f_importance_list2, bst2 = slcs.feature_importance_across_labs(
             [0, 1, 2], random_state=123)
-        assert f_importance_list2[0][0] == "3"
+        assert f_importance_list2[0][0] == '3'
         assert f_importance_list2 != f_importance_list
-        # multiclass with provided parames        
+        # multiclass with provided parames
         xgb_params = {
-            "eta": 0.3,
-            "max_depth": 6,
-            "silent": 0,
-            "nthread": 1,
-            "alpha": 1,
-            "lambda": 0,
-            "seed": 0,
-            "objective": "multi:softmax",
-            "eval_metric": "merror",
-            "num_class": 3
+            'eta': 0.3,
+            'max_depth': 6,
+            'silent': 0,
+            'nthread': 1,
+            'alpha': 1,
+            'lambda': 0,
+            'seed': 0,
+            'objective': 'multi:softmax',
+            'eval_metric': 'merror',
+            'num_class': 3
         }
         f_importance_list3, bst3 = slcs.feature_importance_across_labs(
             [0, 1, 2], random_state=123, xgb_params=xgb_params)
         assert f_importance_list3 == f_importance_list2
-        
+        # shuffle features
+        f_importance_list4, bst4 = slcs.feature_importance_across_labs(
+            [0, 1], random_state=123, shuffle_features=True)
+        assert f_importance_list2[0][0] == '3'
+        # bootstrapping
+        f_importance_list5, bst5 = slcs.feature_importance_across_labs(
+            [0, 1], random_state=123, shuffle_features=True,
+            num_bootstrap_round=10)
+        f_importance_list6, bst6 = slcs.feature_importance_across_labs(
+            [0, 1], random_state=123, shuffle_features=True,
+            num_bootstrap_round=10)
+        assert f_importance_list5 == f_importance_list6
+        assert f_importance_list5[0][0] == '3'
+
+    def test_feature_importance_across_labs_bootstrap(self):
+        # Generate simple dataset with gaussian noise
+        x_centers = np.array([[0, 0,   1,  1, 5, 50, 10, 37],
+                              [0, 0, 1.5,  5, 5, 50, 10, 35],
+                              [0, 0,  10, 10, 5, 50, 10, 33]])
+        np.random.seed(1920)
+        c1x = np.array(x_centers[0]) + np.random.normal(size=(50, 8))
+        c2x = np.array(x_centers[1]) + np.random.normal(size=(20, 8))
+        c3x = np.array(x_centers[2]) + np.random.normal(size=(30, 8))
+        x = np.vstack((c1x, c2x, c3x))
+        labs = [0] * 50 + [1] * 20 + [2] * 30
+        slcs = eda.SingleLabelClassifiedSamples(x, labs=labs)
+        # bootstrapping
+        f_importance_list, bst = slcs.feature_importance_across_labs(
+            [0, 1], random_state=123, shuffle_features=True,
+            num_bootstrap_round=10)
+        f_importance_list2, bst2 = slcs.feature_importance_across_labs(
+            [0, 1], random_state=123, shuffle_features=True,
+            num_bootstrap_round=10)
+        assert f_importance_list == f_importance_list2
+        assert f_importance_list2[0][0] == '3'
+
+    # resampling procedure will be repeated until all unique labels exist
+    # in the resample.
+    def test_feature_importance_across_labs_bootstrap_resample(self):
+        x_centers = np.array([[0, 0,   1,  1, 5, 50, 10, 37],
+                              [0, 0, 1.5,  5, 5, 50, 10, 35],
+                              [0, 0,  10, 10, 5, 50, 10, 33]])
+        np.random.seed(1920)
+        c1x = np.array(x_centers[0]) + np.random.normal(size=(500, 8))
+        c2x = np.array(x_centers[1]) + np.random.normal(size=(1, 8))
+        c3x = np.array(x_centers[2]) + np.random.normal(size=(30, 8))
+        x = np.vstack((c1x, c2x, c3x))
+        labs = [0] * 500 + [1] * 1 + [2] * 30
+        slcs = eda.SingleLabelClassifiedSamples(x, labs=labs)
+        # bootstrapping
+        f_importance_list, bst = slcs.feature_importance_across_labs(
+            [0, 1], random_state=123, shuffle_features=True,
+            num_bootstrap_round=10)
+
     def test_feature_importance_across_labs_wrong_args(self):
         # Generate simple dataset with gaussian noise
         x_centers = np.array([[0, 0,   1,  1, 5, 50, 10, 37],
@@ -352,6 +405,15 @@ class TestSingleLabelClassifiedSamples(object):
         slcs = eda.SingleLabelClassifiedSamples(x, labs=labs)
         with pytest.raises(ValueError) as excinfo:
             slcs.feature_importance_across_labs([0, 3])
+
+        with pytest.raises(ValueError) as excinfo:
+            slcs.feature_importance_across_labs([0, 3], num_boost_round=0)
+
+        with pytest.raises(ValueError) as excinfo:
+            slcs.feature_importance_across_labs([0, 3], num_boost_round=0.5)
+
+        with pytest.raises(ValueError) as excinfo:
+            slcs.feature_importance_across_labs([0, 3], num_boost_round=-1)
 
         with pytest.raises(ValueError) as excinfo:
             slcs.feature_importance_across_labs([-1])

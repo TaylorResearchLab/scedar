@@ -44,6 +44,7 @@ def cluster_scatter(projection2d, labels=None, gradient=None,
                     title=None, xlab=None, ylab=None,
                     figsize=(20, 20), add_legend=True, n_txt_per_cluster=3,
                     alpha=1, s=0.5, random_state=None, **kwargs):
+    kwargs = kwargs.copy()
     projection2d = np.array(projection2d, dtype="float")
 
     if (projection2d.ndim != 2) or (projection2d.shape[1] != 2):
