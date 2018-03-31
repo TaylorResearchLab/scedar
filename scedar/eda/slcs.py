@@ -139,7 +139,7 @@ class SingleLabelClassifiedSamples(SampleDistanceMatrix):
                           num_boost_round=10, nprocs=1,
                           random_state=None, silent=1, xgb_params=None):
         """
-        Run xgboost train with prepared data and parameters. 
+        Run xgboost train with prepared data and parameters.
 
         Returns
         -------
@@ -183,16 +183,20 @@ class SingleLabelClassifiedSamples(SampleDistanceMatrix):
         # list of data to evaluate
         eval_list = [(dtest, "test"), (dtrain, "train")]
         evals_result = {}
+        if silent:
+            verbose_eval = False
+        else:
+            verbose_eval = True
         # bst is the train boost tree model
         bst = xgb.train(xgb_params, dtrain, num_boost_round, eval_list,
-                        evals_result=evals_result)
+                        evals_result=evals_result, verbose_eval=verbose_eval)
         # Turn dict to list
-        # [ [('train...', float), ...], 
+        # [ [('train...', float), ...],
         #   [('test...', float), ...] ]
-        eval_stats = [ [(eval_name + " " + mname, 
+        eval_stats = [ [(eval_name + " " + mname,
                          mval_list[num_boost_round-1])
                         for mname, mval_list in eval_dict.items()]
-                      for eval_name, eval_dict in evals_result.items() ]
+                       for eval_name, eval_dict in evals_result.items() ]
         # {feature_name: fscore, ...}
         fscore_dict = bst.get_fscore()
         sorted_fscore_list = sorted(fscore_dict.items(), key=lambda t: t[1],
@@ -200,8 +204,8 @@ class SingleLabelClassifiedSamples(SampleDistanceMatrix):
         return sorted_fscore_list, bst, eval_stats
 
     def feature_importance_across_labs(self, selected_labs, test_size=0.3,
-                                       num_boost_round=10, nprocs=1, 
-                                       random_state=None, silent=1, 
+                                       num_boost_round=10, nprocs=1,
+                                       random_state=None, silent=1,
                                        xgb_params=None,
                                        num_bootstrap_round=0,
                                        bootstrap_size=None,
@@ -335,7 +339,7 @@ complete-guide-parameter-tuning-xgboost-with-codes-python/
                     fs_dict[fid] += fs
                 bst_list.append(bst)
                 # est: eval stats tuple
-                # [ [('train...', float), ...], 
+                # [ [('train...', float), ...],
                 #   [('test...', float), ...] ]
                 for elist in eval_stats:
                     for ename, evalue in elist:

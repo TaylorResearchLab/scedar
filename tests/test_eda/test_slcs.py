@@ -314,11 +314,12 @@ class TestSingleLabelClassifiedSamples(object):
         labs = [0] * 500 + [1] * 200 + [2] * 300
         slcs = eda.SingleLabelClassifiedSamples(x, labs=labs)
         # binary logistic regression
-        f_importance_list, bst = slcs.feature_importance_across_labs([0, 1])
+        f_importance_list, bst = slcs.feature_importance_across_labs(
+            [0, 1], silent=0)
         assert f_importance_list[0][0] == '3'
         # multi class softmax
         f_importance_list2, bst2 = slcs.feature_importance_across_labs(
-            [0, 1, 2], random_state=123)
+            [0, 1, 2], random_state=123, silent=1)
         assert f_importance_list2[0][0] == '3'
         assert f_importance_list2 != f_importance_list
         # multiclass with provided parames
