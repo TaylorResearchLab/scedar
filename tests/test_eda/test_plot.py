@@ -7,13 +7,41 @@ import networkx as nx
 import pytest
 
 
+def test_labs_to_cmap():
+    sids = [0, 1, 2, 3, 4, 5, 6, 7]
+    labs = list(map(str, [3, 0, 1, 0, 0, 1, 2, 2]))
+    slab_csamples = eda.SingleLabelClassifiedSamples(np.random.ranf(80).reshape(8, -1),
+                                                     labs, sids)
+
+    lab_cmap, lab_norm, lab_ind_arr, lab_col_lut, uniq_lab_lut = eda.plot.labs_to_cmap(
+        slab_csamples.labs, return_lut=True)
+
+    n_uniq_labs = len(set(labs))
+    assert lab_cmap.N == n_uniq_labs
+    assert lab_cmap.colors == sns.hls_palette(n_uniq_labs)
+    np.testing.assert_equal(
+        lab_ind_arr, np.array([3, 0, 1, 0, 0, 1, 2, 2]))
+    assert labs == [uniq_lab_lut[x] for x in lab_ind_arr]
+    assert len(uniq_lab_lut) == n_uniq_labs
+    assert len(lab_col_lut) == n_uniq_labs
+    assert [lab_col_lut[uniq_lab_lut[i]]
+            for i in range(n_uniq_labs)] == sns.hls_palette(n_uniq_labs)
+
+    lab_cmap2, lab_norm2 = eda.plot.labs_to_cmap(
+        slab_csamples.labs, return_lut=False)
+    assert lab_cmap2.N == n_uniq_labs
+    assert lab_cmap2.colors == lab_cmap.colors
+    np.testing.assert_equal(lab_norm2.boundaries, lab_norm.boundaries)
+
 class TestRegressionScatter(object):
     """docstring for TestRegressionPlot"""
     @pytest.mark.mpl_image_compare
     def test_reg_sct_full_labels(self):
-        fig = eda.regression_scatter(x=np.arange(10), y=np.arange(10, 20),
-                                     xlab='x', ylab='y', title='x versus y',
-                                     figsize=(10, 10))
+        fig, ax = plt.subplots()
+        fig2 = eda.regression_scatter(x=np.arange(10), y=np.arange(10, 20),
+                                      xlab='x', ylab='y', title='x versus y',
+                                      figsize=(10, 10), ax=ax)
+        assert fig is fig2
         return fig
 
     @pytest.mark.mpl_image_compare
@@ -46,7 +74,8 @@ class TestClusterScatter(object):
     def test_cluster_scatter_no_xylab_title(self):
         fig = eda.cluster_scatter(self.x_50x2,
                                   [0]*25 + [1]*10 + [2]*15,
-                                  figsize=(10, 10), n_txt_per_cluster=3, alpha=0.5,
+                                  figsize=(10, 10), n_txt_per_cluster=3,
+                                  alpha=0.5,
                                   s=50, random_state=123)
         return fig
 
@@ -74,6 +103,44 @@ class TestClusterScatter(object):
 
         fig = eda.cluster_scatter(sorted_x,
                                   labels=[0]*25 + [1]*25,
+                                  gradient=sorted_x[:, 1],
+                                  title='test tsne scatter',
+                                  xlab='tsne1', ylab='tsne2',
+                                  figsize=(10, 10), n_txt_per_cluster=3,
+                                  alpha=0.5, s=50, random_state=123)
+        return fig
+
+    @pytest.mark.mpl_image_compare
+    def test_cluster_scatter_gradient_legends_slab0(self):
+        sorted_x = self.x_50x2[np.argsort(self.x_50x2[:, 1])]
+        fig = eda.cluster_scatter(sorted_x,
+                                  labels=[0]*25 + [1]*25,
+                                  selected_labels=[0],
+                                  gradient=sorted_x[:, 1],
+                                  title='test tsne scatter',
+                                  xlab='tsne1', ylab='tsne2',
+                                  figsize=(10, 10), n_txt_per_cluster=3,
+                                  alpha=0.5, s=50, random_state=123)
+        return fig
+
+    @pytest.mark.mpl_image_compare
+    def test_cluster_scatter_nogradient_legends_slab0(self):
+        sorted_x = self.x_50x2[np.argsort(self.x_50x2[:, 1])]
+        fig = eda.cluster_scatter(sorted_x,
+                                  labels=[0]*25 + [1]*25,
+                                  selected_labels=[0],
+                                  title='test tsne scatter',
+                                  xlab='tsne1', ylab='tsne2',
+                                  figsize=(10, 10), n_txt_per_cluster=3,
+                                  alpha=0.5, s=50, random_state=123)
+        return fig
+
+    @pytest.mark.mpl_image_compare
+    def test_cluster_scatter_gradient_legends_slabempty(self):
+        sorted_x = self.x_50x2[np.argsort(self.x_50x2[:, 1])]
+        fig = eda.cluster_scatter(sorted_x,
+                                  labels=[0]*25 + [1]*25,
+                                  selected_labels=[],
                                   gradient=sorted_x[:, 1],
                                   title='test tsne scatter',
                                   xlab='tsne1', ylab='tsne2',
@@ -120,8 +187,10 @@ class TestClusterScatter(object):
     def test_cluster_scatter_legends(self):
         fig = eda.cluster_scatter(self.x_50x2,
                                   [0]*25 + [1]*25,
-                                  title='test tsne scatter', xlab='tsne1', ylab='tsne2',
-                                  figsize=(10, 10), n_txt_per_cluster=3, alpha=0.5,
+                                  title='test tsne scatter',
+                                  xlab='tsne1', ylab='tsne2',
+                                  figsize=(10, 10), n_txt_per_cluster=3,
+                                  alpha=0.5,
                                   s=50, random_state=123)
         return fig
 
@@ -129,7 +198,8 @@ class TestClusterScatter(object):
     def test_cluster_scatter_no_legends(self):
         fig = eda.cluster_scatter(self.x_50x2,
                                   [0]*25 + [1]*25,
-                                  title='test tsne scatter', xlab='tsne1', ylab='tsne2',
+                                  title='test tsne scatter',
+                                  xlab='tsne1', ylab='tsne2',
                                   figsize=(10, 10), add_legend=False,
                                   n_txt_per_cluster=3, alpha=0.5,
                                   s=50, random_state=123)
@@ -138,37 +208,111 @@ class TestClusterScatter(object):
     @pytest.mark.mpl_image_compare
     def test_cluster_scatter_no_labels(self):
         fig = eda.cluster_scatter(self.x_50x2,
-                                  title='test tsne scatter', xlab='tsne1', ylab='tsne2',
-                                  figsize=(10, 10), n_txt_per_cluster=3, alpha=0.5,
+                                  title='test tsne scatter',
+                                  xlab='tsne1', ylab='tsne2',
+                                  figsize=(10, 10), n_txt_per_cluster=3,
+                                  alpha=0.5,
                                   s=50, random_state=123)
         return fig
 
-    def test_cluster_scatter_wrong_tsne_shape(self):
+    def test_cluster_scatter_wrong_args(self):
+        # wrong projection2d dimention
         with pytest.raises(ValueError) as excinfo:
             eda.cluster_scatter(np.random.ranf(100).reshape(-1, 1),
-                                title='test tsne scatter', xlab='tsne1', ylab='tsne2',
-                                figsize=(10, 10), n_txt_per_cluster=3, alpha=0.5,
+                                title='test tsne scatter',
+                                xlab='tsne1', ylab='tsne2',
+                                figsize=(10, 10), n_txt_per_cluster=3,
+                                alpha=0.5,
                                 s=50, random_state=123)
 
         with pytest.raises(ValueError) as excinfo:
             eda.cluster_scatter(np.random.ranf(100).reshape(-1, 5),
-                                title='test tsne scatter', xlab='tsne1', ylab='tsne2',
-                                figsize=(10, 10), n_txt_per_cluster=3, alpha=0.5,
+                                title='test tsne scatter',
+                                xlab='tsne1', ylab='tsne2',
+                                figsize=(10, 10), n_txt_per_cluster=3,
+                                alpha=0.5,
                                 s=50, random_state=123)
 
         with pytest.raises(ValueError) as excinfo:
             eda.cluster_scatter(np.random.ranf(99).reshape(-1, 3),
-                                title='test tsne scatter', xlab='tsne1', ylab='tsne2',
-                                figsize=(10, 10), n_txt_per_cluster=3, alpha=0.5,
+                                title='test tsne scatter',
+                                xlab='tsne1', ylab='tsne2',
+                                figsize=(10, 10), n_txt_per_cluster=3,
+                                alpha=0.5,
                                 s=50, random_state=123)
 
-    def test_cluster_scatter_wrong_label_shape(self):
+        # wrong label shape
         with pytest.raises(ValueError) as excinfo:
             eda.cluster_scatter(self.x_50x2,
                                 [0] * 60,
-                                title='test tsne scatter', xlab='tsne1', ylab='tsne2',
-                                figsize=(10, 10), n_txt_per_cluster=3, alpha=0.5,
+                                title='test tsne scatter',
+                                xlab='tsne1', ylab='tsne2',
+                                figsize=(10, 10), n_txt_per_cluster=3,
+                                alpha=0.5,
                                 s=50, random_state=123)
+        with pytest.raises(ValueError) as excinfo:
+            eda.cluster_scatter(self.x_50x2,
+                                [[0]] * 50,
+                                title='test tsne scatter',
+                                xlab='tsne1', ylab='tsne2',
+                                figsize=(10, 10), n_txt_per_cluster=3,
+                                alpha=0.5,
+                                s=50, random_state=123)
+        # wrong gradient shape
+        with pytest.raises(ValueError) as excinfo:
+            eda.cluster_scatter(self.x_50x2,
+                                [0] * 50, gradient=list(range(60)),
+                                title='test tsne scatter',
+                                xlab='tsne1', ylab='tsne2',
+                                figsize=(10, 10), n_txt_per_cluster=3,
+                                alpha=0.5,
+                                s=50, random_state=123)
+        with pytest.raises(ValueError) as excinfo:
+            eda.cluster_scatter(self.x_50x2,
+                                [[0]] * 50,
+                                gradient=np.arange(50).reshape(-1, 1),
+                                title='test tsne scatter',
+                                xlab='tsne1', ylab='tsne2',
+                                figsize=(10, 10), n_txt_per_cluster=3,
+                                alpha=0.5,
+                                s=50, random_state=123)
+        # select labels without providing labels
+        with pytest.raises(ValueError) as excinfo:
+            eda.cluster_scatter(self.x_50x2,
+                                selected_labels=[0], gradient=list(range(50)),
+                                title='test tsne scatter',
+                                xlab='tsne1', ylab='tsne2',
+                                figsize=(10, 10), n_txt_per_cluster=3,
+                                alpha=0.5,
+                                s=50, random_state=123)
+        # select absent labels
+        with pytest.raises(ValueError) as excinfo:
+            eda.cluster_scatter(self.x_50x2, [0] * 50,
+                                selected_labels=[1], gradient=list(range(50)),
+                                title='test tsne scatter',
+                                xlab='tsne1', ylab='tsne2',
+                                figsize=(10, 10), n_txt_per_cluster=3,
+                                alpha=0.5,
+                                s=50, random_state=123)
+        with pytest.raises(ValueError) as excinfo:
+            eda.cluster_scatter(self.x_50x2, [0] * 50,
+                                selected_labels=[1, 0],
+                                gradient=list(range(50)),
+                                title='test tsne scatter',
+                                xlab='tsne1', ylab='tsne2',
+                                figsize=(10, 10), n_txt_per_cluster=3,
+                                alpha=0.5,
+                                s=50, random_state=123)
+
+
+@pytest.mark.filterwarnings("ignore:The 'normed' kwarg is depreca")
+@pytest.mark.mpl_image_compare
+def test_hist_dens_plot():
+    fig, ax = plt.subplots()
+    eda.hist_dens_plot(np.arange(100), xlab='x', ylab='y', title='title',
+                       ax=ax)
+    eda.hist_dens_plot(np.arange(100), xlab='x', ylab='y', title='title')
+    return eda.hist_dens_plot(np.arange(100))
 
 
 class TestHeatmap(object):

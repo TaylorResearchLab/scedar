@@ -17,54 +17,102 @@ from . import mtype
 
 
 def labs_to_cmap(labels, return_lut=False):
+    # Each label has its own index and color
     mtype.check_is_valid_labs(labels)
 
     labels = np.array(labels)
     uniq_lab_arr = np.unique(labels)
     num_uniq_labs = len(uniq_lab_arr)
+    uniq_lab_inds = list(range(num_uniq_labs))
 
-    lab_col_list = sns.hls_palette(num_uniq_labs)
+    lab_col_list = list(sns.hls_palette(num_uniq_labs))
     lab_cmap = mpl.colors.ListedColormap(lab_col_list)
+    # Need to keep track the order of unique labels, so that a labeled
+    # legend can be generated.
+    # Map unique label indices to unique labels
+    uniq_lab_lut = dict(zip(range(num_uniq_labs), uniq_lab_arr))
+    # Map unique labels to indices
+    uniq_ind_lut = dict(zip(uniq_lab_arr, range(num_uniq_labs)))
+    # a list of label indices
+    lab_ind_arr = np.array([uniq_ind_lut[x] for x in labels])
 
+    # map unique labels to colors
+    # Used to generate legends
+    lab_col_lut = dict(zip([uniq_lab_lut[i]
+                            for i in range(len(uniq_lab_arr))],
+                           lab_col_list))
+    # norm separates cmap to difference indices
+    # https://matplotlib.org/tutorials/colors/colorbar_only.html
+    lab_norm = mpl.colors.BoundaryNorm(uniq_lab_inds + [lab_cmap.N],
+                                       lab_cmap.N)
     if return_lut:
-        uniq_lab_lut = dict(zip(range(num_uniq_labs), uniq_lab_arr))
-        uniq_ind_lut = dict(zip(uniq_lab_arr, range(num_uniq_labs)))
-
-        lab_ind_arr = np.array([uniq_ind_lut[x] for x in labels])
-
-        lab_col_lut = dict(zip([uniq_lab_lut[i]
-                                for i in range(len(uniq_lab_arr))],
-                               lab_col_list))
-        return (lab_cmap, lab_ind_arr, lab_col_lut, uniq_lab_lut)
+        return lab_cmap, lab_norm, lab_ind_arr, lab_col_lut, uniq_lab_lut
     else:
-        return lab_cmap
+        return lab_cmap, lab_norm
 
 
 def cluster_scatter(projection2d, labels=None,
+                    selected_labels=None,
                     shuffle_label_colors=False, gradient=None,
                     title=None, xlab=None, ylab=None,
                     figsize=(20, 20), add_legend=True, n_txt_per_cluster=3,
                     alpha=1, s=0.5, random_state=None, **kwargs):
     kwargs = kwargs.copy()
-    projection2d = np.array(projection2d, dtype="float")
     # randomly:
     # - select labels for annotation if required
     # - shuffle colors if required
     np.random.seed(random_state)
-
+    # check projection2d
+    projection2d = np.array(projection2d, dtype="float")
     if (projection2d.ndim != 2) or (projection2d.shape[1] != 2):
         raise ValueError("projection2d matrix should have shape "
                          "(n_samples, 2). {}".format(projection2d))
-
-    # TODO: optimize the if-else statement
+    # check gradient length
+    if gradient is not None:
+        gradient = np.array(gradient)
+        if gradient.ndim != 1:
+            raise ValueError("gradient must be 1d.")
+        if gradient.shape[0] != projection2d.shape[0]:
+            raise ValueError("gradient should have the same length ({}) as "
+                             "n_samples in projection2d "
+                             "(shape {})".format(gradient.shape[0],
+                                                 projection2d.shape[0]))
+    # check label length
     if labels is not None:
         mtype.check_is_valid_labs(labels)
         labels = np.array(labels)
         if labels.shape[0] != projection2d.shape[0]:
-            raise ValueError(
-                "nrow(projection2d matrix) should be equal to len(labels)")
-        uniq_labels = np.unique(labels)
+            raise ValueError("labels should have the same length ({}) as "
+                             "n_samples in projection2d "
+                             "(shape {})".format(labels.shape[0],
+                                                 projection2d.shape[0]))
+    # plot selected labels
+    if selected_labels is not None:
+        if labels is None:
+            raise ValueError("selected_labels needs labels to be "
+                             "provided.")
+        else:
+            uniq_selected_labels = np.unique(selected_labels).tolist()
+            uniq_labels = np.unique(labels).tolist()
+            # np.in1d(uniq_selected_labels, uniq_labels) will cause
+            # future warning:
+            # https://stackoverflow.com/a/46721064/4638182
+            if not np.all([x in uniq_labels
+                           for x in uniq_selected_labels]):
+                raise ValueError("selected_labels: {} must all "
+                                 "be included in the labels: "
+                                 "{}.".format(uniq_selected_labels,
+                                              uniq_labels))
+            slabels_bool = [lab in uniq_selected_labels
+                            for lab in labels.tolist()]
+            labels = labels[slabels_bool]
+            projection2d = projection2d[slabels_bool]
+            if gradient is not None:
+                gradient = gradient[slabels_bool]
 
+    # TODO: optimize the if-else statement
+    if labels is not None:
+        uniq_labels = np.unique(labels)
         if gradient is not None:
             cmap = kwargs.pop("cmap", "viridis")
             plt.figure(figsize=figsize)
@@ -78,7 +126,7 @@ def cluster_scatter(projection2d, labels=None,
             ax = fig.get_axes()[0]
         else:
             fig, ax = plt.subplots(figsize=figsize)
-            label_color_arr = np.array(sns.color_palette("hls", 
+            label_color_arr = np.array(sns.color_palette("hls",
                                                          len(uniq_labels)))
             if shuffle_label_colors:
                 np.random.shuffle(label_color_arr)
@@ -95,13 +143,14 @@ def cluster_scatter(projection2d, labels=None,
                                                      label=ulab)
                                    for ulab in uniq_labels],
                           bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
-
-        anno_ind = np.concatenate(
-            [np.random.choice(np.where(labels == ulab)[0], n_txt_per_cluster)
-             for ulab in uniq_labels])
-
-        for i in map(int, anno_ind):
-            ax.annotate(labels[i], (projection2d[i, 0], projection2d[i, 1]))
+        # [[label1 anno inds], [label2 anno ind], ...]
+        anno_ind_list = [np.random.choice(np.where(labels == ulab)[0],
+                                          n_txt_per_cluster) 
+                         for ulab in uniq_labels]
+        for ulab_anno in anno_ind_list:
+            for i in map(int, ulab_anno):
+                ax.annotate(labels[i], 
+                            (projection2d[i, 0], projection2d[i, 1]))
     else:
         if gradient is None:
             fig, ax = plt.subplots(figsize=figsize)
@@ -240,51 +289,52 @@ def heatmap(x, row_labels=None, col_labels=None, title=None, xlab=None,
                                                  wspace=0.0, hspace=0.0)
 
     ax_lut = {
-        'cb_ax': plt.subplot(gs[0]),
-        'hm_ax': plt.subplot(gs[3]),
-        'lcol_ax': plt.subplot(ll_gs[1]),
-        'ucol_ax': plt.subplot(ur_gs[1]),
-        'llgd_ax': plt.subplot(ll_gs[0]),
-        'ulgd_ax': plt.subplot(ur_gs[0])
+        "cb_ax": plt.subplot(gs[0]),
+        "hm_ax": plt.subplot(gs[3]),
+        "lcol_ax": plt.subplot(ll_gs[1]),
+        "ucol_ax": plt.subplot(ur_gs[1]),
+        "llgd_ax": plt.subplot(ll_gs[0]),
+        "ulgd_ax": plt.subplot(ur_gs[0])
     }
 
     # remove frames and ticks
     for iax in ax_lut.values():
         iax.set_xticks([])
         iax.set_yticks([])
-        iax.axis('off')
+        iax.axis("off")
 
     # lower right heatmap
-    imgp = ax_lut['hm_ax'].imshow(x, cmap='magma', aspect='auto', **kwargs)
+    imgp = ax_lut["hm_ax"].imshow(x, cmap="magma", aspect="auto", **kwargs)
     if xlab is not None:
-        ax_lut['hm_ax'].set_xlabel(xlab)
+        ax_lut["hm_ax"].set_xlabel(xlab)
 
     if ylab is not None:
-        ax_lut['hm_ax'].set_ylabel(ylab)
+        ax_lut["hm_ax"].set_ylabel(ylab)
 
     # upper left colorbar
-    cb = plt.colorbar(imgp, cax=ax_lut['cb_ax'])
-    ax_lut['cb_ax'].set_aspect(5, anchor='W')
-    ax_lut['cb_ax'].yaxis.tick_left()
-    ax_lut['cb_ax'].axis('on')
+    cb = plt.colorbar(imgp, cax=ax_lut["cb_ax"])
+    ax_lut["cb_ax"].set_aspect(5, anchor="W")
+    ax_lut["cb_ax"].yaxis.tick_left()
+    ax_lut["cb_ax"].axis("on")
 
     # color labels and legends
-    ax_lut['ucol_ax'].set_anchor('S')
-    ax_lut['lcol_ax'].set_anchor('E')
-    col_axs = (ax_lut['ucol_ax'], ax_lut['lcol_ax'])
-    lgd_axs = (ax_lut['ulgd_ax'], ax_lut['llgd_ax'])
+    ax_lut["ucol_ax"].set_anchor("S")
+    ax_lut["lcol_ax"].set_anchor("E")
+    col_axs = (ax_lut["ucol_ax"], ax_lut["lcol_ax"])
+    lgd_axs = (ax_lut["ulgd_ax"], ax_lut["llgd_ax"])
     cr_labs = (col_labels, row_labels)
     for i in range(2):
         if cr_labs[i] is not None:
-            cmap, ind, ulab_col_lut, ulab_lut = labs_to_cmap(cr_labs[i],
-                                                             return_lut=True)
+            cmap, norm, lab_inds, ulab_col_lut, ulab_lut = labs_to_cmap(
+                cr_labs[i], return_lut=True)
             if i == 0:
                 # col color labels
-                ind_mat = ind.reshape(1, -1)
+                ind_mat = lab_inds.reshape(1, -1)
             else:
                 # row color labels
-                ind_mat = ind.reshape(-1, 1)
-            col_axs[i].imshow(ind_mat, cmap=cmap, aspect='auto', **kwargs)
+                ind_mat = lab_inds.reshape(-1, 1)
+            col_axs[i].imshow(ind_mat, cmap=cmap, norm=norm, 
+                              aspect="auto", interpolation="nearest")
 
             lgd_patches = [mpl.patches.Patch(color=ulab_col_lut[ulab],
                                              label=ulab)

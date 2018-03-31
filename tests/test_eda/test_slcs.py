@@ -480,31 +480,6 @@ class TestSingleLabelClassifiedSamples(object):
         with pytest.raises(Exception) as excinfo:
             rscl_samples.cross_labs(mm_qscl_samples)
 
-    def test_labs_to_cmap(self):
-        sids = [0, 1, 2, 3, 4, 5, 6, 7]
-        labs = list(map(str, [3, 0, 1, 0, 0, 1, 2, 2]))
-        slab_csamples = eda.SingleLabelClassifiedSamples(np.random.ranf(80).reshape(8, -1),
-                                                         labs, sids)
-
-        lab_cmap, lab_ind_arr, lab_col_lut, uniq_lab_lut = eda.plot.labs_to_cmap(
-            slab_csamples.labs, return_lut=True)
-
-        n_uniq_labs = len(set(labs))
-        assert lab_cmap.N == n_uniq_labs
-        assert lab_cmap.colors == sns.hls_palette(n_uniq_labs)
-        np.testing.assert_equal(
-            lab_ind_arr, np.array([3, 0, 1, 0, 0, 1, 2, 2]))
-        assert labs == [uniq_lab_lut[x] for x in lab_ind_arr]
-        assert len(uniq_lab_lut) == n_uniq_labs
-        assert len(lab_col_lut) == n_uniq_labs
-        assert [lab_col_lut[uniq_lab_lut[i]]
-                for i in range(n_uniq_labs)] == sns.hls_palette(n_uniq_labs)
-
-        lab_cmap2 = eda.plot.labs_to_cmap(
-            slab_csamples.labs, return_lut=False)
-        assert lab_cmap2.N == n_uniq_labs
-        assert lab_cmap2.colors == lab_cmap.colors
-
     @pytest.mark.mpl_image_compare
     def test_tsne_feature_gradient_plot(self):
         sids = list(range(8))

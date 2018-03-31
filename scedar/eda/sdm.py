@@ -247,6 +247,7 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
         return resl
 
     def tsne_gradient_plot(self, gradient=None, labels=None,
+                           selected_labels=None,
                            shuffle_label_colors=False,
                            title=None, xlab=None, ylab=None,
                            figsize=(20, 20), add_legend=True,
@@ -258,6 +259,7 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
         """
         # labels are checked in cluster_scatter
         return cluster_scatter(self._last_tsne, labels=labels,
+                               selected_labels=selected_labels,
                                shuffle_label_colors=shuffle_label_colors,
                                gradient=gradient,
                                title=title, xlab=xlab, ylab=ylab,
@@ -306,26 +308,8 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
             raise ValueError("labels ({}) must have same length as "
                              "n_samples.".format(labels))
 
-        if selected_labels is not None:
-            if labels is None:
-                raise ValueError("selected_labels needs labels to be "
-                                 "provided.")
-            else:
-                uniq_selected_labels = np.unique(selected_labels).tolist()
-                uniq_labels = np.unique(labels).tolist()
-                # np.in1d(uniq_selected_labels, uniq_labels) will cause
-                # future warning:
-                # https://stackoverflow.com/a/46721064/4638182
-                if not np.all([x in uniq_labels
-                               for x in uniq_selected_labels]):
-                    raise ValueError("selected_labels: {} must all "
-                                     "be included in the labels: "
-                                     "{}.".format(uniq_selected_labels,
-                                                  uniq_labels))
-                fx = [fx[i] if labels[i] in uniq_selected_labels else
-                      None for i in range(len(labels))]
-
         return cluster_scatter(self._last_tsne, labels=labels,
+                               selected_labels=selected_labels,
                                shuffle_label_colors=shuffle_label_colors,
                                gradient=fx,
                                title=title, xlab=xlab, ylab=ylab,
