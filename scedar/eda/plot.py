@@ -40,12 +40,17 @@ def labs_to_cmap(labels, return_lut=False):
         return lab_cmap
 
 
-def cluster_scatter(projection2d, labels=None, gradient=None,
+def cluster_scatter(projection2d, labels=None,
+                    shuffle_label_colors=False, gradient=None,
                     title=None, xlab=None, ylab=None,
                     figsize=(20, 20), add_legend=True, n_txt_per_cluster=3,
                     alpha=1, s=0.5, random_state=None, **kwargs):
     kwargs = kwargs.copy()
     projection2d = np.array(projection2d, dtype="float")
+    # randomly:
+    # - select labels for annotation if required
+    # - shuffle colors if required
+    np.random.seed(random_state)
 
     if (projection2d.ndim != 2) or (projection2d.shape[1] != 2):
         raise ValueError("projection2d matrix should have shape "
@@ -73,8 +78,11 @@ def cluster_scatter(projection2d, labels=None, gradient=None,
             ax = fig.get_axes()[0]
         else:
             fig, ax = plt.subplots(figsize=figsize)
-            color_lut = dict(zip(uniq_labels,
-                                 sns.color_palette("hls", len(uniq_labels))))
+            label_color_arr = np.array(sns.color_palette("hls", 
+                                                         len(uniq_labels)))
+            if shuffle_label_colors:
+                np.random.shuffle(label_color_arr)
+            color_lut = dict(zip(uniq_labels, label_color_arr))
             ax.scatter(x=projection2d[:, 0], y=projection2d[:, 1],
                        c=[color_lut[lab] for lab in labels],
                        s=s, alpha=alpha, **kwargs)
@@ -87,10 +95,6 @@ def cluster_scatter(projection2d, labels=None, gradient=None,
                                                      label=ulab)
                                    for ulab in uniq_labels],
                           bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
-
-        # randomly select labels for annotation
-        if random_state is not None:
-            np.random.seed(random_state)
 
         anno_ind = np.concatenate(
             [np.random.choice(np.where(labels == ulab)[0], n_txt_per_cluster)

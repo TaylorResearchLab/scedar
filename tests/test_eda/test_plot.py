@@ -51,8 +51,27 @@ class TestClusterScatter(object):
         return fig
 
     @pytest.mark.mpl_image_compare
+    def test_cluster_scatter_shuffle_labcol(self):
+        fig = eda.cluster_scatter(self.x_50x2,
+                                  [0]*25 + [1]*10 + [2]*15,
+                                  shuffle_label_colors=True,
+                                  figsize=(10, 10), n_txt_per_cluster=3,
+                                  alpha=0.5, s=50, random_state=2)
+        return fig
+
+    @pytest.mark.mpl_image_compare
     def test_cluster_scatter_gradient_legends(self):
         sorted_x = self.x_50x2[np.argsort(self.x_50x2[:, 1])]
+        # should not have error even if gradient is provided
+        eda.cluster_scatter(sorted_x,
+                            labels=[0]*25 + [1]*25,
+                            shuffle_label_colors=True,
+                            gradient=sorted_x[:, 1],
+                            title='test tsne scatter',
+                            xlab='tsne1', ylab='tsne2',
+                            figsize=(10, 10), n_txt_per_cluster=3,
+                            alpha=0.5, s=50, random_state=123)
+
         fig = eda.cluster_scatter(sorted_x,
                                   labels=[0]*25 + [1]*25,
                                   gradient=sorted_x[:, 1],

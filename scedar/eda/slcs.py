@@ -355,6 +355,7 @@ complete-guide-parameter-tuning-xgboost-with-codes-python/
             return sorted_fs_list, bst_list
 
     def tsne_gradient_plot(self, gradient=None, labels=None,
+                           shuffle_label_colors=False,
                            title=None, xlab=None, ylab=None,
                            figsize=(20, 20), add_legend=True,
                            n_txt_per_cluster=3, alpha=1, s=0.5,
@@ -368,6 +369,7 @@ complete-guide-parameter-tuning-xgboost-with-codes-python/
         return super(SingleLabelClassifiedSamples,
                      self).tsne_gradient_plot(
                         gradient=gradient, labels=labels,
+                        shuffle_label_colors=shuffle_label_colors,
                         title=title, xlab=xlab, ylab=ylab,
                         figsize=figsize,
                         add_legend=add_legend,
@@ -378,6 +380,7 @@ complete-guide-parameter-tuning-xgboost-with-codes-python/
 
     def tsne_feature_gradient_plot(self, fid, transform=None, labels=None,
                                    selected_labels=None,
+                                   shuffle_label_colors=False,
                                    title=None, xlab=None, ylab=None,
                                    figsize=(20, 20), add_legend=True,
                                    n_txt_per_cluster=3, alpha=1, s=0.5,
@@ -399,6 +402,7 @@ complete-guide-parameter-tuning-xgboost-with-codes-python/
                      self).tsne_feature_gradient_plot(
                         fid=fid, transform=transform, labels=labels,
                         selected_labels=selected_labels,
+                        shuffle_label_colors=shuffle_label_colors,
                         title=title, xlab=xlab, ylab=ylab,
                         figsize=figsize,
                         add_legend=add_legend,

@@ -247,6 +247,7 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
         return resl
 
     def tsne_gradient_plot(self, gradient=None, labels=None,
+                           shuffle_label_colors=False,
                            title=None, xlab=None, ylab=None,
                            figsize=(20, 20), add_legend=True,
                            n_txt_per_cluster=3, alpha=1, s=0.5,
@@ -257,6 +258,7 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
         """
         # labels are checked in cluster_scatter
         return cluster_scatter(self._last_tsne, labels=labels,
+                               shuffle_label_colors=shuffle_label_colors,
                                gradient=gradient,
                                title=title, xlab=xlab, ylab=ylab,
                                figsize=figsize, add_legend=add_legend,
@@ -265,7 +267,8 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
                                **kwargs)
 
     def tsne_feature_gradient_plot(self, fid, transform=None, labels=None,
-                                   selected_labels=None,
+                                   selected_labels=None, 
+                                   shuffle_label_colors=False,
                                    title=None, xlab=None, ylab=None,
                                    figsize=(20, 20), add_legend=True,
                                    n_txt_per_cluster=3, alpha=1, s=0.5,
@@ -323,6 +326,7 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
                       None for i in range(len(labels))]
 
         return cluster_scatter(self._last_tsne, labels=labels,
+                               shuffle_label_colors=shuffle_label_colors,
                                gradient=fx,
                                title=title, xlab=xlab, ylab=ylab,
                                figsize=figsize, add_legend=add_legend,
