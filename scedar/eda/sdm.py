@@ -298,7 +298,7 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
         fx = self._x[:, f_ind]
         if transform is not None:
             if callable(transform):
-                fx = list(map(transform, fx))
+                fx = np.array(list(map(transform, fx)))
             else:
                 raise ValueError("transform must be a callable")
 

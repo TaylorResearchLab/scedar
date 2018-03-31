@@ -527,9 +527,13 @@ class TestSampleDistanceMatrix(object):
         x_sorted = x[np.argsort(x[:, 5])]
         sdm = eda.SampleDistanceMatrix(
             x_sorted, sids=sids, fids=fids)
+        sdm.tsne_feature_gradient_plot(
+            '5', labels=list('abcdefgh'), selected_labels='a',
+            transform = lambda x: np.log(x+1),
+            figsize=(10, 10), s=50)
         fig = sdm.tsne_feature_gradient_plot(
             '5', labels=list('abcdefgh'), selected_labels='a',
-             figsize=(10, 10), s=50)
+            figsize=(10, 10), s=50)
         np.testing.assert_equal(sdm._x, x_sorted)
         np.testing.assert_equal(sdm._sids, sids)
         np.testing.assert_equal(sdm._fids, fids)
