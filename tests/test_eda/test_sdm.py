@@ -495,8 +495,12 @@ class TestSampleDistanceMatrix(object):
         x_sorted = x[np.argsort(x[:, 5])]
         sdm = eda.SampleDistanceMatrix(
             x_sorted, sids=sids, fids=fids)
-        return sdm.tsne_feature_gradient_plot(
+        fig = sdm.tsne_feature_gradient_plot(
             '5', figsize=(10, 10), s=50)
+        np.testing.assert_equal(sdm._x, x_sorted)
+        np.testing.assert_equal(sdm._sids, sids)
+        np.testing.assert_equal(sdm._fids, fids)
+        return fig
 
     @pytest.mark.mpl_image_compare
     def test_sdm_tsne_feature_gradient_plus10_plot(self):
@@ -507,8 +511,12 @@ class TestSampleDistanceMatrix(object):
         x_sorted = x[np.argsort(x[:, 5])]
         sdm = eda.SampleDistanceMatrix(
             x_sorted, sids=sids, fids=fids)
-        return sdm.tsne_feature_gradient_plot(
+        fig = sdm.tsne_feature_gradient_plot(
             '5', transform=lambda x: x + 10, figsize=(10, 10), s=50)
+        np.testing.assert_equal(sdm._x, x_sorted)
+        np.testing.assert_equal(sdm._sids, sids)
+        np.testing.assert_equal(sdm._fids, fids)
+        return fig
 
     @pytest.mark.mpl_image_compare
     def test_sdm_tsne_feature_gradient_plot_sslabs(self):
@@ -519,9 +527,13 @@ class TestSampleDistanceMatrix(object):
         x_sorted = x[np.argsort(x[:, 5])]
         sdm = eda.SampleDistanceMatrix(
             x_sorted, sids=sids, fids=fids)
-        return sdm.tsne_feature_gradient_plot(
+        fig = sdm.tsne_feature_gradient_plot(
             '5', labels=list('abcdefgh'), selected_labels='a',
              figsize=(10, 10), s=50)
+        np.testing.assert_equal(sdm._x, x_sorted)
+        np.testing.assert_equal(sdm._sids, sids)
+        np.testing.assert_equal(sdm._fids, fids)
+        return fig
 
     @pytest.mark.mpl_image_compare
     def test_sdm_tsne_feature_gradient_plot_sslabs_empty(self):
@@ -532,9 +544,13 @@ class TestSampleDistanceMatrix(object):
         x_sorted = x[np.argsort(x[:, 5])]
         sdm = eda.SampleDistanceMatrix(
             x_sorted, sids=sids, fids=fids)
-        return sdm.tsne_feature_gradient_plot(
+        fig = sdm.tsne_feature_gradient_plot(
             '5', labels=list('abcdefgh'), selected_labels=[],
             figsize=(10, 10), s=50)
+        np.testing.assert_equal(sdm._x, x_sorted)
+        np.testing.assert_equal(sdm._sids, sids)
+        np.testing.assert_equal(sdm._fids, fids)
+        return fig
 
     def test_sdm_tsne_feature_gradient_plot_sslabs_wrong_args(self):
         sids = list(range(8))

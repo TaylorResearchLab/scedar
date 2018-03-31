@@ -1,10 +1,13 @@
 import numpy as np
 
 from sklearn.model_selection import train_test_split
+import sklearn.utils
 
 import matplotlib as mpl
 import matplotlib.colors
 import seaborn as sns
+
+from collections import defaultdict
 
 import xgboost as xgb
 
@@ -131,9 +134,78 @@ class SingleLabelClassifiedSamples(SampleDistanceMatrix):
         lab_selected_s_bool_arr = np.in1d(self._labs, selected_labs)
         return self.ind_x(lab_selected_s_bool_arr)
 
+    @staticmethod
+    def _xgb_train_runner(x, lab_inds, str_fids, test_size=0.3,
+                          num_boost_round=10, nprocs=1,
+                          random_state=None, silent=1, xgb_params=None):
+        """
+        Run xgboost train with prepared data and parameters. 
+
+        Returns
+        -------
+        sorted_fscore_list: list
+            Ordered important features and their results.
+        bst: xgb.Booster
+            Fitted model.
+        eval_stats: tuple
+            Final test and train error.
+        """
+        n_uniq_labs = len(np.unique(lab_inds))
+        # Prepare default xgboost parameters
+        xgb_random_state = 0 if random_state is None else random_state
+        if xgb_params is None:
+            # Use log2(n_features) as default depth.
+            xgb_params = {
+                "eta": 0.3,
+                "max_depth": 6,
+                "silent": silent,
+                "nthread": nprocs,
+                "alpha": 1,
+                "lambda": 0,
+                "seed": xgb_random_state
+            }
+            if n_uniq_labs == 2:
+                # do binary classification
+                xgb_params["objective"] = "binary:logistic"
+                xgb_params["eval_metric"] = "error"
+            else:
+                # do multi-label classification
+                xgb_params["num_class"] = n_uniq_labs
+                xgb_params["objective"] = "multi:softmax"
+                xgb_params["eval_metric"] = "merror"
+        # split training and testing
+        # random state determined by numpy
+        train_x, test_x, train_labs, test_labs = train_test_split(
+            x, lab_inds, test_size=test_size)
+        # xgb datastructure to hold data and labels
+        dtrain = xgb.DMatrix(train_x, train_labs, feature_names=str_fids)
+        dtest = xgb.DMatrix(test_x, test_labs, feature_names=str_fids)
+        # list of data to evaluate
+        eval_list = [(dtest, "test"), (dtrain, "train")]
+        evals_result = {}
+        # bst is the train boost tree model
+        bst = xgb.train(xgb_params, dtrain, num_boost_round, eval_list,
+                        evals_result=evals_result)
+        # Turn dict to list
+        # [ [('train...', float), ...], 
+        #   [('test...', float), ...] ]
+        eval_stats = [ [(eval_name + " " + mname, 
+                         mval_list[num_boost_round-1])
+                        for mname, mval_list in eval_dict.items()]
+                      for eval_name, eval_dict in evals_result.items() ]
+        # {feature_name: fscore, ...}
+        fscore_dict = bst.get_fscore()
+        sorted_fscore_list = sorted(fscore_dict.items(), key=lambda t: t[1],
+                                    reverse=True)
+        return sorted_fscore_list, bst, eval_stats
+
     def feature_importance_across_labs(self, selected_labs, test_size=0.3,
-                                       num_boost_round=10, random_state=None,
-                                       nprocs=1, xgb_params=None):
+                                       num_boost_round=10, nprocs=1, 
+                                       random_state=None, silent=1, 
+                                       xgb_params=None,
+                                       num_bootstrap_round=0,
+                                       bootstrap_size=None,
+                                       shuffle_features=False):
         """
         Use xgboost to determine the importance of features determining the
         difference between samples with different labels.
@@ -142,16 +214,29 @@ class SingleLabelClassifiedSamples(SampleDistanceMatrix):
 
         Parameters
         ----------
-        labs: label list
+        selected_labs: label list
             Labels to compare using xgboost.
+        test_size: float in range (0, 1)
+            Ratio of samples to be used for testing
+        num_bootstrap_round: int
+            Do num_bootstrap_round times of simple bootstrapping if
+            `num_bootstrap_round > 0`.
+        bootstrap_size: int
+            The number of samples for each bootstrapping run.
+        shuffle_features: bool
+        num_boost_round: int
+            The number of rounds for xgboost training.
+        random_state: int
+        nprocs: int
         xgb_params: dict
-            Parameters for xgboost run. If None, default will be used.
+            Parameters for xgboost run. If None, default will be used. If
+            provided, they will be directly used for xgbooster.
 
         Returns
         -------
-        feature_importance: list of pairs
+        feature_importance_list: list of feature importance of each run
             `[(feature_id, fscore), ...]`
-        bst: xgb Booster
+        bst_list: list of xgb Booster
             Fitted boost tree model
 
         Notes
@@ -175,6 +260,9 @@ complete-guide-parameter-tuning-xgboost-with-codes-python/
         [5] https://www.analyticsvidhya.com/blog/2016/03/\
 complete-guide-parameter-tuning-xgboost-with-codes-python/
         """
+        num_boost_round = int(num_boost_round)
+        if num_boost_round <= 0:
+            raise ValueError("num_boost_round must >= 1")
         # This is for implementing caching in the future.
         selected_uniq_labs = np.unique(selected_labs).tolist()
         # subset SLCS
@@ -186,51 +274,85 @@ complete-guide-parameter-tuning-xgboost-with-codes-python/
         uniq_labs = lab_selected_slcs._uniq_labs.tolist()
         # convert labels into indices from 0 to n_classes
         n_uniq_labs = len(uniq_labs)
-        lab_ind_lut = dict(zip(uniq_labs, range(n_uniq_labs)))
         if n_uniq_labs <= 1:
             raise ValueError("The number of unique labels should > 1. "
                              "Provided uniq labs:"
                              " {}".format(uniq_labs))
+        lab_ind_lut = dict(zip(uniq_labs, range(n_uniq_labs)))
         lab_inds = [lab_ind_lut[lab] for lab in lab_selected_slcs._labs]
-        # split subset SLCS into training and testing sets
-        train_x, test_x, train_labs, test_labs = train_test_split(
-            lab_selected_slcs._x, lab_inds, test_size=test_size,
-            random_state=random_state)
-        # xgb datastructure to hold data and labels
+
+        np.random.seed(random_state)
+        # shuffle features if necessary
         str_fids = list(map(str, lab_selected_slcs._fids))
-        dtrain = xgb.DMatrix(train_x, train_labs, feature_names=str_fids)
-        dtest = xgb.DMatrix(test_x, test_labs, feature_names=str_fids)
-        # Prepare default xgboost parameters
-        xgb_random_state = 0 if random_state is None else random_state
-        if xgb_params is None:
-            # Use log2(n_features) as default depth.
-            xgb_params = {
-                "eta": 0.3,
-                "max_depth": 6,
-                "silent": 0,
-                "nthread": nprocs,
-                "alpha": 1,
-                "lambda": 0,
-                "seed": xgb_random_state
-            }
-            if n_uniq_labs == 2:
-                # do binary classification
-                xgb_params["objective"] = "binary:logistic"
-                xgb_params["eval_metric"] = "error"
-            else:
-                # do multi-label classification
-                xgb_params["num_class"] = n_uniq_labs
-                xgb_params["objective"] = "multi:softmax"
-                xgb_params["eval_metric"] = "merror"
-        # list of data to evaluate
-        eval_list = [(dtest, 'test'), (dtrain, 'train')]
-        # bst is the train boost tree model
-        bst = xgb.train(xgb_params, dtrain, num_boost_round, eval_list)
-        # {feature_name: fscore, ...}
-        fscore_dict = bst.get_fscore()
-        sorted_fscore_list = sorted(fscore_dict.items(), key=lambda t: t[1],
+        if shuffle_features:
+            feature_inds = np.arange(lab_selected_slcs._x.shape[1])
+            feature_inds, str_fids = sklearn.utils.shuffle(
+                feature_inds, str_fids)
+        else:
+            feature_inds = slice(None, None)
+        # perform bootstrapping if necessary
+        num_bootstrap_round = int(num_bootstrap_round)
+        if num_bootstrap_round <= 0:
+            # no bootstrapping
+            # _xgb_train_runner returns (fscores, bst, eval_stats)
+            fscores, bst, eval_stats = self._xgb_train_runner(
+                lab_selected_slcs._x[:, feature_inds],
+                lab_inds, str_fids, test_size=test_size,
+                num_boost_round=num_boost_round,
+                xgb_params=xgb_params, random_state=random_state,
+                nprocs=nprocs, silent=silent)
+            print(eval_stats)
+            return fscores, [bst]
+        else:
+            # do bootstrapping
+            # ([dict of scores], [list of bsts], dict of eval stats)
+            fs_dict = defaultdict(lambda : 0)
+            bst_list = []
+            eval_stats_dict = defaultdict(list)
+            if bootstrap_size is None:
+                bootstrap_size = lab_selected_slcs._x.shape[0]
+            sample_inds = np.arange(lab_selected_slcs._x.shape[0])
+            # bootstrapping rounds
+            for i in range(num_bootstrap_round):
+                # random state determined by numpy
+                # ensure all labels present
+                # initialize resample sample_indices and labels
+                bs_s_inds, bs_lab_inds = sklearn.utils.resample(
+                    sample_inds, lab_inds, replace=True,
+                    n_samples=bootstrap_size)
+                while len(np.unique(bs_lab_inds)) != n_uniq_labs:
+                    bs_s_inds, bs_lab_inds = sklearn.utils.resample(
+                        sample_inds, lab_inds, replace=True,
+                        n_samples=bootstrap_size)
+                fscores, bst, eval_stats = self._xgb_train_runner(
+                    lab_selected_slcs._x[bs_s_inds, :][:, feature_inds],
+                    bs_lab_inds, str_fids, test_size=test_size,
+                    num_boost_round=num_boost_round,
+                    xgb_params=xgb_params, random_state=random_state,
+                    nprocs=nprocs, silent=silent)
+                # Sum fscores
+                for fid, fs in fscores:
+                    fs_dict[fid] += fs
+                bst_list.append(bst)
+                # est: eval stats tuple
+                # [ [('train...', float), ...], 
+                #   [('test...', float), ...] ]
+                for elist in eval_stats:
+                    for ename, evalue in elist:
+                        eval_stats_dict[ename].append(evalue)
+                if shuffle_features:
+                    feature_inds, str_fids = sklearn.utils.shuffle(
+                        feature_inds, str_fids)
+            # average score
+            for fid in fs_dict:
+                fs_dict[fid] /= num_bootstrap_round
+            sorted_fs_list = sorted(fs_dict.items(), key=lambda t: t[1],
                                     reverse=True)
-        return sorted_fscore_list, bst
+            # calculate mean +/- std of eval stats
+            for ename, evalue_list in eval_stats_dict.items():
+                print("{}: mean {}, std {}".format(
+                    ename, np.mean(evalue_list), np.std(evalue_list, ddof=1)))
+            return sorted_fs_list, bst_list
 
     def tsne_gradient_plot(self, gradient=None, labels=None,
                            title=None, xlab=None, ylab=None,
