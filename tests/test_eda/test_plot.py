@@ -315,6 +315,60 @@ def test_hist_dens_plot():
     return eda.hist_dens_plot(np.arange(100))
 
 
+class TestSwarm(object):
+    """docstring for TestSwarm"""
+    @pytest.mark.mpl_image_compare
+    def test_swarm(self):
+        x = np.arange(20)
+        labels = [0]*10 + [1]*10
+        return eda.swarm(x, labels, title='test swarm', xlab='x', ylab='y')
+
+    @pytest.mark.mpl_image_compare
+    def test_swarm_nolab(self):
+        x = np.arange(20)
+        labels = [0]*10 + [1]*10
+        return eda.swarm(x)
+
+    @pytest.mark.mpl_image_compare
+    def test_swarm_s1(self):
+        x = np.arange(20)
+        labels = [0]*10 + [1]*10
+        return eda.swarm(x, labels, 1)
+
+    def test_swarm_ax(self):
+        _, ax = plt.subplots()
+        x = np.arange(20)
+        labels = [0]*10 + [1]*10
+        fig = eda.swarm(x, labels, ax=ax)
+        axs = fig.get_axes()
+        assert len(axs) == 1
+        assert axs[0] is ax
+
+    def test_swarm_wrong_args(self):
+        x = np.arange(20)
+        labels = [0]*10 + [1]*10
+        # Wrong x shape
+        with pytest.raises(ValueError) as excinfo:
+            eda.swarm(x.reshape(-1, 1), labels + [0])
+        # Wrong label shape
+        with pytest.raises(ValueError) as excinfo:
+            eda.swarm(x, labels + [0])
+        with pytest.raises(ValueError) as excinfo:
+            eda.swarm(x, [[9]]*20)
+        # select absent labels
+        with pytest.raises(ValueError) as excinfo:
+            eda.swarm(x, labels=labels, selected_labels=[-1])
+        # select labels without providing labels
+        with pytest.raises(ValueError) as excinfo:
+            eda.swarm(x, labels=None, selected_labels=[-1])
+        # nothing get selected
+        with pytest.raises(ValueError) as excinfo:
+            eda.swarm(x, labels, [])
+        # empty x
+        with pytest.raises(ValueError) as excinfo:
+            eda.swarm([])
+
+
 class TestHeatmap(object):
     """docstring for TestHeatmap"""
     np.random.seed(123)

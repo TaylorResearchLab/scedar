@@ -145,11 +145,11 @@ def cluster_scatter(projection2d, labels=None,
                           bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
         # [[label1 anno inds], [label2 anno ind], ...]
         anno_ind_list = [np.random.choice(np.where(labels == ulab)[0],
-                                          n_txt_per_cluster) 
+                                          n_txt_per_cluster)
                          for ulab in uniq_labels]
         for ulab_anno in anno_ind_list:
             for i in map(int, ulab_anno):
-                ax.annotate(labels[i], 
+                ax.annotate(labels[i],
                             (projection2d[i, 0], projection2d[i, 1]))
     else:
         if gradient is None:
@@ -221,6 +221,73 @@ def hist_dens_plot(x, title=None, xlab=None, ylab=None, figsize=(5, 5),
         _, ax = plt.subplots()
 
     ax = sns.distplot(x, norm_hist=None, ax=ax, **kwargs)
+
+    fig = ax.get_figure()
+
+    if title is not None:
+        ax.set_title(title)
+
+    if xlab is not None:
+        ax.set_xlabel(xlab)
+
+    if ylab is not None:
+        ax.set_ylabel(ylab)
+
+    fig.set_size_inches(*figsize)
+    plt.close()
+    return fig
+
+def swarm(x, labels=None, selected_labels=None,
+          title=None, xlab=None, ylab=None, figsize=(10, 10), ax=None,
+          **kwargs):
+    # check x
+    x = np.array(x, dtype="float")
+    if x.ndim != 1:
+        raise ValueError("x should be 1d and have shape "
+                         "(n_samples,). {}".format(x))
+    if x.shape[0] == 0:
+        raise ValueError("x must be non-empty.")
+    # check label length
+    if labels is not None:
+        mtype.check_is_valid_labs(labels)
+        labels = np.array(labels)
+        if labels.shape[0] != x.shape[0]:
+            raise ValueError("labels should have the same length ({}) as "
+                             "n_samples in projection2d "
+                             "(shape {})".format(labels.shape[0],
+                                                 x.shape[0]))
+    else:
+        # plot selected labels
+        if selected_labels is not None:
+            raise ValueError("selected_labels needs labels to be "
+                             "provided.")
+        labels = np.repeat(0, x.shape[0])
+    # plot selected labels
+    if selected_labels is not None:
+        # labels can only be existing
+        uniq_selected_labels = np.unique(selected_labels).tolist()
+        uniq_labels = np.unique(labels).tolist()
+        # np.in1d(uniq_selected_labels, uniq_labels) will cause
+        # future warning:
+        # https://stackoverflow.com/a/46721064/4638182
+        if not np.all([x in uniq_labels
+                       for x in uniq_selected_labels]):
+            raise ValueError("selected_labels: {} must all "
+                             "be included in the labels: "
+                             "{}.".format(uniq_selected_labels,
+                                          uniq_labels))
+        slabels_bool = [lab in uniq_selected_labels
+                        for lab in labels.tolist()]
+        labels = labels[slabels_bool]
+        x = x[slabels_bool]
+        if len(x) == 0:
+            raise ValueError("No value selected.")
+
+    plt_df = pd.DataFrame({"labels": labels, "val": x})
+    if ax is None:
+        _, ax = plt.subplots()
+
+    ax = sns.swarmplot(x="labels", y="val", data=plt_df, ax=ax, **kwargs)
 
     fig = ax.get_figure()
 
@@ -333,7 +400,7 @@ def heatmap(x, row_labels=None, col_labels=None, title=None, xlab=None,
             else:
                 # row color labels
                 ind_mat = lab_inds.reshape(-1, 1)
-            col_axs[i].imshow(ind_mat, cmap=cmap, norm=norm, 
+            col_axs[i].imshow(ind_mat, cmap=cmap, norm=norm,
                               aspect="auto", interpolation="nearest")
 
             lgd_patches = [mpl.patches.Patch(color=ulab_col_lut[ulab],
