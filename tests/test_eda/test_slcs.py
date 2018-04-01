@@ -572,6 +572,41 @@ class TestSingleLabelClassifiedSamples(object):
         with pytest.raises(ValueError):
             slab_csamples.tsne_feature_gradient_plot('123')
 
+    @pytest.mark.mpl_image_compare
+    def test_swarm_a(self):
+        # array([[0, 1],
+        #        [2, 3],
+        #        [4, 5],
+        #        [6, 7],
+        #        [8, 9]])
+        tslcs = eda.SingleLabelClassifiedSamples(np.arange(10).reshape(5, 2),
+                                                 [0, 0, 1, 2, 3],
+                                                 ['1', '2', '3', '4', '5'],
+                                                 ['a', 'z'])
+        return tslcs.feature_swarm_plot('a', transform=lambda x: x + 200,
+                                        selected_labels=[0, 2, 3],
+                                        title='test', xlab='x', ylab='y')
+
+    @pytest.mark.mpl_image_compare
+    def test_swarm_minimal_z(self):
+        tslcs = eda.SingleLabelClassifiedSamples(np.arange(10).reshape(5, 2),
+                                                 [0, 0, 1, 2, 3],
+                                                 ['1', '2', '3', '4', '5'],
+                                                 ['a', 'z'])
+        return tslcs.feature_swarm_plot('z')
+        
+    def test_swarm_wrong_args(self):
+        tslcs = eda.SingleLabelClassifiedSamples(np.arange(10).reshape(5, 2),
+                                                 [0, 0, 1, 2, 3],
+                                                 ['1', '2', '3', '4', '5'],
+                                                 ['a', 'z'])
+        # non-callable transform
+        with pytest.raises(ValueError) as excinfo:
+            tslcs.feature_swarm_plot('z', transform=1)
+        # wrong label size
+        with pytest.raises(ValueError) as excinfo:
+            tslcs.feature_swarm_plot('z', labels=[0, 2, 1])
+
     def test_getters(self):
         tslcs = eda.SingleLabelClassifiedSamples(np.arange(10).reshape(5, 2),
                                                  [0, 0, 1, 2, 3],

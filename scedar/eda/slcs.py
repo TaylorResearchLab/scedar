@@ -12,6 +12,7 @@ from collections import defaultdict
 import xgboost as xgb
 
 from .sdm import SampleDistanceMatrix
+from .plot import swarm
 from . import mtype
 from .. import utils
 
@@ -416,6 +417,28 @@ complete-guide-parameter-tuning-xgboost-with-codes-python/
                         alpha=alpha, s=s,
                         random_state=random_state,
                         **kwargs)
+
+    def feature_swarm_plot(self, fid, transform=None, labels=None,
+                           selected_labels=None,
+                           title=None, xlab=None, ylab=None,
+                           figsize=(10, 10)):
+        f_ind = self.f_id_to_ind([fid])[0]
+        fx = self.f_ind_x_vec(f_ind)
+
+        if transform is not None:
+            if callable(transform):
+                fx = np.array(list(map(transform, fx)))
+            else:
+                raise ValueError("transform must be a callable")
+
+        if labels is not None and len(labels) != fx.shape[0]:
+            raise ValueError("labels ({}) must have same length as "
+                             "n_samples.".format(labels))
+        else:
+            labels = self.labs
+
+        return swarm(fx, labels=labels, selected_labels=selected_labels,
+                     title=title, xlab=xlab, ylab=ylab, figsize=figsize)
 
     @property
     def labs(self):
