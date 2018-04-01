@@ -294,7 +294,8 @@ class SampleFeatureMatrix(object):
     def s_id_dist(self, s_id, feature_filter=None, xlab=None, ylab=None,
                   title=None, figsize=(5, 5), ax=None, **kwargs):
         s_ind = self.s_id_to_ind([s_id])[0]
-        return self.s_ind_dist(s_ind, title=title, xlab=xlab, ylab=ylab,
+        return self.s_ind_dist(s_ind, feature_filter=feature_filter,
+                               title=title, xlab=xlab, ylab=ylab,
                                figsize=figsize, ax=ax, **kwargs)
 
     def f_ind_x_vec(self, f_ind, sample_filter=None):
@@ -315,7 +316,8 @@ class SampleFeatureMatrix(object):
     def f_id_dist(self, f_id, sample_filter=None, xlab=None, ylab=None,
                   title=None, figsize=(5, 5), ax=None, **kwargs):
         f_ind = self.f_id_to_ind([f_id])[0]
-        return self.f_ind_dist(f_ind, title=title, xlab=xlab, ylab=ylab,
+        return self.f_ind_dist(f_ind, sample_filter=sample_filter,
+                               title=title, xlab=xlab, ylab=ylab,
                                figsize=figsize, ax=ax, **kwargs)
 
     def f_sum(self, f_sum_filter=None):
