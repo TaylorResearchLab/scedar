@@ -20,7 +20,12 @@ from .. import utils
 
 
 class SingleLabelClassifiedSamples(SampleDistanceMatrix):
-    """SingleLabelClassifiedSamples"""
+    """
+    SingleLabelClassifiedSamples
+
+    If sort by labels, the samples will be reordered, so that samples from
+    left to right are from one label to another.
+    """
     # sid, lab, fid, x
 
     def __init__(self, x, labs, sids=None, fids=None, d=None,
@@ -28,10 +33,9 @@ class SingleLabelClassifiedSamples(SampleDistanceMatrix):
         # sids: sample IDs. String or int.
         # labs: sample classified labels. String or int.
         # x: (n_samples, n_features)
-        super(SingleLabelClassifiedSamples, self).__init__(x=x, d=d,
-                                                           metric=metric,
-                                                           sids=sids, fids=fids,
-                                                           nprocs=nprocs)
+        super(SingleLabelClassifiedSamples, self).__init__(
+            x=x, d=d, metric=metric, sids=sids, fids=fids, nprocs=nprocs)
+
         mtype.check_is_valid_labs(labs)
         labs = np.array(labs)
         if self._sids.shape[0] != labs.shape[0]:
@@ -40,10 +44,10 @@ class SingleLabelClassifiedSamples(SampleDistanceMatrix):
 
         self._uniq_labs, self._uniq_lab_cnts = np.unique(labs,
                                                          return_counts=True)
-
+        # {lab: array([sid0, ...]), ...}
         sid_lut = {}
-        for uniq_lab in self._uniq_labs:
-            sid_lut[uniq_lab] = self._sids[labs == uniq_lab]
+        for ulab in self._uniq_labs:
+            sid_lut[ulab] = self._sids[labs == ulab]
         self._sid_lut = sid_lut
 
         lab_lut = {}
@@ -54,6 +58,42 @@ class SingleLabelClassifiedSamples(SampleDistanceMatrix):
 
         self._xgb_lut = {}
         return
+
+    def sort_by_labels(self):
+        """
+        Sort sample indices by labels and distances.
+        """
+        labels = np.array(self.labs)
+        # slcs is empty
+        if len(labels) == 0 or self._x.size == 0:
+            return self.ind_x()
+        uniq_labs = np.unique(labels)
+        s_ind_lut = dict([(ulab, np.where(labels == ulab)[0])
+                          for ulab in uniq_labs])
+        # sort within each label
+        for ulab in uniq_labs:
+            # get sample indices of that class
+            s_inds = s_ind_lut[ulab]
+            # sort that class by distance to the first sample
+            # get a list of distances to the frist sample
+            s_dist_to_s0_list = [self._d[s_inds[0], s_inds[i]]
+                                 for i in range(len(s_inds))]
+            # sort indices by distances
+            sorted_s_inds = s_inds[np.argsort(s_dist_to_s0_list,
+                                              kind="mergesort")]
+            # update lut
+            s_ind_lut[ulab] = sorted_s_inds
+        # sort classes by distances of first samples
+        # frist sample indices
+        lab_fs_inds = [s_ind_lut[ulab][0] for ulab in uniq_labs]
+        # distance of first samples to the first class first sample
+        lab_fs_dist_to_fc_list = [self._d[lab_fs_inds[0], lab_fs_inds[i]]
+                                  for i in range(len(lab_fs_inds))]
+        sorted_ulabs = uniq_labs[np.argsort(lab_fs_dist_to_fc_list,
+                                            kind="mergesort")]
+        sorted_s_inds = np.concatenate([s_ind_lut[ulab]
+                                        for ulab in sorted_ulabs])
+        return self.ind_x(sorted_s_inds)
 
     def filter_min_class_n(self, min_class_n):
         uniq_lab_cnts = np.unique(self._labs, return_counts=True)

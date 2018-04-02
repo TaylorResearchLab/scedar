@@ -532,8 +532,9 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
     @property
     def _d(self):
         if self._lazy_load_d is None:
-            if self._x.shape[0] == 0:
-                self._lazy_load_d = np.empty((0, 0))
+            if self._x.size == 0:
+                self._lazy_load_d = np.zeros((self._x.shape[0],
+                                              self._x.shape[0]))
             else:
                 self._lazy_load_d = self.num_correct_dist_mat(
                     skl.metrics.pairwise.pairwise_distances(

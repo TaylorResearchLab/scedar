@@ -15,6 +15,7 @@ class TestSingleLabelClassifiedSamples(object):
     sfm5x10_lst = list(map(list, np.random.ranf(50).reshape(5, 10)))
 
     def test_init_empty_labs(self):
+        # wrong lab length. Although 2x0, there are 2 empty samples
         with pytest.raises(Exception) as excinfo:
             eda.SingleLabelClassifiedSamples(self.sfm_2x0, [])
         sfm1 = eda.SingleLabelClassifiedSamples(np.array([[], []]), [1, 0])
@@ -22,7 +23,10 @@ class TestSingleLabelClassifiedSamples(object):
         assert sfm1._sids.shape == (2,)
         assert sfm1.labs == [1, 0]
         assert sfm1._fids.shape == (0,)
-
+        # wrong x dim
+        with pytest.raises(Exception) as excinfo:
+            eda.SingleLabelClassifiedSamples(np.empty(0), [])
+        # ok
         sfm2 = eda.SingleLabelClassifiedSamples(np.empty((0, 0)), [])
         assert sfm2._x.shape == (0, 0)
         assert sfm2._sids.shape == (0,)
@@ -73,6 +77,33 @@ class TestSingleLabelClassifiedSamples(object):
         eda.SingleLabelClassifiedSamples(
             np.arange(100).reshape(10, -1), list('abcdefghij'))
 
+    def test_sort_by_labels(self):
+        x = np.array([[0, 0], [1, 1],
+                      [100, 100], [150, 150], [125, 125],
+                      [6, 6], [10, 10], [8, 8]])
+        slcs = eda.SingleLabelClassifiedSamples(
+            x, [0, 0, 1, 1, 1, 2, 2, 2], metric='euclidean')
+        slcs_ls = slcs.sort_by_labels()
+        assert slcs_ls.labs == [0, 0, 2, 2, 2, 1, 1, 1]
+        assert slcs_ls.fids == list(range(2))
+        assert slcs_ls.sids == [0, 1, 5, 7, 6, 2, 4, 3]
+
+    def test_sort_by_labels_empty_mat(self):
+        sfm = eda.SingleLabelClassifiedSamples(np.array([[], []]), [1, 0])
+
+        sfm1 = sfm.sort_by_labels()
+        assert sfm1._x.shape == (2, 0)
+        assert sfm1._sids.shape == (2,)
+        assert sfm1.labs == [1, 0]
+        assert sfm1._fids.shape == (0,)
+
+        sfm2 = eda.SingleLabelClassifiedSamples(np.empty((0, 0)), 
+                                                []).sort_by_labels()
+        assert sfm2._x.shape == (0, 0)
+        assert sfm2._sids.shape == (0,)
+        assert sfm2.labs == []
+        assert sfm2._fids.shape == (0,)
+    
     def test_lab_sorted_sids(self):
         qsids = [0, 1, 5, 3, 2, 4]
         qlabs = [0, 0, 2, 1, 1, 1]
