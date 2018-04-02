@@ -446,7 +446,7 @@ complete-guide-parameter-tuning-xgboost-with-codes-python/
             bootstrap_size=bootstrap_size, shuffle_features=shuffle_features)
         return fi_res
 
-    def feature_importance_each_lab(self, ks_alpha,
+    def feature_importance_each_lab(self, ks_alpha=0.05,
                                     test_size=0.3, num_boost_round=10,
                                     nprocs=1, random_state=None, silent=1,
                                     xgb_params=None, num_bootstrap_round=0,

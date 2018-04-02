@@ -424,6 +424,17 @@ class TestHeatmap(object):
         return fig
 
     @pytest.mark.mpl_image_compare
+    def test_heatmap_cmap(self):
+        fig = eda.heatmap(self.x_10x5,
+                          [2]*1 + [1]*3 + [5]*6,
+                          [0]*3 + [1]*2,
+                          title='test heatmap',
+                          xlab='col label', ylab='row label',
+                          cmap='viridis',
+                          figsize=(10, 10))
+        return fig
+
+    @pytest.mark.mpl_image_compare
     def test_heatmap_bilinear_interpolation(self):
         fig = eda.heatmap(self.x_10x5,
                           [2]*1 + [1]*3 + [5]*6,

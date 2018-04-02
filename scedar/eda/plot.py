@@ -344,6 +344,8 @@ def heatmap(x, row_labels=None, col_labels=None,
     if "interpolation" not in kwargs:
         kwargs["interpolation"] = "nearest"
 
+    im_cmap = kwargs.pop("cmap", "magma")
+
     fig = plt.figure(figsize=figsize)
     if title is not None:
         fig.suptitle(title)
@@ -382,7 +384,7 @@ def heatmap(x, row_labels=None, col_labels=None,
         iax.axis("off")
 
     # lower right heatmap
-    imgp = ax_lut["hm_ax"].imshow(x, cmap="magma", aspect="auto", **kwargs)
+    imgp = ax_lut["hm_ax"].imshow(x, cmap=im_cmap, aspect="auto", **kwargs)
     if xlab is not None:
         ax_lut["hm_ax"].set_xlabel(xlab)
 
