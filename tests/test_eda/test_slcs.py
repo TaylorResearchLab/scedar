@@ -176,6 +176,27 @@ class TestSingleLabelClassifiedSamples(object):
         assert empty_sf._fids.shape == (0,)
         assert empty_sf._labs.shape == (0,)
 
+    def test_relabel(self):
+        sids = list('abcdef')
+        fids = list(range(10, 20))
+        labs = [0, 0, 0, 1, 2, 2]
+
+        slcs = eda.SingleLabelClassifiedSamples(
+            np.random.ranf(60).reshape(6, -1), labs=labs,
+            sids=sids, fids=fids)
+
+        new_labs = ['a', 'b', 'c', 'd', 'e', 'f']
+        slcs_rl = slcs.relabel(new_labs)
+        assert slcs_rl.labs == new_labs
+        assert slcs_rl._x is not slcs._x
+        assert slcs_rl._d is not slcs._d
+        assert slcs_rl._sids is not slcs._sids
+        assert slcs_rl._fids is not slcs._fids
+        np.testing.assert_equal(slcs_rl._x, slcs._x)
+        np.testing.assert_equal(slcs_rl._d, slcs._d)
+        np.testing.assert_equal(slcs_rl._sids, slcs._sids)
+        np.testing.assert_equal(slcs_rl._fids, slcs._fids)
+
     def test_id_x(self):
         sids = list('abcdef')
         fids = list(range(10, 20))
@@ -435,6 +456,23 @@ class TestSingleLabelClassifiedSamples(object):
         # meaningless to run this on empty matrix
         with pytest.raises(ValueError) as excinfo:
             slcs.feature_importance_across_labs([])
+
+    def test_feature_importance_distintuishing_labs(self):
+        # Generate simple dataset with gaussian noise
+        x_centers = np.array([[0, 0,   1,  1, 5, 50, 10, 37],
+                              [0, 0, 1.5,  5, 5, 50, 10, 35],
+                              [0, 0,  10, 10, 5, 50, 10, 33]])
+        np.random.seed(1920)
+        c1x = np.array(x_centers[0]) + np.random.normal(size=(500, 8))
+        c2x = np.array(x_centers[1]) + np.random.normal(size=(200, 8))
+        c3x = np.array(x_centers[2]) + np.random.normal(size=(300, 8))
+        x = np.vstack((c1x, c2x, c3x))
+        labs = [0] * 500 + [1] * 200 + [2] * 300
+        slcs = eda.SingleLabelClassifiedSamples(x, labs=labs)
+        # binary logistic regression
+        f_importance_list, bst = slcs.feature_importance_distintuishing_labs(
+            [0, 1], silent=0)
+        assert f_importance_list[0][0] == '2'
 
     def test_cross_labs(self):
         rsids = [0, 1, 2, 3, 4]

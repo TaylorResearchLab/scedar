@@ -87,12 +87,22 @@ class SingleLabelClassifiedSamples(SampleDistanceMatrix):
             selected_f_inds = slice(None, None)
 
         return SingleLabelClassifiedSamples(
-            x=self._x[selected_s_inds, :][:, selected_f_inds].copy(),
-            labs=self._labs[selected_s_inds].tolist(),
-            d=self._d[selected_s_inds, :][:, selected_s_inds].copy(),
-            sids=self._sids[selected_s_inds].tolist(),
-            fids=self._fids[selected_f_inds].tolist(),
-            metric=self._metric, nprocs=self._nprocs)
+                   x=self._x[selected_s_inds, :][:, selected_f_inds].copy(),
+                   labs=self._labs[selected_s_inds].tolist(),
+                   d=self._d[selected_s_inds, :][:, selected_s_inds].copy(),
+                   sids=self._sids[selected_s_inds].tolist(),
+                   fids=self._fids[selected_f_inds].tolist(),
+                   metric=self._metric, nprocs=self._nprocs)
+
+    def relabel(self, labels):
+        """
+        Return a new SingleLabelClassifiedSamples with new labels.
+        """
+        return SingleLabelClassifiedSamples(
+                   x=self._x.copy(), labs=labels, d=self._d.copy(),
+                   sids=self._sids.tolist(),
+                   fids=self._fids.tolist(),
+                   metric=self._metric, nprocs=self._nprocs)
 
     def id_x(self, selected_sids=None, selected_fids=None):
         """
@@ -120,7 +130,7 @@ class SingleLabelClassifiedSamples(SampleDistanceMatrix):
             selected_f_inds = self.f_id_to_ind(selected_fids)
         return self.ind_x(selected_s_inds, selected_f_inds)
 
-    def lab_x(self, selected_labs):
+    def lab_x_bool_inds(self, selected_labs):
         if selected_labs is None:
             raise ValueError("selected_labs should be a non-empty list.")
 
@@ -131,9 +141,12 @@ class SingleLabelClassifiedSamples(SampleDistanceMatrix):
             raise ValueError("selected_labs: {} are not all existed "
                              "in the SLCS unique labels "
                              "{}".format(selected_labs, self._uniq_labs))
+        lab_selected_s_bool_inds = np.in1d(self._labs, selected_labs)
+        return lab_selected_s_bool_inds
 
-        lab_selected_s_bool_arr = np.in1d(self._labs, selected_labs)
-        return self.ind_x(lab_selected_s_bool_arr)
+    def lab_x(self, selected_labs):
+        lab_selected_s_bool_inds = self.lab_x_bool_inds(selected_labs)
+        return self.ind_x(lab_selected_s_bool_inds)
 
     @staticmethod
     def _xgb_train_runner(x, lab_inds, str_fids, test_size=0.3,
@@ -358,6 +371,24 @@ complete-guide-parameter-tuning-xgboost-with-codes-python/
                 print("{}: mean {}, std {}".format(
                     ename, np.mean(evalue_list), np.std(evalue_list, ddof=1)))
             return sorted_fs_list, bst_list
+
+    def feature_importance_distintuishing_labs(self, selected_labs, 
+                                               test_size=0.3,
+                                               num_boost_round=10, nprocs=1,
+                                               random_state=None, silent=1,
+                                               xgb_params=None,
+                                               num_bootstrap_round=0,
+                                               bootstrap_size=None,
+                                               shuffle_features=False):
+        selected_s_bool_inds = self.lab_x_bool_inds(selected_labs)
+        # binary labs distinguishing selected and non-selected
+        io_bin_lab_arr = ["selected" if s else "non-selected"
+                          for s in selected_s_bool_inds]
+        # create a new SLCS instance with new labels
+        nl_slcs = self.relabel(io_bin_lab_arr)
+        fi_res = nl_slcs.feature_importance_across_labs(
+            ["selected", "non-selected"])
+        return fi_res
 
     def tsne_gradient_plot(self, gradient=None, labels=None,
                            selected_labels=None,
