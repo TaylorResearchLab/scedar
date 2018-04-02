@@ -337,11 +337,11 @@ class TestSingleLabelClassifiedSamples(object):
         # binary logistic regression
         f_importance_list, bst = slcs.feature_importance_across_labs(
             [0, 1], silent=0)
-        assert f_importance_list[0][0] == '3'
+        assert f_importance_list[0][0] == 3
         # multi class softmax
         f_importance_list2, bst2 = slcs.feature_importance_across_labs(
             [0, 1, 2], random_state=123, silent=1)
-        assert f_importance_list2[0][0] == '3'
+        assert f_importance_list2[0][0] == 3
         assert f_importance_list2 != f_importance_list
         # multiclass with provided parames
         xgb_params = {
@@ -362,7 +362,7 @@ class TestSingleLabelClassifiedSamples(object):
         # shuffle features
         f_importance_list4, bst4 = slcs.feature_importance_across_labs(
             [0, 1], random_state=123, shuffle_features=True)
-        assert f_importance_list2[0][0] == '3'
+        assert f_importance_list2[0][0] == 3
         # bootstrapping
         f_importance_list5, bst5 = slcs.feature_importance_across_labs(
             [0, 1], random_state=123, shuffle_features=True,
@@ -371,7 +371,7 @@ class TestSingleLabelClassifiedSamples(object):
             [0, 1], random_state=123, shuffle_features=True,
             num_bootstrap_round=10)
         assert f_importance_list5 == f_importance_list6
-        assert f_importance_list5[0][0] == '3'
+        assert f_importance_list5[0][0] == 3
 
     def test_feature_importance_across_labs_bootstrap(self):
         # Generate simple dataset with gaussian noise
@@ -393,7 +393,7 @@ class TestSingleLabelClassifiedSamples(object):
             [0, 1], random_state=123, shuffle_features=True,
             num_bootstrap_round=10)
         assert f_importance_list == f_importance_list2
-        assert f_importance_list2[0][0] == '3'
+        assert f_importance_list2[0][0] == 3
         # no feature shuffling
         f_importance_list3, bst3 = slcs.feature_importance_across_labs(
             [0, 1], random_state=123, shuffle_features=False,
@@ -472,7 +472,26 @@ class TestSingleLabelClassifiedSamples(object):
         # binary logistic regression
         f_importance_list, bst = slcs.feature_importance_distintuishing_labs(
             [0, 1], silent=0)
-        assert f_importance_list[0][0] == '2'
+        assert f_importance_list[0][0] == 2
+
+    def test_feature_importance_each_lab(self):
+        # Generate simple dataset with gaussian noise
+        x_centers = np.array([[0, 0,   1,  1, 5, 50, 10, 37],
+                              [0, 0, 1.5,  5, 5, 50, 10, 35],
+                              [0, 0,  10, 10, 5, 50, 10, 33]])
+        np.random.seed(1920)
+        c1x = np.array(x_centers[0]) + np.random.normal(size=(500, 8))
+        c2x = np.array(x_centers[1]) + np.random.normal(size=(200, 8))
+        c3x = np.array(x_centers[2]) + np.random.normal(size=(300, 8))
+        x = np.vstack((c1x, c2x, c3x))
+        labs = [0] * 500 + [1] * 200 + [2] * 300
+        slcs = eda.SingleLabelClassifiedSamples(x, labs=labs)
+        # binary logistic regression
+        ulab_fi_lut = slcs.feature_importance_each_lab(
+            ks_alpha=0.05)
+        assert ulab_fi_lut[0][0][0] == 3
+        print(ulab_fi_lut)
+        assert ulab_fi_lut[1][0][0] == 2
 
     def test_cross_labs(self):
         rsids = [0, 1, 2, 3, 4]

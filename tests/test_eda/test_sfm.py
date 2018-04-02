@@ -301,6 +301,11 @@ class TestSampleFeatureMatrix(object):
 
     @pytest.mark.mpl_image_compare
     def test_f_ind_regression_scatter_custom_func_sf(self):
+        # plt_sdm = eda.SampleFeatureMatrix(
+        #     plt_arr,
+        #     sids=list("abcdef"),
+        #     fids=list(map(lambda i: 'f{}'.format(i),
+        #                   range(10))))
         # array([[ 0,  1,  2,  3,  4,  5,  6,  7,  8,  9],
         #        [10, 11, 12, 13, 14, 15, 16, 17, 18, 19],
         #        [20, 21, 22, 23, 24, 25, 26, 27, 28, 29],
@@ -310,6 +315,17 @@ class TestSampleFeatureMatrix(object):
         return self.plt_sdm.f_ind_regression_scatter(
             0, 1, sample_filter=lambda x, y: (x in (0, 10, 20)) and (10 < y < 30),
             figsize=(5, 5), ci=None)
+
+    def test_f_id_ind_x_vec(self):
+        x = self.plt_sdm.f_ind_x_vec(0)
+        x2 = self.plt_sdm.f_id_x_vec('f0')
+        np.testing.assert_equal(x, x2)
+        np.testing.assert_equal(x, [0, 10, 20, 30, 40, 50])
+
+        x3 = self.plt_sdm.f_ind_x_vec(6)
+        x4 = self.plt_sdm.f_id_x_vec('f6')
+        np.testing.assert_equal(x3, x4)
+        np.testing.assert_equal(x3, [6, 16, 26, 36, 46, 56])
 
     @pytest.mark.mpl_image_compare
     def test_f_ind_regression_scatter_no_ff(self):

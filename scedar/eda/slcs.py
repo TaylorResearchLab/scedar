@@ -1,5 +1,7 @@
 import numpy as np
 
+from scipy.stats import ks_2samp
+
 from sklearn.model_selection import train_test_split
 import sklearn.utils
 
@@ -149,7 +151,7 @@ class SingleLabelClassifiedSamples(SampleDistanceMatrix):
         return self.ind_x(lab_selected_s_bool_inds)
 
     @staticmethod
-    def _xgb_train_runner(x, lab_inds, str_fids, test_size=0.3,
+    def _xgb_train_runner(x, lab_inds, fids, test_size=0.3,
                           num_boost_round=10, nprocs=1,
                           random_state=None, silent=1, xgb_params=None):
         """
@@ -165,6 +167,9 @@ class SingleLabelClassifiedSamples(SampleDistanceMatrix):
             Final test and train error.
         """
         n_uniq_labs = len(np.unique(lab_inds))
+        # xgb only takes string as feature names
+        str_fids = list(map(str, fids))
+        orig_fid_lut = dict(zip(str_fids, fids))
         # Prepare default xgboost parameters
         xgb_random_state = 0 if random_state is None else random_state
         if xgb_params is None:
@@ -213,7 +218,9 @@ class SingleLabelClassifiedSamples(SampleDistanceMatrix):
                        for eval_name, eval_dict in evals_result.items() ]
         # {feature_name: fscore, ...}
         fscore_dict = bst.get_fscore()
-        sorted_fscore_list = sorted(fscore_dict.items(), key=lambda t: t[1],
+        orig_fid_fscore_list = [(orig_fid_lut[istr_fid], ifscore)
+                                for istr_fid, ifscore in fscore_dict.items()]
+        sorted_fscore_list = sorted(orig_fid_fscore_list, key=lambda t: t[1],
                                     reverse=True)
         return sorted_fscore_list, bst, eval_stats
 
@@ -301,11 +308,11 @@ complete-guide-parameter-tuning-xgboost-with-codes-python/
 
         np.random.seed(random_state)
         # shuffle features if necessary
-        str_fids = list(map(str, lab_selected_slcs._fids))
+        fids = lab_selected_slcs.fids
         if shuffle_features:
             feature_inds = np.arange(lab_selected_slcs._x.shape[1])
-            feature_inds, str_fids = sklearn.utils.shuffle(
-                feature_inds, str_fids)
+            feature_inds, fids = sklearn.utils.shuffle(
+                feature_inds, fids)
         else:
             feature_inds = slice(None, None)
         # perform bootstrapping if necessary
@@ -313,14 +320,14 @@ complete-guide-parameter-tuning-xgboost-with-codes-python/
         if num_bootstrap_round <= 0:
             # no bootstrapping
             # _xgb_train_runner returns (fscores, bst, eval_stats)
-            fscores, bst, eval_stats = self._xgb_train_runner(
+            sorted_fs_list, bst, eval_stats = self._xgb_train_runner(
                 lab_selected_slcs._x[:, feature_inds],
-                lab_inds, str_fids, test_size=test_size,
+                lab_inds, fids, test_size=test_size,
                 num_boost_round=num_boost_round,
                 xgb_params=xgb_params, random_state=random_state,
                 nprocs=nprocs, silent=silent)
             print(eval_stats)
-            return fscores, [bst]
+            bst_list = [bst]
         else:
             # do bootstrapping
             # ([dict of scores], [list of bsts], dict of eval stats)
@@ -344,7 +351,7 @@ complete-guide-parameter-tuning-xgboost-with-codes-python/
                         n_samples=bootstrap_size)
                 fscores, bst, eval_stats = self._xgb_train_runner(
                     lab_selected_slcs._x[bs_s_inds, :][:, feature_inds],
-                    bs_lab_inds, str_fids, test_size=test_size,
+                    bs_lab_inds, fids, test_size=test_size,
                     num_boost_round=num_boost_round,
                     xgb_params=xgb_params, random_state=random_state,
                     nprocs=nprocs, silent=silent)
@@ -359,8 +366,8 @@ complete-guide-parameter-tuning-xgboost-with-codes-python/
                     for ename, evalue in elist:
                         eval_stats_dict[ename].append(evalue)
                 if shuffle_features:
-                    feature_inds, str_fids = sklearn.utils.shuffle(
-                        feature_inds, str_fids)
+                    feature_inds, fids = sklearn.utils.shuffle(
+                        feature_inds, fids)
             # average score
             for fid in fs_dict:
                 fs_dict[fid] /= num_bootstrap_round
@@ -370,9 +377,10 @@ complete-guide-parameter-tuning-xgboost-with-codes-python/
             for ename, evalue_list in eval_stats_dict.items():
                 print("{}: mean {}, std {}".format(
                     ename, np.mean(evalue_list), np.std(evalue_list, ddof=1)))
-            return sorted_fs_list, bst_list
+        # return same things for two branches
+        return sorted_fs_list, bst_list
 
-    def feature_importance_distintuishing_labs(self, selected_labs, 
+    def feature_importance_distintuishing_labs(self, selected_labs,
                                                test_size=0.3,
                                                num_boost_round=10, nprocs=1,
                                                random_state=None, silent=1,
@@ -380,6 +388,9 @@ complete-guide-parameter-tuning-xgboost-with-codes-python/
                                                num_bootstrap_round=0,
                                                bootstrap_size=None,
                                                shuffle_features=False):
+        """
+        Use xgboost to compare selected labels and others.
+        """
         selected_s_bool_inds = self.lab_x_bool_inds(selected_labs)
         # binary labs distinguishing selected and non-selected
         io_bin_lab_arr = ["selected" if s else "non-selected"
@@ -387,8 +398,57 @@ complete-guide-parameter-tuning-xgboost-with-codes-python/
         # create a new SLCS instance with new labels
         nl_slcs = self.relabel(io_bin_lab_arr)
         fi_res = nl_slcs.feature_importance_across_labs(
-            ["selected", "non-selected"])
+            ["selected", "non-selected"], test_size=test_size,
+            num_boost_round=num_boost_round, nprocs=nprocs,
+            random_state=random_state, silent=silent,
+            xgb_params=xgb_params, num_bootstrap_round=num_bootstrap_round,
+            bootstrap_size=bootstrap_size, shuffle_features=shuffle_features)
         return fi_res
+
+    def feature_importance_each_lab(self, ks_alpha,
+                                    test_size=0.3, num_boost_round=10,
+                                    nprocs=1, random_state=None, silent=1,
+                                    xgb_params=None, num_bootstrap_round=0,
+                                    bootstrap_size=None,
+                                    shuffle_features=False):
+        """
+        Use xgboost to compare each label with others. Experimental.
+        """
+        # Construct important feature lut
+        # {ulab0: [if1, if2, ...], ...}
+        ulab_fi_lut = defaultdict(list)
+        for ulab in self._uniq_labs:
+            # get bool indices of current label
+            ulab_s_bool_inds = self.lab_x_bool_inds(ulab)
+            # compare current label with other samples
+            fi_res = self.feature_importance_distintuishing_labs(
+                ulab, test_size=test_size,
+                num_boost_round=num_boost_round, nprocs=nprocs,
+                random_state=random_state, silent=silent,
+                xgb_params=xgb_params,
+                num_bootstrap_round=num_bootstrap_round,
+                bootstrap_size=bootstrap_size,
+                shuffle_features=shuffle_features)
+
+            for fid, ffs in fi_res[0]:
+                fx = self.f_id_x_vec(fid)
+                # current label values
+                ulab_x = fx[ulab_s_bool_inds]
+                # other values
+                other_x = fx[np.logical_not(ulab_s_bool_inds)]
+                # current lab mean
+                ulab_x_mean = np.mean(ulab_x)
+                # other mean
+                other_x_mean = np.mean(other_x)
+                # mean fold change
+                ulab_mfc = (ulab_x_mean - other_x_mean) / ulab_x_mean
+                # ks test result
+                ks_res = ks_2samp(ulab_x, other_x)
+                if ks_res.pvalue <= ks_alpha:
+                    ulab_fi_lut[ulab].append((fid, ulab_mfc))
+            ulab_fi_lut[ulab].sort(key=lambda t: np.abs(t[1]), reverse=True)
+            ulab_fi_lut[ulab] = [t[:2] for t in ulab_fi_lut[ulab]]
+        return ulab_fi_lut
 
     def tsne_gradient_plot(self, gradient=None, labels=None,
                            selected_labels=None,

@@ -110,10 +110,10 @@ class SampleFeatureMatrix(object):
 
         Parameters
         ----------
-        selected_s_inds: int array
-            Index array of selected samples. If is None, select all.
-        selected_f_inds: int array
-            Index array of selected features. If is None, select all.
+        selected_sids: id array
+            ID array of selected samples. If is None, select all.
+        selected_fids: id array
+            ID array of selected features. If is None, select all.
 
         Returns
         -------
@@ -306,6 +306,10 @@ class SampleFeatureMatrix(object):
         s_inds = self.filter_1d_inds(sample_filter, x)
         xf = x[s_inds]
         return xf
+
+    def f_id_x_vec(self, f_id, sample_filter=None):
+        f_ind = self.f_id_to_ind([f_id])[0]
+        return self.f_ind_x_vec(f_ind, sample_filter=sample_filter)
 
     def f_ind_dist(self, f_ind, sample_filter=None, xlab=None, ylab=None,
                    title=None, figsize=(5, 5), ax=None, **kwargs):
