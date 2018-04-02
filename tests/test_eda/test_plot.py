@@ -385,6 +385,45 @@ class TestHeatmap(object):
         return fig
 
     @pytest.mark.mpl_image_compare
+    def test_heatmap_transform(self):
+        # not callable transform
+        with pytest.raises(ValueError) as excinfo:
+            eda.heatmap(self.x_10x5,
+                        [2]*1 + [1]*3 + [5]*6,
+                        [0]*3 + [1]*2,
+                        title='test heatmap',
+                        xlab='col label', ylab='row label',
+                        transform=1,
+                        figsize=(10, 10))
+
+        with pytest.raises(ValueError) as excinfo:
+            eda.heatmap(self.x_10x5,
+                        [2]*1 + [1]*3 + [5]*6,
+                        [0]*3 + [1]*2,
+                        title='test heatmap',
+                        xlab='col label', ylab='row label',
+                        transform=[],
+                        figsize=(10, 10))
+
+        with pytest.raises(ValueError) as excinfo:
+            eda.heatmap(self.x_10x5,
+                        [2]*1 + [1]*3 + [5]*6,
+                        [0]*3 + [1]*2,
+                        title='test heatmap',
+                        xlab='col label', ylab='row label',
+                        transform=self.x_10x5,
+                        figsize=(10, 10))
+
+        fig = eda.heatmap(np.arange(50).reshape(10, 5),
+                          [2]*1 + [1]*3 + [5]*6,
+                          [0]*3 + [1]*2,
+                          title='test heatmap',
+                          xlab='col label', ylab='row label',
+                          transform=lambda x: x + 100,
+                          figsize=(10, 10))
+        return fig
+
+    @pytest.mark.mpl_image_compare
     def test_heatmap_bilinear_interpolation(self):
         fig = eda.heatmap(self.x_10x5,
                           [2]*1 + [1]*3 + [5]*6,

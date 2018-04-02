@@ -89,43 +89,6 @@ def test_save_obj(tmpdir):
     test_helper(dict(zip(range(10), range(1, 11))), True)
 
 
-def test_is_valid_full_cut_tree_mat():
-    tfctm = np.array([[0, 0, 0, 0, 0],
-                      [1, 0, 0, 0, 0],
-                      [2, 1, 1, 1, 0],
-                      [3, 2, 1, 1, 0],
-                      [4, 3, 2, 0, 0]])
-    assert utils.is_valid_full_cut_tree_mat(tfctm)
-    tfctm_invalid = tfctm.copy()
-    tfctm_invalid[4, 2] = 0
-    assert not utils.is_valid_full_cut_tree_mat(tfctm_invalid)
-
-
-def test_is_uniq_np1darr():
-    assert not utils.is_uniq_np1darr([])
-    assert not utils.is_uniq_np1darr([1])
-    assert not utils.is_uniq_np1darr([1, 2])
-
-    assert not utils.is_uniq_np1darr(())
-    assert not utils.is_uniq_np1darr((1, 2))
-
-    assert not utils.is_uniq_np1darr((1., 2))
-    assert not utils.is_uniq_np1darr((1, 2))
-
-    assert not utils.is_uniq_np1darr(np.array(['1', '1']))
-    assert not utils.is_uniq_np1darr(np.array([1, 1]))
-    assert not utils.is_uniq_np1darr(np.array([1, 1.]))
-    assert not utils.is_uniq_np1darr(np.array([0, 1, 2, 1]))
-
-    assert not utils.is_uniq_np1darr(np.array([1, 1]).reshape(2, 1))
-    assert not utils.is_uniq_np1darr(np.array([[], []]))
-
-    assert utils.is_uniq_np1darr(np.array([]))
-    assert utils.is_uniq_np1darr(np.array([1, 2]))
-    assert utils.is_uniq_np1darr(np.array([1, 3]))
-    assert utils.is_uniq_np1darr(np.array(['1', '3']))
-    assert utils.is_uniq_np1darr(np.array(['1']))
-
 def test_dict_str_key():
     # empty dict should work
     assert utils.dict_str_key({}) == '[]'
@@ -158,20 +121,3 @@ def test_dict_str_key_wrong_arg():
         utils.dict_str_key((1, 2))
     with pytest.raises(ValueError) as excinfo:
         utils.dict_str_key(1.1)
-
-def test_sort_features():
-    x = np.array([[0, 5, 30, 10],
-                  [1, 5, 30, 10],
-                  [0, 5, 33, 10],
-                  [2, 5, 30, 7],
-                  [2, 5, 30, 9]])
-    opt_inds = utils.sort_x_by_d(x=x.T, metric='euclidean')
-    assert opt_inds == [2, 3, 1, 0]
-
-    x = np.array([[0, 0, 30, 10],
-                  [1, 2, 30, 10],
-                  [0, 3, 33, 10],
-                  [2, 4, 30, 7],
-                  [2, 5, 30, 9]])
-    opt_inds = utils.sort_x_by_d(x=x.T, metric='euclidean')
-    assert opt_inds == [2, 3, 1, 0]

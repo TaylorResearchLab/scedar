@@ -116,6 +116,29 @@ class TestSampleDistanceMatrix(object):
         with pytest.raises(Exception) as excinfo:
             eda.SampleDistanceMatrix(self.x_3x2, d_1x6)
 
+    def test_sort_x_by_d(self):
+        x1 = np.array([[0, 5, 30, 10],
+                      [1, 5, 30, 10],
+                      [0, 5, 33, 10],
+                      [2, 5, 30, 7],
+                      [2, 5, 30, 9]])
+        x2 = x1.copy()
+        opt_inds = eda.HClustTree.sort_x_by_d(
+            x=x2.T, metric='euclidean')
+        assert opt_inds == [2, 3, 1, 0]
+        np.testing.assert_equal(x1, x2)
+
+        x3 = np.array([[0, 0, 30, 10],
+                      [1, 2, 30, 10],
+                      [0, 3, 33, 10],
+                      [2, 4, 30, 7],
+                      [2, 5, 30, 9]])
+        x4 = x3.copy()
+        opt_inds = eda.HClustTree.sort_x_by_d(
+            x=x4.T, metric='euclidean')
+        assert opt_inds == [2, 3, 1, 0]
+        np.testing.assert_equal(x3, x4)
+
     def test_sort_features(self):
         x = np.array([[0, 2, 30, 10],
                       [1, 2, 30, 10],
@@ -580,12 +603,12 @@ class TestSampleDistanceMatrix(object):
         # Mismatch labels
         with pytest.raises(ValueError) as excinfo:
             sdm.tsne_feature_gradient_plot(
-                '5', labels=list('abcdefgh'), selected_labels=[11], 
+                '5', labels=list('abcdefgh'), selected_labels=[11],
                 figsize=(10, 10), s=50)
 
         with pytest.raises(ValueError) as excinfo:
             sdm.tsne_feature_gradient_plot(
-                '5', labels=list('abcdefgh'), selected_labels=['i'], 
+                '5', labels=list('abcdefgh'), selected_labels=['i'],
                 figsize=(10, 10), s=50)
         # labels not provided
         with pytest.raises(ValueError) as excinfo:
@@ -670,3 +693,93 @@ class TestSampleDistanceMatrix(object):
         gradient = np.array([1] * 10 + [10] * 20)
         return sdm.draw_s_knn_graph(5, gradient=gradient, figsize=(5, 5),
                                     alpha=0.8, random_state=123)
+
+
+class TestHClustTree(object):
+    """docstring for TestHClustTree"""
+    sdm_5x2 = eda.SampleDistanceMatrix([[0, 0],
+                                        [100, 100],
+                                        [1, 1],
+                                        [101, 101],
+                                        [80, 80]],
+                                       metric="euclidean")
+    # This tree should be
+    #   _______|_____
+    #   |       ____|___
+    # __|___    |    __|___
+    # |    |    |    |    |
+    # 0    2    4    1    3
+    # Leaves are in optimal order.
+    hct = eda.HClustTree.hclust_tree(sdm_5x2.d, linkage="auto")
+
+    def test_hclust_tree_args(self):
+        eda.HClustTree.hclust_tree(self.sdm_5x2.d, linkage="auto",
+                                       n_eval_rounds=-1, is_euc_dist=True,
+                                       verbose=True)
+
+    def test_hclust_tree(self):
+        assert self.hct.prev is None
+
+        assert self.hct.left_count() == 2
+        assert self.hct.right_count() == 3
+        assert self.hct.count() == 5
+
+        assert len(self.hct.leaf_ids()) == 5
+        assert self.hct.leaf_ids() == [0, 2, 4, 1, 3]
+
+        assert len(self.hct.left_leaf_ids()) == 2
+        assert self.hct.left_leaf_ids() == [0, 2]
+
+        assert len(self.hct.right_leaf_ids()) == 3
+        assert self.hct.right_leaf_ids() == [4, 1, 3]
+
+        assert self.hct.left().left().left().count() == 0
+        assert self.hct.left().left().left().leaf_ids() is None
+        assert self.hct.left().left().left_leaf_ids() is None
+        assert self.hct.left().left().right().count() == 0
+
+    def test_hclust_tree_invalid_dmat(self):
+        with pytest.raises(ValueError) as excinfo:
+            eda.HClustTree.hclust_tree(np.arange(5))
+
+        with pytest.raises(ValueError) as excinfo:
+            eda.HClustTree.hclust_tree(np.arange(10).reshape(2, 5))
+
+    def test_bi_partition(self):
+        # return subtrees False
+        labs1, sids1 = self.hct.bi_partition()
+
+        # return subtrees True
+        labs2, sids2, lst, rst = self.hct.bi_partition(return_subtrees=True)
+
+        np.testing.assert_equal(labs1, [0, 0, 1, 1, 1])
+        np.testing.assert_equal(sids1, [0, 2, 4, 1, 3])
+        np.testing.assert_equal(sids1, self.hct.leaf_ids())
+
+        assert labs1 == labs2
+        assert sids1 == sids2
+
+        assert lst.count() == 2
+        assert lst.left_count() == 1
+        assert lst.left_leaf_ids() == [0]
+        assert lst.right_leaf_ids() == [2]
+        assert lst.leaf_ids() == [0, 2]
+
+        assert rst.leaf_ids() == [4, 1, 3]
+        assert rst.right_leaf_ids() == [1, 3]
+        assert rst.left_leaf_ids() == [4]
+
+    def test_cluster_id_to_lab_list_wrong_id_list_type(self):
+        with pytest.raises(ValueError) as excinfo:
+            eda.HClustTree.cluster_id_to_lab_list(
+                np.array([[0, 1, 2], [3, 4]]), [0, 1, 2, 3, 4])
+
+    def test_cluster_id_to_lab_list_mismatched_ids_sids(self):
+        with pytest.raises(ValueError) as excinfo:
+            eda.HClustTree.cluster_id_to_lab_list(
+                [[0, 1, 2], [3, 4]], [0, 1, 2, 3, 5])
+
+    def test_cluster_id_to_lab_list_empty_cluster(self):
+        with pytest.raises(ValueError) as excinfo:
+            eda.HClustTree.cluster_id_to_lab_list(
+                [[], [0, 1, 2, 3, 4]], [0, 1, 2, 3, 4])

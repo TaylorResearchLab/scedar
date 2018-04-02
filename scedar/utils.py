@@ -4,8 +4,6 @@ import numpy as np
 import gzip
 import os
 import warnings
-from . import eda
-from . import cluster
 
 
 def _parmap_fun(f, q_in, q_out):
@@ -56,15 +54,6 @@ def parmap(f, X, nprocs=1):
     return ordered_res
 
 
-def is_valid_full_cut_tree_mat(cmat):
-    """
-    Validate scipy hierarchical clustering cut tree
-    Number of clusters should decrease from n to 1
-    """
-    col_unique_vals = [len(np.unique(x)) for x in cmat.T]
-    return col_unique_vals == list(range(cmat.shape[0], 0, -1))
-
-
 def save_obj(obj, path):
     with open(path, "wb") as f:
         pickle.dump(obj, f, pickle.HIGHEST_PROTOCOL)
@@ -79,20 +68,6 @@ def load_gz_obj(path):
     with gzip.open(path, "rb") as f:
         return pickle.load(f)
 
-
-def is_uniq_np1darr(x):
-    """Test whether x is a 1D np array that only contains unique values."""
-    if not isinstance(x, np.ndarray):
-        return False
-
-    if not x.ndim == 1:
-        return False
-
-    uniqx = np.unique(x)
-    if not uniqx.shape[0] == x.shape[0]:
-        return False
-
-    return True
 
 def dict_str_key(d):
     """
@@ -117,11 +92,3 @@ def dict_str_key(d):
     sorted_key_str_pair = sorted(key_str_pair, key=lambda p: p[1])
     sorted_keys = map(lambda p: p[0], sorted_key_str_pair)
     return str([(k, d[k]) for k in sorted_keys])
-
-def sort_x_by_d(x, dmat=None, metric="correlation", linkage="auto",
-                n_eval_rounds=None, nprocs=None, verbose=False):
-    dmat = eda.SampleDistanceMatrix(x, d=dmat, metric=metric,
-                                    nprocs=nprocs)._d
-    hct = cluster.HClustTree.hclust_tree(dmat, linkage="auto",
-        is_euc_dist=metric == "euclidean", optimal_ordering=True)
-    return hct.leaf_ids()

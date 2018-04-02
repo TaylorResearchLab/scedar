@@ -305,14 +305,25 @@ def swarm(x, labels=None, selected_labels=None,
     return fig
 
 
-def heatmap(x, row_labels=None, col_labels=None, title=None, xlab=None,
-            ylab=None, figsize=(20, 20), **kwargs):
+def heatmap(x, row_labels=None, col_labels=None,
+            title=None, xlab=None, ylab=None, figsize=(20, 20),
+            transform=None, **kwargs):
     x = np.array(x, dtype="float")
     if x.ndim != 2:
         raise ValueError("x should be 2D array. {}".format(x))
 
     if x.size == 0:
         raise ValueError("x cannot be empty.")
+
+    if transform is not None:
+        if callable(transform):
+            # now x must be float, so copy and transform will not cause side
+            # effects on original array.
+            x = x.copy()
+            x = transform(x)
+        else:
+            raise ValueError("transform must be callable. It will be "
+                             "on x.")
 
     if row_labels is not None:
         mtype.check_is_valid_labs(row_labels)

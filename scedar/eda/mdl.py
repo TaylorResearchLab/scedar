@@ -2,9 +2,6 @@ import numpy as np
 import scipy.spatial as spspatial
 import scipy.stats as spstats
 
-from .. import utils
-from .. import eda
-
 
 class MultinomialMdl(object):
     """
@@ -208,77 +205,3 @@ class ZeroIdcGKdeMdl(object):
     @property
     def x_nonzero(self):
         return self._x_nonzero.copy()
-
-class MDLSampleDistanceMatrix(eda.SingleLabelClassifiedSamples):
-    """
-    MDLSampleDistanceMatrix inherits SingleLabelClassifiedSamples to offer MDL
-    operations.
-    """
-
-    def __init__(self, x, labs, sids=None, fids=None,
-                 d=None, metric="correlation", nprocs=None):
-        super(MDLSampleDistanceMatrix, self).__init__(x=x, labs=labs,
-                                                      sids=sids, fids=fids,
-                                                      d=d, metric=metric,
-                                                      nprocs=nprocs)
-
-    @staticmethod
-    def per_column_zigkmdl(x, nprocs=1, verbose=False, ret_internal=False):
-        # verbose is not implemented
-        if x.ndim != 2:
-            raise ValueError("x should have shape (n_samples, n_features)."
-                             "x.shape: {}".format(x.shape))
-
-        nprocs = max(int(nprocs), 1)
-
-        # apply to each feature
-        if nprocs != 1:
-            col_mdl_list = utils.parmap(lambda x1d: ZeroIdcGKdeMdl(x1d),
-                                        x.T, nprocs)
-        else:
-            col_mdl_list = list(map(lambda x1d: ZeroIdcGKdeMdl(x1d), x.T))
-
-        col_mdl_sum = sum(map(lambda zkmdl: zkmdl.mdl, col_mdl_list))
-        if ret_internal:
-            return col_mdl_sum, col_mdl_list
-        else:
-            return col_mdl_sum
-
-    def no_lab_mdl(self, nprocs=1, verbose=False):
-        # verbose is not implemented
-        col_mdl_sum = self.per_column_zigkmdl(self._x, nprocs, verbose)
-        return col_mdl_sum
-
-    def lab_mdl(self, cl_mdl_scale_factor=1, nprocs=1, verbose=False,
-                ret_internal=False):
-        n_uniq_labs = self._uniq_labs.shape[0]
-        ulab_s_ind_list = [np.where(self._labs == ulab)[0].tolist()
-                           for ulab in self._uniq_labs]
-
-        ulab_x_list = [self._x[i, :] for i in ulab_s_ind_list]
-
-        ulab_cnt_ratios = self._uniq_lab_cnts / self._x.shape[0]
-
-        # MDL for points in each cluster
-        pts_mdl_list = [self.per_column_zigkmdl(x, nprocs, verbose)
-                        for x in ulab_x_list]
-
-        # Additional MDL for encoding the cluster:
-        # - labels are encoded by multinomial distribution
-        # - KDE bandwidth factors are encoded by 32bit float
-        #   np.log(2**32) = 22.18070977791825
-        # - scaled by factor
-        cluster_mdl = ((MultinomialMdl(self._labs).mdl
-                        + 22.18070977791825 * n_uniq_labs)
-                       * cl_mdl_scale_factor)
-
-        ulab_mdl_list = [pts_mdl_list[i] + cluster_mdl * ulab_cnt_ratios[i]
-                         for i in range(n_uniq_labs)]
-
-        if ret_internal:
-            return (ulab_s_ind_list, self._uniq_lab_cnts.tolist(),
-                    ulab_mdl_list, cluster_mdl, pts_mdl_list)
-        else:
-            return (ulab_s_ind_list, self._uniq_lab_cnts.tolist(),
-                    ulab_mdl_list, cluster_mdl)
-

@@ -1,9 +1,10 @@
-__all__ = ["sfm", "sdm", "slcs", "plot", "mtype", "stats"]
+__all__ = ["sfm", "sdm", "slcs", "plot", "mtype", "stats", "mdl"]
 
 from .plot import (cluster_scatter, heatmap, regression_scatter,
                    hist_dens_plot, networkx_graph, swarm)
-from .slcs import SingleLabelClassifiedSamples
+from .slcs import SingleLabelClassifiedSamples, MDLSampleDistanceMatrix
 from .sfm import SampleFeatureMatrix
-from .sdm import SampleDistanceMatrix, tsne
+from .sdm import SampleDistanceMatrix, tsne, HClustTree
 from . import mtype
 from . import stats
+from .mdl import MultinomialMdl, ZeroIdcGKdeMdl

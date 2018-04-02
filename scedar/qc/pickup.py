@@ -1,7 +1,7 @@
 import numpy as np
 
-from .. import utils
 from .. import eda
+from .. import utils
 
 import time
 

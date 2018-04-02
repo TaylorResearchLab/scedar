@@ -97,13 +97,13 @@ class TestSingleLabelClassifiedSamples(object):
         assert sfm1.labs == [1, 0]
         assert sfm1._fids.shape == (0,)
 
-        sfm2 = eda.SingleLabelClassifiedSamples(np.empty((0, 0)), 
+        sfm2 = eda.SingleLabelClassifiedSamples(np.empty((0, 0)),
                                                 []).sort_by_labels()
         assert sfm2._x.shape == (0, 0)
         assert sfm2._sids.shape == (0,)
         assert sfm2.labs == []
         assert sfm2._fids.shape == (0,)
-    
+
     def test_lab_sorted_sids(self):
         qsids = [0, 1, 5, 3, 2, 4]
         qlabs = [0, 0, 2, 1, 1, 1]
@@ -324,10 +324,13 @@ class TestSingleLabelClassifiedSamples(object):
         ss_s_inds = [0, 1, 2]
         np.testing.assert_equal(ss_slcs.d,
                                 slcs._d[np.ix_(ss_s_inds, ss_s_inds)])
-        # should raise ValueError
         # select with None
-        with pytest.raises(ValueError) as excinfo:
-            slcs.lab_x(None)
+        slcs_n = slcs.lab_x(None)
+        np.testing.assert_equal(slcs_n._x, slcs._x)
+        np.testing.assert_equal(slcs_n._d, slcs._d)
+        np.testing.assert_equal(slcs_n._sids, slcs._sids)
+        np.testing.assert_equal(slcs_n._fids, slcs._fids)
+        np.testing.assert_equal(slcs_n._labs, slcs._labs)
         # select non-existent labs
         with pytest.raises(ValueError) as excinfo:
             slcs.lab_x([-1])
@@ -676,13 +679,31 @@ class TestSingleLabelClassifiedSamples(object):
                                         title='test', xlab='x', ylab='y')
 
     @pytest.mark.mpl_image_compare
+    def test_dmat_heatmap(self):
+        x = [[0, 0], [1, 1], [2, 2], [10, 10], [12, 12], [11, 11], [100, 100]]
+        tslcs = eda.SingleLabelClassifiedSamples(x, [0, 0, 0, 1, 1, 1, 2],
+                                                 metric='euclidean')
+        return tslcs.dmat_heatmap(selected_labels=[0, 1],
+                                  transform=lambda x: x + 100)
+
+    @pytest.mark.mpl_image_compare
+    def test_xmat_heatmap(self):
+        x = [[0, 0], [1, 1], [2, 2], [10, 10], [12, 12], [11, 11], [100, 100]]
+        tslcs = eda.SingleLabelClassifiedSamples(x, [0, 0, 0, 1, 1, 1, 2],
+                                                 metric='euclidean')
+        return tslcs.xmat_heatmap(selected_labels=[0, 1],
+                                  selected_fids=[1, 0],
+                                  col_labels=['spec1', 'spec2'],
+                                  transform=lambda x: x + 200)
+
+    @pytest.mark.mpl_image_compare
     def test_swarm_minimal_z(self):
         tslcs = eda.SingleLabelClassifiedSamples(np.arange(10).reshape(5, 2),
                                                  [0, 0, 1, 2, 3],
                                                  ['1', '2', '3', '4', '5'],
                                                  ['a', 'z'])
         return tslcs.feature_swarm_plot('z')
-        
+
     def test_swarm_wrong_args(self):
         tslcs = eda.SingleLabelClassifiedSamples(np.arange(10).reshape(5, 2),
                                                  [0, 0, 1, 2, 3],
@@ -731,3 +752,81 @@ class TestSingleLabelClassifiedSamples(object):
 
         qlab_arr = tslcs.sids_to_labs(('1', 'a', 'b', '2'))
         np.testing.assert_equal(qlab_arr, np.array([2, 0, 0, 3]))
+
+
+class TestMDLSampleDistanceMatrix(object):
+    """docstring for TestMDLSampleDistanceMatrix"""
+    np.random.seed(5009)
+    x50x5 = np.vstack((np.zeros((30, 5)), np.random.ranf((20, 5))))
+    labs50 = [0]*10 + [1]*35 + [2]*5
+
+    def test_mdl_computation(self):
+        mdl_sdm = eda.MDLSampleDistanceMatrix(
+            self.x50x5, labs=self.labs50, metric="euclidean")
+        no_lab_mdl = mdl_sdm.no_lab_mdl()
+        ulab_s_ind_l, ulab_cnt_l, ulab_mdl_l, cluster_mdl = mdl_sdm.lab_mdl()
+        assert ulab_s_ind_l == [list(range(10)), list(range(10, 45)),
+                                list(range(45, 50))]
+
+        ulab_cnt_l = [10, 35, 5]
+
+        for i in range(3):
+            ci_mdl = eda.MDLSampleDistanceMatrix(
+                self.x50x5[ulab_s_ind_l[i], :],
+                labs=[self.labs50[ii] for ii in ulab_s_ind_l[i]],
+                metric="euclidean")
+
+            np.testing.assert_allclose(
+                ci_mdl.no_lab_mdl(),
+                ulab_mdl_l[i] - cluster_mdl * ulab_cnt_l[i] / 50)
+
+    def test_mdl_computation_mp(self):
+        mdl_sdm = eda.MDLSampleDistanceMatrix(
+            self.x50x5, labs=self.labs50, metric="euclidean")
+        no_lab_mdl = mdl_sdm.no_lab_mdl(nprocs=2)
+        ulab_s_ind_l, ulab_cnt_l, ulab_mdl_l, cluster_mdl = mdl_sdm.lab_mdl(
+            nprocs=2)
+        assert ulab_s_ind_l == [list(range(10)), list(range(10, 45)),
+                                list(range(45, 50))]
+
+        ulab_cnt_l = [10, 35, 5]
+
+        for i in range(3):
+            ci_mdl = eda.MDLSampleDistanceMatrix(
+                self.x50x5[ulab_s_ind_l[i], :],
+                labs=[self.labs50[ii] for ii in ulab_s_ind_l[i]],
+                metric="euclidean")
+
+            np.testing.assert_allclose(
+                ci_mdl.no_lab_mdl(nprocs=5),
+                ulab_mdl_l[i] - cluster_mdl * ulab_cnt_l[i] / 50)
+
+    def test_mdl_ret_internal(self):
+        mdl_sdm = eda.MDLSampleDistanceMatrix(
+            self.x50x5, labs=self.labs50, metric="euclidean")
+
+        ulab_s_ind_l, ulab_cnt_l, ulab_mdl_l, cluster_mdl, mdl_l = mdl_sdm.lab_mdl(
+            ret_internal=True)
+        np.testing.assert_allclose(sum(mdl_l) + cluster_mdl,
+                                   sum(ulab_mdl_l))
+
+        ulab_s_ind_l2, ulab_cnt_l2, ulab_mdl_l2, cluster_mdl2 = mdl_sdm.lab_mdl()
+        assert ulab_s_ind_l == ulab_s_ind_l2
+        assert ulab_cnt_l == ulab_cnt_l2
+        assert ulab_mdl_l == ulab_mdl_l2
+        assert cluster_mdl == cluster_mdl2
+
+    def test_per_column_zigkmdl_wrong_xshape(self):
+        with pytest.raises(ValueError) as excinfo:
+            eda.MDLSampleDistanceMatrix.per_column_zigkmdl(np.zeros(10))
+
+        with pytest.raises(ValueError) as excinfo:
+            eda.MDLSampleDistanceMatrix.per_column_zigkmdl(
+                np.zeros((10, 10, 10)))
+
+    def test_per_column_zigkmdl_ret_internal(self):
+        mdl_sum = eda.MDLSampleDistanceMatrix.per_column_zigkmdl(
+            self.x50x5)
+        mdl_sum, mdl_l = eda.MDLSampleDistanceMatrix.per_column_zigkmdl(
+            self.x50x5, ret_internal=True)
+        np.testing.assert_allclose(mdl_sum, sum(map(lambda x: x.mdl, mdl_l)))

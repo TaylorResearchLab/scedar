@@ -1,9 +1,6 @@
 import numpy as np
 from .. import eda
 
-from .mdl import MultinomialMdl, ZeroIdcGKdeMdl, MDLSampleDistanceMatrix
-from .hct import HClustTree
-
 
 class MIRAC(object):
     """
@@ -46,7 +43,7 @@ class MIRAC(object):
         Clustered sample indices of the data matrix.
     _cluster_labs: label array
         Labels of clustered samples. 1-to-1 matching to _cluster_s_ind.
-    _hac_tree_root: HClustTree
+    _hac_tree_root: eda.hct.HClustTree
         Root node of the hierarchical agglomerative clustering tree.
     _run_log: str
         String containing the log of the MIRAC run.
@@ -233,9 +230,9 @@ class MIRAC(object):
         n_samples = self._sdm._x.shape[0]
         n_features = self._sdm._x.shape[1]
 
-        hac_tree = HClustTree.hclust_tree(self._sdm._d, linkage=linkage,
-                                          is_euc_dist=is_euc_dist,
-                                          verbose=verbose)
+        hac_tree = eda.HClustTree.hclust_tree(self._sdm._d, linkage=linkage,
+                                              is_euc_dist=is_euc_dist,
+                                              verbose=verbose)
         self._hac_tree_root = hac_tree
         self._run_log = ""
 
@@ -261,7 +258,7 @@ class MIRAC(object):
                 subtree_split_list = []
                 subtree_split_type = None
 
-                mdl_sdm = MDLSampleDistanceMatrix(
+                mdl_sdm = eda.MDLSampleDistanceMatrix(
                     x=self._sdm._x[s_inds, :],
                     labs=labs,
                     metric=self._sdm._metric)
