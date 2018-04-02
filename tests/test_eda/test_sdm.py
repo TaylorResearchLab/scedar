@@ -116,6 +116,19 @@ class TestSampleDistanceMatrix(object):
         with pytest.raises(Exception) as excinfo:
             eda.SampleDistanceMatrix(self.x_3x2, d_1x6)
 
+    def test_sort_features(self):
+        x = np.array([[0, 2, 30, 10],
+                      [1, 2, 30, 10],
+                      [0, 3, 33, 10],
+                      [2, 5, 30, 7],
+                      [2, 5, 30, 9]])
+        sdm = eda.SampleDistanceMatrix(
+            x, metric='euclidean')
+        sdm2 = eda.SampleDistanceMatrix(
+            x, metric='euclidean')
+        sdm2.sort_features(fdist_metric='euclidean')
+        assert sdm2.fids == [2, 3, 1, 0]
+
     def test_get_tsne_kv(self):
         tmet = 'euclidean'
         sdm = eda.SampleDistanceMatrix(self.x_3x2, metric=tmet)

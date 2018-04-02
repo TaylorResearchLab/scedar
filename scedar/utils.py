@@ -4,6 +4,9 @@ import numpy as np
 import gzip
 import os
 import warnings
+from . import eda
+from . import cluster
+
 
 def _parmap_fun(f, q_in, q_out):
     def ehf(x):
@@ -114,3 +117,11 @@ def dict_str_key(d):
     sorted_key_str_pair = sorted(key_str_pair, key=lambda p: p[1])
     sorted_keys = map(lambda p: p[0], sorted_key_str_pair)
     return str([(k, d[k]) for k in sorted_keys])
+
+def sort_x_by_d(x, dmat=None, metric="correlation", linkage="auto",
+                n_eval_rounds=None, nprocs=None, verbose=False):
+    dmat = eda.SampleDistanceMatrix(x, d=dmat, metric=metric,
+                                    nprocs=nprocs)._d
+    hct = cluster.HClustTree.hclust_tree(dmat, linkage="auto",
+        is_euc_dist=metric == "euclidean", optimal_ordering=True)
+    return hct.leaf_ids()

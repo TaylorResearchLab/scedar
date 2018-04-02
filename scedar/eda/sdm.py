@@ -98,6 +98,13 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
         self._lazy_load_col_argsorted_d = None
         self._knn_ng_lut = {}
 
+    def sort_features(self, fdist_metric="correlation"):
+        optimal_f_inds = utils.sort_x_by_d(self._x.T, metric=fdist_metric,
+                                           nprocs=self._nprocs)
+        self._x = self._x[:, optimal_f_inds]
+        self._fids = self._fids[optimal_f_inds]
+        return
+
     # numerically correct dmat
     @staticmethod
     def num_correct_dist_mat(dmat, upper_bound=None):
@@ -269,7 +276,7 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
                                **kwargs)
 
     def tsne_feature_gradient_plot(self, fid, transform=None, labels=None,
-                                   selected_labels=None, 
+                                   selected_labels=None,
                                    shuffle_label_colors=False,
                                    title=None, xlab=None, ylab=None,
                                    figsize=(20, 20), add_legend=True,
