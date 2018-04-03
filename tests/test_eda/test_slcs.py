@@ -521,11 +521,10 @@ class TestSingleLabelClassifiedSamples(object):
         labs = [0] * 500 + [1] * 200 + [2] * 300
         slcs = eda.SingleLabelClassifiedSamples(x, labs=labs)
         # binary logistic regression
-        ulab_fi_lut = slcs.feature_importance_each_lab(
-            ks_alpha=0.05)
-        assert ulab_fi_lut[0][0][0] == 3
+        ulab_fi_lut = slcs.feature_importance_each_lab()
+        assert ulab_fi_lut[0][-1][0] == 3
         print(ulab_fi_lut)
-        assert ulab_fi_lut[1][0][0] == 2
+        assert ulab_fi_lut[1][-1][0] == 2
 
     def test_cross_labs(self):
         rsids = [0, 1, 2, 3, 4]

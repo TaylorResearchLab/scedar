@@ -446,8 +446,7 @@ complete-guide-parameter-tuning-xgboost-with-codes-python/
             bootstrap_size=bootstrap_size, shuffle_features=shuffle_features)
         return fi_res
 
-    def feature_importance_each_lab(self, ks_alpha=0.05,
-                                    test_size=0.3, num_boost_round=10,
+    def feature_importance_each_lab(self, test_size=0.3, num_boost_round=10,
                                     nprocs=1, random_state=None, silent=1,
                                     xgb_params=None, num_bootstrap_round=0,
                                     bootstrap_size=None,
@@ -485,10 +484,9 @@ complete-guide-parameter-tuning-xgboost-with-codes-python/
                 ulab_mfc = (ulab_x_mean - other_x_mean) / ulab_x_mean
                 # ks test result
                 ks_res = ks_2samp(ulab_x, other_x)
-                if ks_res.pvalue <= ks_alpha:
-                    ulab_fi_lut[ulab].append((fid, ulab_mfc))
-            ulab_fi_lut[ulab].sort(key=lambda t: np.abs(t[1]), reverse=True)
-            ulab_fi_lut[ulab] = [t[:2] for t in ulab_fi_lut[ulab]]
+                ulab_fi_lut[ulab].append((fid, ulab_mfc, ks_res.pvalue))
+            ulab_fi_lut[ulab].sort(key=lambda t: t[1], reverse=True)
+            ulab_fi_lut[ulab] = [t for t in ulab_fi_lut[ulab]]
         return ulab_fi_lut
 
     def tsne_gradient_plot(self, gradient=None, labels=None,
