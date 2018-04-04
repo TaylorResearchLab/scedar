@@ -30,3 +30,17 @@ def test_gc1d():
         eda.stats.gc1d([])
     with pytest.raises(ValueError) as excinfo:
         eda.stats.gc1d(np.zeros((1, 1)))
+
+def test_multiple_testing_correction():
+    pvals = [0.0, 0.01, 0.029, 0.03, 0.031, 0.05,
+             0.069, 0.07, 0.071, 0.09, 0.1]
+    bonf = eda.stats.multiple_testing_correction(pvals, 'Bonferroni')
+    fdr = eda.stats.multiple_testing_correction(pvals, 'FDR')
+    np.testing.assert_allclose(bonf, [0, 0.11, 0.319, 0.33, 0.341, 0.55,
+                                      0.759, 0.77, 0.781, 0.99, 1])
+    np.testing.assert_allclose(fdr, [0, 0.055, 0.0682, 0.0682, 0.0682,
+                                     0.0867777777777778, 0.0867777777777778,
+                                     0.0867777777777778, 0.0867777777777778,
+                                     0.099, 0.1])
+    with pytest.raises(ValueError) as excinfo:
+        eda.stats.multiple_testing_correction(pvals, '123')
