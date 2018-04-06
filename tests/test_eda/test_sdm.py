@@ -1,5 +1,6 @@
 import numpy as np
 import seaborn as sns
+import sklearn.metrics.pairwise
 import scedar.eda as eda
 import matplotlib as mpl
 import matplotlib.pyplot as plt
@@ -693,6 +694,27 @@ class TestSampleDistanceMatrix(object):
         gradient = np.array([1] * 10 + [10] * 20)
         return sdm.draw_s_knn_graph(5, gradient=gradient, figsize=(5, 5),
                                     alpha=0.8, random_state=123)
+
+    def test_cosine_pdist(self):
+        np.random.seed(222)
+        x = np.random.ranf(10000).reshape(500, -1)
+        skd = sklearn.metrics.pairwise.pairwise_distances(x, metric='cosine')
+        np.testing.assert_allclose(
+            eda.SampleDistanceMatrix.cosine_pdist(x), skd)
+
+        np.testing.assert_allclose(
+            eda.SampleDistanceMatrix(x, metric='cosine')._d, skd)
+
+    def test_correlation_pdist(self):
+        np.random.seed(222)
+        x = np.random.ranf(10000).reshape(500, -1)
+        skd = sklearn.metrics.pairwise.pairwise_distances(
+            x, metric='correlation')
+        np.testing.assert_allclose(
+            eda.SampleDistanceMatrix.correlation_pdist(x), skd)
+
+        np.testing.assert_allclose(
+            eda.SampleDistanceMatrix(x, metric='correlation')._d, skd)
 
 
 class TestHClustTree(object):

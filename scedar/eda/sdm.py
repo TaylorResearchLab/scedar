@@ -548,10 +548,77 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
                 self._lazy_load_d = np.zeros((self._x.shape[0],
                                               self._x.shape[0]))
             else:
-                self._lazy_load_d = self.num_correct_dist_mat(
-                    skl.metrics.pairwise.pairwise_distances(
-                        self._x, metric=self._metric, n_jobs=self._nprocs))
+                if self._metric == "cosine":
+                    pdmat = self.cosine_pdist(self._x)
+                elif self._metric == "correlation":
+                    pdmat = self.correlation_pdist(self._x)
+                else:
+                    pdmat = skl.metrics.pairwise.pairwise_distances(
+                        self._x, metric=self._metric, n_jobs=self._nprocs)
+                self._lazy_load_d = self.num_correct_dist_mat(pdmat)
         return self._lazy_load_d
+
+    @staticmethod
+    def cosine_pdist(x):
+        """
+        Compute pairwise cosine pdist for x (n_samples, n_features).
+
+        Adapted from Waylon Flinn's post on
+        https://stackoverflow.com/a/20687984/4638182 .
+
+        Cosine distance is undefined if one of the vectors contain only 0s.
+
+        Parameters
+        ----------
+        x: ndarray
+            (n_samples, n_features)
+        
+        Returns
+        -------
+        d: ndarray
+            Pairwise distance matrix, (n_samples, n_samples).
+        """
+        # pairwise dot product matrix
+        pdot_prod = np.dot(x, x.T)
+        # diagonal values are self dot product, i.e. squared and sum.
+        squared_sum = np.diag(pdot_prod)
+        # inverse squared sum
+        # when a sample has all 0s, its squared sum is also 0, thus inverse
+        # is infinite. By sklearn pairwise_distances convention,
+        # Zero vectors, e.g. [0, 0, 0, 0, 0], have cosine distance 0 to
+        # themselves, but 1 distance to any other vectors including another
+        # zero vector. In correlation distance, zero vectors have 0 distances
+        # to themselves, but nan to others.
+        # if it doesn't occur, set it's inverse magnitude to zero (instead of inf)
+        inv_squared_sum = [1 / ss if ss != 0 else 0 for ss in squared_sum]
+        # square root of squared sum is l2 norm.
+        inv_l2norm = np.sqrt(inv_squared_sum)
+        # cosine similarity (elementwise multiply by inverse l2norm product)
+        cosine_sim = pdot_prod * inv_l2norm
+        cosine_sim = cosine_sim.T * inv_l2norm
+        cosine_sim[np.diag_indices_from(cosine_sim)] = 1
+        return 1 - cosine_sim
+
+    @staticmethod
+    def correlation_pdist(x):
+        """
+        Compute pairwise correlation pdist for x (n_samples, n_features).
+
+        Adapted from Waylon Flinn's post on
+        https://stackoverflow.com/a/20687984/4638182 .
+
+        Parameters
+        ----------
+        x: ndarray
+            (n_samples, n_features)
+        
+        Returns
+        -------
+        d: ndarray
+            Pairwise distance matrix, (n_samples, n_samples).
+        """
+        centered_x = x - x.mean(axis=1).reshape(x.shape[0], 1)
+        return SampleDistanceMatrix.cosine_pdist(centered_x)
 
     @property
     def _col_sorted_d(self):
