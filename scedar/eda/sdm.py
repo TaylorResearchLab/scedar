@@ -541,6 +541,8 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
 
     @property
     def _d(self):
+        # TODO: Implement corr/cosine distance computation using numpy
+        # matrix operations. Extremely faster than pdist and pairwise_distance.
         if self._lazy_load_d is None:
             if self._x.size == 0:
                 self._lazy_load_d = np.zeros((self._x.shape[0],
