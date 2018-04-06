@@ -4,6 +4,14 @@ scedar.eda package
 Submodules
 ----------
 
+scedar.eda.mdl module
+---------------------
+
+.. automodule:: scedar.eda.mdl
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 scedar.eda.mtype module
 -----------------------
 

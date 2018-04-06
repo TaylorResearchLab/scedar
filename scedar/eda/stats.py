@@ -5,8 +5,8 @@ def gc1d(x):
     """
     Compute Gini Index for 1D array.
 
-    Refs
-    ----
+    References
+    ----------
     [1] http://mathworld.wolfram.com/GiniCoefficient.html
 
     [2] Damgaard, C. and Weiner, J. "Describing Inequality in Plant Size
@@ -66,7 +66,8 @@ def gc1d(x):
 # and improved readability.
 def multiple_testing_correction(pvalues, correction_type="FDR"):
     """
-    Consistent with R - print
+    Consistent with R.
+
     correct_pvalues_for_multiple_testing([0.0, 0.01, 0.029, 0.03, 0.031, 0.05,
                                           0.069, 0.07, 0.071, 0.09, 0.1])
     """

@@ -71,7 +71,7 @@ def load_gz_obj(path):
 
 def dict_str_key(d):
     """
-    Get a hash key for a dictionary, usually used for **kwargs.
+    Get a hash key for a dictionary, usually used for `**kwargs`.
 
 
     Examples
