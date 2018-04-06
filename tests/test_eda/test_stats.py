@@ -36,6 +36,7 @@ def test_multiple_testing_correction():
              0.069, 0.07, 0.071, 0.09, 0.1]
     bonf = eda.stats.multiple_testing_correction(pvals, 'Bonferroni')
     fdr = eda.stats.multiple_testing_correction(pvals, 'FDR')
+    # values obtained using R p.adjust
     np.testing.assert_allclose(bonf, [0, 0.11, 0.319, 0.33, 0.341, 0.55,
                                       0.759, 0.77, 0.781, 0.99, 1])
     np.testing.assert_allclose(fdr, [0, 0.055, 0.0682, 0.0682, 0.0682,
