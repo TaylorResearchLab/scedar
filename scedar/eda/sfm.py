@@ -38,7 +38,7 @@ class SampleFeatureMatrix(object):
             raise ValueError("x cannot be None")
         else:
             try:
-                x = np.array(x, dtype="float64")
+                x = np.array(x, copy=False, dtype="float64")
             except ValueError as e:
                 raise ValueError("Features must be float. {}".format(e))
 

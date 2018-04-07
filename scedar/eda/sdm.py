@@ -72,7 +72,7 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
 
         if d is not None:
             try:
-                d = np.array(d, dtype="float64")
+                d = np.array(d, copy=False, dtype="float64")
             except ValueError as e:
                 raise ValueError("d must be float. {}".format(e))
 
