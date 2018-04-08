@@ -753,14 +753,14 @@ class TestSingleLabelClassifiedSamples(object):
         np.testing.assert_equal(qlab_arr, np.array([2, 0, 0, 3]))
 
 
-class TestMDLSampleDistanceMatrix(object):
-    """docstring for TestMDLSampleDistanceMatrix"""
+class TestMDLSingleLabelClassifiedSamples(object):
+    """docstring for TestMDLSingleLabelClassifiedSamples"""
     np.random.seed(5009)
     x50x5 = np.vstack((np.zeros((30, 5)), np.random.ranf((20, 5))))
     labs50 = [0]*10 + [1]*35 + [2]*5
 
     def test_mdl_computation(self):
-        mdl_sdm = eda.MDLSampleDistanceMatrix(
+        mdl_sdm = eda.MDLSingleLabelClassifiedSamples(
             self.x50x5, labs=self.labs50, metric="euclidean")
         no_lab_mdl = mdl_sdm.no_lab_mdl()
         ulab_s_ind_l, ulab_cnt_l, ulab_mdl_l, cluster_mdl = mdl_sdm.lab_mdl()
@@ -770,7 +770,7 @@ class TestMDLSampleDistanceMatrix(object):
         ulab_cnt_l = [10, 35, 5]
 
         for i in range(3):
-            ci_mdl = eda.MDLSampleDistanceMatrix(
+            ci_mdl = eda.MDLSingleLabelClassifiedSamples(
                 self.x50x5[ulab_s_ind_l[i], :],
                 labs=[self.labs50[ii] for ii in ulab_s_ind_l[i]],
                 metric="euclidean")
@@ -780,7 +780,7 @@ class TestMDLSampleDistanceMatrix(object):
                 ulab_mdl_l[i] - cluster_mdl * ulab_cnt_l[i] / 50)
 
     def test_mdl_computation_mp(self):
-        mdl_sdm = eda.MDLSampleDistanceMatrix(
+        mdl_sdm = eda.MDLSingleLabelClassifiedSamples(
             self.x50x5, labs=self.labs50, metric="euclidean")
         no_lab_mdl = mdl_sdm.no_lab_mdl(nprocs=2)
         ulab_s_ind_l, ulab_cnt_l, ulab_mdl_l, cluster_mdl = mdl_sdm.lab_mdl(
@@ -791,7 +791,7 @@ class TestMDLSampleDistanceMatrix(object):
         ulab_cnt_l = [10, 35, 5]
 
         for i in range(3):
-            ci_mdl = eda.MDLSampleDistanceMatrix(
+            ci_mdl = eda.MDLSingleLabelClassifiedSamples(
                 self.x50x5[ulab_s_ind_l[i], :],
                 labs=[self.labs50[ii] for ii in ulab_s_ind_l[i]],
                 metric="euclidean")
@@ -801,7 +801,7 @@ class TestMDLSampleDistanceMatrix(object):
                 ulab_mdl_l[i] - cluster_mdl * ulab_cnt_l[i] / 50)
 
     def test_mdl_ret_internal(self):
-        mdl_sdm = eda.MDLSampleDistanceMatrix(
+        mdl_sdm = eda.MDLSingleLabelClassifiedSamples(
             self.x50x5, labs=self.labs50, metric="euclidean")
 
         ulab_s_ind_l, ulab_cnt_l, ulab_mdl_l, cluster_mdl, mdl_l = mdl_sdm.lab_mdl(
@@ -817,15 +817,15 @@ class TestMDLSampleDistanceMatrix(object):
 
     def test_per_column_zigkmdl_wrong_xshape(self):
         with pytest.raises(ValueError) as excinfo:
-            eda.MDLSampleDistanceMatrix.per_column_zigkmdl(np.zeros(10))
+            eda.MDLSingleLabelClassifiedSamples.per_column_zigkmdl(np.zeros(10))
 
         with pytest.raises(ValueError) as excinfo:
-            eda.MDLSampleDistanceMatrix.per_column_zigkmdl(
+            eda.MDLSingleLabelClassifiedSamples.per_column_zigkmdl(
                 np.zeros((10, 10, 10)))
 
     def test_per_column_zigkmdl_ret_internal(self):
-        mdl_sum = eda.MDLSampleDistanceMatrix.per_column_zigkmdl(
+        mdl_sum = eda.MDLSingleLabelClassifiedSamples.per_column_zigkmdl(
             self.x50x5)
-        mdl_sum, mdl_l = eda.MDLSampleDistanceMatrix.per_column_zigkmdl(
+        mdl_sum, mdl_l = eda.MDLSingleLabelClassifiedSamples.per_column_zigkmdl(
             self.x50x5, ret_internal=True)
         np.testing.assert_allclose(mdl_sum, sum(map(lambda x: x.mdl, mdl_l)))

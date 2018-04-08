@@ -684,15 +684,15 @@ complete-guide-parameter-tuning-xgboost-with-codes-python/
         return cross_lab_lut
 
 
-class MDLSampleDistanceMatrix(SingleLabelClassifiedSamples):
+class MDLSingleLabelClassifiedSamples(SingleLabelClassifiedSamples):
     """
-    MDLSampleDistanceMatrix inherits SingleLabelClassifiedSamples to offer MDL
-    operations.
+    MDLSingleLabelClassifiedSamples inherits SingleLabelClassifiedSamples to
+    offer MDL operations.
     """
 
     def __init__(self, x, labs, sids=None, fids=None,
                  d=None, metric="correlation", nprocs=None):
-        super(MDLSampleDistanceMatrix, self).__init__(x=x, labs=labs,
+        super(MDLSingleLabelClassifiedSamples, self).__init__(x=x, labs=labs,
                                                       sids=sids, fids=fids,
                                                       d=d, metric=metric,
                                                       nprocs=nprocs)

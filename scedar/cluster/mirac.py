@@ -261,7 +261,7 @@ class MIRAC(object):
                 subtree_split_list = []
                 subtree_split_type = None
 
-                mdl_sdm = eda.MDLSampleDistanceMatrix(
+                mdl_sdm = eda.MDLSingleLabelClassifiedSamples(
                     x=self._sdm._x[s_inds, :],
                     labs=labs,
                     metric=self._sdm._metric)
