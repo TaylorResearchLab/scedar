@@ -1,9 +1,15 @@
 import numpy as np
-import seaborn as sns
-import sklearn.metrics.pairwise
-import scedar.eda as eda
+
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+import seaborn as sns
+
+import sklearn.metrics.pairwise
+
+import scipy.cluster.hierarchy as sch
+
+import scedar.eda as eda
+
 import pytest
 
 
@@ -756,8 +762,8 @@ class TestHClustTree(object):
         assert self.hct.right_leaf_ids() == [4, 1, 3]
 
         assert self.hct.left().left().left().count() == 0
-        assert self.hct.left().left().left().leaf_ids() is None
-        assert self.hct.left().left().left_leaf_ids() is None
+        assert self.hct.left().left().left().leaf_ids() == []
+        assert self.hct.left().left().left_leaf_ids() == []
         assert self.hct.left().left().right().count() == 0
 
     def test_hclust_tree_invalid_dmat(self):
@@ -767,7 +773,7 @@ class TestHClustTree(object):
         with pytest.raises(ValueError) as excinfo:
             eda.HClustTree.hclust_tree(np.arange(10).reshape(2, 5))
 
-    def test_bi_partition(self):
+    def test_bi_partition_no_min(self):
         # return subtrees False
         labs1, sids1 = self.hct.bi_partition()
 
@@ -790,6 +796,222 @@ class TestHClustTree(object):
         assert rst.leaf_ids() == [4, 1, 3]
         assert rst.right_leaf_ids() == [1, 3]
         assert rst.left_leaf_ids() == [4]
+
+    def test_bi_partition_2min_g_cnt(self):
+        #   _______|_____
+        #   |       ____|___
+        # __|___    |    __|___
+        # |    |    |    |    |
+        # 0    2    4    1    3
+        # Leaves are in optimal order.
+        labs1, sids1 = self.hct.bi_partition(soft_min_subtree_size=3)
+
+        # return subtrees True
+        labs2, sids2, lst, rst = self.hct.bi_partition(
+            soft_min_subtree_size=3, return_subtrees=True)
+
+        np.testing.assert_equal(labs1, [0, 0, 1, 1, 1])
+        np.testing.assert_equal(sids1, [0, 2, 4, 1, 3])
+        np.testing.assert_equal(sids1, self.hct.leaf_ids())
+
+        assert labs1 == labs2
+        assert sids1 == sids2
+
+        assert lst.count() == 2
+        assert lst.left_count() == 1
+        assert lst.left_leaf_ids() == [0]
+        assert lst.right_leaf_ids() == [2]
+        assert lst.leaf_ids() == [0, 2]
+
+        assert rst.leaf_ids() == [4, 1, 3]
+        assert rst.right_leaf_ids() == [1, 3]
+        assert rst.left_leaf_ids() == [4]
+
+    def test_bi_partition_min_no_spl(self):
+        # ____|____ 6
+        # |    ___|____ 5
+        # |    |    __|___ 4
+        # |    |    |    |
+        # 3    2    1    0
+        z = sch.linkage([[0, 0], [1, 1], [3, 3], [6, 6]],
+                        metric='euclidean', method='complete',
+                        optimal_ordering=True)
+        hct = eda.HClustTree(sch.to_tree(z))
+        assert hct.leaf_ids() == [3, 2, 1, 0]
+        labs, sids, lst, rst = hct.bi_partition(
+            soft_min_subtree_size=2, return_subtrees=True)
+        assert labs == [0, 0, 1, 1]
+        assert sids == [3, 2, 1, 0]
+        # hct should be changed accordingly
+        assert hct.leaf_ids() == [3, 2, 1, 0]
+        assert hct.left_leaf_ids() == [3, 2]
+        assert hct.right_leaf_ids() == [1, 0]
+        # subtrees
+        assert lst.leaf_ids() == [3, 2]
+        assert rst.leaf_ids() == [1, 0]
+        # prev
+        assert lst._prev is hct
+        assert rst._prev is hct
+        # ids
+        assert lst._node.id == 5
+        assert lst._node.left.id == 3
+        assert lst._node.right.id == 2
+        # ids
+        assert rst._node.id == 4
+        assert rst._node.left.id == 1
+        assert rst._node.right.id == 0
+
+    def test_bi_partition_min_no_spl_lr_rev(self):
+        # left right reversed
+        # ____|____ 6
+        # |    ___|____ 5
+        # |    |    __|___ 4
+        # |    |    |    |
+        # 3    2    1    0
+        z = sch.linkage([[0, 0], [1, 1], [3, 3], [6, 6]],
+                        metric='euclidean', method='complete',
+                        optimal_ordering=True)
+        root = sch.to_tree(z)
+        # reverse left right subtree
+        root_left = root.left
+        root.left = root.right
+        root.right = root_left
+        hct = eda.HClustTree(root)
+        assert hct.leaf_ids() == [2, 1, 0, 3]
+        labs, sids, lst, rst = hct.bi_partition(
+            soft_min_subtree_size=2, return_subtrees=True)
+        assert labs == [0, 0, 1, 1]
+        assert sids == [2, 1, 0, 3]
+        # hct should be changed accordingly
+        assert hct.leaf_ids() == [2, 1, 0, 3]
+        assert hct.left_leaf_ids() == [2, 1]
+        assert hct.right_leaf_ids() == [0, 3]
+        # subtrees
+        assert lst.leaf_ids() == [2, 1]
+        assert rst.leaf_ids() == [0, 3]
+        # prev
+        assert lst._prev is hct
+        assert rst._prev is hct
+        assert hct._left is lst._node
+        assert hct._right is rst._node
+        # ids
+        assert rst._node.id == 4
+        assert rst._node.left.id == 0
+        assert rst._node.right.id == 3
+        # ids
+        assert lst._node.id == 5
+        assert lst._node.left.id == 2
+        assert lst._node.right.id == 1
+
+    def test_bi_partition_min_spl(self):
+        # _____|_____
+        # |     ____|____
+        # |   __|__   __|__
+        # |   |   |   |   |
+        # 4   3   2   1   0
+        z = sch.linkage([[0, 0], [1, 1], [3, 3], [4, 4], [10, 10]],
+                        metric='euclidean', method='complete',
+                        optimal_ordering=True)
+        hct = eda.HClustTree(sch.to_tree(z))
+        assert hct.leaf_ids() == [4, 3, 2, 1, 0]
+        assert hct.left_leaf_ids() == [4]
+        assert hct.right().left().leaf_ids() == [3, 2]
+        assert hct.right().right().leaf_ids() == [1, 0]
+        labs, sids, lst, rst = hct.bi_partition(
+            soft_min_subtree_size=2, return_subtrees=True)
+        assert labs == [0, 0, 0, 1, 1]
+        assert sids == [4, 3, 2, 1, 0]
+        # hct should be changed accordingly
+        assert hct.leaf_ids() == [4, 3, 2, 1, 0]
+        assert hct.left_leaf_ids() == [4, 3, 2]
+        assert hct.right_leaf_ids() == [1, 0]
+        # left
+        assert lst._prev is hct
+        assert lst._node.left.left.id == 4
+        assert lst._node.left.right.id == 3
+        assert lst._node.right.id == 2
+        # right
+        assert rst._prev is hct
+        assert rst._node.left.id == 1
+        assert rst._node.right.id == 0
+
+    def test_bi_partition_min_multi_spl(self):
+        # ____|____
+        # |   ____|___
+        # |   |   ___|____
+        # |   |   |   ___|___
+        # |   |   |   |   __|__
+        # |   |   |   |   |   |
+        # 5   4   3   2   1   0
+        z = sch.linkage([[0, 0], [1, 1], [2, 2], [3, 3], [4, 4], [5, 5]],
+                        metric='euclidean', method='single',
+                        optimal_ordering=True)
+        root = sch.to_tree(z)
+        assert root.left.id == 5
+        assert root.right.left.id == 4
+        assert root.right.right.left.id == 3
+        assert root.right.right.right.left.id == 2
+        assert root.right.right.right.right.left.id == 1
+        assert root.right.right.right.right.right.id == 0
+        hct = eda.HClustTree(root)
+        labs, sids, lst, rst = hct.bi_partition(
+            soft_min_subtree_size=3, return_subtrees=True)
+        assert labs == [0, 0, 0, 1, 1, 1]
+        assert sids == [5, 4, 3, 2, 1, 0]
+        # lst
+        assert hct._left is lst._node
+        assert lst._prev is hct
+        assert lst.left_leaf_ids() == [5, 4]
+        assert lst.right_leaf_ids() == [3]
+        # rst
+        assert hct._right is rst._node
+        assert rst._prev is hct
+        assert rst.left_leaf_ids() == [2]
+        assert rst.right_leaf_ids() == [1, 0]
+
+    def test_bi_partition_min_switch_spl(self):
+        # _______|________
+        # |         _____|_____
+        # |     ____|____     |
+        # |   __|__   __|__   |
+        # |   |   |   |   |   |
+        # 0   1   2   3   4   5
+        # round 1: ( ((0, (1, 2)), (3, 4)), (5) )
+        # round 2: ( (0, (1, 2), (3, (4, 5)) )
+        z = sch.linkage([[0], [5], [6], [8], [9], [12]],
+                        method='single', optimal_ordering=True)
+        root = sch.to_tree(z)
+        assert root.left.id == 0
+        assert root.right.right.id == 5
+        assert root.right.left.left.left.id == 1
+        assert root.right.left.left.right.id == 2
+        assert root.right.left.right.left.id == 3
+        assert root.right.left.right.right.id == 4
+        hct = eda.HClustTree(root)
+        labs, sids, lst, rst = hct.bi_partition(
+            soft_min_subtree_size=3, return_subtrees=True)
+        assert labs == [0, 0, 0, 1, 1, 1]
+        assert sids == [0, 1, 2, 3, 4, 5]
+        # lst
+        assert hct._left is lst._node
+        assert lst._prev is hct
+        assert lst.left_leaf_ids() == [0]
+        assert lst.right_leaf_ids() == [1, 2]
+        # rst
+        assert hct._right is rst._node
+        assert rst._prev is hct
+        assert rst.left_leaf_ids() == [3]
+        assert rst.right_leaf_ids() == [4, 5]
+
+    def test_bi_partition_wrong_args(self):
+        with pytest.raises(ValueError) as excinfo:
+            self.hct.bi_partition(soft_min_subtree_size=0)
+
+        with pytest.raises(ValueError) as excinfo:
+            self.hct.bi_partition(soft_min_subtree_size=0.5)
+
+        with pytest.raises(ValueError) as excinfo:
+            self.hct.bi_partition(soft_min_subtree_size=-1)
 
     def test_cluster_id_to_lab_list_wrong_id_list_type(self):
         with pytest.raises(ValueError) as excinfo:

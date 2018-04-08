@@ -1,6 +1,6 @@
 import numpy as np
 
-import scipy.cluster.hierarchy as sph
+import scipy.cluster.hierarchy as sch
 import scipy.spatial as spspatial
 
 import sklearn as skl
@@ -572,7 +572,7 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
         ----------
         x: ndarray
             (n_samples, n_features)
-        
+
         Returns
         -------
         d: ndarray
@@ -611,7 +611,7 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
         ----------
         x: ndarray
             (n_samples, n_features)
-        
+
         Returns
         -------
         d: ndarray
@@ -725,7 +725,7 @@ class HClustTree(object):
 
     def leaf_ids(self):
         if self._node is None:
-            return None
+            return []
         else:
             return self._node.pre_order(lambda xn: xn.get_id())
 
@@ -735,12 +735,129 @@ class HClustTree(object):
     def right_leaf_ids(self):
         return self.right().leaf_ids()
 
-    def bi_partition(self, return_subtrees=False):
-        labs, sids = self.cluster_id_to_lab_list([self.left_leaf_ids(),
-                                                        self.right_leaf_ids()],
-                                                       self.leaf_ids())
+    def bi_partition(self, soft_min_subtree_size=1,
+                     return_subtrees=False):
+        """
+        soft_min_subtree_size: when curr tree size < 2 * soft_min_subtree_size,
+        it is impossible to have a bipartition with a minimum sub tree size
+        bigger than soft_min_subtree_size. In this case, return the first
+        partition.
+
+        When soft_min_subtree_size = 1, the performance is the same as taking
+        the first bipartition.
+
+        When curr size = 1, the first bipartition gives
+        (1, 0). Because curr size < 2 * soft_min_subtree_size, it goes directly
+        to return.
+
+        When curr size = 2, the first bipartition guarantees to give (1, 1),
+        with the invariant that parent nodes of leaves always have 2 child
+        nodes. This also goes directly to return.
+
+        When curr size >= 3, the first bipartition guarantees to give two
+        subtrees with size >= 1, with the same invariant in size = 2.
+        """
+        soft_min_subtree_size = int(soft_min_subtree_size)
+        if soft_min_subtree_size < 1:
+            raise ValueError("soft_min_subtree_size should >= 1")
+        lst = self.left()
+        rst = self.right()
+        if (self.count() >= 2 * soft_min_subtree_size and
+            lst.count() != rst.count()):
+            # cut is not balanced
+            if lst.count() < rst.count():
+                min_st = lst
+                max_st = rst
+                min_side = "left"
+            else:
+                min_st = rst
+                max_st = lst
+                min_side = "right"
+            # Invariants:
+            # 1. min_st < max_st
+            # 2. min_st size >= 1, which implies that max_st size >= 2
+            # 3. parent node of a leaf has two child nodes.
+            while min_st.count() < soft_min_subtree_size:
+                # increase min_st size until it is larger than min_st_size
+                # or the max st size
+                if min_side == "left":
+                    max_spl_st = max_st.left()
+                    max_const_st = max_st.right()
+                else:
+                    # min side is right
+                    max_spl_st = max_st.right()
+                    max_const_st = max_st.left()
+                if max_spl_st.count() <= 1:
+                    if max_spl_st.count() <= 0:
+                        # count < 1 or count == 0
+                        # This should not happen given max_st > min_st >= 1
+                        raise RuntimeError("Unexpected branch reached")
+                    # split side only has 1 node
+                    # create an empty tree
+                    min_merge_st = min_st
+                    max_merge_st = max_spl_st
+                else:
+                    # split max_spl_st
+                    if min_side == "left":
+                        max_merge_st = max_spl_st.right()
+                        min_merge_st_node = sch.ClusterNode(
+                            id=max_spl_st._node.id,
+                            left=min_st._node,
+                            right=max_spl_st._left,
+                            dist=0,
+                            count=min_st.count() + max_spl_st.left_count())
+                    else:
+                        max_merge_st = max_spl_st.left()
+                        min_merge_st_node = sch.ClusterNode(
+                            id=max_spl_st._node.id,
+                            left=max_spl_st._right,
+                            right=min_st._node,
+                            dist=0,
+                            count=min_st.count() + max_spl_st.right_count())
+                    min_merge_st = HClustTree(min_merge_st_node, None)
+                if min_side == "left":
+                    merge_st_node = sch.ClusterNode(
+                        id=max_st._node.id,
+                        left=min_merge_st._node,
+                        right=max_merge_st._node,
+                        dist=0,
+                        count=min_merge_st.count() + max_merge_st.count())
+                else:
+                    merge_st_node = sch.ClusterNode(
+                        id=max_st._node.id,
+                        left=max_merge_st._node,
+                        right=min_merge_st._node,
+                        dist=0,
+                        count=min_merge_st.count() + max_merge_st.count())
+                merge_st = HClustTree(merge_st_node, self)
+                min_merge_st._prev = merge_st
+                max_merge_st._prev = merge_st
+
+                max_const_st._prev = self
+
+                if max_const_st.count() >= merge_st.count():
+                    max_st = max_const_st
+                    min_st = merge_st
+                else:
+                    # max_st > min_st
+                    max_st = merge_st
+                    min_st = max_const_st
+                    # reverse min side
+                    min_side = "left" if min_side == "right" else "right"
+            # obtained a min size cut
+            if min_side == "left":
+                lst = min_st
+                rst = max_st
+            else:
+                lst = max_st
+                rst = min_st
+            self._left = lst._node
+            self._right = rst._node
+        labs, sids = self.cluster_id_to_lab_list([lst.leaf_ids(),
+                                                  rst.leaf_ids()],
+                                                  self.leaf_ids())
         if return_subtrees:
-            return labs, sids, self.left(), self.right()
+            return labs, sids, lst, rst
         else:
             return labs, sids
 
@@ -846,9 +963,9 @@ class HClustTree(object):
                       sep="\n")
 
         dmat_sf = spspatial.distance.squareform(dmat)
-        hac_z = sph.linkage(dmat_sf, method=linkage,
+        hac_z = sch.linkage(dmat_sf, method=linkage,
                             optimal_ordering=optimal_ordering)
-        return HClustTree(sph.to_tree(hac_z))
+        return HClustTree(sch.to_tree(hac_z))
 
     @staticmethod
     def sort_x_by_d(x, dmat=None, metric="correlation", linkage="auto",
