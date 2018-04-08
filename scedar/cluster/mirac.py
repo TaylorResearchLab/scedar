@@ -252,6 +252,7 @@ class MIRAC(object):
             for i in range(len(curr_trees)):
                 # lst, rst: left_sub_tree, right_sub_tree
                 labs, s_inds, lst, rst = curr_trees[i].bi_partition(
+                    soft_min_subtree_size=max(minimax_n, 1),
                     return_subtrees=True)
                 s_cnt = len(s_inds)
 
