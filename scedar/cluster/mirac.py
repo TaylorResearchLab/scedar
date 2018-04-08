@@ -39,10 +39,8 @@ class MIRAC(object):
         Stored parameter.
     _maxmini_n: int
         Stored parameter.
-    _cluster_s_ind: int array
-        Clustered sample indices of the data matrix.
-    _cluster_labs: label array
-        Labels of clustered samples. 1-to-1 matching to _cluster_s_ind.
+    labs: label list
+        Labels of clustered samples. 1-to-1 matching to from first to last.
     _hac_tree_root: eda.hct.HClustTree
         Root node of the hierarchical agglomerative clustering tree.
     _run_log: str
@@ -89,10 +87,15 @@ class MIRAC(object):
 
         self._minimax_n = minimax_n
         self._maxmini_n = maxmini_n
-        self._cluster_s_ind, self._cluster_labs = self._mirac(
+        s_inds, s_labs = self._mirac(
             cl_mdl_scale_factor=cl_mdl_scale_factor,
             minimax_n=minimax_n, maxmini_n=maxmini_n, linkage=linkage,
             is_euc_dist=is_euc_dist, nprocs=nprocs, verbose=verbose)
+        self._labs = s_labs[np.argsort(s_inds, kind="mergesort")]
+
+    @property
+    def labs(self):
+        return self._labs.tolist()
 
     # lower upper bound
     # start, end, lb, ub should all be scalar

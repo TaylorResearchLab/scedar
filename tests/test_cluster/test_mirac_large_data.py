@@ -21,23 +21,21 @@ class TestLargeDataMIRAC(object):
     def test_mirac_run_300x1000(self):
         mirac_res = cluster.MIRAC(self.x300x1000, metric="correlation",
                                   nprocs=3)
-        ulabs, ulab_cnts = np.unique(mirac_res._cluster_labs,
+        ulabs, ulab_cnts = np.unique(mirac_res.labs,
                                      return_counts=True)
         np.testing.assert_equal(ulab_cnts, [60]*5)
-        mirac_res_ulab_ind = [mirac_res._cluster_s_ind[mirac_res._cluster_labs == ulab]
+        mirac_res_ulab_ind = [np.where(mirac_res._labs == ulab)[0]
                               for ulab in ulabs]
         for i in mirac_res_ulab_ind:
             assert len(np.unique(self.labs300[i])) == 1
-        assert sorted(mirac_res._cluster_s_ind.tolist()) == list(range(300))
 
     def test_mirac_run_100x500(self):
         mirac_res = cluster.MIRAC(self.x100x500, metric="correlation",
                                   nprocs=1)
-        ulabs, ulab_cnts = np.unique(mirac_res._cluster_labs,
+        ulabs, ulab_cnts = np.unique(mirac_res.labs,
                                      return_counts=True)
         np.testing.assert_equal(ulab_cnts, [50]*2)
-        mirac_res_ulab_ind = [mirac_res._cluster_s_ind[mirac_res._cluster_labs == ulab]
+        mirac_res_ulab_ind = [np.where(mirac_res._labs == ulab)[0]
                               for ulab in ulabs]
         for i in mirac_res_ulab_ind:
             assert len(np.unique(self.labs100[i])) == 1
-        assert sorted(mirac_res._cluster_s_ind.tolist()) == list(range(100))

@@ -3,6 +3,7 @@ import pytest
 import numpy as np
 
 import sklearn.datasets as skdset
+from sklearn import metrics
 
 import scedar.cluster as cluster
 
@@ -247,10 +248,18 @@ class TestMIRAC(object):
         cluster.MIRAC(x, metric="euclidean", minimax_n=25, maxmini_n=250,
                       verbose=True)
 
+        tx, tlab = skdset.make_blobs(n_samples=500, n_features=2,
+                                     centers=10, random_state=8927)
+        tx = tx - tx.min()
+        m = cluster.MIRAC(tx, metric="euclidean", linkage='ward',
+                          minimax_n=35, maxmini_n=100,
+                          cl_mdl_scale_factor=1, verbose=True)
+        assert len(m.labs) == 500
+
         tx2, tlab2 = skdset.make_blobs(n_samples=500, n_features=5,
                                        centers=100, cluster_std=1,
                                        random_state=8927)
         tx2 = tx2 - tx2.min()
-        m = cluster.MIRAC(tx2, metric="correlation", minimax_n=1, maxmini_n=2,
+        cluster.MIRAC(tx2, metric="correlation", minimax_n=1, maxmini_n=2,
                           cl_mdl_scale_factor=0, verbose=True)
-        assert len(np.unique(m._cluster_s_ind)) == 500
+
