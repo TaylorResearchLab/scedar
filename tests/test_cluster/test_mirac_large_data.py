@@ -20,7 +20,7 @@ class TestLargeDataMIRAC(object):
 
     def test_mirac_run_300x1000(self):
         mirac_res = cluster.MIRAC(self.x300x1000, metric="correlation",
-                                  nprocs=3)
+                                  minimax_n=35, maxmini_n=100, nprocs=3)
         ulabs, ulab_cnts = np.unique(mirac_res.labs,
                                      return_counts=True)
         np.testing.assert_equal(ulab_cnts, [60]*5)
@@ -31,7 +31,9 @@ class TestLargeDataMIRAC(object):
 
     def test_mirac_run_100x500(self):
         mirac_res = cluster.MIRAC(self.x100x500, metric="correlation",
-                                  nprocs=1)
+                                  minimax_n=35, maxmini_n=100,
+                                  cl_mdl_scale_factor=1,
+                                  nprocs=1, verbose=True)
         ulabs, ulab_cnts = np.unique(mirac_res.labs,
                                      return_counts=True)
         np.testing.assert_equal(ulab_cnts, [50]*2)

@@ -61,7 +61,7 @@ class MIRAC(object):
                  hac_tree=None,
                  nprocs=1, cl_mdl_scale_factor=1, minimax_n=25,
                  maxmini_n=None,
-                 linkage="complete", optimal_ordering=False,
+                 linkage="complete", optimal_ordering=True,
                  verbose=False):
         super(MIRAC, self).__init__()
 
@@ -158,7 +158,8 @@ class MIRAC(object):
         ind_cl_r_to_n = ind_cl_n / n
         ind_cl_r = (ind_cl_n - n/2) / (n/2)
 
-        if no_spl_mdl <= 0:
+        if no_spl_mdl >= 0:
+            # larger subcluster gets higher threshold
             ind_cl_corrected_r = ((ind_cl_r
                                    + ind_cl_r * (1 - np.abs(ind_cl_r))) / 2
                                   + 0.5)
@@ -234,7 +235,7 @@ class MIRAC(object):
     # else:
     #     add_individual_cluster_as_a_final_cl
     def _mirac(self, hac_tree=None, cl_mdl_scale_factor=1, minimax_n=25,
-               maxmini_n=None, linkage="complete", optimal_ordering=False,
+               maxmini_n=None, linkage="complete", optimal_ordering=True,
                is_euc_dist=False, nprocs=1, verbose=False):
 
         # iterative hierarchical agglomerative clustering
@@ -324,7 +325,7 @@ class MIRAC(object):
                                                           no_lab_mdl,
                                                           self._minimax_n)
                         if (subtree_mdl_list[st_ind]
-                                < (no_lab_mdl * st_spl_ratio)):
+                                > (no_lab_mdl * st_spl_ratio)):
                             if st_n <= self._minimax_n:
                                 subtree_split_list.append("no-spl-minimax")
                             else:
@@ -337,9 +338,7 @@ class MIRAC(object):
 
                     # if both subcls are "no-spl", add them together as a single cluster
                     if (np.all(np.in1d(subtree_split_list,
-                                       ("spl", "spl-minimax")))
-                        or np.all(np.in1d(subtree_split_list,
-                                          ("no-spl", "no-spl-minimax")))):
+                                       ("no-spl", "no-spl-minimax")))):
                         final_s_inds += s_inds
                         final_labs += [curr_final_lab] * s_cnt
                         curr_final_lab += 1

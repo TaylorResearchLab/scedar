@@ -257,15 +257,16 @@ class TestMIRAC(object):
         cluster.MIRAC(x, metric='euclidean', minimax_n=25, maxmini_n=250,
                       verbose=True)
 
-        tx, tlab = skdset.make_blobs(n_samples=500, n_features=2,
+        tx, tlab = skdset.make_blobs(n_samples=100, n_features=2,
                                      centers=10, random_state=8927)
         tx = tx - tx.min()
         sdm = eda.SampleDistanceMatrix(tx, metric='euclidean')
         m = cluster.MIRAC(sdm._x, sdm._d, metric='euclidean', linkage='ward',
                           minimax_n=35, maxmini_n=100,
                           cl_mdl_scale_factor=1, verbose=True)
-        assert len(m.labs) == 500
-        hct = eda.HClustTree.hclust_tree(sdm._d, linkage='ward')
+        assert len(m.labs) == 100
+        hct = eda.HClustTree.hclust_tree(sdm._d, linkage='ward',
+                                         optimal_ordering=True)
         m2 = cluster.MIRAC(sdm._x, hac_tree=hct,
                           minimax_n=35, maxmini_n=100,
                           cl_mdl_scale_factor=1, verbose=True)
@@ -277,5 +278,6 @@ class TestMIRAC(object):
                                        random_state=8927)
         tx2 = tx2 - tx2.min()
         cluster.MIRAC(tx2, metric='correlation', minimax_n=1, maxmini_n=2,
-                          cl_mdl_scale_factor=0, verbose=True)
+                      optimal_ordering=False,
+                      cl_mdl_scale_factor=0, verbose=True)
 
