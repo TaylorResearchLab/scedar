@@ -18,6 +18,10 @@ class MIRAC(object):
         List of sample ids.
     fids: fid list
         List of feature ids.
+    hac_tree: HCTree
+        Hierarchical tree built by agglomerative clustering to divide in
+        MIRAC. If provided, distance matrix will not be used for building
+        another tree.
     nprocs: int
         Number of processes to run MIRAC parallely.
     cl_mdl_scale_factor: float
@@ -54,8 +58,11 @@ class MIRAC(object):
     """
 
     def __init__(self, x, d=None, metric=None, sids=None, fids=None,
+                 hac_tree=None,
                  nprocs=1, cl_mdl_scale_factor=1, minimax_n=25,
-                 maxmini_n=None, linkage="complete", verbose=False):
+                 maxmini_n=None,
+                 linkage="complete", optimal_ordering=False,
+                 verbose=False):
         super(MIRAC, self).__init__()
 
         nprocs = int(np.ceil(nprocs))
@@ -64,6 +71,12 @@ class MIRAC(object):
                                              fids=fids, nprocs=nprocs)
 
         is_euc_dist = (metric == "euclidean")
+
+        if hac_tree is not None:
+            n_leaf_nodes = len(hac_tree.leaf_ids())
+            if n_leaf_nodes != self._sdm._x.shape[0]:
+                raise ValueError("hac_tree should have same number of "
+                                 "samples as x.")
 
         if cl_mdl_scale_factor < 0:
             raise ValueError("cl_mdl_scale_factor should >= 0",
@@ -88,8 +101,9 @@ class MIRAC(object):
         self._minimax_n = minimax_n
         self._maxmini_n = maxmini_n
         s_inds, s_labs = self._mirac(
-            cl_mdl_scale_factor=cl_mdl_scale_factor,
-            minimax_n=minimax_n, maxmini_n=maxmini_n, linkage=linkage,
+            hac_tree=hac_tree, cl_mdl_scale_factor=cl_mdl_scale_factor,
+            minimax_n=minimax_n, maxmini_n=maxmini_n,
+            linkage=linkage, optimal_ordering=optimal_ordering,
             is_euc_dist=is_euc_dist, nprocs=nprocs, verbose=verbose)
         self._labs = s_labs[np.argsort(s_inds, kind="mergesort")]
 
@@ -219,8 +233,8 @@ class MIRAC(object):
     #     add_together_as_a_final_cl
     # else:
     #     add_individual_cluster_as_a_final_cl
-    def _mirac(self, cl_mdl_scale_factor=1, minimax_n=25,
-               maxmini_n=None, linkage="complete",
+    def _mirac(self, hac_tree=None, cl_mdl_scale_factor=1, minimax_n=25,
+               maxmini_n=None, linkage="complete", optimal_ordering=False,
                is_euc_dist=False, nprocs=1, verbose=False):
 
         # iterative hierarchical agglomerative clustering
@@ -229,13 +243,15 @@ class MIRAC(object):
         # - minimax_n: estimated minimum # samples in a cluster
         # - maxmini_n: estimated max # samples in a cluster.
         #   If none, 10 * minimax is used.
+        if hac_tree is None:
+            hac_tree = eda.HClustTree.hclust_tree(
+                self._sdm._d, linkage=linkage, 
+                optimal_ordering=optimal_ordering, 
+                is_euc_dist=is_euc_dist, verbose=verbose)
 
         n_samples = self._sdm._x.shape[0]
         n_features = self._sdm._x.shape[1]
-
-        hac_tree = eda.HClustTree.hclust_tree(self._sdm._d, linkage=linkage,
-                                              is_euc_dist=is_euc_dist,
-                                              verbose=verbose)
+        
         self._hac_tree_root = hac_tree
         self._run_log = ""
 
