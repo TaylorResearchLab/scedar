@@ -107,13 +107,13 @@ class TestMIRAC(object):
                                    self.raw_red_ratio(50, 100))
 
         assert cluster.MIRAC.spl_mdl_ratio(
-            60, 100, 1, 25) < self.raw_red_ratio(60, 100)
+            60, 100, 1, 25) > self.raw_red_ratio(60, 100)
         assert cluster.MIRAC.spl_mdl_ratio(
-            40, 100, 1, 25) > self.raw_red_ratio(40, 100)
+            40, 100, 1, 25) < self.raw_red_ratio(40, 100)
         assert cluster.MIRAC.spl_mdl_ratio(
-            51, 100, 1, 25) < self.raw_red_ratio(51, 100)
+            51, 100, 1, 25) > self.raw_red_ratio(51, 100)
         assert cluster.MIRAC.spl_mdl_ratio(
-            49, 100, 1, 25) > self.raw_red_ratio(49, 100)
+            49, 100, 1, 25) < self.raw_red_ratio(49, 100)
 
         assert cluster.MIRAC.spl_mdl_ratio(1, 100, 1, 25) >= 0
         assert cluster.MIRAC.spl_mdl_ratio(99, 100, 1, 25) < 1
@@ -125,13 +125,13 @@ class TestMIRAC(object):
                                    self.raw_red_ratio(50, 100))
 
         assert cluster.MIRAC.spl_mdl_ratio(
-            60, 100, -1, 25) > self.raw_red_ratio(60, 100)
+            60, 100, -1, 25) < self.raw_red_ratio(60, 100)
         assert cluster.MIRAC.spl_mdl_ratio(
-            40, 100, -1, 25) < self.raw_red_ratio(40, 100)
+            40, 100, -1, 25) > self.raw_red_ratio(40, 100)
         assert cluster.MIRAC.spl_mdl_ratio(
-            51, 100, -1, 25) > self.raw_red_ratio(51, 100)
+            51, 100, -1, 25) < self.raw_red_ratio(51, 100)
         assert cluster.MIRAC.spl_mdl_ratio(
-            49, 100, -1, 25) < self.raw_red_ratio(49, 100)
+            49, 100, -1, 25) > self.raw_red_ratio(49, 100)
 
         assert cluster.MIRAC.spl_mdl_ratio(1, 100, -1, 25) >= 0
         assert cluster.MIRAC.spl_mdl_ratio(99, 100, -1, 25) < 1
@@ -142,16 +142,16 @@ class TestMIRAC(object):
     def test_spl_mdl_ratio_shrink_factor(self):
         # small shrink factor reduces the amonut of correction
         assert (cluster.MIRAC.spl_mdl_ratio(60, 100, 1, 25)
-                > cluster.MIRAC.spl_mdl_ratio(60, 100, 1, 10))
+                < cluster.MIRAC.spl_mdl_ratio(60, 100, 1, 10))
 
         assert (cluster.MIRAC.spl_mdl_ratio(40, 100, 1, 25)
-                < cluster.MIRAC.spl_mdl_ratio(40, 100, 1, 10))
+                > cluster.MIRAC.spl_mdl_ratio(40, 100, 1, 10))
 
         assert (cluster.MIRAC.spl_mdl_ratio(60, 100, -1, 25)
-                < cluster.MIRAC.spl_mdl_ratio(60, 100, -1, 10))
+                > cluster.MIRAC.spl_mdl_ratio(60, 100, -1, 10))
 
         assert (cluster.MIRAC.spl_mdl_ratio(40, 100, -1, 25)
-                > cluster.MIRAC.spl_mdl_ratio(40, 100, -1, 10))
+                < cluster.MIRAC.spl_mdl_ratio(40, 100, -1, 10))
 
     def test_spl_mdl_ratio_wrong_args(self):
         with pytest.raises(ValueError) as excinfo:
@@ -277,7 +277,7 @@ class TestMIRAC(object):
                                        centers=100, cluster_std=1,
                                        random_state=8927)
         tx2 = tx2 - tx2.min()
-        cluster.MIRAC(tx2, metric='correlation', minimax_n=1, maxmini_n=2,
+        cluster.MIRAC(tx2, metric='correlation', minimax_n=3, maxmini_n=7,
                       optimal_ordering=False,
                       cl_mdl_scale_factor=0, verbose=True)
 
