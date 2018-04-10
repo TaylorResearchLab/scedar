@@ -55,6 +55,7 @@ class MIRAC(object):
 
     * Take HCTree as parameter. Computing it is non-trivial when n is large.
 
+    * Simplify splitting criteria.
     """
 
     def __init__(self, x, d=None, metric=None, sids=None, fids=None,
