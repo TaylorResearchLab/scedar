@@ -105,6 +105,10 @@ class GKdeMdl(object):
     def x(self):
         return self._x.copy()
 
+    @property
+    def kde(self):
+        return self._kde
+
     @staticmethod
     def gaussian_kde_logdens(x, bandwidth_method="silverman",
                              ret_kernel=False):
@@ -212,6 +216,10 @@ class ZeroIdcGKdeMdl(object):
     @property
     def bandwidth(self):
         return self._kde_mdl_obj.bandwidth
+
+    @property
+    def kde(self):
+        return self._kde_mdl_obj.kde
 
     @property
     def zi_mdl(self):

@@ -96,6 +96,17 @@ class TestZeroIdcGKdeMdl(object):
         np.testing.assert_allclose(1, zikm3.bandwidth / xnz_std)
         assert not np.allclose(zikm2.bandwidth, zikm3.bandwidth)
 
+    def test_kde(self):
+        zikm = eda.ZeroIdcGKdeMdl(self.x)
+        kde = zikm.kde
+        kde.logpdf([1, 2, 3])
+
+        kde2 = eda.ZeroIdcGKdeMdl(self.x_all_zero).kde
+        assert kde2 is None
+
+        kde3 = eda.ZeroIdcGKdeMdl(self.x_one_nonzero).kde
+        assert kde3 is None
+
     def test_wrong_x_shape(self):
         with pytest.raises(ValueError) as excinfo:
             eda.ZeroIdcGKdeMdl(np.arange(10).reshape(5, 2))
@@ -109,7 +120,7 @@ class TestGKdeMdl(object):
     def test_x(self):
         gkmdl = eda.GKdeMdl(np.arange(100))
         np.testing.assert_equal(gkmdl.x, np.arange(100))
-    
+
     def test_2d_kde(self):
         logdens = eda.GKdeMdl.gaussian_kde_logdens(
             np.random.normal(size=50).reshape(10, 5))

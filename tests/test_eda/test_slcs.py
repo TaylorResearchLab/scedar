@@ -760,10 +760,10 @@ class TestMDLSingleLabelClassifiedSamples(object):
     labs50 = [0]*10 + [1]*35 + [2]*5
 
     def test_mdl_computation(self):
-        mdl_sdm = eda.MDLSingleLabelClassifiedSamples(
+        mdl_slcs = eda.MDLSingleLabelClassifiedSamples(
             self.x50x5, labs=self.labs50, metric="euclidean")
-        no_lab_mdl = mdl_sdm.no_lab_mdl()
-        ulab_s_ind_l, ulab_cnt_l, ulab_mdl_l, cluster_mdl = mdl_sdm.lab_mdl()
+        no_lab_mdl = mdl_slcs.no_lab_mdl()
+        ulab_s_ind_l, ulab_cnt_l, ulab_mdl_l, cluster_mdl = mdl_slcs.lab_mdl()
         assert ulab_s_ind_l == [list(range(10)), list(range(10, 45)),
                                 list(range(45, 50))]
 
@@ -780,10 +780,10 @@ class TestMDLSingleLabelClassifiedSamples(object):
                 ulab_mdl_l[i] - cluster_mdl * ulab_cnt_l[i] / 50)
 
     def test_mdl_computation_mp(self):
-        mdl_sdm = eda.MDLSingleLabelClassifiedSamples(
+        mdl_slcs = eda.MDLSingleLabelClassifiedSamples(
             self.x50x5, labs=self.labs50, metric="euclidean")
-        no_lab_mdl = mdl_sdm.no_lab_mdl(nprocs=2)
-        ulab_s_ind_l, ulab_cnt_l, ulab_mdl_l, cluster_mdl = mdl_sdm.lab_mdl(
+        no_lab_mdl = mdl_slcs.no_lab_mdl(nprocs=2)
+        ulab_s_ind_l, ulab_cnt_l, ulab_mdl_l, cluster_mdl = mdl_slcs.lab_mdl(
             nprocs=2)
         assert ulab_s_ind_l == [list(range(10)), list(range(10, 45)),
                                 list(range(45, 50))]
@@ -800,32 +800,108 @@ class TestMDLSingleLabelClassifiedSamples(object):
                 ci_mdl.no_lab_mdl(nprocs=5),
                 ulab_mdl_l[i] - cluster_mdl * ulab_cnt_l[i] / 50)
 
+    def test_mdl_method(self):
+        zigk_mdl_slcs = eda.MDLSingleLabelClassifiedSamples(
+            self.x50x5, labs=self.labs50, mdl_method="ZeroIdcGKdeMdl",
+            metric="euclidean")
+        gk_mdl_slcs = eda.MDLSingleLabelClassifiedSamples(
+            self.x50x5, labs=self.labs50, mdl_method="GKdeMdl",
+            metric="euclidean")
+        assert gk_mdl_slcs._mdl_method == "GKdeMdl"
+        assert zigk_mdl_slcs._mdl_method == "ZeroIdcGKdeMdl"
+        assert zigk_mdl_slcs.no_lab_mdl() != gk_mdl_slcs.no_lab_mdl()
+
+        for mdl_method in ("GKdeMdl", "ZeroIdcGKdeMdl"):
+            mdl_slcs = eda.MDLSingleLabelClassifiedSamples(
+                self.x50x5, labs=self.labs50, mdl_method=mdl_method,
+                metric="euclidean")
+
+            (ulab_s_ind_l, ulab_cnt_l,
+             ulab_mdl_l, cluster_mdl) = mdl_slcs.lab_mdl()
+
+            assert ulab_s_ind_l == [list(range(10)), list(range(10, 45)),
+                                    list(range(45, 50))]
+
+            ulab_cnt_l = [10, 35, 5]
+
+            for i in range(3):
+                ci_mdl = eda.MDLSingleLabelClassifiedSamples(
+                    self.x50x5[ulab_s_ind_l[i], :],
+                    labs=[self.labs50[ii] for ii in ulab_s_ind_l[i]],
+                    mdl_method=mdl_method,
+                    metric="euclidean")
+
+                np.testing.assert_allclose(
+                    ci_mdl.no_lab_mdl(),
+                    ulab_mdl_l[i] - cluster_mdl * ulab_cnt_l[i] / 50)
+
+    def test_mdl_wrong_method(self):
+        with pytest.raises(ValueError) as excinfo:
+            eda.MDLSingleLabelClassifiedSamples(
+                self.x50x5, labs=self.labs50, mdl_method="123",
+                metric="euclidean").no_lab_mdl()
+
+        with pytest.raises(ValueError) as excinfo:
+            eda.MDLSingleLabelClassifiedSamples(
+                self.x50x5, labs=self.labs50, mdl_method=2,
+                metric="euclidean").no_lab_mdl()
+
+        with pytest.raises(ValueError) as excinfo:
+            eda.MDLSingleLabelClassifiedSamples(
+                self.x50x5, labs=self.labs50, mdl_method=None,
+                metric="euclidean").no_lab_mdl()
+
     def test_mdl_ret_internal(self):
-        mdl_sdm = eda.MDLSingleLabelClassifiedSamples(
+        mdl_slcs = eda.MDLSingleLabelClassifiedSamples(
             self.x50x5, labs=self.labs50, metric="euclidean")
 
-        ulab_s_ind_l, ulab_cnt_l, ulab_mdl_l, cluster_mdl, mdl_l = mdl_sdm.lab_mdl(
-            ret_internal=True)
+        (ulab_s_ind_l, ulab_cnt_l, ulab_mdl_l,
+         cluster_mdl, mdl_l) = mdl_slcs.lab_mdl(ret_internal=True)
         np.testing.assert_allclose(sum(mdl_l) + cluster_mdl,
                                    sum(ulab_mdl_l))
 
-        ulab_s_ind_l2, ulab_cnt_l2, ulab_mdl_l2, cluster_mdl2 = mdl_sdm.lab_mdl()
+        ulab_s_ind_l2, ulab_cnt_l2, ulab_mdl_l2, cluster_mdl2 = mdl_slcs.lab_mdl()
         assert ulab_s_ind_l == ulab_s_ind_l2
         assert ulab_cnt_l == ulab_cnt_l2
         assert ulab_mdl_l == ulab_mdl_l2
         assert cluster_mdl == cluster_mdl2
 
-    def test_per_column_zigkmdl_wrong_xshape(self):
+    def test_per_column_mdl_wrong_xshape(self):
         with pytest.raises(ValueError) as excinfo:
-            eda.MDLSingleLabelClassifiedSamples.per_column_zigkmdl(np.zeros(10))
+            eda.MDLSingleLabelClassifiedSamples.per_column_mdl(np.zeros(10))
 
         with pytest.raises(ValueError) as excinfo:
-            eda.MDLSingleLabelClassifiedSamples.per_column_zigkmdl(
+            eda.MDLSingleLabelClassifiedSamples.per_column_mdl(
                 np.zeros((10, 10, 10)))
 
-    def test_per_column_zigkmdl_ret_internal(self):
-        mdl_sum = eda.MDLSingleLabelClassifiedSamples.per_column_zigkmdl(
+    def test_per_column_mdl_ret_internal(self):
+        mdl_sum = eda.MDLSingleLabelClassifiedSamples.per_column_mdl(
             self.x50x5)
-        mdl_sum, mdl_l = eda.MDLSingleLabelClassifiedSamples.per_column_zigkmdl(
+        mdl_sum, mdl_l = eda.MDLSingleLabelClassifiedSamples.per_column_mdl(
             self.x50x5, ret_internal=True)
         np.testing.assert_allclose(mdl_sum, sum(map(lambda x: x.mdl, mdl_l)))
+
+    def test_encode_mdl(self):
+        mdl_slcs = eda.MDLSingleLabelClassifiedSamples(
+            self.x50x5, labs=self.labs50, metric="euclidean")
+        # wrong dimensions
+        with pytest.raises(ValueError) as excinfo:
+            mdl_slcs.encode_mdl(np.zeros((10, 3)))
+
+        with pytest.raises(ValueError) as excinfo:
+            mdl_slcs.encode_mdl(np.zeros(20))
+
+        emdl = mdl_slcs.encode_mdl(np.arange(100).reshape(-1, 5))
+        emdl2 = mdl_slcs.encode_mdl(np.arange(100).reshape(-1, 5), nprocs=2)
+
+        assert emdl == emdl2
+
+        emdl3 = eda.MDLSingleLabelClassifiedSamples(
+            self.x50x5, mdl_method="GKdeMdl", labs=self.labs50,
+            metric="euclidean").encode_mdl(np.arange(100).reshape(-1, 5))
+        assert emdl != emdl3
+
+        emdl4 = eda.MDLSingleLabelClassifiedSamples(
+            np.zeros((50, 5)), mdl_method="GKdeMdl", labs=self.labs50,
+            metric="euclidean").encode_mdl(np.arange(100).reshape(-1, 5))
+        assert emdl != emdl4

@@ -691,14 +691,17 @@ class MDLSingleLabelClassifiedSamples(SingleLabelClassifiedSamples):
     """
 
     def __init__(self, x, labs, sids=None, fids=None,
+                 mdl_method="ZeroIdcGKdeMdl",
                  d=None, metric="correlation", nprocs=None):
         super(MDLSingleLabelClassifiedSamples, self).__init__(x=x, labs=labs,
                                                       sids=sids, fids=fids,
                                                       d=d, metric=metric,
                                                       nprocs=nprocs)
+        self._mdl_method = mdl_method
 
     @staticmethod
-    def per_column_zigkmdl(x, nprocs=1, verbose=False, ret_internal=False):
+    def per_column_mdl(x, method="ZeroIdcGKdeMdl", nprocs=1,
+                       verbose=False, ret_internal=False):
         # verbose is not implemented
         if x.ndim != 2:
             raise ValueError("x should have shape (n_samples, n_features)."
@@ -706,12 +709,19 @@ class MDLSingleLabelClassifiedSamples(SingleLabelClassifiedSamples):
 
         nprocs = max(int(nprocs), 1)
 
+        if method == "ZeroIdcGKdeMdl":
+            mdl1d = mdl.ZeroIdcGKdeMdl
+        elif method == "GKdeMdl":
+            mdl1d = mdl.GKdeMdl
+        else:
+            raise ValueError("Unknown mdl method {}".format(method))
+
         # apply to each feature
         if nprocs != 1:
-            col_mdl_list = utils.parmap(lambda x1d: mdl.ZeroIdcGKdeMdl(x1d),
+            col_mdl_list = utils.parmap(lambda x1d: mdl1d(x1d),
                                         x.T, nprocs)
         else:
-            col_mdl_list = list(map(lambda x1d: mdl.ZeroIdcGKdeMdl(x1d), x.T))
+            col_mdl_list = list(map(lambda x1d: mdl1d(x1d), x.T))
 
         col_mdl_sum = sum(map(lambda zkmdl: zkmdl.mdl, col_mdl_list))
         if ret_internal:
@@ -721,8 +731,48 @@ class MDLSingleLabelClassifiedSamples(SingleLabelClassifiedSamples):
 
     def no_lab_mdl(self, nprocs=1, verbose=False):
         # verbose is not implemented
-        col_mdl_sum = self.per_column_zigkmdl(self._x, nprocs, verbose)
+        col_mdl_sum = self.per_column_mdl(self._x, self._mdl_method,
+                                          nprocs, verbose)
         return col_mdl_sum
+
+    def encode_mdl(self, x, nprocs=1, verbose=False):
+        """Encode input array x with current kde.
+        """
+        if x.ndim != 2 or x.shape[1] != self._x.shape[1]:
+            raise ValueError("Array to encode should have the same number of"
+                             "columns as the object._x")
+
+        ncols = self._x.shape[1]
+
+        col_mdl_sum, col_mdl_list = self.per_column_mdl(
+            self._x, self._mdl_method, nprocs, verbose=verbose,
+            ret_internal=True)
+
+        q_x_cols = []
+        for i in range(ncols):
+            x_col = x[:, i]
+            # mdl_method is valid after running per_column_mdl
+            if self._mdl_method == "ZeroIdcGKdeMdl":
+                q_x_cols.append(x_col[np.nonzero(x_col)])
+            else:
+                # all mdl methods here are valid
+                # this branch is GKdeMdl
+                q_x_cols.append(x_col)
+        # (kde, x) tuple
+        encode_1d_mdl = lambda kxt: -kxt[0].logpdf(kxt[1]).sum()
+
+        q_kde_x_cols = []
+        for i in range(ncols):
+            if col_mdl_list[i].kde is not None:
+                q_kde_x_cols.append((col_mdl_list[i].kde, q_x_cols[i]))
+
+        if nprocs != 1:
+            encode_q_col_mdls = utils.parmap(encode_1d_mdl, q_kde_x_cols)
+        else:
+            encode_q_col_mdls = list(map(encode_1d_mdl, q_kde_x_cols))
+
+        encode_x_mdl = sum(encode_q_col_mdls)
+        return encode_x_mdl
 
     def lab_mdl(self, cl_mdl_scale_factor=1, nprocs=1, verbose=False,
                 ret_internal=False):
@@ -735,7 +785,8 @@ class MDLSingleLabelClassifiedSamples(SingleLabelClassifiedSamples):
         ulab_cnt_ratios = self._uniq_lab_cnts / self._x.shape[0]
 
         # MDL for points in each cluster
-        pts_mdl_list = [self.per_column_zigkmdl(x, nprocs, verbose)
+        pts_mdl_list = [self.per_column_mdl(x, self._mdl_method,
+                                            nprocs, verbose)
                         for x in ulab_x_list]
 
         # Additional MDL for encoding the cluster:
@@ -756,4 +807,3 @@ class MDLSingleLabelClassifiedSamples(SingleLabelClassifiedSamples):
         else:
             return (ulab_s_ind_list, self._uniq_lab_cnts.tolist(),
                     ulab_mdl_list, cluster_mdl)
-
