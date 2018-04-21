@@ -7,4 +7,4 @@ from .sfm import SampleFeatureMatrix
 from .sdm import SampleDistanceMatrix, tsne, HClustTree
 from . import mtype
 from . import stats
-from .mdl import MultinomialMdl, ZeroIdcGKdeMdl
+from .mdl import MultinomialMdl, GKdeMdl, ZeroIdcGKdeMdl

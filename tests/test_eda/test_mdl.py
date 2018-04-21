@@ -100,13 +100,23 @@ class TestZeroIdcGKdeMdl(object):
         with pytest.raises(ValueError) as excinfo:
             eda.ZeroIdcGKdeMdl(np.arange(10).reshape(5, 2))
 
+class TestGKdeMdl(object):
+    """docstring for TestKdeMdl"""
+    def test_wrong_x_shape(self):
+        with pytest.raises(ValueError) as excinfo:
+            eda.GKdeMdl(np.arange(10).reshape(5, 2))
+
+    def test_x(self):
+        gkmdl = eda.GKdeMdl(np.arange(100))
+        np.testing.assert_equal(gkmdl.x, np.arange(100))
+    
     def test_2d_kde(self):
-        logdens = eda.ZeroIdcGKdeMdl.gaussian_kde_logdens(
+        logdens = eda.GKdeMdl.gaussian_kde_logdens(
             np.random.normal(size=50).reshape(10, 5))
         assert logdens.ndim == 1
         assert logdens.size == 10
 
     def test_wrong_kde_x_shape(self):
         with pytest.raises(ValueError) as excinfo:
-            eda.ZeroIdcGKdeMdl.gaussian_kde_logdens(
+            eda.GKdeMdl.gaussian_kde_logdens(
                 np.reshape(np.arange(9), (3, 3, 1)))

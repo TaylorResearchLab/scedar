@@ -47,6 +47,100 @@ class MultinomialMdl(object):
         return self._mdl
 
 
+class GKdeMdl(object):
+    """docstring for GKdeMdl"""
+    def __init__(self, x, kde_bw_method="silverman"):
+        super(GKdeMdl, self).__init__()
+
+        if x.ndim != 1:
+            raise ValueError("x should be 1D array. "
+                             "x.shape: {}".format(x.shape))
+
+        self._x = x
+        self._n = x.shape[0]
+
+        self._bw_method = kde_bw_method
+
+        self._mdl = self._kde_mdl()
+
+    def _kde_mdl(self):
+        if self._n == 0:
+            kde = None
+            logdens = None
+            bw_factor = None
+            # no non-zery vals. Indicator encoded by zi mdl.
+            kde_mdl = 0
+        else:
+            try:
+                logdens, kde = self.gaussian_kde_logdens(
+                    self._x, bandwidth_method=self._bw_method,
+                    ret_kernel=True)
+                kde_mdl = -logdens.sum() + np.log(2)
+                bw_factor = kde.factor
+            except Exception as e:
+                kde = None
+                logdens = None
+                bw_factor = None
+                # encode just single value or multiple values
+                kde_mdl = MultinomialMdl(
+                    (self._x * 100).astype(int)).mdl
+
+        self._bw_factor = bw_factor
+        self._kde = kde
+        self._logdens = logdens
+        return kde_mdl
+
+    @property
+    def bandwidth(self):
+        if self._bw_factor is None:
+            return None
+        else:
+            return self._bw_factor * self._x.std(ddof=1)
+
+    @property
+    def mdl(self):
+        return self._mdl
+
+    @property
+    def x(self):
+        return self._x.copy()
+
+    @staticmethod
+    def gaussian_kde_logdens(x, bandwidth_method="silverman",
+                             ret_kernel=False):
+        """
+        Estimate Gaussian kernel density estimation bandwidth for input `x`.
+
+        Parameters
+        ----------
+        x: float array of shape `(n_samples)` or `(n_samples, n_features)`
+            Data points for KDE estimation.
+        bandwidth_method: string
+            KDE bandwidth estimation method bing passed to
+            `scipy.stats.gaussian_kde`.
+
+        """
+
+        # This package uses (n_samples, n_features) convention
+        # scipy uses (n_featues, n_samples) convention
+        # so it is necessary to reshape the data
+        if x.ndim == 1:
+            x = x.reshape(1, -1)
+        elif x.ndim == 2:
+            x = x.T
+        else:
+            raise ValueError("x should be 1/2D array. "
+                             "x.shape: {}".format(x.shape))
+
+        kde = spstats.gaussian_kde(x, bw_method=bandwidth_method)
+        logdens = np.log(kde.evaluate(x))
+
+        if ret_kernel:
+            return (logdens, kde)
+        else:
+            return logdens
+
+
 class ZeroIdcGKdeMdl(object):
     """
     Zero indicator Gaussian KDE MDL
@@ -100,7 +194,8 @@ class ZeroIdcGKdeMdl(object):
         self._bw_method = kde_bw_method
 
         self._zi_mdl = self._compute_zero_indicator_mdl()
-        self._kde_mdl = self._compute_non_zero_val_mdl()
+        self._kde_mdl_obj = GKdeMdl(self._x_nonzero, kde_bw_method)
+        self._kde_mdl = self._kde_mdl_obj.mdl
         self._mdl = self._zi_mdl + self._kde_mdl
 
     def _compute_zero_indicator_mdl(self):
@@ -114,74 +209,9 @@ class ZeroIdcGKdeMdl(object):
                       (self._n - self._k) * np.log(1-p))
         return zi_mdl
 
-    def _compute_non_zero_val_mdl(self):
-        if self._n == 0 or self._k == 0:
-            kde = None
-            logdens = None
-            bw_factor = None
-            # no non-zery vals. Indicator encoded by zi mdl.
-            kde_mdl = 0
-        else:
-            try:
-                logdens, kde = self.gaussian_kde_logdens(
-                    self._x_nonzero, bandwidth_method=self._bw_method,
-                    ret_kernel=True)
-                kde_mdl = -logdens.sum() + np.log(2)
-                bw_factor = kde.factor
-            except Exception as e:
-                kde = None
-                logdens = None
-                bw_factor = None
-                # encode just single value or multiple values
-                kde_mdl = MultinomialMdl(
-                    (self._x_nonzero * 100).astype(int)).mdl
-
-        self._bw_factor = bw_factor
-        self._kde = kde
-        self._logdens = logdens
-        return kde_mdl
-
-    @staticmethod
-    def gaussian_kde_logdens(x, bandwidth_method="silverman",
-                             ret_kernel=False):
-        """
-        Estimate Gaussian kernel density estimation bandwidth for input `x`.
-
-        Parameters
-        ----------
-        x: float array of shape `(n_samples)` or `(n_samples, n_features)`
-            Data points for KDE estimation.
-        bandwidth_method: string
-            KDE bandwidth estimation method bing passed to
-            `scipy.stats.gaussian_kde`.
-
-        """
-
-        # This package uses (n_samples, n_features) convention
-        # scipy uses (n_featues, n_samples) convention
-        # so it is necessary to reshape the data
-        if x.ndim == 1:
-            x = x.reshape(1, -1)
-        elif x.ndim == 2:
-            x = x.T
-        else:
-            raise ValueError("x should be 1/2D array. "
-                             "x.shape: {}".format(x.shape))
-
-        kde = spstats.gaussian_kde(x, bw_method=bandwidth_method)
-        logdens = np.log(kde.evaluate(x))
-
-        if ret_kernel:
-            return (logdens, kde)
-        else:
-            return logdens
-
     @property
     def bandwidth(self):
-        if self._bw_factor is None:
-            return None
-        else:
-            return self._bw_factor * self._x_nonzero.std(ddof=1)
+        return self._kde_mdl_obj.bandwidth
 
     @property
     def zi_mdl(self):
