@@ -1,46 +1,160 @@
 import numpy as np
 import scipy.spatial as spspatial
 import scipy.stats as spstats
+from abc import ABC, abstractmethod
 
 
-class MultinomialMdl(object):
+def npfloat_1d(x, dtype=np.dtype("f8")):
+    """Convert x to 1d np float array
+    Args:
+        x (1d sequence of values convertable to np.float)
+        dtype (np float type): default to 64-bit float
+
+    Returns:
+        xarr (1d np.float array)
+
+    Raises:
+        ValueError: If x is not convertable to np.float or non-1d. If dtype is
+        not subdtype of np number.
     """
-    Encode discrete values using multinomial distribution
+    if not np.issubdtype(dtype, np.number):
+        raise ValueError("dtype must be a type of numpy number")
 
-    Parameters
-    ----------
-    x: 1d float array
-        Should be non-negative
+    xarr = np.array(x, dtype=dtype)
+    if xarr.ndim != 1:
+        raise ValueError("x should be 1D array. "
+                         "x.shape: {}".format(xarr.shape))
+    return xarr
 
-    Notes
-    -----
-    When x only has 1 uniq value. Encode the the number of values only.
+
+class Mdl(ABC):
+    """Minimum description length abstract base class
+
+    Attributes:
+        _x (1D np.float array): data used for fit mdl
+        _n (np.int): number of points in x
     """
-
+    @abstractmethod
     def __init__(self, x):
-        super(MultinomialMdl, self).__init__()
-        x = np.array(x)
-        if x.ndim != 1:
-            raise ValueError("x should be 1D array. "
-                             "x.shape: {}".format(x.shape))
-        self._x = x
-        self._n = x.shape[0]
-        self._mdl = self._mn_mdl()
-        return
+        """Initialize
+        Args:
+            x (1D np.float array): data used for fit mdl
+        """
+        self._x = npfloat_1d(x)
+        # avoid divide by 0 exception
+        self._n = np.int_(self._x.shape[0])
 
-    def _mn_mdl(self):
-        uniq_vals, uniq_val_cnts = np.unique(self._x, return_counts=True)
-        if len(uniq_vals) > 1:
-            return (-np.log(uniq_val_cnts / uniq_val_cnts.sum()) * uniq_val_cnts).sum()
-        elif len(uniq_vals) == 1:
-            return np.log(uniq_val_cnts)
-        else:
-            # len(x) == 0
-            return 0
+    @abstractmethod
+    def encode(self, x):
+        """Encode another 1D float array with fitted code
+        Args:
+            x (1D np.float array): data to encode
+        """
+        raise NotImplementedError
 
     @property
     def x(self):
-        return self._x.tolist()
+        return self._x.copy()
+
+    @property
+    @abstractmethod
+    def mdl(self):
+        raise NotImplementedError
+
+
+class MultinomialMdl(Mdl):
+    """
+    Encode discrete values using multinomial distribution
+
+    Args:
+        x (1d float array): Should be non-negative
+
+    Note:
+        When x only has 1 uniq value. Encode the the number of values only.
+    """
+
+    def __init__(self, x):
+        super().__init__(x)
+
+        uniq_vals, uniq_val_cnts = np.unique(x, return_counts=True)
+        self._n_uniq = len(uniq_vals)
+        self._uniq_vals = uniq_vals
+        self._uniq_val_cnts = uniq_val_cnts
+        # make division by 0 valid.
+        self._uniq_val_ps = uniq_val_cnts / self._n
+        # create a lut for unique vals and ps
+        self._uniq_val_p_lut = dict(zip(uniq_vals, self._uniq_val_ps))
+
+        if len(self._uniq_vals) > 1:
+            mdl = (-np.log(self._uniq_val_ps) * self._uniq_val_cnts).sum()
+        elif len(self._uniq_vals) == 1:
+            mdl = np.log(self._n)
+        else:
+            # len(x) == 0
+            mdl = 0
+
+        self._mdl = mdl
+        return
+
+    def encode(self, qx, use_adjescent_when_absent=False):
+        """Encode another 1D float array with fitted code
+
+        Args:
+            qx (1d float array): query data
+            use_adjescent_when_absent (bool): whether to use adjascent value
+                to compute query mdl. If not, uniform mdl is used. If
+                adjascent values have same distance to query value, choose the
+                one with smaller mdl.
+
+        Returns:
+            qmdl (float)
+        """
+        qx = npfloat_1d(qx)
+        if qx.size == 0:
+            return 0
+
+        # Encode with 32bit float
+        unif_q_val_mdl = np.log(np.max(np.abs(qx)*2))
+        if self._n == 0:
+            # uniform
+            return qx.size * unif_q_val_mdl
+
+        q_uniq_vals, q_uniq_val_cnts = np.unique(qx, return_counts=True)
+        q_mdl = 0
+        for uval, ucnt in zip(q_uniq_vals, q_uniq_val_cnts):
+            uval_p = self._uniq_val_p_lut.get(uval)
+            if uval_p is None:
+                if use_adjescent_when_absent:
+                    uind = np.searchsorted(self._uniq_vals, uval)
+                    if uind <= 0:
+                        # uval lower than minimum
+                        uval_p = self._uniq_val_ps[0]
+                    elif uind >= self._n_uniq:
+                        # uval higher than maximum
+                        uval_p = self._uniq_val_ps[-1]
+                    else:
+                        # uval within range [1, _n_uniq-1]
+                        # abs diff between uval and left val
+                        l_diff = np.abs(self._uniq_vals[uind-1] - uval)
+                        # abs diff between uval and right avl
+                        r_diff = np.abs(self._uniq_vals[uind] - uval)
+                        if l_diff < r_diff:
+                            # closer to left
+                            uval_p = self._uniq_val_ps[uind-1]
+                        elif l_diff > r_diff:
+                            # closer to right
+                            uval_p = self._uniq_val_ps[uind]
+                        else:
+                            # same distance, choose max p
+                            uval_p = max(self._uniq_val_ps[uind-1],
+                                         self._uniq_val_ps[uind])
+                    uval_mdl = -np.log(uval_p)
+                else:
+                    uval_mdl = unif_q_val_mdl
+            else:
+                uval_mdl = -np.log(uval_p)
+            q_mdl += uval_mdl * ucnt
+        return q_mdl
 
     @property
     def mdl(self):
@@ -49,6 +163,7 @@ class MultinomialMdl(object):
 
 class GKdeMdl(object):
     """docstring for GKdeMdl"""
+
     def __init__(self, x, kde_bw_method="silverman"):
         super(GKdeMdl, self).__init__()
 
@@ -179,8 +294,7 @@ class ZeroIGKdeMdl(object):
 
     [4] https://github.com/scipy/scipy/blob/v1.0.0/scipy/stats/kde.py#L42-L564
 
-    """
-
+    """  # noqa
 
     def __init__(self, x, kde_bw_method="silverman"):
         super(ZeroIGKdeMdl, self).__init__()

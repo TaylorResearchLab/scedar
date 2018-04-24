@@ -5,6 +5,27 @@ import numpy as np
 import scedar.eda as eda
 
 
+def test_npfloat_1d():
+    # correct dtype
+    eda.mdl.npfloat_1d([1, 2, 3], int)
+    eda.mdl.npfloat_1d([1, 2, 3], float)
+    # wrong type
+    with pytest.raises(ValueError) as excinfo:
+        eda.mdl.npfloat_1d([1, 2, 3], str)
+
+    with pytest.raises(ValueError) as excinfo:
+        eda.mdl.npfloat_1d([1, 2, 3], np.bool_)
+
+    with pytest.raises(ValueError) as excinfo:
+        eda.mdl.npfloat_1d([1, 2, 3], bool)
+
+    # wrong dim, i.e. non 1d
+    with pytest.raises(ValueError) as excinfo:
+        eda.mdl.npfloat_1d([[1, 2], [3, 4]])
+    with pytest.raises(ValueError) as excinfo:
+        eda.mdl.npfloat_1d(1)
+
+
 class TestMultinomialMdl(object):
     """docstring for TestMultinomialMdl"""
 
@@ -13,25 +34,57 @@ class TestMultinomialMdl(object):
         assert mmdl.mdl == 0
 
     def test_single_level(self):
-        mmdl = eda.MultinomialMdl(["a"]*10)
+        mmdl = eda.MultinomialMdl([1]*10)
         np.testing.assert_allclose(mmdl.mdl, np.log(10))
 
     def test_multi_levels(self):
-        x = ["a"]*10 + ["b"]*25
-        ux, uxcnt = np.unique(x, return_counts=True)
+        x = [1]*10 + [2]*25
+        _, uxcnt = np.unique(x, return_counts=True)
         mmdl = eda.MultinomialMdl(x)
         np.testing.assert_allclose(mmdl.mdl,
                                    (-np.log(uxcnt / len(x)) * uxcnt).sum())
 
-    def test_wrong_x_shape(self):
-        with pytest.raises(ValueError) as excinfo:
-            eda.MultinomialMdl(np.arange(6).reshape(3, 2))
-
     def test_getter(self):
         mmdl = eda.MultinomialMdl([])
-        assert mmdl.x == []
+        assert mmdl.x.tolist() == []
         mmdl2 = eda.MultinomialMdl([0, 0, 1, 1, 1])
-        assert mmdl2.x == [0, 0, 1, 1, 1]
+        assert mmdl2.x.tolist() == [0, 0, 1, 1, 1]
+
+    def test_encode(self):
+        np.testing.assert_allclose(
+            eda.MultinomialMdl([0]).encode([0, 1, 5, 100, 200, -20],
+                                           use_adjescent_when_absent=True),
+            0)
+
+        np.testing.assert_allclose(
+            eda.MultinomialMdl([0]).encode([0, 1, 5, 100, 200, -20],
+                                           use_adjescent_when_absent=False),
+            np.log(200*2) * 5)
+
+        np.testing.assert_allclose(
+            eda.MultinomialMdl([]).encode(
+                [0, 1, 5, 100, 200, -20],
+                use_adjescent_when_absent=False),
+            np.log(200*2) * 6)
+
+        np.testing.assert_allclose(
+            eda.MultinomialMdl([0]).encode(
+                [0, 1, 5, 100, 200, -20]),
+            np.log(200*2) * 5)
+
+        assert eda.MultinomialMdl([0]).encode([]) == 0
+
+        np.testing.assert_allclose(
+            eda.MultinomialMdl([0, 0, 3, 3, 3]).encode(
+                [-20, 0, 2, 5, 100, 200],
+                use_adjescent_when_absent=True),
+            -np.log(0.4) * 2 - np.log(0.6) * 4)
+
+        np.testing.assert_allclose(
+            eda.MultinomialMdl([0, 0, 3, 3, 3]).encode(
+                [-20, 1, 1.5, 2, 100, 200],
+                use_adjescent_when_absent=True),
+            -np.log(0.4) * 2 - np.log(0.6) * 4)
 
 
 class TestZeroIGKdeMdl(object):
@@ -52,8 +105,8 @@ class TestZeroIGKdeMdl(object):
 
         np.testing.assert_allclose(zikm.mdl, zikm.zi_mdl + zikm.kde_mdl)
 
-        np.testing.assert_allclose(zikm.zi_mdl,
-                                   np.log(3) + eda.MultinomialMdl(self.x != 0).mdl)
+        np.testing.assert_allclose(
+            zikm.zi_mdl, np.log(3) + eda.MultinomialMdl(self.x != 0).mdl)
 
         assert zikm._bw_method == "silverman"
 
@@ -111,8 +164,10 @@ class TestZeroIGKdeMdl(object):
         with pytest.raises(ValueError) as excinfo:
             eda.ZeroIGKdeMdl(np.arange(10).reshape(5, 2))
 
+
 class TestGKdeMdl(object):
     """docstring for TestKdeMdl"""
+
     def test_wrong_x_shape(self):
         with pytest.raises(ValueError) as excinfo:
             eda.GKdeMdl(np.arange(10).reshape(5, 2))
