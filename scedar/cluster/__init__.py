@@ -1,3 +1,4 @@
-__all__ = ["mirac"]
-
 from .mirac import MIRAC
+
+
+__all__ = ["mirac"]
