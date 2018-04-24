@@ -691,7 +691,7 @@ class MDLSingleLabelClassifiedSamples(SingleLabelClassifiedSamples):
     """
 
     def __init__(self, x, labs, sids=None, fids=None,
-                 mdl_method="ZeroIdcGKdeMdl",
+                 mdl_method="ZeroIGKdeMdl",
                  d=None, metric="correlation", nprocs=None):
         super(MDLSingleLabelClassifiedSamples, self).__init__(x=x, labs=labs,
                                                       sids=sids, fids=fids,
@@ -700,7 +700,7 @@ class MDLSingleLabelClassifiedSamples(SingleLabelClassifiedSamples):
         self._mdl_method = mdl_method
 
     @staticmethod
-    def per_column_mdl(x, method="ZeroIdcGKdeMdl", nprocs=1,
+    def per_column_mdl(x, method="ZeroIGKdeMdl", nprocs=1,
                        verbose=False, ret_internal=False):
         # verbose is not implemented
         if x.ndim != 2:
@@ -709,8 +709,8 @@ class MDLSingleLabelClassifiedSamples(SingleLabelClassifiedSamples):
 
         nprocs = max(int(nprocs), 1)
 
-        if method == "ZeroIdcGKdeMdl":
-            mdl1d = mdl.ZeroIdcGKdeMdl
+        if method == "ZeroIGKdeMdl":
+            mdl1d = mdl.ZeroIGKdeMdl
         elif method == "GKdeMdl":
             mdl1d = mdl.GKdeMdl
         else:
@@ -752,7 +752,7 @@ class MDLSingleLabelClassifiedSamples(SingleLabelClassifiedSamples):
         for i in range(ncols):
             x_col = x[:, i]
             # mdl_method is valid after running per_column_mdl
-            if self._mdl_method == "ZeroIdcGKdeMdl":
+            if self._mdl_method == "ZeroIGKdeMdl":
                 q_x_cols.append(x_col[np.nonzero(x_col)])
             else:
                 # all mdl methods here are valid

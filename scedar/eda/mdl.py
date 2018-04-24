@@ -145,7 +145,7 @@ class GKdeMdl(object):
             return logdens
 
 
-class ZeroIdcGKdeMdl(object):
+class ZeroIGKdeMdl(object):
     """
     Zero indicator Gaussian KDE MDL
 
@@ -183,7 +183,7 @@ class ZeroIdcGKdeMdl(object):
 
 
     def __init__(self, x, kde_bw_method="silverman"):
-        super(ZeroIdcGKdeMdl, self).__init__()
+        super(ZeroIGKdeMdl, self).__init__()
 
         if x.ndim != 1:
             raise ValueError("x should be 1D array. "

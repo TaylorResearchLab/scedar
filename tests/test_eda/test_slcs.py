@@ -802,16 +802,16 @@ class TestMDLSingleLabelClassifiedSamples(object):
 
     def test_mdl_method(self):
         zigk_mdl_slcs = eda.MDLSingleLabelClassifiedSamples(
-            self.x50x5, labs=self.labs50, mdl_method="ZeroIdcGKdeMdl",
+            self.x50x5, labs=self.labs50, mdl_method="ZeroIGKdeMdl",
             metric="euclidean")
         gk_mdl_slcs = eda.MDLSingleLabelClassifiedSamples(
             self.x50x5, labs=self.labs50, mdl_method="GKdeMdl",
             metric="euclidean")
         assert gk_mdl_slcs._mdl_method == "GKdeMdl"
-        assert zigk_mdl_slcs._mdl_method == "ZeroIdcGKdeMdl"
+        assert zigk_mdl_slcs._mdl_method == "ZeroIGKdeMdl"
         assert zigk_mdl_slcs.no_lab_mdl() != gk_mdl_slcs.no_lab_mdl()
 
-        for mdl_method in ("GKdeMdl", "ZeroIdcGKdeMdl"):
+        for mdl_method in ("GKdeMdl", "ZeroIGKdeMdl"):
             mdl_slcs = eda.MDLSingleLabelClassifiedSamples(
                 self.x50x5, labs=self.labs50, mdl_method=mdl_method,
                 metric="euclidean")

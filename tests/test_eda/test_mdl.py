@@ -34,8 +34,8 @@ class TestMultinomialMdl(object):
         assert mmdl2.x == [0, 0, 1, 1, 1]
 
 
-class TestZeroIdcGKdeMdl(object):
-    """docstring for TestZeroIdcGKdeMdl"""
+class TestZeroIGKdeMdl(object):
+    """docstring for TestZeroIGKdeMdl"""
     x = np.concatenate([np.repeat(0, 50),
                         np.random.uniform(1, 2, size=200),
                         np.repeat(0, 50)])
@@ -44,7 +44,7 @@ class TestZeroIdcGKdeMdl(object):
     x_all_non_zero = x[50:250]
 
     def test_std_usage(self):
-        zikm = eda.ZeroIdcGKdeMdl(self.x)
+        zikm = eda.ZeroIGKdeMdl(self.x)
         np.testing.assert_allclose(zikm.x, self.x)
 
         assert zikm.x is not self.x
@@ -60,12 +60,12 @@ class TestZeroIdcGKdeMdl(object):
         assert zikm.bandwidth is not None
 
         # test > 0 value kde same
-        zikm2 = eda.ZeroIdcGKdeMdl(self.x[50:250])
+        zikm2 = eda.ZeroIGKdeMdl(self.x[50:250])
         np.testing.assert_allclose(zikm2.kde_mdl, zikm.kde_mdl)
         np.testing.assert_allclose(zikm2.bandwidth, zikm.bandwidth)
 
     def test_all_zero(self):
-        zikm = eda.ZeroIdcGKdeMdl(self.x_all_zero)
+        zikm = eda.ZeroIGKdeMdl(self.x_all_zero)
         assert zikm.bandwidth is None
         np.testing.assert_allclose(zikm.zi_mdl, np.log(3))
         assert zikm.x_nonzero.size == 0
@@ -74,42 +74,42 @@ class TestZeroIdcGKdeMdl(object):
         np.testing.assert_allclose(zikm.mdl, zikm.zi_mdl + zikm.kde_mdl)
 
     def test_all_nonzero(self):
-        zikm = eda.ZeroIdcGKdeMdl(self.x_all_non_zero)
+        zikm = eda.ZeroIGKdeMdl(self.x_all_non_zero)
         np.testing.assert_allclose(zikm.zi_mdl, np.log(3))
 
     def test_one_nonzero(self):
-        zikm = eda.ZeroIdcGKdeMdl(self.x_one_nonzero)
+        zikm = eda.ZeroIGKdeMdl(self.x_one_nonzero)
         assert zikm.bandwidth is None
         np.testing.assert_allclose(zikm.kde_mdl, np.log(1))
 
     def test_empty(self):
-        zikm = eda.ZeroIdcGKdeMdl(np.array([]))
+        zikm = eda.ZeroIGKdeMdl(np.array([]))
         assert zikm.mdl == 0
         assert zikm.zi_mdl == 0
         assert zikm.kde_mdl == 0
 
     def test_kde_bw(self):
-        zikm = eda.ZeroIdcGKdeMdl(self.x)
-        zikm2 = eda.ZeroIdcGKdeMdl(self.x, "scott")
-        zikm3 = eda.ZeroIdcGKdeMdl(self.x, 1)
+        zikm = eda.ZeroIGKdeMdl(self.x)
+        zikm2 = eda.ZeroIGKdeMdl(self.x, "scott")
+        zikm3 = eda.ZeroIGKdeMdl(self.x, 1)
         xnz_std = zikm.x_nonzero.std(ddof=1)
         np.testing.assert_allclose(1, zikm3.bandwidth / xnz_std)
         assert not np.allclose(zikm2.bandwidth, zikm3.bandwidth)
 
     def test_kde(self):
-        zikm = eda.ZeroIdcGKdeMdl(self.x)
+        zikm = eda.ZeroIGKdeMdl(self.x)
         kde = zikm.kde
         kde.logpdf([1, 2, 3])
 
-        kde2 = eda.ZeroIdcGKdeMdl(self.x_all_zero).kde
+        kde2 = eda.ZeroIGKdeMdl(self.x_all_zero).kde
         assert kde2 is None
 
-        kde3 = eda.ZeroIdcGKdeMdl(self.x_one_nonzero).kde
+        kde3 = eda.ZeroIGKdeMdl(self.x_one_nonzero).kde
         assert kde3 is None
 
     def test_wrong_x_shape(self):
         with pytest.raises(ValueError) as excinfo:
-            eda.ZeroIdcGKdeMdl(np.arange(10).reshape(5, 2))
+            eda.ZeroIGKdeMdl(np.arange(10).reshape(5, 2))
 
 class TestGKdeMdl(object):
     """docstring for TestKdeMdl"""
