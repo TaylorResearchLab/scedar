@@ -2,18 +2,20 @@ import numpy as np
 import pandas as pd
 
 import matplotlib as mpl
-mpl.use("agg", warn=False)
 import matplotlib.pyplot as plt
 import matplotlib.colors
 import matplotlib.patches
 import matplotlib.gridspec
 
 import seaborn as sns
-sns.set(style="ticks")
 
 import networkx as nx
 
 from . import mtype
+
+
+mpl.use("agg", warn=False)
+sns.set(style="ticks")
 
 
 def labs_to_cmap(labels, return_lut=False):
@@ -212,6 +214,7 @@ def regression_scatter(x, y, title=None, xlab=None, ylab=None,
     plt.close()
     return fig
 
+
 def hist_dens_plot(x, title=None, xlab=None, ylab=None, figsize=(5, 5),
                    ax=None, **kwargs):
     """
@@ -236,6 +239,7 @@ def hist_dens_plot(x, title=None, xlab=None, ylab=None, figsize=(5, 5),
     fig.set_size_inches(*figsize)
     plt.close()
     return fig
+
 
 def swarm(x, labels=None, selected_labels=None,
           title=None, xlab=None, ylab=None, figsize=(10, 10), ax=None,
@@ -429,6 +433,7 @@ def heatmap(x, row_labels=None, col_labels=None,
                                   ncol=1)
     plt.close()
     return fig
+
 
 def networkx_graph(ng, pos=None, figsize=(20, 20), node_size=30, alpha=0.05,
                    with_labels=False, node_color="b", **kwargs):
