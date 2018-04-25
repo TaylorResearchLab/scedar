@@ -13,6 +13,8 @@ from collections import defaultdict
 
 import xgboost as xgb
 
+import inspect
+
 from .sdm import SampleDistanceMatrix
 from .plot import swarm, heatmap
 from . import mdl
@@ -253,10 +255,10 @@ class SingleLabelClassifiedSamples(SampleDistanceMatrix):
         # Turn dict to list
         # [ [('train...', float), ...],
         #   [('test...', float), ...] ]
-        eval_stats = [ [(eval_name + " " + mname,
-                         mval_list[num_boost_round-1])
-                        for mname, mval_list in eval_dict.items()]
-                       for eval_name, eval_dict in evals_result.items() ]
+        eval_stats = [[(eval_name + " " + mname,
+                        mval_list[num_boost_round-1])
+                       for mname, mval_list in eval_dict.items()]
+                      for eval_name, eval_dict in evals_result.items()]
         # {feature_name: fscore, ...}
         fscore_dict = bst.get_fscore()
         orig_fid_fscore_list = [(orig_fid_lut[istr_fid], ifscore)
@@ -372,7 +374,7 @@ complete-guide-parameter-tuning-xgboost-with-codes-python/
         else:
             # do bootstrapping
             # ([dict of scores], [list of bsts], dict of eval stats)
-            fs_dict = defaultdict(lambda : 0)
+            fs_dict = defaultdict(lambda: 0)
             bst_list = []
             eval_stats_dict = defaultdict(list)
             if bootstrap_size is None:
@@ -634,8 +636,10 @@ complete-guide-parameter-tuning-xgboost-with-codes-python/
             sep_lab_min_sid_list = [x[0] for x in sep_lab_sid_list]
             sorted_sep_lab_min_sid_list = list(
                 sort_flat_sids(sep_lab_min_sid_list, ref_sid_order))
-            min_sid_sorted_sep_lab_ind_list = [sep_lab_min_sid_list.index(x)
-                                               for x in sorted_sep_lab_min_sid_list]
+            min_sid_sorted_sep_lab_ind_list = [
+                sep_lab_min_sid_list.index(x)
+                for x in sorted_sep_lab_min_sid_list
+            ]
             sep_lab_list = [sep_lab_list[i]
                             for i in min_sid_sorted_sep_lab_ind_list]
             sep_lab_sid_list = [sep_lab_sid_list[i]
@@ -651,8 +655,9 @@ complete-guide-parameter-tuning-xgboost-with-codes-python/
         np.testing.assert_array_equal(
             np.sort(lab_sorted_lab_arr), np.sort(self._labs))
         # check sorted (sid, lab) matchings are the same set as original
-        np.testing.assert_array_equal(lab_sorted_lab_arr[np.argsort(lab_sorted_sid_arr)],
-                                      self._labs[np.argsort(self._sids)])
+        np.testing.assert_array_equal(
+            lab_sorted_lab_arr[np.argsort(lab_sorted_sid_arr)],
+            self._labs[np.argsort(self._sids)])
 
         return (lab_sorted_sid_arr, lab_sorted_lab_arr)
 
@@ -688,40 +693,52 @@ class MDLSingleLabelClassifiedSamples(SingleLabelClassifiedSamples):
     """
     MDLSingleLabelClassifiedSamples inherits SingleLabelClassifiedSamples to
     offer MDL operations.
+
+    Args:
+        x (2d number array): data matrix
+        labs (list of str or int): labels
+        sids (list of str or int): sample ids
+        fids (list of str or int): feature ids
+        mdl_method (.mdl.Mdl)
+        d (2d number array): distance matrix
+        metric (str): distance metric for scipy
+        nprocs (int)
+
+    Attributes:
+        _mdl_method (.mdl.Mdl)
     """
 
     def __init__(self, x, labs, sids=None, fids=None,
-                 mdl_method="ZeroIGKdeMdl",
+                 mdl_method=mdl.ZeroIGKdeMdl,
                  d=None, metric="correlation", nprocs=None):
-        super(MDLSingleLabelClassifiedSamples, self).__init__(x=x, labs=labs,
-                                                      sids=sids, fids=fids,
-                                                      d=d, metric=metric,
-                                                      nprocs=nprocs)
+        super(MDLSingleLabelClassifiedSamples, self).__init__(
+            x=x, labs=labs, sids=sids, fids=fids, d=d, metric=metric,
+            nprocs=nprocs)
+
         self._mdl_method = mdl_method
 
     @staticmethod
-    def per_column_mdl(x, method="ZeroIGKdeMdl", nprocs=1,
+    def per_column_mdl(x, mdl_method=mdl.ZeroIGKdeMdl, nprocs=1,
                        verbose=False, ret_internal=False):
         # verbose is not implemented
+        if not inspect.isclass(mdl_method):
+            raise ValueError("method must be a subclass of eda.mdl.Mdl")
+
+        if not issubclass(mdl_method, mdl.Mdl):
+            raise ValueError("method must be a subclass of eda.mdl.Mdl")
+
         if x.ndim != 2:
             raise ValueError("x should have shape (n_samples, n_features)."
                              "x.shape: {}".format(x.shape))
 
         nprocs = max(int(nprocs), 1)
 
-        if method == "ZeroIGKdeMdl":
-            mdl1d = mdl.ZeroIGKdeMdl
-        elif method == "GKdeMdl":
-            mdl1d = mdl.GKdeMdl
-        else:
-            raise ValueError("Unknown mdl method {}".format(method))
-
-        # apply to each feature
+        # apply to each feature/column
         if nprocs != 1:
-            col_mdl_list = utils.parmap(lambda x1d: mdl1d(x1d),
+            col_mdl_list = utils.parmap(lambda x1d: mdl_method(x1d),
                                         x.T, nprocs)
         else:
-            col_mdl_list = list(map(lambda x1d: mdl1d(x1d), x.T))
+            col_mdl_list = list(map(lambda x1d: mdl_method(x1d), x.T))
 
         col_mdl_sum = sum(map(lambda zkmdl: zkmdl.mdl, col_mdl_list))
         if ret_internal:
@@ -730,52 +747,33 @@ class MDLSingleLabelClassifiedSamples(SingleLabelClassifiedSamples):
             return col_mdl_sum
 
     def no_lab_mdl(self, nprocs=1, verbose=False):
+        """Compute mdl of each feature without separating samples by labels
+
+        Args:
+            nprocs (int)
+            verbose (bool): Not implemented
+
+        Returns:
+            float: mdl of matrix without separating samples by labels
+        """
         # verbose is not implemented
         col_mdl_sum = self.per_column_mdl(self._x, self._mdl_method,
                                           nprocs, verbose)
         return col_mdl_sum
 
-    def encode_mdl(self, x, nprocs=1, verbose=False):
-        """Encode input array x with current kde.
-        """
-        if x.ndim != 2 or x.shape[1] != self._x.shape[1]:
-            raise ValueError("Array to encode should have the same number of"
-                             "columns as the object._x")
-
-        ncols = self._x.shape[1]
-
-        col_mdl_sum, col_mdl_list = self.per_column_mdl(
-            self._x, self._mdl_method, nprocs, verbose=verbose,
-            ret_internal=True)
-
-        q_x_cols = []
-        for i in range(ncols):
-            x_col = x[:, i]
-            # mdl_method is valid after running per_column_mdl
-            if self._mdl_method == "ZeroIGKdeMdl":
-                q_x_cols.append(x_col[np.nonzero(x_col)])
-            else:
-                # all mdl methods here are valid
-                # this branch is GKdeMdl
-                q_x_cols.append(x_col)
-        # (kde, x) tuple
-        encode_1d_mdl = lambda kxt: -kxt[0].logpdf(kxt[1]).sum()
-
-        q_kde_x_cols = []
-        for i in range(ncols):
-            if col_mdl_list[i].kde is not None:
-                q_kde_x_cols.append((col_mdl_list[i].kde, q_x_cols[i]))
-
-        if nprocs != 1:
-            encode_q_col_mdls = utils.parmap(encode_1d_mdl, q_kde_x_cols)
-        else:
-            encode_q_col_mdls = list(map(encode_1d_mdl, q_kde_x_cols))
-
-        encode_x_mdl = sum(encode_q_col_mdls)
-        return encode_x_mdl
-
     def lab_mdl(self, cl_mdl_scale_factor=1, nprocs=1, verbose=False,
                 ret_internal=False):
+        """Compute mdl of each feature after separating samples by labels
+
+        Args:
+            cl_mdl_scale_factor (float): multiplies cluster related mdl by this
+                number
+            nprocs (int)
+            verbose (bool): Not implemented
+
+        Returns:
+            float: mdl of matrix after separating sampels by labels
+        """
         n_uniq_labs = self._uniq_labs.shape[0]
         ulab_s_ind_list = [np.where(self._labs == ulab)[0].tolist()
                            for ulab in self._uniq_labs]
@@ -794,9 +792,9 @@ class MDLSingleLabelClassifiedSamples(SingleLabelClassifiedSamples):
         # - KDE bandwidth factors are encoded by 32bit float
         #   np.log(2**32) = 22.18070977791825
         # - scaled by factor
-        cluster_mdl = ((mdl.MultinomialMdl(self._labs).mdl
-                        + 22.18070977791825 * n_uniq_labs)
-                       * cl_mdl_scale_factor)
+        cluster_mdl = ((mdl.MultinomialMdl(self._labs).mdl +
+                        22.18070977791825 * n_uniq_labs) *
+                       cl_mdl_scale_factor)
 
         ulab_mdl_list = [pts_mdl_list[i] + cluster_mdl * ulab_cnt_ratios[i]
                          for i in range(n_uniq_labs)]
@@ -807,3 +805,49 @@ class MDLSingleLabelClassifiedSamples(SingleLabelClassifiedSamples):
         else:
             return (ulab_s_ind_list, self._uniq_lab_cnts.tolist(),
                     ulab_mdl_list, cluster_mdl)
+
+    def encode(self, qx, non_zero_only=False, nprocs=1, verbose=False):
+        """Encode input array qx with fitted code without label
+
+        Args:
+            qx (2d np number array)
+            non_zero_only (bool): whether to encode non-zero entries only
+            nprocs (int)
+            verbose (bool)
+
+        Returns:
+            float: mdl for encoding qx
+        """
+        if qx.ndim != 2 or qx.shape[1] != self._x.shape[1]:
+            raise ValueError("Array to encode should have the same number of"
+                             "columns as the object._x")
+
+        ncols = self._x.shape[1]
+
+        col_mdl_sum, col_mdl_list = self.per_column_mdl(
+            self._x, self._mdl_method, nprocs, verbose=verbose,
+            ret_internal=True)
+
+        q_x_cols = []
+        for i in range(ncols):
+            x_col = qx[:, i]
+            # mdl_method is valid after running per_column_mdl
+            if non_zero_only:
+                q_x_cols.append(x_col[np.nonzero(x_col)])
+            else:
+                # all mdl methods here are valid
+                # this branch is GKdeMdl
+                q_x_cols.append(x_col)
+        # (mdl, qx) tuple
+        mdl_qxcol_tups = list(zip(col_mdl_list, q_x_cols))
+
+        def encode_1d_mdl(mdl_x_tup):
+            return mdl_x_tup[0].encode(mdl_x_tup[1]).sum()
+
+        if nprocs != 1:
+            encode_q_col_mdls = utils.parmap(encode_1d_mdl, mdl_qxcol_tups)
+        else:
+            encode_q_col_mdls = list(map(encode_1d_mdl, mdl_qxcol_tups))
+
+        encode_x_mdl = sum(encode_q_col_mdls)
+        return encode_x_mdl

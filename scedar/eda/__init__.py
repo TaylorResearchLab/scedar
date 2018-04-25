@@ -6,7 +6,9 @@ from .sdm import SampleDistanceMatrix, tsne, HClustTree
 from . import mtype
 from . import stats
 from .mdl import (MultinomialMdl, GKdeMdl, ZeroIGKdeMdl, np_number_1d,
-                  ZeroIMultinomialMdl)
+                  ZeroIMultinomialMdl, ZeroIMdl)
 
 
 __all__ = ["sfm", "sdm", "slcs", "plot", "mtype", "stats", "mdl"]
+MDL_METHODS = (MultinomialMdl, GKdeMdl, ZeroIGKdeMdl, ZeroIMultinomialMdl,
+               ZeroIMdl)
