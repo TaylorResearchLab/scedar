@@ -3,6 +3,8 @@ import scipy.stats as spstats
 from abc import ABC, abstractmethod
 
 
+# TODO: implement histogram mdl with proper discretization.
+
 def np_number_1d(x, dtype=np.dtype("f8"), copy=True):
     """Convert x to 1d np number array
     Args:
