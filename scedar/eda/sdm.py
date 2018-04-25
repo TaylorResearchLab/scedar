@@ -76,9 +76,9 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
             except ValueError as e:
                 raise ValueError("d must be float. {}".format(e))
 
-            if ((d.ndim != 2) or
-                (d.shape[0] != d.shape[1]) or
-                (d.shape[0] != self._x.shape[0])):
+            if (d.ndim != 2 or
+                    d.shape[0] != d.shape[1] or
+                    d.shape[0] != self._x.shape[0]):
                 # check provided distance matrix shape
                 raise ValueError("d should have shape (n_samples, n_samples)")
 
@@ -111,9 +111,9 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
     # numerically correct dmat
     @staticmethod
     def num_correct_dist_mat(dmat, upper_bound=None):
-        if ((not isinstance(dmat, np.ndarray)) or
-            (dmat.ndim != 2) or
-            (dmat.shape[0] != dmat.shape[1])):
+        if (not isinstance(dmat, np.ndarray) or
+                dmat.ndim != 2 or
+                dmat.shape[0] != dmat.shape[1]):
             # check distance matrix shape
             raise ValueError("dmat must be a 2D (n_samples, n_samples)"
                              " np array")
@@ -200,8 +200,8 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
         # TODO: make parameter keys consistent such that same set of
         # parameters but different order will sill be the same.
         # check input args
-        if ("metric" in kwargs
-            and kwargs["metric"] not in ("precomputed", self._metric)):
+        if ("metric" in kwargs and
+                kwargs["metric"] not in ("precomputed", self._metric)):
             raise ValueError("If you want to calculate t-SNE of a different "
                              "metric than the instance metric, create another "
                              "instance of the desired metric.")
@@ -245,12 +245,15 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
         racing conditions may happen.
         """
         nprocs = min(int(nprocs), len(param_list))
+        # single run tsne
 
-        f = lambda param_dict: self.tsne(store_res=False, **param_dict)
+        def srun_tsne(param_dict):
+            return self.tsne(store_res=False, **param_dict)
+
         if nprocs <= 1:
-            resl = list(map(f, param_list))
+            resl = list(map(srun_tsne, param_list))
         else:
-            resl = utils.parmap(f, param_list, nprocs)
+            resl = utils.parmap(srun_tsne, param_list, nprocs)
         if store_res:
             for i in range(len(param_list)):
                 self.put_tsne(str(param_list[i]), resl[i])
@@ -407,18 +410,17 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
         k = int(k)
         knn_ind_arr = self._col_argsorted_d[1:k+1, :].copy()
         knn_order_ind_lut = dict(zip(range(knn_ind_arr.shape[1]),
-                                           knn_ind_arr.T.tolist()))
+                                     knn_ind_arr.T.tolist()))
         return knn_order_ind_lut
 
     def s_ith_nn_d_dist(self, i, xlab=None, ylab=None, title=None,
-                      figsize=(5, 5), ax=None, **kwargs):
+                        figsize=(5, 5), ax=None, **kwargs):
         """
         Plot the distances of the i-th nearest neighbor of all samples.
         """
         x = self.s_ith_nn_d(i)
         return hist_dens_plot(x, title=title, xlab=xlab, ylab=ylab,
                               figsize=figsize, ax=ax, **kwargs)
-
 
     def s_knn_connectivity_matrix(self, k):
         """
@@ -589,7 +591,8 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
         # themselves, but 1 distance to any other vectors including another
         # zero vector. In correlation distance, zero vectors have 0 distances
         # to themselves, but nan to others.
-        # if it doesn't occur, set it's inverse magnitude to zero (instead of inf)
+        # if it doesn't occur, set it's inverse magnitude to zero (instead of
+        # inf)
         inv_squared_sum = [1 / ss if ss != 0 else 0 for ss in squared_sum]
         # square root of squared sum is l2 norm.
         inv_l2norm = np.sqrt(inv_squared_sum)
@@ -763,7 +766,7 @@ class HClustTree(object):
         lst = self.left()
         rst = self.right()
         if (self.count() >= 2 * soft_min_subtree_size and
-            lst.count() != rst.count()):
+                lst.count() != rst.count()):
             # cut is not balanced
             if lst.count() < rst.count():
                 min_st = lst
@@ -853,9 +856,8 @@ class HClustTree(object):
                 rst = min_st
             self._left = lst._node
             self._right = rst._node
-        labs, sids = self.cluster_id_to_lab_list([lst.leaf_ids(),
-                                                  rst.leaf_ids()],
-                                                  self.leaf_ids())
+        labs, sids = self.cluster_id_to_lab_list(
+            [lst.leaf_ids(), rst.leaf_ids()], self.leaf_ids())
         if return_subtrees:
             return labs, sids, lst, rst
         else:
@@ -952,8 +954,8 @@ class HClustTree(object):
                 iter_nbp_mdl_arr = np.array(list(map(
                     lambda x: MultinomialMdl(np.array(x)).mdl,
                     iter_nbp_cnt_list)))
-                iter_nbp_mdl = np.sum(iter_nbp_mdl_arr
-                                      / np.arange(1, n_eval_rounds + 1))
+                iter_nbp_mdl = np.sum(
+                    iter_nbp_mdl_arr / np.arange(1, n_eval_rounds + 1))
                 ltype_mdl_list.append(iter_nbp_mdl)
 
             linkage = try_linkages[ltype_mdl_list.index(max(ltype_mdl_list))]
@@ -973,5 +975,6 @@ class HClustTree(object):
         dmat = SampleDistanceMatrix(x, d=dmat, metric=metric,
                                     nprocs=nprocs)._d
         xhct = HClustTree.hclust_tree(dmat, linkage="auto",
-            is_euc_dist=(metric == "euclidean"), optimal_ordering=True)
+                                      is_euc_dist=(metric == "euclidean"),
+                                      optimal_ordering=True)
         return xhct.leaf_ids()
