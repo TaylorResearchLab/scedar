@@ -5,25 +5,32 @@ import numpy as np
 import scedar.eda as eda
 
 
-def test_npfloat_1d():
+def test_np_number_1d():
     # correct dtype
-    eda.mdl.npfloat_1d([1, 2, 3], int)
-    eda.mdl.npfloat_1d([1, 2, 3], float)
+    eda.mdl.np_number_1d([1, 2, 3], int)
+    eda.mdl.np_number_1d([1, 2, 3], float)
     # wrong type
     with pytest.raises(ValueError) as excinfo:
-        eda.mdl.npfloat_1d([1, 2, 3], str)
+        eda.mdl.np_number_1d([1, 2, 3], str)
 
     with pytest.raises(ValueError) as excinfo:
-        eda.mdl.npfloat_1d([1, 2, 3], np.bool_)
+        eda.mdl.np_number_1d([1, 2, 3], np.bool_)
 
     with pytest.raises(ValueError) as excinfo:
-        eda.mdl.npfloat_1d([1, 2, 3], bool)
+        eda.mdl.np_number_1d([1, 2, 3], bool)
 
     # wrong dim, i.e. non 1d
     with pytest.raises(ValueError) as excinfo:
-        eda.mdl.npfloat_1d([[1, 2], [3, 4]])
+        eda.mdl.np_number_1d([[1, 2], [3, 4]])
     with pytest.raises(ValueError) as excinfo:
-        eda.mdl.npfloat_1d(1)
+        eda.mdl.np_number_1d(1)
+
+    # test copy
+    x = np.array([1.1, 2.2])
+    xcp = eda.mdl.np_number_1d(x)
+    assert xcp is not x
+    xref = eda.mdl.np_number_1d(x, copy=False)
+    assert xref is x
 
 
 class TestMultinomialMdl(object):
@@ -51,6 +58,16 @@ class TestMultinomialMdl(object):
         assert mmdl2.x.tolist() == [0, 0, 1, 1, 1]
 
     def test_encode(self):
+        # retrospect
+        np.testing.assert_allclose(eda.MultinomialMdl([0]).mdl,
+                                   eda.MultinomialMdl([0]).mdl)
+
+        np.testing.assert_allclose(eda.MultinomialMdl(np.arange(10)).mdl,
+                                   eda.MultinomialMdl(np.arange(10)).mdl)
+
+        np.testing.assert_allclose(eda.MultinomialMdl([0, 1, 2, 10, -10]).mdl,
+                                   eda.MultinomialMdl([0, 1, 2, 10, -10]).mdl)
+
         np.testing.assert_allclose(
             eda.MultinomialMdl([0]).encode([0, 1, 5, 100, 200, -20],
                                            use_adjescent_when_absent=True),
@@ -89,7 +106,6 @@ class TestMultinomialMdl(object):
 
 class TestGKdeMdl(object):
     """docstring for TestKdeMdl"""
-
     def test_wrong_x_shape(self):
         with pytest.raises(ValueError) as excinfo:
             eda.GKdeMdl(np.arange(10).reshape(5, 2))
@@ -140,7 +156,7 @@ class TestZeroIGKdeMdl(object):
         np.testing.assert_allclose(
             zikm.zi_mdl, np.log(3) + eda.MultinomialMdl(self.x != 0).mdl)
 
-        assert zikm._bw_method == "silverman"
+        assert zikm._bw_method == "scott"
 
         assert zikm.bandwidth is not None
 
@@ -152,7 +168,8 @@ class TestZeroIGKdeMdl(object):
     def test_all_zero(self):
         zikm = eda.ZeroIGKdeMdl(self.x_all_zero)
         assert zikm.bandwidth is None
-        np.testing.assert_allclose(zikm.zi_mdl, np.log(3))
+        np.testing.assert_allclose(zikm.zi_mdl,
+                                   np.log(3) + np.log(len(self.x_all_zero)))
         assert zikm.x_nonzero.size == 0
         np.testing.assert_allclose(zikm.x, self.x_all_zero)
         np.testing.assert_allclose(zikm.kde_mdl, 0)
@@ -160,22 +177,35 @@ class TestZeroIGKdeMdl(object):
 
     def test_all_nonzero(self):
         zikm = eda.ZeroIGKdeMdl(self.x_all_non_zero)
-        np.testing.assert_allclose(zikm.zi_mdl, np.log(3))
+        np.testing.assert_allclose(
+            zikm.zi_mdl, np.log(3) + np.log(len(self.x_all_non_zero)))
 
     def test_one_nonzero(self):
         zikm = eda.ZeroIGKdeMdl(self.x_one_nonzero)
         assert zikm.bandwidth is None
-        np.testing.assert_allclose(zikm.kde_mdl, np.log(1))
+        # 1 non-0, kde falls back on uniform
+        np.testing.assert_allclose(
+            zikm.kde_mdl, np.log(np.max(np.abs(self.x_one_nonzero))*2))
 
     def test_empty(self):
         zikm = eda.ZeroIGKdeMdl(np.array([]))
-        assert zikm.mdl == 0
-        assert zikm.zi_mdl == 0
+        assert zikm.mdl == np.log(3)
+        assert zikm.zi_mdl == np.log(3)
         assert zikm.kde_mdl == 0
 
     def test_kde_bw(self):
         zikm = eda.ZeroIGKdeMdl(self.x)
-        zikm2 = eda.ZeroIGKdeMdl(self.x, "scott")
+        n = len(zikm.x_nonzero)
+        d = 1
+        # scott: n**(-1./(d+4))
+        np.testing.assert_allclose(
+            zikm.bandwidth,
+            zikm.x_nonzero.std(ddof=1) * n**(-1/(d+4)))
+        # silverman: (n * (d + 2) / 4.)**(-1. / (d + 4))
+        zikm2 = eda.ZeroIGKdeMdl(self.x, "silverman")
+        np.testing.assert_allclose(
+            zikm2.bandwidth,
+            zikm2.x_nonzero.std(ddof=1) * (n * (d + 2) / 4.)**(-1. / (d + 4)))
         zikm3 = eda.ZeroIGKdeMdl(self.x, 1)
         xnz_std = zikm.x_nonzero.std(ddof=1)
         np.testing.assert_allclose(1, zikm3.bandwidth / xnz_std)
@@ -195,3 +225,14 @@ class TestZeroIGKdeMdl(object):
     def test_wrong_x_shape(self):
         with pytest.raises(ValueError) as excinfo:
             eda.ZeroIGKdeMdl(np.arange(10).reshape(5, 2))
+
+    def test_encode(self):
+        zimdl = eda.ZeroIGKdeMdl(self.x)
+        qx = [0, 0, 0] + [1, 2, 10, 20]
+        emdl = zimdl.encode(qx)
+        ezi = zimdl._zi_encoder.encode(qx)
+        ekde = zimdl._kde_encoder.encode(list(filter(lambda x: x != 0, qx)))
+        qp = zimdl._k / zimdl._n
+        np.testing.assert_allclose(
+            ezi, -np.log(qp) * 4 - np.log(1-qp) * 3 + np.log(3))
+        np.testing.assert_allclose(emdl, ezi + ekde)

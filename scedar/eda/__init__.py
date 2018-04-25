@@ -5,7 +5,7 @@ from .sfm import SampleFeatureMatrix
 from .sdm import SampleDistanceMatrix, tsne, HClustTree
 from . import mtype
 from . import stats
-from .mdl import MultinomialMdl, GKdeMdl, ZeroIGKdeMdl, npfloat_1d
+from .mdl import MultinomialMdl, GKdeMdl, ZeroIGKdeMdl, np_number_1d
 
 
 __all__ = ["sfm", "sdm", "slcs", "plot", "mtype", "stats", "mdl"]

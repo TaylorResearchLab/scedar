@@ -1,26 +1,26 @@
 import numpy as np
-import scipy.spatial as spspatial
 import scipy.stats as spstats
 from abc import ABC, abstractmethod
 
 
-def npfloat_1d(x, dtype=np.dtype("f8")):
-    """Convert x to 1d np float array
+def np_number_1d(x, dtype=np.dtype("f8"), copy=True):
+    """Convert x to 1d np number array
     Args:
-        x (1d sequence of values convertable to np.float)
-        dtype (np float type): default to 64-bit float
+        x (1d sequence of values convertable to np.number)
+        dtype (np number type): default to 64-bit float
+        copy (bool): passed to np.array()
 
     Returns:
-        xarr (1d np.float array)
+        xarr (1d np.number array)
 
     Raises:
-        ValueError: If x is not convertable to np.float or non-1d. If dtype is
-        not subdtype of np number.
+        ValueError: If x is not convertable to provided dtype or non-1d.
+            If dtype is not subdtype of np number.
     """
     if not np.issubdtype(dtype, np.number):
         raise ValueError("dtype must be a type of numpy number")
 
-    xarr = np.array(x, dtype=dtype)
+    xarr = np.array(x, dtype=dtype, copy=copy)
     if xarr.ndim != 1:
         raise ValueError("x should be 1D array. "
                          "x.shape: {}".format(xarr.shape))
@@ -31,24 +31,27 @@ class Mdl(ABC):
     """Minimum description length abstract base class
 
     Attributes:
-        _x (1D np.float array): data used for fit mdl
+        _x (1D np.number array): data used for fit mdl
         _n (np.int): number of points in x
     """
     @abstractmethod
-    def __init__(self, x):
+    def __init__(self, x, dtype=np.dtype("f8"), copy=True):
         """Initialize
+
         Args:
-            x (1D np.float array): data used for fit mdl
+            x (1D np.number array): data used for fit mdl
+            dtype (np.dtype): default to 64-bit float
+            copy (bool): passed to np.array()
         """
-        self._x = npfloat_1d(x)
+        self._x = np_number_1d(x, dtype=dtype, copy=copy)
         # avoid divide by 0 exception
         self._n = np.int_(self._x.shape[0])
 
     @abstractmethod
     def encode(self, x):
-        """Encode another 1D float array with fitted code
+        """Encode another 1D number array with fitted code
         Args:
-            x (1D np.float array): data to encode
+            x (1D np.number array): data to encode
         """
         raise NotImplementedError
 
@@ -63,18 +66,19 @@ class Mdl(ABC):
 
 
 class MultinomialMdl(Mdl):
-    """
-    Encode discrete values using multinomial distribution
+    """ Encode discrete values using multinomial distribution
 
     Args:
-        x (1d float array): Should be non-negative
+        x (1D np.number array): data used for fit mdl
+        dtype (np.dtype): default to 64-bit float
+        copy (bool): passed to np.array()
 
     Note:
         When x only has 1 uniq value. Encode the the number of values only.
     """
 
-    def __init__(self, x):
-        super().__init__(x)
+    def __init__(self, x, dtype=np.dtype("f8"), copy=True):
+        super().__init__(x, dtype=dtype, copy=copy)
 
         uniq_vals, uniq_val_cnts = np.unique(x, return_counts=True)
         self._n_uniq = len(uniq_vals)
@@ -109,12 +113,12 @@ class MultinomialMdl(Mdl):
         Returns:
             qmdl (float)
         """
-        qx = npfloat_1d(qx)
+        qx = np_number_1d(qx, copy=False)
         if qx.size == 0:
             return 0
 
         # Encode with 32bit float
-        unif_q_val_mdl = np.log(np.max(np.abs(qx)*2))
+        unif_q_val_mdl = np.log(max(np.max(np.abs(qx))*2, 1))
         if self._n == 0:
             # uniform
             return qx.size * unif_q_val_mdl
@@ -161,12 +165,46 @@ class MultinomialMdl(Mdl):
         return self._mdl
 
 
+class ZeroIMdl(Mdl):
+    """Encode an indicator vector of 0s and non-0s
+    """
+    def __init__(self, x, dtype=np.dtype("f8"), copy=True):
+        super().__init__(x, dtype=dtype, copy=copy)
+        self._x_equal_zero = self._x == 0
+        self._mn_encoder = MultinomialMdl(self._x == 0, dtype=np.dtype("i1"),
+                                          copy=False)
+        # log(3) to encode 3 conditions:
+        # - empty
+        # - all non-0s or 0s
+        # - mixed non-0s and 0s
+        self._mdl = self._mn_encoder.mdl + np.log(3)
+
+    def encode(self, qx):
+        qx = np_number_1d(qx, copy=False)
+        return self._mn_encoder.encode(qx == 0) + np.log(3)
+
+    @property
+    def mdl(self):
+        return self._mdl
+
+
 class GKdeMdl(Mdl):
     """Use Gaussian kernel density estimation to compute mdl
 
     Args:
-        x (1d float array)
-        kde_bw_method (str): bandwidth method
+        x (1D np.number array): data used for fit mdl
+        bandwidth_method: string
+            KDE bandwidth estimation method bing passed to
+            `scipy.stats.gaussian_kde`.
+            Types:
+            * `"scott"`: Scott's rule of thumb.
+            * `"silverman"`: Silverman"s rule of thumb.
+            * `constant`: constant will be timed by x.std(ddof=1) internally,
+            because scipy times bw_method value by std. "Scipy weights its
+            bandwidth by the ovariance of the input data" [3].
+            * `callable`: scipy calls the function on self
+        dtype (np.dtype): default to 64-bit float
+        copy (bool): passed to np.array()
 
     Attributes:
         _x (1d float array): data to fit
@@ -176,8 +214,9 @@ class GKdeMdl(Mdl):
         _logdens (1d float array): log density
     """
 
-    def __init__(self, x, kde_bw_method="scott"):
-        super(GKdeMdl, self).__init__(x)
+    def __init__(self, x, kde_bw_method="scott", dtype=np.dtype("f8"),
+                 copy=True):
+        super().__init__(x, dtype=dtype, copy=copy)
 
         self._bw_method = kde_bw_method
 
@@ -200,8 +239,9 @@ class GKdeMdl(Mdl):
                 logdens = None
                 bw_factor = None
                 # encode just single value or multiple values
-                kde_mdl = MultinomialMdl(
-                    (self._x * 100).astype(int)).mdl
+                # fall back on uniform encoding
+                unif_sval_mdl = np.log(max(np.max(np.abs(self._x))*2, 1))
+                kde_mdl = unif_sval_mdl * self._n
 
         self._bw_factor = bw_factor
         self._kde = kde
@@ -218,11 +258,11 @@ class GKdeMdl(Mdl):
         Returns:
             float: mdl
         """
-        qx = npfloat_1d(qx)
+        qx = np_number_1d(qx, copy=False)
         if qx.size == 0:
             return 0
 
-        unif_sval_mdl = np.log(np.max(np.abs(qx))*2)
+        unif_sval_mdl = np.log(max(np.max(np.abs(qx))*2, 1))
         if self._kde is None:
             return unif_sval_mdl * len(qx) * mdl_scale_factor
         else:
@@ -245,7 +285,7 @@ class GKdeMdl(Mdl):
         return self._kde
 
     @staticmethod
-    def gaussian_kde_logdens(x, bandwidth_method="silverman",
+    def gaussian_kde_logdens(x, bandwidth_method="scott",
                              ret_kernel=False):
         """
         Estimate Gaussian kernel density estimation bandwidth for input `x`.
@@ -279,7 +319,7 @@ class GKdeMdl(Mdl):
             return logdens
 
 
-class ZeroIGKdeMdl(object):
+class ZeroIGKdeMdl(Mdl):
     """
     Zero indicator Gaussian KDE MDL
 
@@ -288,75 +328,74 @@ class ZeroIGKdeMdl(object):
     all 0s, all non-0s, or otherwise
 
 
-    Parameters
-    ----------
-    x: 1d float array
-        Should be non-negative
-    bandwidth_method: string
-        KDE bandwidth estimation method bing passed to
-        `scipy.stats.gaussian_kde`.
-        Types:
-        * `"scott"`: Scott's rule of thumb.
-        * `"silverman"`: Silverman"s rule of thumb.
-        * `constant`: constant will be timed by x.std(ddof=1) internally,
-        because scipy times bw_method value by std. "Scipy weights its
-        bandwidth by the ovariance of the input data" [3].
-        * `callable`: scipy calls the function on self
+    Args:
+        x (1D np.number array): data used for fit mdl
+        bandwidth_method: string
+            KDE bandwidth estimation method bing passed to
+            `scipy.stats.gaussian_kde`.
+            Types:
+            * `"scott"`: Scott's rule of thumb.
+            * `"silverman"`: Silverman"s rule of thumb.
+            * `constant`: constant will be timed by x.std(ddof=1) internally,
+            because scipy times bw_method value by std. "Scipy weights its
+            bandwidth by the ovariance of the input data" [3].
+            * `callable`: scipy calls the function on self
+        dtype (np.dtype): default to 64-bit float
+        copy (bool): passed to np.array()
 
-    References
-    ----------
-    [1] https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.gaussian_kde.html
+    References:
+        [1] https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.gaussian_kde.html
 
-    [2] https://en.wikipedia.org/wiki/Kernel_density_estimation
+        [2] https://en.wikipedia.org/wiki/Kernel_density_estimation
 
-    [3] https://jakevdp.github.io/blog/2013/12/01/kernel-density-estimation/
+        [3] https://jakevdp.github.io/blog/2013/12/01/kernel-density-estimation/
 
-    [4] https://github.com/scipy/scipy/blob/v1.0.0/scipy/stats/kde.py#L42-L564
-
+        [4] https://github.com/scipy/scipy/blob/v1.0.0/scipy/stats/kde.py#L42-L564
     """  # noqa
 
-    def __init__(self, x, kde_bw_method="silverman"):
-        super(ZeroIGKdeMdl, self).__init__()
-
-        if x.ndim != 1:
-            raise ValueError("x should be 1D array. "
-                             "x.shape: {}".format(x.shape))
-
-        self._x = x
-        self._n = x.shape[0]
+    def __init__(self, x, kde_bw_method="scott", dtype=np.dtype("f8"),
+                 copy=True):
+        super().__init__(x, dtype=dtype, copy=copy)
 
         self._x_nonzero = x[np.nonzero(x)]
         self._k = self._x_nonzero.shape[0]
 
         self._bw_method = kde_bw_method
 
-        self._zi_mdl = self._compute_zero_indicator_mdl()
-        self._kde_mdl_obj = GKdeMdl(self._x_nonzero, kde_bw_method)
-        self._kde_mdl = self._kde_mdl_obj.mdl
+        self._zi_encoder = ZeroIMdl(self._x, dtype=dtype, copy=False)
+        self._zi_mdl = self._zi_encoder.mdl
+
+        self._kde_encoder = GKdeMdl(self._x_nonzero, kde_bw_method,
+                                    dtype=dtype, copy=False)
+        self._kde_mdl = self._kde_encoder.mdl
         self._mdl = self._zi_mdl + self._kde_mdl
 
-    def _compute_zero_indicator_mdl(self):
-        if self._n == 0:
-            zi_mdl = 0
-        elif self._k == self._n or self._k == 0:
-            zi_mdl = np.log(3)
-        else:
-            p = self._k / self._n
-            zi_mdl = (np.log(3) - self._k * np.log(p) -
-                      (self._n - self._k) * np.log(1-p))
-        return zi_mdl
+    def encode(self, qx):
+        """Encode qx
 
-    @property
-    def bandwidth(self):
-        return self._kde_mdl_obj.bandwidth
+        Args:
+            qx (1d np number array)
 
-    @property
-    def kde(self):
-        return self._kde_mdl_obj.kde
+        Returns:
+            mdl (float)
+        """
+        qx = np_number_1d(qx, copy=False)
+        qx_nonzero = qx[np.nonzero(qx)]
+        qzi_mdl = self._zi_encoder.encode(qx)
+        qkde_mdl = self._kde_encoder.encode(qx_nonzero)
+        return qzi_mdl + qkde_mdl
 
     @property
     def zi_mdl(self):
         return self._zi_mdl
+
+    @property
+    def bandwidth(self):
+        return self._kde_encoder.bandwidth
+
+    @property
+    def kde(self):
+        return self._kde_encoder.kde
 
     @property
     def kde_mdl(self):
@@ -365,10 +404,6 @@ class ZeroIGKdeMdl(object):
     @property
     def mdl(self):
         return self._mdl
-
-    @property
-    def x(self):
-        return self._x.copy()
 
     @property
     def x_nonzero(self):
