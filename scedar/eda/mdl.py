@@ -161,24 +161,26 @@ class MultinomialMdl(Mdl):
         return self._mdl
 
 
-class GKdeMdl(object):
-    """docstring for GKdeMdl"""
+class GKdeMdl(Mdl):
+    """Use Gaussian kernel density estimation to compute mdl
 
-    def __init__(self, x, kde_bw_method="silverman"):
-        super(GKdeMdl, self).__init__()
+    Args:
+        x (1d float array)
+        kde_bw_method (str): bandwidth method
 
-        if x.ndim != 1:
-            raise ValueError("x should be 1D array. "
-                             "x.shape: {}".format(x.shape))
+    Attributes:
+        _x (1d float array): data to fit
+        _n (int): number of elements in data
+        _bw_method (str): bandwidth method
+        _kde (:obj:`scipy kde`)
+        _logdens (1d float array): log density
+    """
 
-        self._x = x
-        self._n = x.shape[0]
+    def __init__(self, x, kde_bw_method="scott"):
+        super(GKdeMdl, self).__init__(x)
 
         self._bw_method = kde_bw_method
 
-        self._mdl = self._kde_mdl()
-
-    def _kde_mdl(self):
         if self._n == 0:
             kde = None
             logdens = None
@@ -190,6 +192,7 @@ class GKdeMdl(object):
                 logdens, kde = self.gaussian_kde_logdens(
                     self._x, bandwidth_method=self._bw_method,
                     ret_kernel=True)
+                # log(2) to encode kde or not
                 kde_mdl = -logdens.sum() + np.log(2)
                 bw_factor = kde.factor
             except Exception as e:
@@ -203,7 +206,28 @@ class GKdeMdl(object):
         self._bw_factor = bw_factor
         self._kde = kde
         self._logdens = logdens
-        return kde_mdl
+        self._mdl = kde_mdl
+
+    def encode(self, qx, mdl_scale_factor=1):
+        """Encode query data using fitted KDE code
+
+        Args:
+            qx (1d float array)
+            mdl_scale_factor (number): times mdl by this number
+
+        Returns:
+            float: mdl
+        """
+        qx = npfloat_1d(qx)
+        if qx.size == 0:
+            return 0
+
+        unif_sval_mdl = np.log(np.max(np.abs(qx))*2)
+        if self._kde is None:
+            return unif_sval_mdl * len(qx) * mdl_scale_factor
+        else:
+            logdens = self._kde.logpdf(qx)
+            return -logdens.sum() * mdl_scale_factor
 
     @property
     def bandwidth(self):
@@ -215,10 +239,6 @@ class GKdeMdl(object):
     @property
     def mdl(self):
         return self._mdl
-
-    @property
-    def x(self):
-        return self._x.copy()
 
     @property
     def kde(self):
@@ -239,7 +259,6 @@ class GKdeMdl(object):
             `scipy.stats.gaussian_kde`.
 
         """
-
         # This package uses (n_samples, n_features) convention
         # scipy uses (n_featues, n_samples) convention
         # so it is necessary to reshape the data

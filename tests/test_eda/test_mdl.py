@@ -87,6 +87,38 @@ class TestMultinomialMdl(object):
             -np.log(0.4) * 2 - np.log(0.6) * 4)
 
 
+class TestGKdeMdl(object):
+    """docstring for TestKdeMdl"""
+
+    def test_wrong_x_shape(self):
+        with pytest.raises(ValueError) as excinfo:
+            eda.GKdeMdl(np.arange(10).reshape(5, 2))
+
+    def test_x(self):
+        gkmdl = eda.GKdeMdl(np.arange(100))
+        np.testing.assert_equal(gkmdl.x, np.arange(100))
+
+    def test_2d_kde(self):
+        logdens = eda.GKdeMdl.gaussian_kde_logdens(
+            np.random.normal(size=50).reshape(10, 5))
+        assert logdens.ndim == 1
+        assert logdens.size == 10
+
+    def test_wrong_kde_x_shape(self):
+        with pytest.raises(ValueError) as excinfo:
+            eda.GKdeMdl.gaussian_kde_logdens(
+                np.reshape(np.arange(9), (3, 3, 1)))
+
+    def test_encode(self):
+        np.random.seed(1)
+        x = np.random.normal(size=5000)
+        gkmdl = eda.GKdeMdl(x)
+        np.testing.assert_allclose(gkmdl.encode(x) + np.log(2), gkmdl.mdl)
+        np.testing.assert_allclose(eda.GKdeMdl([]).encode([0, 1, 2]),
+                                   np.log(2*2)*3)
+        assert gkmdl.encode([]) == 0
+
+
 class TestZeroIGKdeMdl(object):
     """docstring for TestZeroIGKdeMdl"""
     x = np.concatenate([np.repeat(0, 50),
@@ -163,26 +195,3 @@ class TestZeroIGKdeMdl(object):
     def test_wrong_x_shape(self):
         with pytest.raises(ValueError) as excinfo:
             eda.ZeroIGKdeMdl(np.arange(10).reshape(5, 2))
-
-
-class TestGKdeMdl(object):
-    """docstring for TestKdeMdl"""
-
-    def test_wrong_x_shape(self):
-        with pytest.raises(ValueError) as excinfo:
-            eda.GKdeMdl(np.arange(10).reshape(5, 2))
-
-    def test_x(self):
-        gkmdl = eda.GKdeMdl(np.arange(100))
-        np.testing.assert_equal(gkmdl.x, np.arange(100))
-
-    def test_2d_kde(self):
-        logdens = eda.GKdeMdl.gaussian_kde_logdens(
-            np.random.normal(size=50).reshape(10, 5))
-        assert logdens.ndim == 1
-        assert logdens.size == 10
-
-    def test_wrong_kde_x_shape(self):
-        with pytest.raises(ValueError) as excinfo:
-            eda.GKdeMdl.gaussian_kde_logdens(
-                np.reshape(np.arange(9), (3, 3, 1)))
