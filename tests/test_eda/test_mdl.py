@@ -104,6 +104,28 @@ class TestMultinomialMdl(object):
             -np.log(0.4) * 2 - np.log(0.6) * 4)
 
 
+class TestZeroIMultinomialMdl(object):
+    def test_init(self):
+        zimn = eda.ZeroIMultinomialMdl([0, 0, 1, 1, 3, 3, 3])
+        np.testing.assert_allclose(
+            zimn._zi_mdl, -np.log(2/7)*2 - np.log(5/7)*5 + np.log(3))
+        np.testing.assert_allclose(
+            zimn._mn_mdl, -np.log(2/5)*2 - np.log(3/5)*3)
+        assert zimn.mdl == zimn._zi_mdl + zimn._mn_mdl
+
+    def test_encode(self):
+        zimn = eda.ZeroIMultinomialMdl([0, 0, 1, 1, 3, 3, 3])
+        qx = [-20, 1, 1.5, 2, 100, 200]
+
+        np.testing.assert_allclose(
+            zimn.encode(qx, use_adjescent_when_absent=True),
+            -np.log(0.4) * 3 - np.log(0.6) * 3 - np.log(5/7) * 6 + np.log(3))
+
+        np.testing.assert_allclose(
+            zimn.encode(qx, use_adjescent_when_absent=False),
+            -np.log(0.4) * 1 + np.log(200*2) * 5 - np.log(5/7) * 6 + np.log(3))
+
+
 class TestGKdeMdl(object):
     """docstring for TestKdeMdl"""
     def test_wrong_x_shape(self):

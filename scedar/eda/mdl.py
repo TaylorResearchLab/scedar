@@ -30,6 +30,9 @@ def np_number_1d(x, dtype=np.dtype("f8"), copy=True):
 class Mdl(ABC):
     """Minimum description length abstract base class
 
+    Interface of various mdl schemas. Subclasses must implement mdl property
+        and encode method.
+
     Attributes:
         _x (1D np.number array): data used for fit mdl
         _n (np.int): number of points in x
@@ -182,6 +185,33 @@ class ZeroIMdl(Mdl):
     def encode(self, qx):
         qx = np_number_1d(qx, copy=False)
         return self._mn_encoder.encode(qx == 0) + np.log(3)
+
+    @property
+    def mdl(self):
+        return self._mdl
+
+
+class ZeroIMultinomialMdl(Mdl):
+    def __init__(self, x, dtype=np.dtype("f8"), copy=True):
+        super().__init__(x, dtype=dtype, copy=copy)
+        self._x_nonzero = self._x[np.nonzero(self._x)]
+        self._k = self._x_nonzero.shape[0]
+
+        self._zi_encoder = ZeroIMdl(self._x, dtype=dtype, copy=False)
+        self._zi_mdl = self._zi_encoder.mdl
+
+        self._mn_encoder = MultinomialMdl(self._x_nonzero, dtype=dtype,
+                                          copy=False)
+        self._mn_mdl = self._mn_encoder.mdl
+        self._mdl = self._zi_mdl + self._mn_mdl
+
+    def encode(self, qx, use_adjescent_when_absent=False):
+        qx = np_number_1d(qx)
+        qx_nonzero = qx[np.nonzero(qx)]
+        qzi_mdl = self._zi_encoder.encode(qx)
+        qmn_mdl = self._mn_encoder.encode(
+            qx_nonzero, use_adjescent_when_absent=use_adjescent_when_absent)
+        return qzi_mdl + qmn_mdl
 
     @property
     def mdl(self):
@@ -357,7 +387,7 @@ class ZeroIGKdeMdl(Mdl):
                  copy=True):
         super().__init__(x, dtype=dtype, copy=copy)
 
-        self._x_nonzero = x[np.nonzero(x)]
+        self._x_nonzero = self._x[np.nonzero(self._x)]
         self._k = self._x_nonzero.shape[0]
 
         self._bw_method = kde_bw_method
