@@ -764,10 +764,11 @@ class TestMDLSingleLabelClassifiedSamples(object):
         mdl_slcs = eda.MDLSingleLabelClassifiedSamples(
             self.x50x5, labs=self.labs50, metric="euclidean")
         no_lab_mdl = mdl_slcs.no_lab_mdl()
-        ulab_s_ind_l, ulab_cnt_l, ulab_mdl_l, cluster_mdl = mdl_slcs.lab_mdl()
+        ((ulab_mdl_sum, ulab_s_ind_l, ulab_cnt_l, ulab_mdl_l,
+         cluster_mdl), mdl_l) = mdl_slcs.lab_mdl(ret_internal=True)
         assert ulab_s_ind_l == [list(range(10)), list(range(10, 45)),
                                 list(range(45, 50))]
-
+        assert ulab_mdl_sum == np.sum(ulab_mdl_l)
         ulab_cnt_l = [10, 35, 5]
 
         for i in range(3):
@@ -784,10 +785,12 @@ class TestMDLSingleLabelClassifiedSamples(object):
         mdl_slcs = eda.MDLSingleLabelClassifiedSamples(
             self.x50x5, labs=self.labs50, metric="euclidean")
         no_lab_mdl = mdl_slcs.no_lab_mdl(nprocs=2)
-        ulab_s_ind_l, ulab_cnt_l, ulab_mdl_l, cluster_mdl = mdl_slcs.lab_mdl(
-            nprocs=2)
+        ((ulab_mdl_sum, ulab_s_ind_l, ulab_cnt_l,
+         ulab_mdl_l, cluster_mdl), mdl_l) = mdl_slcs.lab_mdl(
+            nprocs=2, ret_internal=True)
         assert ulab_s_ind_l == [list(range(10)), list(range(10, 45)),
                                 list(range(45, 50))]
+        assert ulab_mdl_sum == np.sum(ulab_mdl_l)
 
         ulab_cnt_l = [10, 35, 5]
 
@@ -817,11 +820,13 @@ class TestMDLSingleLabelClassifiedSamples(object):
                 self.x50x5, labs=self.labs50, mdl_method=mdl_method,
                 metric="euclidean")
 
-            (ulab_s_ind_l, ulab_cnt_l,
-             ulab_mdl_l, cluster_mdl) = mdl_slcs.lab_mdl()
+            ((ulab_mdl_sum, ulab_s_ind_l, ulab_cnt_l,
+             ulab_mdl_l, cluster_mdl), mdl_l) = mdl_slcs.lab_mdl(
+                 ret_internal=True)
 
             assert ulab_s_ind_l == [list(range(10)), list(range(10, 45)),
                                     list(range(45, 50))]
+            assert ulab_mdl_sum == np.sum(ulab_mdl_l)
 
             ulab_cnt_l = [10, 35, 5]
 
@@ -866,17 +871,15 @@ class TestMDLSingleLabelClassifiedSamples(object):
         mdl_slcs = eda.MDLSingleLabelClassifiedSamples(
             self.x50x5, labs=self.labs50, metric="euclidean")
 
-        (ulab_s_ind_l, ulab_cnt_l, ulab_mdl_l,
-         cluster_mdl, mdl_l) = mdl_slcs.lab_mdl(ret_internal=True)
+        ((ulab_mdl_sum, ulab_s_ind_l, ulab_cnt_l, ulab_mdl_l,
+         cluster_mdl), mdl_l) = mdl_slcs.lab_mdl(ret_internal=True)
         np.testing.assert_allclose(sum(mdl_l) + cluster_mdl,
                                    sum(ulab_mdl_l))
 
-        (ulab_s_ind_l2, ulab_cnt_l2,
-         ulab_mdl_l2, cluster_mdl2) = mdl_slcs.lab_mdl()
-        assert ulab_s_ind_l == ulab_s_ind_l2
-        assert ulab_cnt_l == ulab_cnt_l2
-        assert ulab_mdl_l == ulab_mdl_l2
-        assert cluster_mdl == cluster_mdl2
+        lab_mdl_res = mdl_slcs.lab_mdl()
+        ulab_mdl_sum2 = lab_mdl_res.ulab_mdl_sum
+        assert ulab_mdl_sum2 == ulab_mdl_sum
+        assert ulab_mdl_sum2 == np.sum(lab_mdl_res.ulab_mdls)
 
     def test_per_column_mdl_wrong_xshape(self):
         with pytest.raises(ValueError) as excinfo:

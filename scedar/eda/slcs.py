@@ -1,3 +1,7 @@
+import itertools
+
+from collections import namedtuple
+
 import numpy as np
 
 from scipy.stats import ks_2samp
@@ -709,6 +713,9 @@ class MDLSingleLabelClassifiedSamples(SingleLabelClassifiedSamples):
     Attributes:
         _mdl_method (.mdl.Mdl)
     """
+    LabMdlResult = namedtuple("LabMdlResult",
+                              ["ulab_mdl_sum", "ulab_s_inds", "ulab_cnts",
+                               "ulab_mdls", "cluster_mdl"])
 
     def __init__(self, x, labs, sids=None, fids=None,
                  mdl_method=mdl.ZeroIGKdeMdl,
@@ -763,6 +770,26 @@ class MDLSingleLabelClassifiedSamples(SingleLabelClassifiedSamples):
                                           nprocs, verbose)
         return col_mdl_sum
 
+    @staticmethod
+    def compute_cluster_mdl(labs, cl_mdl_scale_factor=1):
+        """Additional MDL for encoding the cluster
+
+        - labels are encoded by multinomial distribution
+        - parameters are encoded by 32bit float
+          np.log(2**32) = 22.18070977791825
+        - scaled by factor
+
+        TODO: formalize parameter mdl
+        """
+        uniq_labs, uniq_lab_cnts = np.unique(labs, return_counts=True)
+        n_uniq_labs = len(uniq_lab_cnts)
+        # make a flat list of labels
+        int_labs = list(itertools.chain.from_iterable(
+            [[i]*uniq_lab_cnts[i] for i in range(n_uniq_labs)]))
+        mn_mdl = mdl.MultinomialMdl(int_labs).mdl
+        param_mdl = 22.18070977791825 * n_uniq_labs
+        return (mn_mdl + param_mdl) * cl_mdl_scale_factor
+
     def lab_mdl(self, cl_mdl_scale_factor=1, nprocs=1, verbose=False,
                 ret_internal=False):
         """Compute mdl of each feature after separating samples by labels
@@ -789,24 +816,20 @@ class MDLSingleLabelClassifiedSamples(SingleLabelClassifiedSamples):
                                             nprocs, verbose)
                         for x in ulab_x_list]
 
-        # Additional MDL for encoding the cluster:
-        # - labels are encoded by multinomial distribution
-        # - KDE bandwidth factors are encoded by 32bit float
-        #   np.log(2**32) = 22.18070977791825
-        # - scaled by factor
-        cluster_mdl = ((mdl.MultinomialMdl(self._labs).mdl +
-                        22.18070977791825 * n_uniq_labs) *
-                       cl_mdl_scale_factor)
+        cluster_mdl = self.compute_cluster_mdl(
+            self._labs, cl_mdl_scale_factor=cl_mdl_scale_factor)
 
         ulab_mdl_list = [pts_mdl_list[i] + cluster_mdl * ulab_cnt_ratios[i]
                          for i in range(n_uniq_labs)]
 
+        ulab_mdl_sum = np.sum(ulab_mdl_list)
+        lab_mdl_res = self.LabMdlResult(ulab_mdl_sum, ulab_s_ind_list,
+                                        self._uniq_lab_cnts.tolist(),
+                                        ulab_mdl_list, cluster_mdl)
         if ret_internal:
-            return (ulab_s_ind_list, self._uniq_lab_cnts.tolist(),
-                    ulab_mdl_list, cluster_mdl, pts_mdl_list)
+            return lab_mdl_res, pts_mdl_list
         else:
-            return (ulab_s_ind_list, self._uniq_lab_cnts.tolist(),
-                    ulab_mdl_list, cluster_mdl)
+            return lab_mdl_res
 
     def encode(self, qx, non_zero_only=False, nprocs=1, verbose=False):
         """Encode input array qx with fitted code without label
