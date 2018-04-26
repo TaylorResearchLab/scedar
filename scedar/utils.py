@@ -7,17 +7,12 @@ import warnings
 
 
 def _parmap_fun(f, q_in, q_out):
-    def ehf(x):
-        try:
-            res = f(x)
-        except Exception as e:
-            res = e
-        return res
     while True:
         i, x = q_in.get()
         if i is None:
             break
-        q_out.put((i, ehf(x)))
+        q_out.put((i, f(x)))
+
 
 def parmap(f, X, nprocs=1):
     """
@@ -25,15 +20,31 @@ def parmap(f, X, nprocs=1):
     on stackoverflow. https://stackoverflow.com/a/16071616/4638182
 
     parmap allows map on lambda and class static functions.
+
+    Fall back to serial map when nprocs=1.
     """
     if nprocs < 1:
         raise ValueError("nprocs should be >= 1. nprocs: {}".format(nprocs))
 
     nprocs = min(int(nprocs), mp.cpu_count())
+    # exception handling f
+    # simply ignore all exceptions. If exception occurs in parallel queue, the
+    # process with exception will get stuck and not be able to process
+    # following requests.
+
+    def ehf(x):
+        try:
+            res = f(x)
+        except Exception as e:
+            res = e
+        return res
+
+    if nprocs == 1:
+        return list(map(ehf, X))
 
     q_in = mp.Queue(1)
     q_out = mp.Queue()
-    proc = [mp.Process(target=_parmap_fun, args=(f, q_in, q_out))
+    proc = [mp.Process(target=_parmap_fun, args=(ehf, q_in, q_out))
             for _ in range(nprocs)]
 
     for p in proc:

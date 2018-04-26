@@ -43,16 +43,19 @@ def test_parmap_arr2d():
     assert np.all(pm_res[0] == np.array([1, 4]))
     assert np.all(pm_res[1] == np.array([9, 16]))
 
+
 def test_parmap_invalid_nprocs():
     with pytest.raises(ValueError) as excinfo:
         pm_res = utils.parmap(lambda x: x ** 2,
                               np.array([[1, 2], [3, 4]]), nprocs=0.5)
+
 
 def test_parmap_gen_mp():
     n = 1000
     pm_res = utils.parmap(lambda x: x ** 2, range(n), nprocs=10)
     assert isinstance(pm_res, list)
     assert pm_res == list(map(lambda x: x**2, range(n)))
+
 
 def test_parmap_exception_mp():
     n = 1000
@@ -95,20 +98,21 @@ def test_dict_str_key():
     # general case
     assert utils.dict_str_key({"a": 1, "b": 2}) == "[('a', 1), ('b', 2)]"
     # same
-    d1 = {'1': 2, '3': 'b', '5': [1,2,3]}
-    d11 = {'1': 2, '3': 'b', '5': [1,2,3]}
-    d2 = {'3': 'b', '1': 2, '5': [1,2,3]}
+    d1 = {'1': 2, '3': 'b', '5': [1, 2, 3]}
+    d11 = {'1': 2, '3': 'b', '5': [1, 2, 3]}
+    d2 = {'3': 'b', '1': 2, '5': [1, 2, 3]}
     assert utils.dict_str_key(d1) == utils.dict_str_key(d11)
     assert utils.dict_str_key(d1) == utils.dict_str_key(d2)
     # diff
-    d3 = {'3': 'b', '1': 2, '5': (1,2,3)}
-    d4 = {'3': 'b', '1': '2', '5': [1,2,3]}
-    d5 = {'3': 'b', 1: 2, '5': [1,2,3]}
+    d3 = {'3': 'b', '1': 2, '5': (1, 2, 3)}
+    d4 = {'3': 'b', '1': '2', '5': [1, 2, 3]}
+    d5 = {'3': 'b', 1: 2, '5': [1, 2, 3]}
     assert utils.dict_str_key(d1) != utils.dict_str_key(d3)
     assert utils.dict_str_key(d1) != utils.dict_str_key(d4)
     assert utils.dict_str_key(d1) != utils.dict_str_key(d5)
     assert utils.dict_str_key(d4) != utils.dict_str_key(d5)
     assert utils.dict_str_key(d3) != utils.dict_str_key(d5)
+
 
 def test_dict_str_key_wrong_arg():
     with pytest.raises(ValueError) as excinfo:
