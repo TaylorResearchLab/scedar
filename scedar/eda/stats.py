@@ -43,7 +43,7 @@ def gc1d(x):
     return gc
 
 
-# Multiple testing correction adapted from 
+# Multiple testing correction adapted from
 # https://github.com/CoBiG2/cobig_misc_scripts/blob/master/FDR.py
 #
 # Following is the lincense info:
@@ -97,3 +97,25 @@ def multiple_testing_correction(pvalues, correction_type="FDR"):
         raise ValueError("Not supported correction type "
                          "{}".format(correction_type))
     return np.clip(qvalues, 0, 1)
+
+
+# lower upper bound
+# start, end, lb, ub should all be scalar
+def bidir_ReLU(x, start, end, lb=0, ub=1):
+    if start > end:
+        raise ValueError("start should <= end"
+                         "start: {}. end: {}.".format(start, end))
+
+    if lb > ub:
+        raise ValueError("lb should <= ub"
+                         "lower bound: {}. "
+                         "upper bound: {}. ".format(start, end))
+
+    if start < end:
+        width = end - start
+        height = ub - lb
+        return np.clip(a=height * (x - start) / width + lb,
+                       a_min=lb, a_max=ub)
+    else:
+        # start == end
+        return np.where(x >= start, ub, lb)
