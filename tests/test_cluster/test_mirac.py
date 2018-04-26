@@ -16,14 +16,21 @@ class TestMIRAC(object):
 
     def test_mirac_wrong_args(self):
         x = np.zeros((10, 10))
+        # wrong min_cl_n
         with pytest.raises(ValueError) as excinfo:
             cluster.MIRAC(x, metric='euclidean', min_cl_n=-0.1)
 
         with pytest.raises(ValueError) as excinfo:
             cluster.MIRAC(x, metric='euclidean', min_cl_n=-0.1)
-
+        # wrong cl_mdl_scale_factor
         with pytest.raises(ValueError) as excinfo:
             cluster.MIRAC(x, metric='euclidean', cl_mdl_scale_factor=-0.1)
+        # wrong encode type
+        with pytest.raises(ValueError) as excinfo:
+            cluster.MIRAC(x, metric='euclidean', encode_type='1')
+
+        with pytest.raises(ValueError) as excinfo:
+            cluster.MIRAC(x, metric='euclidean', encode_type=1)
 
         # hac tree n_leaves different from n_samples
         z = sch.linkage([[0], [5], [6], [8], [9], [12]],
@@ -50,7 +57,8 @@ class TestMIRAC(object):
         hct = eda.HClustTree.hclust_tree(sdm._d, linkage='ward',
                                          optimal_ordering=True)
         m2 = cluster.MIRAC(sdm._x, hac_tree=hct, min_cl_n=35,
-                           cl_mdl_scale_factor=1, verbose=True)
+                           cl_mdl_scale_factor=1, encode_type='data',
+                           mdl_method=eda.mdl.ZeroIGKdeMdl, verbose=False)
         assert m.labs == m2.labs
         assert m2._sdm._lazy_load_d is None
 
@@ -61,3 +69,17 @@ class TestMIRAC(object):
         cluster.MIRAC(tx2, metric='correlation', min_cl_n=3,
                       optimal_ordering=False, cl_mdl_scale_factor=0,
                       verbose=True)
+
+        # auto to encode distance
+        tx3, tlab3 = skdset.make_blobs(n_samples=100, n_features=101,
+                                       cluster_std=0.01, centers=5,
+                                       random_state=8927)
+        tx3 = tx3 - tx3.min()
+        sdm = eda.SampleDistanceMatrix(tx3, metric='euclidean')
+        m = cluster.MIRAC(sdm._x, sdm._d, metric='euclidean', linkage='ward',
+                          min_cl_n=5, cl_mdl_scale_factor=1, verbose=True)
+        assert m._encode_type == 'distance'
+        # empty
+        sdm = eda.SampleDistanceMatrix([[], []], metric='euclidean')
+        m = cluster.MIRAC(sdm._x, sdm._d, metric='euclidean', linkage='ward',
+                          min_cl_n=35, cl_mdl_scale_factor=1, verbose=True)

@@ -148,13 +148,14 @@ class MIRAC(object):
     def _dmat_mdl(dmat, mdl_method, nprocs=1):
         """Private method to compute mdl for distance matrix
         """
+        n = dmat.shape[0]
+        s_inds = list(range(n))
         def single_s_mdl(i):
             # copy indices for parallel processing
-            i_s_ind = fit_s_inds[i]
-            non_i_s_inds = fit_s_inds[:i] + fit_s_inds[i+1:]
+            i_s_ind = s_inds[i]
+            non_i_s_inds = s_inds[:i] + s_inds[i+1:]
             return mdl_method(dmat[i_s_ind, non_i_s_inds]).mdl
-        n = dmat.shape[0]
-        dmat_ind_mdls = utils.parmap(single_s_mdl, range(n_fit), nprocs=nprocs)
+        dmat_ind_mdls = utils.parmap(single_s_mdl, range(n), nprocs=nprocs)
         dmat_mdl = np.sum(dmat_ind_mdls)
         return dmat_mdl
 
@@ -319,7 +320,7 @@ class MIRAC(object):
 
                 left_insp_no_lab_mdl = self._dmat_mdl(
                     self._sdm._d[scl_left + scl_insp][:, scl_left + scl_insp],
-                    self._mdl_method, nprocs=self._nprosc)
+                    self._mdl_method, nprocs=self._nprocs)
             else:
                 # encode_type == "data"
                 # left and inspected SLCS

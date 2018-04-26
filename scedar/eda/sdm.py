@@ -794,7 +794,7 @@ class HClustTree(object):
                     if max_spl_st.count() <= 0:
                         # count < 1 or count == 0
                         # This should not happen given max_st > min_st >= 1
-                        raise RuntimeError("Unexpected branch reached")
+                        raise NotImplementedError("Unexpected branch reached")
                     # split side only has 1 node
                     # create an empty tree
                     min_merge_st = min_st
