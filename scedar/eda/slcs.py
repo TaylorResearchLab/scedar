@@ -689,6 +689,8 @@ complete-guide-parameter-tuning-xgboost-with-codes-python/
         return cross_lab_lut
 
 
+# TODO: rename MDLSingleLabelClassifiedSamples as
+# MdlSingleLabelClassifiedSamples
 class MDLSingleLabelClassifiedSamples(SingleLabelClassifiedSamples):
     """
     MDLSingleLabelClassifiedSamples inherits SingleLabelClassifiedSamples to
