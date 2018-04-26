@@ -46,8 +46,8 @@ class SampleKNNFilter(object):
         progress_list = [curr_s_inds.tolist()]
 
         for i in range(1, n_iter+1):
-            i_d_cutoff = (d_cutoff
-                          + (n_iter - i) / n_iter * max(0, d_max - d_cutoff))
+            i_d_cutoff = (d_cutoff +
+                          (n_iter - i) / n_iter * max(0, d_max - d_cutoff))
             i_k = min(curr_dist_mat.shape[0]-1, k)
             kept_curr_s_inds = []
             # each column is sorted. Not in-place.
@@ -167,12 +167,10 @@ class SampleKNNFilter(object):
         nprocs = int(nprocs)
         nprocs = min(nprocs, n_param_tups)
 
-        f = lambda ptup: self._knn_filter_samples_runner(*ptup)
         # returns (filtered_sdm, progress_list (list of kept indices))
-        if nprocs != 1:
-            res_list = utils.parmap(f, param_tups, nprocs)
-        else:
-            res_list = list(map(f, param_tups))
+        res_list = utils.parmap(
+            lambda ptup: self._knn_filter_samples_runner(*ptup),
+            param_tups, nprocs)
 
         for i in range(n_param_tups):
             if param_tups[i] not in self._res_lut:

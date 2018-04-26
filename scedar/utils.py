@@ -38,7 +38,7 @@ def parmap(f, X, nprocs=1):
         except Exception as e:
             res = e
         return res
-
+    # fall back on serial
     if nprocs == 1:
         return list(map(ehf, X))
 

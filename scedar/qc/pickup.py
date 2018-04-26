@@ -66,7 +66,7 @@ class FeatureKNNPickUp(object):
 
                 for fai in f_absent_inds:
                     # feature fai present in >= n_do_i NNs
-                    if  f_n_knn_present_arr[fai] >= n_do_i:
+                    if f_n_knn_present_arr[fai] >= n_do_i:
                         # Mark (s_ind, fai) as picked up
                         pickup_idc_arr[s_ind, fai] = i
                         # Replace val in (s_ind, fai) with median of knn
@@ -207,12 +207,9 @@ class FeatureKNNPickUp(object):
         nprocs = int(nprocs)
         nprocs = min(nprocs, n_param_tups)
 
-        f = lambda ptup: self._knn_pickup_features_runner(*ptup)
-
-        if nprocs != 1:
-            res_list = utils.parmap(f, param_tups, nprocs)
-        else:
-            res_list = list(map(f, param_tups))
+        res_list = utils.parmap(
+            lambda ptup: self._knn_pickup_features_runner(*ptup),
+            param_tups, nprocs)
 
         for i in range(n_param_tups):
             if param_tups[i] not in self._res_lut:

@@ -150,6 +150,7 @@ class MIRAC(object):
         """
         n = dmat.shape[0]
         s_inds = list(range(n))
+
         def single_s_mdl(i):
             # copy indices for parallel processing
             i_s_ind = s_inds[i]

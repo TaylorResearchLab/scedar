@@ -250,10 +250,7 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
         def srun_tsne(param_dict):
             return self.tsne(store_res=False, **param_dict)
 
-        if nprocs <= 1:
-            resl = list(map(srun_tsne, param_list))
-        else:
-            resl = utils.parmap(srun_tsne, param_list, nprocs)
+        resl = utils.parmap(srun_tsne, param_list, nprocs)
         if store_res:
             for i in range(len(param_list)):
                 self.put_tsne(str(param_list[i]), resl[i])

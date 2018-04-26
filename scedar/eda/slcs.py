@@ -743,11 +743,7 @@ class MDLSingleLabelClassifiedSamples(SingleLabelClassifiedSamples):
         nprocs = max(int(nprocs), 1)
 
         # apply to each feature/column
-        if nprocs != 1:
-            col_mdl_list = utils.parmap(lambda x1d: mdl_method(x1d),
-                                        x.T, nprocs)
-        else:
-            col_mdl_list = list(map(lambda x1d: mdl_method(x1d), x.T))
+        col_mdl_list = utils.parmap(lambda x1d: mdl_method(x1d), x.T, nprocs)
 
         col_mdl_sum = sum(map(lambda zkmdl: zkmdl.mdl, col_mdl_list))
         if ret_internal:
@@ -869,10 +865,8 @@ class MDLSingleLabelClassifiedSamples(SingleLabelClassifiedSamples):
         def encode_1d_mdl(mdl_x_tup):
             return mdl_x_tup[0].encode(mdl_x_tup[1]).sum()
 
-        if nprocs != 1:
-            encode_q_col_mdls = utils.parmap(encode_1d_mdl, mdl_qxcol_tups)
-        else:
-            encode_q_col_mdls = list(map(encode_1d_mdl, mdl_qxcol_tups))
+        encode_q_col_mdls = utils.parmap(encode_1d_mdl, mdl_qxcol_tups,
+                                         nprocs=nprocs)
 
         encode_x_mdl = sum(encode_q_col_mdls)
         return encode_x_mdl
