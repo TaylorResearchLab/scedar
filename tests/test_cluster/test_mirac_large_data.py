@@ -20,7 +20,7 @@ class TestLargeDataMIRAC(object):
 
     def test_mirac_run_300x1000(self):
         mirac_res = cluster.MIRAC(self.x300x1000, metric="correlation",
-                                  encode_type="data",
+                                  encode_type="distance",
                                   min_cl_n=10, min_split_mdl_red_ratio=0.05,
                                   nprocs=3)
         assert len(mirac_res.labs) == 300

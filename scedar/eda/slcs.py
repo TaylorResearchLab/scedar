@@ -19,11 +19,12 @@ import xgboost as xgb
 
 import inspect
 
-from .sdm import SampleDistanceMatrix
-from .plot import swarm, heatmap
-from . import mdl
-from . import mtype
-from .. import utils
+from scedar.eda.sdm import SampleDistanceMatrix
+from scedar.eda.plot import swarm
+from scedar.eda.plot import heatmap
+from scedar.eda import mdl
+from scedar.eda import mtype
+from scedar import utils
 
 
 class SingleLabelClassifiedSamples(SampleDistanceMatrix):
@@ -705,7 +706,10 @@ class MDLSingleLabelClassifiedSamples(SingleLabelClassifiedSamples):
         labs (list of str or int): labels
         sids (list of str or int): sample ids
         fids (list of str or int): feature ids
-        mdl_method (.mdl.Mdl)
+        encode_type ("auto", "data", or "distance"): Type of values to encode.
+            If "auto", encode data when n_features <= 100.
+        mdl_method (mdl.Mdl): If None, use ZeroIGKdeMdl for encoded values
+            with >= 50% zeros, and use GKdeMdl otherwise.
         d (2d number array): distance matrix
         metric (str): distance metric for scipy
         nprocs (int)
@@ -718,17 +722,54 @@ class MDLSingleLabelClassifiedSamples(SingleLabelClassifiedSamples):
                                "ulab_mdls", "cluster_mdl"])
 
     def __init__(self, x, labs, sids=None, fids=None,
-                 mdl_method=mdl.ZeroIGKdeMdl,
+                 encode_type="data", mdl_method=mdl.ZeroIGKdeMdl,
                  d=None, metric="correlation", nprocs=None):
         super(MDLSingleLabelClassifiedSamples, self).__init__(
             x=x, labs=labs, sids=sids, fids=fids, d=d, metric=metric,
             nprocs=nprocs)
-
+        # initialize encode type
+        if encode_type not in ("auto", "data", "distance"):
+            raise ValueError("encode_type must in "
+                             "('auto', 'data', 'distance')."
+                             "Provided: {}".format(encode_type))
+        if encode_type == "auto":
+            if self._x.shape[1] > 100:
+                encode_type = "distance"
+            else:
+                encode_type = "data"
+        self._encode_type = encode_type
+        # initialize mdl method
+        if mdl_method is None:
+            if encode_type == "data":
+                ex = self._x
+            else:
+                ex = self._d
+            if ex.size == 0:
+                # empty matrix
+                mdl_method = mdl.GKdeMdl
+            else:
+                n_nonzero = np.count_nonzero(ex)
+                if n_nonzero / ex.size > 0.5:
+                    mdl_method = mdl.GKdeMdl
+                else:
+                    mdl_method = mdl.ZeroIGKdeMdl
         self._mdl_method = mdl_method
 
     @staticmethod
-    def per_column_mdl(x, mdl_method=mdl.ZeroIGKdeMdl, nprocs=1,
-                       verbose=False, ret_internal=False):
+    def per_col_encoders(x, encode_type, mdl_method=mdl.ZeroIGKdeMdl, nprocs=1,
+                         verbose=False):
+        """Compute mdl encoder for each column
+
+        Args:
+            x (2d number array)
+            encode_type ("data" or "distance")
+            mdl_method (mdl.Mdl)
+            nprocs (int)
+            verbose (bool)
+
+        Returns:
+            :obj: list of column mdl encoders of x
+        """
         # verbose is not implemented
         if not inspect.isclass(mdl_method):
             raise ValueError("method must be a subclass of eda.mdl.Mdl")
@@ -737,19 +778,28 @@ class MDLSingleLabelClassifiedSamples(SingleLabelClassifiedSamples):
             raise ValueError("method must be a subclass of eda.mdl.Mdl")
 
         if x.ndim != 2:
-            raise ValueError("x should have shape (n_samples, n_features)."
-                             "x.shape: {}".format(x.shape))
+            raise ValueError("x should be 2D. x.shape: {}".format(x.shape))
 
         nprocs = max(int(nprocs), 1)
+        if encode_type == "data":
+            col_encoders = utils.parmap(
+                lambda x1d: mdl_method(x1d), x.T, nprocs)
+        elif encode_type == "distance":
+            # distance
+            s_inds = list(range(x.shape[0]))
 
-        # apply to each feature/column
-        col_mdl_list = utils.parmap(lambda x1d: mdl_method(x1d), x.T, nprocs)
+            def single_s_mdl_encoder(i):
+                # copy indices for parallel processing
+                i_s_ind = s_inds[i]
+                non_i_s_inds = s_inds[:i] + s_inds[i+1:]
+                return mdl_method(x[i_s_ind, non_i_s_inds])
 
-        col_mdl_sum = sum(map(lambda zkmdl: zkmdl.mdl, col_mdl_list))
-        if ret_internal:
-            return col_mdl_sum, col_mdl_list
+            col_encoders = utils.parmap(single_s_mdl_encoder, s_inds, nprocs)
         else:
-            return col_mdl_sum
+            raise NotImplementedError("unknown encode_type: "
+                                      "{}".format(encode_type))
+
+        return col_encoders
 
     def no_lab_mdl(self, nprocs=1, verbose=False):
         """Compute mdl of each feature without separating samples by labels
@@ -761,9 +811,36 @@ class MDLSingleLabelClassifiedSamples(SingleLabelClassifiedSamples):
         Returns:
             float: mdl of matrix without separating samples by labels
         """
-        # verbose is not implemented
-        col_mdl_sum = self.per_column_mdl(self._x, self._mdl_method,
-                                          nprocs, verbose)
+        # TODO: implement verbose
+        if self._encode_type == "data":
+            col_encoders = self.per_col_encoders(self._x, self._encode_type,
+                                                 self._mdl_method, nprocs,
+                                                 verbose)
+            col_mdl_sum = np.sum(list(map(lambda e: e.mdl, col_encoders)))
+        elif self._encode_type == "distance":
+            col_encoders = self.per_col_encoders(self._d, self._encode_type,
+                                                 self._mdl_method, nprocs,
+                                                 verbose)
+            col_mdl_sum = 0
+            ulab_s_ind_list = [np.where(self._labs == ulab)[0].tolist()
+                               for ulab in self._uniq_labs]
+            for s_inds in ulab_s_ind_list:
+                n_s_inds = len(s_inds)
+                rn_inds = list(range(n_s_inds))
+                # [(encoder, x), ...]
+                enc_x_tups = []
+                for i in rn_inds:
+                    i_s_ind = s_inds[i]
+                    non_i_s_inds = s_inds[:i] + s_inds[i+1:]
+                    enc_x_tups.append((col_encoders[i_s_ind],
+                                       self._d[non_i_s_inds, i_s_ind]))
+                mdls = utils.parmap(lambda ext: ext[0].encode(ext[1]),
+                                    enc_x_tups, nprocs)
+                col_mdl_sum += sum(mdls)
+        else:
+            raise NotImplementedError("Do not change encode_type after init. "
+                                      "Unknown encode type "
+                                      "{}".format(self._encode_type))
         return col_mdl_sum
 
     @staticmethod
@@ -799,39 +876,39 @@ class MDLSingleLabelClassifiedSamples(SingleLabelClassifiedSamples):
         Returns:
             float: mdl of matrix after separating sampels by labels
         """
+        # compute cluster label overhead mdl
+        cluster_mdl = self.compute_cluster_mdl(
+            self._labs, cl_mdl_scale_factor=cl_mdl_scale_factor)
+        # compute mdl for data points
         n_uniq_labs = self._uniq_labs.shape[0]
         ulab_s_ind_list = [np.where(self._labs == ulab)[0].tolist()
                            for ulab in self._uniq_labs]
-
-        ulab_x_list = [self._x[i, :] for i in ulab_s_ind_list]
-
-        ulab_cnt_ratios = self._uniq_lab_cnts / self._x.shape[0]
-
-        # MDL for points in each cluster
-        pts_mdl_list = [self.per_column_mdl(x, self._mdl_method,
-                                            nprocs, verbose)
-                        for x in ulab_x_list]
-
-        cluster_mdl = self.compute_cluster_mdl(
-            self._labs, cl_mdl_scale_factor=cl_mdl_scale_factor)
-
-        ulab_mdl_list = [pts_mdl_list[i] + cluster_mdl * ulab_cnt_ratios[i]
-                         for i in range(n_uniq_labs)]
-
-        ulab_mdl_sum = np.sum(ulab_mdl_list)
+        # summarize mdls of all clusters
+        ulab_mdls = [MDLSingleLabelClassifiedSamples(
+            self._x[s_inds], labs=[0]*len(s_inds),
+            encode_type=self._encode_type, mdl_method=self._mdl_method,
+            d=self._d[s_inds][:, s_inds], metric=self._metric,
+            nprocs=self._nprocs).no_lab_mdl() for s_inds in ulab_s_ind_list]
+        # add cluster overhead mdl to each cluster
+        ulab_cnt_ratios = self._uniq_lab_cnts / np.int_(self._x.shape[0])
+        ulab_cl_mdls = [ulab_mdls[i] + cluster_mdl * ulab_cnt_ratios[i]
+                        for i in range(n_uniq_labs)]
+        ulab_mdl_sum = np.sum(ulab_cl_mdls)
         lab_mdl_res = self.LabMdlResult(ulab_mdl_sum, ulab_s_ind_list,
                                         self._uniq_lab_cnts.tolist(),
-                                        ulab_mdl_list, cluster_mdl)
+                                        ulab_cl_mdls, cluster_mdl)
         if ret_internal:
-            return lab_mdl_res, pts_mdl_list
+            return lab_mdl_res, ulab_mdls
         else:
             return lab_mdl_res
 
-    def encode(self, qx, non_zero_only=False, nprocs=1, verbose=False):
+    def encode(self, qx, col_summary_func=sum,
+               non_zero_only=False, nprocs=1, verbose=False):
         """Encode input array qx with fitted code without label
 
         Args:
             qx (2d np number array)
+            col_summary_func (callable): function applied on column mdls
             non_zero_only (bool): whether to encode non-zero entries only
             nprocs (int)
             verbose (bool)
@@ -839,20 +916,30 @@ class MDLSingleLabelClassifiedSamples(SingleLabelClassifiedSamples):
         Returns:
             float: mdl for encoding qx
         """
-        if qx.ndim != 2 or qx.shape[1] != self._x.shape[1]:
+        if not callable(col_summary_func):
+            raise ValueError("col_summary_func must be callable")
+
+        if self._encode_type == "data":
+            ex = self._x
+        elif self._encode_type == "distance":
+            ex = self._d
+        else:
+            raise NotImplementedError("Do not change encode_type after init. "
+                                      "Unknown encode type "
+                                      "{}".format(self._encode_type))
+
+        if qx.ndim != 2 or qx.shape[1] != ex.shape[1]:
             raise ValueError("Array to encode should have the same number of"
-                             "columns as the object._x")
+                             "columns as the encoded x")
 
-        ncols = self._x.shape[1]
+        col_encoders = self.per_col_encoders(
+            ex, self._encode_type, self._mdl_method, nprocs, verbose=verbose)
 
-        col_mdl_sum, col_mdl_list = self.per_column_mdl(
-            self._x, self._mdl_method, nprocs, verbose=verbose,
-            ret_internal=True)
-
+        ncols = ex.shape[1]
         q_x_cols = []
         for i in range(ncols):
             x_col = qx[:, i]
-            # mdl_method is valid after running per_column_mdl
+            # mdl_method is valid after running per_col_encoders
             if non_zero_only:
                 q_x_cols.append(x_col[np.nonzero(x_col)])
             else:
@@ -860,13 +947,10 @@ class MDLSingleLabelClassifiedSamples(SingleLabelClassifiedSamples):
                 # this branch is GKdeMdl
                 q_x_cols.append(x_col)
         # (mdl, qx) tuple
-        mdl_qxcol_tups = list(zip(col_mdl_list, q_x_cols))
+        mdl_qxcol_tups = list(zip(col_encoders, q_x_cols))
 
-        def encode_1d_mdl(mdl_x_tup):
-            return mdl_x_tup[0].encode(mdl_x_tup[1]).sum()
+        encode_q_col_mdls = utils.parmap(
+            lambda ext: ext[0].encode(ext[1]), mdl_qxcol_tups, nprocs=nprocs)
 
-        encode_q_col_mdls = utils.parmap(encode_1d_mdl, mdl_qxcol_tups,
-                                         nprocs=nprocs)
-
-        encode_x_mdl = sum(encode_q_col_mdls)
+        encode_x_mdl = col_summary_func(encode_q_col_mdls)
         return encode_x_mdl

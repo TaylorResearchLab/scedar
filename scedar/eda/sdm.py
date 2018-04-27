@@ -17,11 +17,14 @@ import networkx as nx
 from fa2 import ForceAtlas2
 
 import scedar
-from .plot import cluster_scatter, heatmap, hist_dens_plot, networkx_graph
-from .sfm import SampleFeatureMatrix
-from .mdl import MultinomialMdl
-from .. import utils
-from . import mtype
+from scedar.eda.plot import cluster_scatter
+from scedar.eda.plot import heatmap
+from scedar.eda.plot import hist_dens_plot
+from scedar.eda.plot import networkx_graph
+from scedar.eda.sfm import SampleFeatureMatrix
+from scedar.eda.mdl import MultinomialMdl
+from scedar import utils
+from scedar.eda import mtype
 
 
 class SampleDistanceMatrix(SampleFeatureMatrix):

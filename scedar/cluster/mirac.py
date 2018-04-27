@@ -1,8 +1,9 @@
+import itertools
 import numpy as np
 
-from .. import eda
-from ..eda.slcs import MDLSingleLabelClassifiedSamples as MDLSLCS
-from .. import utils
+from scedar import eda
+from scedar.eda.slcs import MDLSingleLabelClassifiedSamples as MDLSLCS
+from scedar import utils
 
 
 class MIRAC(object):
@@ -49,7 +50,7 @@ class MIRAC(object):
     * Simplify splitting criteria.
     """
 
-    def __init__(self, x, d=None, metric=None, sids=None, fids=None,
+    def __init__(self, x, d=None, metric="cosine", sids=None, fids=None,
                  hac_tree=None, nprocs=1, cl_mdl_scale_factor=1,
                  min_cl_n=25, encode_type="auto", mdl_method=None,
                  min_split_mdl_red_ratio=0.2,
@@ -63,36 +64,11 @@ class MIRAC(object):
         self._linkage = linkage
         self._optimal_ordering = optimal_ordering
         self._min_split_mdl_red_ratio = min_split_mdl_red_ratio
-        self._sdm = eda.SampleDistanceMatrix(x=x, d=d, metric=metric,
-                                             sids=sids, fids=fids,
-                                             nprocs=nprocs)
-        # initialize encode type
-        if encode_type not in ("auto", "data", "distance"):
-            raise ValueError("encode_type must in "
-                             "('auto', 'data', 'distance')."
-                             "Provided: {}".format(encode_type))
-        if encode_type == "auto":
-            if self._sdm._x.shape[1] > 100:
-                encode_type = "distance"
-            else:
-                encode_type = "data"
-        self._encode_type = encode_type
-        # initialize mdl method
-        if mdl_method is None:
-            if encode_type == "data":
-                ex = self._sdm._x
-            else:
-                ex = self._sdm._d
-            if ex.size == 0:
-                # empty matrix
-                mdl_method = eda.mdl.GKdeMdl
-            else:
-                n_nonzero = np.count_nonzero(ex)
-                if n_nonzero / ex.size > 0.5:
-                    mdl_method = eda.mdl.GKdeMdl
-                else:
-                    mdl_method = eda.mdl.ZeroIGKdeMdl
-        self._mdl_method = mdl_method
+        self._sdm = MDLSLCS(x=x, labs=[0]*len(x), d=d, metric=metric,
+                            sids=sids, fids=fids, encode_type=encode_type,
+                            mdl_method=mdl_method, nprocs=nprocs)
+        self._encode_type = self._sdm._encode_type
+        self._mdl_method = self._sdm._mdl_method
         # initialize hierarchical clustering tree
         if hac_tree is not None:
             n_leaf_nodes = len(hac_tree.leaf_ids())
@@ -126,39 +102,6 @@ class MIRAC(object):
     @property
     def labs(self):
         return self._labs.copy()
-
-    @staticmethod
-    def _encode_dmat(dmat, fit_s_inds, q_s_inds, mdl_method, nprocs=1):
-        """Private method to encode distance matrix
-        """
-        def single_fit_s_enc_mdl(i):
-            # copy indices for parallel processing
-            i_s_ind = fit_s_inds[i]
-            non_i_s_inds = fit_s_inds[:i] + fit_s_inds[i+1:]
-            i_encoder = mdl_method(dmat[i_s_ind, non_i_s_inds])
-            i_encode_q_mdl = i_encoder.encode(dmat[i_s_ind, q_s_inds])
-            return i_encode_q_mdl
-
-        n_fit = len(fit_s_inds)
-        fit_encode_q_mdls = utils.parmap(single_fit_s_enc_mdl,
-                                         range(n_fit), nprocs=nprocs)
-        return fit_encode_q_mdls
-
-    @staticmethod
-    def _dmat_mdl(dmat, mdl_method, nprocs=1):
-        """Private method to compute mdl for distance matrix
-        """
-        n = dmat.shape[0]
-        s_inds = list(range(n))
-
-        def single_s_mdl(i):
-            # copy indices for parallel processing
-            i_s_ind = s_inds[i]
-            non_i_s_inds = s_inds[:i] + s_inds[i+1:]
-            return mdl_method(dmat[i_s_ind, non_i_s_inds]).mdl
-        dmat_ind_mdls = utils.parmap(single_s_mdl, range(n), nprocs=nprocs)
-        dmat_mdl = np.sum(dmat_ind_mdls)
-        return dmat_mdl
 
     def _mirac(self):
         # iterative hierarchical agglomerative clustering
@@ -254,26 +197,44 @@ class MIRAC(object):
 
                 if self._encode_type == "distance":
                     # TODO: decide mdl by linkage
-                    left_enc_insp_mdl = np.max(self._encode_dmat(
-                        dmat=self._sdm._d, fit_s_inds=scl_left,
-                        q_s_inds=scl_insp, mdl_method=self._mdl_method,
-                        nprocs=self._nprocs))
-                    r_minimax_enc_insp_mdl = np.max(self._encode_dmat(
-                        dmat=self._sdm._d, fit_s_inds=scl_r_minimax,
-                        q_s_inds=scl_insp, mdl_method=self._mdl_method,
-                        nprocs=self._nprocs))
+                    left_mdlslcs = MDLSLCS(
+                        self._sdm._x[scl_left], labs=[0]*len(scl_left),
+                        d=self._sdm._d[scl_left][:, scl_left],
+                        metric=self._sdm._metric,
+                        encode_type=self._encode_type,
+                        mdl_method=self._mdl_method, nprocs=self._nprocs)
+                    r_minimax_mdlslcs = MDLSLCS(
+                        self._sdm._x[scl_r_minimax],
+                        labs=[0]*len(scl_r_minimax),
+                        d=self._sdm._d[scl_r_minimax][:, scl_r_minimax],
+                        metric=self._sdm._metric,
+                        encode_type=self._encode_type,
+                        mdl_method=self._mdl_method, nprocs=self._nprocs)
+                    left_enc_insp_mdl = left_mdlslcs.encode(
+                        self._sdm._d[scl_insp][:, scl_left],
+                        col_summary_func=max)
+                    r_minimax_enc_insp_mdl = r_minimax_mdlslcs.encode(
+                        self._sdm._d[scl_insp][:, scl_r_minimax],
+                        col_summary_func=max)
                 else:
                     # data
-                    left_enc_insp_mdl = MDLSLCS(
-                        self._sdm._x[scl_left], [0]*len(scl_left),
-                        mdl_method=self._mdl_method, metric=self._sdm._metric,
-                        nprocs=self._nprocs).encode(self._sdm._x[scl_insp],
-                                                    nprocs=self._nprocs)
-                    r_minimax_enc_insp_mdl = MDLSLCS(
-                        self._sdm._x[scl_r_minimax], [0]*len(scl_r_minimax),
-                        mdl_method=self._mdl_method, metric=self._sdm._metric,
-                        nprocs=self._nprocs).encode(self._sdm._x[scl_insp],
-                                                    nprocs=self._nprocs)
+                    # d is not passed
+                    left_mdlslcs = MDLSLCS(
+                        self._sdm._x[scl_left], labs=[0]*len(scl_left),
+                        metric=self._sdm._metric,
+                        encode_type=self._encode_type,
+                        mdl_method=self._mdl_method, nprocs=self._nprocs)
+                    r_minimax_mdlslcs = MDLSLCS(
+                        self._sdm._x[scl_r_minimax],
+                        labs=[0]*len(scl_r_minimax),
+                        metric=self._sdm._metric,
+                        encode_type=self._encode_type,
+                        mdl_method=self._mdl_method, nprocs=self._nprocs)
+                    left_enc_insp_mdl = left_mdlslcs.encode(
+                        self._sdm._x[scl_insp], nprocs=self._nprocs)
+                    r_minimax_enc_insp_mdl = r_minimax_mdlslcs.encode(
+                        self._sdm._x[scl_insp], nprocs=self._nprocs)
+                # decide merging direction
                 if left_enc_insp_mdl < r_minimax_enc_insp_mdl:
                     # inspected more similar to left
                     scl_left = scl_left + scl_insp
@@ -305,41 +266,32 @@ class MIRAC(object):
             scl_insp_n = np.int_(len(scl_insp))
             scl_left_ratio = scl_left_n / (scl_left_n + scl_insp_n)
             scl_insp_ratio = scl_insp_n / (scl_left_n + scl_insp_n)
+            scl_left_insp = scl_left + scl_insp
             if self._encode_type == "distance":
-                left_mdl = self._dmat_mdl(
-                    self._sdm._d[scl_left][:, scl_left], self._mdl_method,
-                    nprocs=self._nprocs)
-                insp_mdl = self._dmat_mdl(
-                    self._sdm._d[scl_insp][:, scl_insp], self._mdl_method,
-                    nprocs=self._nprocs)
-                cluster_mdl = MDLSLCS.compute_cluster_mdl(
-                    [0]*scl_left_n + [1]*scl_insp_n,
-                    cl_mdl_scale_factor=self._cl_mdl_scale_factor)
-
-                left_split_mdl = scl_left_ratio * cluster_mdl + left_mdl
-                insp_split_mdl = scl_insp_ratio * cluster_mdl + insp_mdl
-
-                left_insp_no_lab_mdl = self._dmat_mdl(
-                    self._sdm._d[scl_left + scl_insp][:, scl_left + scl_insp],
-                    self._mdl_method, nprocs=self._nprocs)
-            else:
-                # encode_type == "data"
-                # left and inspected SLCS
                 l_i_mdl_slcs = MDLSLCS(
-                    x=self._sdm._x[scl_left + scl_insp],
-                    labs=[0]*len(scl_left) + [1]*len(scl_insp),
+                    x=self._sdm._x[scl_left_insp],
+                    labs=[0]*scl_left_n + [1]*scl_insp_n,
+                    encode_type=self._encode_type, mdl_method=self._mdl_method,
+                    d=self._sdm._d[scl_left_insp][:, scl_left_insp],
                     metric=self._sdm._metric, nprocs=self._nprocs)
-                left_insp_no_lab_mdl = l_i_mdl_slcs.no_lab_mdl(
-                    nprocs=self._nprocs, verbose=self._verbose)
-                left_insp_lab_mdl_res = l_i_mdl_slcs.lab_mdl(
-                    cl_mdl_scale_factor=self._cl_mdl_scale_factor,
-                    nprocs=self._nprocs, verbose=self._verbose)
-                # TODO: validate ulab_mdls order
-                left_split_mdl = left_insp_lab_mdl_res.ulab_mdls[0]
-                insp_split_mdl = left_insp_lab_mdl_res.ulab_mdls[1]
-                cluster_mdl = left_insp_lab_mdl_res.cluster_mdl
+            else:
+                # d is not passed
+                l_i_mdl_slcs = MDLSLCS(
+                    x=self._sdm._x[scl_left_insp],
+                    labs=[0]*scl_left_n + [1]*scl_insp_n,
+                    encode_type=self._encode_type, mdl_method=self._mdl_method,
+                    metric=self._sdm._metric, nprocs=self._nprocs)
+            left_insp_no_lab_mdl = l_i_mdl_slcs.no_lab_mdl(
+                nprocs=self._nprocs, verbose=self._verbose)
 
-            left_insp_lab_mdl = left_split_mdl + insp_split_mdl
+            left_insp_lab_mdl_res = l_i_mdl_slcs.lab_mdl(
+                cl_mdl_scale_factor=self._cl_mdl_scale_factor,
+                nprocs=self._nprocs, verbose=self._verbose)
+            # TODO: validate ulab_mdls order
+            left_split_mdl = left_insp_lab_mdl_res.ulab_mdls[0]
+            insp_split_mdl = left_insp_lab_mdl_res.ulab_mdls[1]
+            cluster_mdl = left_insp_lab_mdl_res.cluster_mdl
+            left_insp_lab_mdl = left_insp_lab_mdl_res.ulab_mdl_sum
 
             if left_insp_no_lab_mdl < 0:
                 min_merge_mdl = ((1 + self._min_split_mdl_red_ratio) *

@@ -63,13 +63,12 @@ class TestMIRAC(object):
         assert m2._sdm._lazy_load_d is None
 
         tx2, tlab2 = skdset.make_blobs(n_samples=500, n_features=5,
-                                       centers=100, cluster_std=1,
+                                       centers=5, cluster_std=1,
                                        random_state=8927)
         tx2 = tx2 - tx2.min()
-        cluster.MIRAC(tx2, metric='correlation', min_cl_n=3,
+        cluster.MIRAC(tx2, metric='euclidean', min_cl_n=15,
                       optimal_ordering=False, cl_mdl_scale_factor=0,
                       verbose=True)
-
         # auto to encode distance
         tx3, tlab3 = skdset.make_blobs(n_samples=100, n_features=101,
                                        cluster_std=0.01, centers=5,
