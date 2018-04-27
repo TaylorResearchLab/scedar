@@ -1,4 +1,3 @@
-from .mirac import MIRAC
-
+from scedar.cluster.mirac import MIRAC
 
 __all__ = ["mirac"]

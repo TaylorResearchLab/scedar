@@ -1,6 +1,6 @@
-__all__ = ["eda", "cluster", "utils"]
+from scedar import eda
+from scedar import cluster
+from scedar import utils
+from scedar import qc
 
-from . import eda
-from . import cluster
-from . import utils
-from . import qc
+__all__ = ["eda", "cluster", "utils"]

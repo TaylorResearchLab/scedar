@@ -1,9 +1,10 @@
 import numpy as np
-from .. import utils
+from scedar import utils
 
-from .plot import regression_scatter, hist_dens_plot
-from . import mtype
-from . import stats
+from scedar.eda.plot import regression_scatter
+from scedar.eda.plot import hist_dens_plot
+from scedar.eda import mtype
+from scedar.eda import stats
 
 
 class SampleFeatureMatrix(object):
@@ -44,7 +45,6 @@ class SampleFeatureMatrix(object):
 
             if x.ndim != 2:
                 raise ValueError("x has shape (n_samples, n_features)")
-
 
         if sids is None:
             sids = list(range(x.shape[0]))
@@ -146,10 +146,10 @@ class SampleFeatureMatrix(object):
         x = self._x[xs_ind, :]
         y = self._x[ys_ind, :]
         if callable(feature_filter):
-            pair_feature_filter = lambda pair: feature_filter(pair[0], pair[1])
+            f_inds = self.filter_1d_inds(
+                lambda pair: feature_filter(pair[0], pair[1]), zip(x, y))
         else:
-            pair_feature_filter = feature_filter
-        f_inds = self.filter_1d_inds(pair_feature_filter, zip(x, y))
+            f_inds = self.filter_1d_inds(feature_filter, zip(x, y))
         xf = x[f_inds]
         yf = y[f_inds]
         return xf, yf
@@ -185,7 +185,7 @@ class SampleFeatureMatrix(object):
                                   title=title, **kwargs)
 
     def s_id_regression_scatter(self, xs_id, ys_id, feature_filter=None,
-                                 xlab=None, ylab=None, title=None, **kwargs):
+                                xlab=None, ylab=None, title=None, **kwargs):
         """
         Regression plot on two samples with xs_id and ys_id.
 
@@ -213,10 +213,10 @@ class SampleFeatureMatrix(object):
         x = self._x[:, xf_ind]
         y = self._x[:, yf_ind]
         if callable(sample_filter):
-            pair_sample_filter = lambda pair: sample_filter(pair[0], pair[1])
+            s_inds = self.filter_1d_inds(
+                lambda pair: sample_filter(pair[0], pair[1]), zip(x, y))
         else:
-            pair_sample_filter = sample_filter
-        s_inds = self.filter_1d_inds(pair_sample_filter, zip(x, y))
+            s_inds = self.filter_1d_inds(sample_filter, zip(x, y))
         xf = x[s_inds]
         yf = y[s_inds]
         return (xf, yf)
@@ -252,7 +252,7 @@ class SampleFeatureMatrix(object):
                                   title=title, **kwargs)
 
     def f_id_regression_scatter(self, xf_id, yf_id, sample_filter=None,
-                                 xlab=None, ylab=None, title=None, **kwargs):
+                                xlab=None, ylab=None, title=None, **kwargs):
         """
         Regression plot on two features with xf_id and yf_id.
 
@@ -387,7 +387,7 @@ class SampleFeatureMatrix(object):
         return rowcvf
 
     def f_cv_dist(self, f_cv_filter=None, xlab=None, ylab=None,
-                   title=None, figsize=(5, 5), ax=None, **kwargs):
+                  title=None, figsize=(5, 5), ax=None, **kwargs):
         """
         Plot the distribution of the feature sum of each sample, (n_samples,).
         """
@@ -412,7 +412,7 @@ class SampleFeatureMatrix(object):
         return colcvf
 
     def s_cv_dist(self, s_cv_filter=None, xlab=None, ylab=None,
-                   title=None, figsize=(5, 5), ax=None, **kwargs):
+                  title=None, figsize=(5, 5), ax=None, **kwargs):
         """
         Plot the distribution of the sample coefficient of variation
         of each feature, (n_features,).
@@ -430,7 +430,8 @@ class SampleFeatureMatrix(object):
         return row_ath_sum
 
     def f_n_above_threshold_dist(self, closed_threshold, xlab=None, ylab=None,
-                   title=None, figsize=(5, 5), ax=None, **kwargs):
+                                 title=None, figsize=(5, 5), ax=None,
+                                 **kwargs):
         """
         Plot the distribution of the the number of above threshold samples
         of each feature, (n_features,).
@@ -448,7 +449,8 @@ class SampleFeatureMatrix(object):
         return col_ath_sum
 
     def s_n_above_threshold_dist(self, closed_threshold, xlab=None, ylab=None,
-                   title=None, figsize=(5, 5), ax=None, **kwargs):
+                                 title=None, figsize=(5, 5), ax=None,
+                                 **kwargs):
         """
         Plot the distribution of the the number of above threshold samples
         of each feature, (n_features,).
@@ -472,7 +474,7 @@ class SampleFeatureMatrix(object):
         return rowgcf
 
     def f_gc_dist(self, f_gc_filter=None, xlab=None, ylab=None,
-                   title=None, figsize=(5, 5), ax=None, **kwargs):
+                  title=None, figsize=(5, 5), ax=None, **kwargs):
         """
         Plot the distribution of the feature Gini coefficient of each
         sample, (n_samples,).
@@ -496,7 +498,7 @@ class SampleFeatureMatrix(object):
         return colgcf
 
     def s_gc_dist(self, s_gc_filter=None, xlab=None, ylab=None,
-                   title=None, figsize=(5, 5), ax=None, **kwargs):
+                  title=None, figsize=(5, 5), ax=None, **kwargs):
         """
         Plot the distribution of the sample Gini coefficients
         of each feature, (n_features,).

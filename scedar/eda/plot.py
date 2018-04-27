@@ -12,7 +12,7 @@ import seaborn as sns
 
 import networkx as nx
 
-from . import mtype
+from scedar.eda import mtype
 
 
 sns.set(style="ticks")

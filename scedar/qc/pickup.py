@@ -1,7 +1,7 @@
 import numpy as np
 
-from .. import eda
-from .. import utils
+from scedar import eda
+from scedar import utils
 
 import time
 

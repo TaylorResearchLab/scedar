@@ -1,12 +1,24 @@
-from .plot import (cluster_scatter, heatmap, regression_scatter,
-                   hist_dens_plot, networkx_graph, swarm)
-from .slcs import SingleLabelClassifiedSamples, MDLSingleLabelClassifiedSamples
-from .sfm import SampleFeatureMatrix
-from .sdm import SampleDistanceMatrix, tsne, HClustTree
-from . import mtype
-from . import stats
-from .mdl import (MultinomialMdl, GKdeMdl, ZeroIGKdeMdl, np_number_1d,
-                  ZeroIMultinomialMdl, ZeroIMdl)
+from scedar.eda.plot import cluster_scatter
+from scedar.eda.plot import heatmap
+from scedar.eda.plot import regression_scatter
+from scedar.eda.plot import hist_dens_plot
+from scedar.eda.plot import networkx_graph
+from scedar.eda.plot import swarm
+
+from scedar.eda.slcs import SingleLabelClassifiedSamples
+from scedar.eda.slcs import MDLSingleLabelClassifiedSamples
+from scedar.eda.sfm import SampleFeatureMatrix
+from scedar.eda.sdm import SampleDistanceMatrix, tsne, HClustTree
+
+from scedar.eda import mtype
+from scedar.eda import stats
+
+from scedar.eda.mdl import MultinomialMdl
+from scedar.eda.mdl import GKdeMdl
+from scedar.eda.mdl import ZeroIGKdeMdl
+from scedar.eda.mdl import np_number_1d
+from scedar.eda.mdl import ZeroIMultinomialMdl
+from scedar.eda.mdl import ZeroIMdl
 
 
 __all__ = ["sfm", "sdm", "slcs", "plot", "mtype", "stats", "mdl"]
