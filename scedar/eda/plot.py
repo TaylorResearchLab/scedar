@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 
 import matplotlib as mpl
+mpl.use("agg", warn=False)  # noqa
 import matplotlib.pyplot as plt
 import matplotlib.colors
 import matplotlib.patches
@@ -14,7 +15,6 @@ import networkx as nx
 from . import mtype
 
 
-mpl.use("agg", warn=False)
 sns.set(style="ticks")
 
 

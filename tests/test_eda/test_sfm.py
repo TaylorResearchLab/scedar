@@ -2,6 +2,7 @@ import numpy as np
 import seaborn as sns
 import scedar.eda as eda
 import matplotlib as mpl
+mpl.use("agg", warn=False)  # noqa
 import matplotlib.pyplot as plt
 import pytest
 
@@ -270,18 +271,18 @@ class TestSampleFeatureMatrix(object):
 
     @pytest.mark.mpl_image_compare
     def test_s_ind_regression_scatter(self):
-        return self.plt_sdm.s_ind_regression_scatter(0, 1, figsize=(5, 5), ci=None)
+        return self.plt_sdm.s_ind_regression_scatter(
+            0, 1, figsize=(5, 5), ci=None)
 
     @pytest.mark.mpl_image_compare
     def test_s_id_regression_scatter(self):
-        return self.plt_sdm.s_id_regression_scatter("a", "b",
-                                           feature_filter=[1,2,3],
-                                           figsize=(5, 5), ci=None)
+        return self.plt_sdm.s_id_regression_scatter(
+            "a", "b", feature_filter=[1, 2, 3], figsize=(5, 5), ci=None)
 
     @pytest.mark.mpl_image_compare
     def test_s_ind_regression_scatter_custom_labs(self):
-        return self.plt_sdm.s_ind_regression_scatter(0, 1, xlab='X', ylab='Y',
-                                            figsize=(5, 5), ci=None)
+        return self.plt_sdm.s_ind_regression_scatter(
+            0, 1, xlab='X', ylab='Y', figsize=(5, 5), ci=None)
 
     @pytest.mark.mpl_image_compare
     def test_s_ind_regression_scatter_custom_bool_ff(self):
@@ -296,7 +297,8 @@ class TestSampleFeatureMatrix(object):
     @pytest.mark.mpl_image_compare
     def test_s_ind_regression_scatter_custom_func_ff(self):
         return self.plt_sdm.s_ind_regression_scatter(
-            0, 1, feature_filter=lambda x, y: (x in (0, 1, 2)) and (10 < y < 12),
+            0, 1,
+            feature_filter=lambda x, y: (x in (0, 1, 2)) and (10 < y < 12),
             figsize=(5, 5), ci=None)
 
     @pytest.mark.mpl_image_compare
@@ -313,7 +315,8 @@ class TestSampleFeatureMatrix(object):
         #        [40, 41, 42, 43, 44, 45, 46, 47, 48, 49],
         #        [50, 51, 52, 53, 54, 55, 56, 57, 58, 59]])
         return self.plt_sdm.f_ind_regression_scatter(
-            0, 1, sample_filter=lambda x, y: (x in (0, 10, 20)) and (10 < y < 30),
+            0, 1,
+            sample_filter=lambda x, y: (x in (0, 10, 20)) and (10 < y < 30),
             figsize=(5, 5), ci=None)
 
     def test_f_id_ind_x_vec(self):
@@ -329,18 +332,19 @@ class TestSampleFeatureMatrix(object):
 
     @pytest.mark.mpl_image_compare
     def test_f_ind_regression_scatter_no_ff(self):
-        return self.plt_sdm.f_ind_regression_scatter(0, 1, figsize=(5, 5), ci=None)
+        return self.plt_sdm.f_ind_regression_scatter(
+            0, 1, figsize=(5, 5), ci=None)
 
     @pytest.mark.mpl_image_compare
     def test_f_ind_regression_scatter_ind_ff(self):
-        return self.plt_sdm.f_ind_regression_scatter(0, 1, sample_filter=[0, 2, 5],
-                                            figsize=(5, 5), ci=None)
+        return self.plt_sdm.f_ind_regression_scatter(
+            0, 1, sample_filter=[0, 2, 5], figsize=(5, 5), ci=None)
 
     @pytest.mark.mpl_image_compare
     def test_f_ind_regression_scatter_labs(self):
-        return self.plt_sdm.f_ind_regression_scatter(0, 1, sample_filter=[0, 2, 5],
-                                            figsize=(5, 5), title='testregscat',
-                                            xlab='x', ylab='y', ci=None)
+        return self.plt_sdm.f_ind_regression_scatter(
+            0, 1, sample_filter=[0, 2, 5], figsize=(5, 5), title='testregscat',
+            xlab='x', ylab='y', ci=None)
 
     @pytest.mark.mpl_image_compare
     def test_f_id_regression_scatter(self):
@@ -363,7 +367,7 @@ class TestSampleFeatureMatrix(object):
     @pytest.mark.mpl_image_compare
     @pytest.mark.filterwarnings("ignore:The 'normed' kwarg is depreca")
     def test_s_id_dist(self):
-        return self.plt_sdm.s_id_dist("a", feature_filter=[1,2,3],
+        return self.plt_sdm.s_id_dist("a", feature_filter=[1, 2, 3],
                                       figsize=(5, 5))
 
     @pytest.mark.mpl_image_compare
@@ -448,24 +452,24 @@ class TestSampleFeatureMatrix(object):
         assert x.shape[0] == 6
         np.testing.assert_allclose(x, self.ref_plt_f_sum)
         # only need to test that filter has been passed correctly
-        np.testing.assert_allclose(self.plt_sdm.f_sum([0, 1, 2]),
-            self.ref_plt_f_sum[:3])
+        np.testing.assert_allclose(
+            self.plt_sdm.f_sum([0, 1, 2]), self.ref_plt_f_sum[:3])
 
     def test_s_sum(self):
         x = self.plt_sdm.s_sum()
         assert x.ndim == 1
         assert x.shape[0] == 10
         np.testing.assert_allclose(x, self.ref_plt_s_sum)
-        np.testing.assert_allclose(self.plt_sdm.s_sum([0, 1, 2]),
-            self.ref_plt_s_sum[:3])
+        np.testing.assert_allclose(
+            self.plt_sdm.s_sum([0, 1, 2]), self.ref_plt_s_sum[:3])
 
     def test_f_cv(self):
         x = self.plt_sdm.f_cv()
         assert x.ndim == 1
         assert x.shape[0] == 6
         np.testing.assert_allclose(self.plt_sdm.f_cv(), self.ref_plt_f_cv)
-        np.testing.assert_allclose(self.plt_sdm.f_cv([0, 1, 2]),
-            self.ref_plt_f_cv[:3])
+        np.testing.assert_allclose(
+            self.plt_sdm.f_cv([0, 1, 2]), self.ref_plt_f_cv[:3])
 
     def test_s_cv(self):
         x = self.plt_sdm.s_cv()
@@ -473,7 +477,7 @@ class TestSampleFeatureMatrix(object):
         assert x.shape[0] == 10
         np.testing.assert_allclose(x, self.ref_plt_s_cv)
         np.testing.assert_allclose(self.plt_sdm.s_cv([0, 1, 2]),
-            self.ref_plt_s_cv[:3])
+                                   self.ref_plt_s_cv[:3])
 
     def test_f_gc(self):
         x = self.plt_sdm.f_gc()
@@ -481,7 +485,7 @@ class TestSampleFeatureMatrix(object):
         assert x.shape[0] == 6
         np.testing.assert_allclose(x, self.ref_plt_f_gc)
         np.testing.assert_allclose(self.plt_sdm.f_gc([0, 1, 2]),
-            self.ref_plt_f_gc[:3])
+                                   self.ref_plt_f_gc[:3])
 
     def test_s_gc(self):
         x = self.plt_sdm.s_gc()
@@ -489,7 +493,7 @@ class TestSampleFeatureMatrix(object):
         assert x.shape[0] == 10
         np.testing.assert_allclose(x, self.ref_plt_s_gc)
         np.testing.assert_allclose(self.plt_sdm.s_gc([0, 1, 2]),
-            self.ref_plt_s_gc[:3])
+                                   self.ref_plt_s_gc[:3])
 
     def test_f_ath(self):
         x = self.plt_sdm.f_n_above_threshold(15)
@@ -517,5 +521,3 @@ class TestSampleFeatureMatrix(object):
         self.plt_sdm.s_gc_dist([0, 1, 2])
         self.plt_sdm.f_n_above_threshold_dist(15)
         self.plt_sdm.s_n_above_threshold_dist(15)
-
-

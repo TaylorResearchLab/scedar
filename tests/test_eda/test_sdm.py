@@ -1,6 +1,7 @@
 import numpy as np
 
 import matplotlib as mpl
+mpl.use("agg", warn=False)  # noqa
 import matplotlib.pyplot as plt
 import seaborn as sns
 
@@ -34,10 +35,13 @@ class TestSampleDistanceMatrix(object):
 
         sdm3 = eda.SampleDistanceMatrix(
             self.x_2x4_arr, metric='correlation', nprocs=5)
-        sdm3_corr_d = (1 - np.dot(self.x_2x4_arr[0] - self.x_2x4_arr[0].mean(),
-                                  self.x_2x4_arr[1] - self.x_2x4_arr[1].mean())
-                       / (np.linalg.norm(self.x_2x4_arr[0] - self.x_2x4_arr[0].mean(), 2)
-                          * np.linalg.norm(self.x_2x4_arr[1] - self.x_2x4_arr[1].mean(), 2)))
+        sdm3_corr_d = (1 - np.dot(
+            self.x_2x4_arr[0] - self.x_2x4_arr[0].mean(),
+            self.x_2x4_arr[1] - self.x_2x4_arr[1].mean()) /
+                (np.linalg.norm(self.x_2x4_arr[0] - self.x_2x4_arr[0].mean(),
+                                2) *
+                 np.linalg.norm(self.x_2x4_arr[1] - self.x_2x4_arr[1].mean(),
+                                2)))
         np.testing.assert_allclose(sdm3.d,
                                    np.array([[0, 0.3618551],
                                              [0.3618551, 0]]))
@@ -171,17 +175,17 @@ class TestSampleDistanceMatrix(object):
         tmet = 'euclidean'
         sdm = eda.SampleDistanceMatrix(self.x_3x2, metric=tmet)
         with pytest.raises(ValueError) as excinfo:
-            sdm.get_tsne_kv([1,2,3])
+            sdm.get_tsne_kv([1, 2, 3])
         with pytest.raises(ValueError) as excinfo:
-            sdm.get_tsne_kv({1:2})
+            sdm.get_tsne_kv({1: 2})
 
     def test_put_tsne_wrong_args(self):
         tmet = 'euclidean'
         sdm = eda.SampleDistanceMatrix(self.x_3x2, metric=tmet)
         with pytest.raises(ValueError) as excinfo:
-            sdm.put_tsne(1, [1,2,3])
+            sdm.put_tsne(1, [1, 2, 3])
         with pytest.raises(ValueError) as excinfo:
-            sdm.put_tsne({1:2}, [1,2,3])
+            sdm.put_tsne({1: 2}, [1, 2, 3])
 
     def test_tsne(self):
         tmet = 'euclidean'
@@ -572,7 +576,7 @@ class TestSampleDistanceMatrix(object):
             x_sorted, sids=sids, fids=fids)
         sdm.tsne_feature_gradient_plot(
             '5', labels=list('abcdefgh'), selected_labels='a',
-            transform = lambda x: np.log(x+1),
+            transform=lambda x: np.log(x+1),
             figsize=(10, 10), s=50)
         fig = sdm.tsne_feature_gradient_plot(
             '5', labels=list('abcdefgh'), selected_labels='a',
@@ -742,8 +746,8 @@ class TestHClustTree(object):
 
     def test_hclust_tree_args(self):
         eda.HClustTree.hclust_tree(self.sdm_5x2.d, linkage="auto",
-                                       n_eval_rounds=-1, is_euc_dist=True,
-                                       verbose=True)
+                                   n_eval_rounds=-1, is_euc_dist=True,
+                                   verbose=True)
 
     def test_hclust_tree(self):
         assert self.hct.prev is None

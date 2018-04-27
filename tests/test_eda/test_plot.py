@@ -2,6 +2,7 @@ import numpy as np
 import seaborn as sns
 import scedar.eda as eda
 import matplotlib as mpl
+mpl.use("agg", warn=False)  # noqa
 import matplotlib.pyplot as plt
 import networkx as nx
 import pytest
@@ -10,11 +11,11 @@ import pytest
 def test_labs_to_cmap():
     sids = [0, 1, 2, 3, 4, 5, 6, 7]
     labs = list(map(str, [3, 0, 1, 0, 0, 1, 2, 2]))
-    slab_csamples = eda.SingleLabelClassifiedSamples(np.random.ranf(80).reshape(8, -1),
-                                                     labs, sids)
+    slab_csamples = eda.SingleLabelClassifiedSamples(
+        np.random.ranf(80).reshape(8, -1), labs, sids)
 
-    lab_cmap, lab_norm, lab_ind_arr, lab_col_lut, uniq_lab_lut = eda.plot.labs_to_cmap(
-        slab_csamples.labs, return_lut=True)
+    (lab_cmap, lab_norm, lab_ind_arr, lab_col_lut,
+     uniq_lab_lut) = eda.plot.labs_to_cmap(slab_csamples.labs, return_lut=True)
 
     n_uniq_labs = len(set(labs))
     assert lab_cmap.N == n_uniq_labs
@@ -32,6 +33,7 @@ def test_labs_to_cmap():
     assert lab_cmap2.N == n_uniq_labs
     assert lab_cmap2.colors == lab_cmap.colors
     np.testing.assert_equal(lab_norm2.boundaries, lab_norm.boundaries)
+
 
 class TestRegressionScatter(object):
     """docstring for TestRegressionPlot"""
@@ -555,6 +557,7 @@ class TestHeatmap(object):
                         title='test heatmap',
                         xlab='col label', ylab='row label',
                         figsize=(10, 10))
+
 
 @pytest.mark.mpl_image_compare
 def test_networkx_graph():

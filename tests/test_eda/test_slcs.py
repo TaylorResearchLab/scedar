@@ -2,6 +2,7 @@ import numpy as np
 import seaborn as sns
 import scedar.eda as eda
 import matplotlib as mpl
+mpl.use("agg", warn=False)  # noqa
 import matplotlib.pyplot as plt
 import pytest
 
