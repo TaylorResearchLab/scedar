@@ -7,7 +7,7 @@ import pytest
 class TestSampleKNNFilter(object):
     """docstring for TestSampleKNNFilter"""
     tsdm = eda.SampleDistanceMatrix(
-        [[0,0], [1, 1], [200, 200], [200, 200], [200, 200],
+        [[0, 0], [1, 1], [200, 200], [200, 200], [200, 200],
          [100, 100], [101, 101], [99, 99], [100, 100], [102, 102]],
         metric="euclidean")
 
@@ -39,7 +39,7 @@ class TestSampleKNNFilter(object):
 
     def test_knn_filter_samples_single_run(self):
         tsdm = eda.SampleDistanceMatrix(
-            [[0,0], [1, 1], [200, 200], [101, 101],
+            [[0, 0], [1, 1], [200, 200], [101, 101],
              [99, 99], [100, 100], [102, 102]],
             metric="euclidean")
         skf = qc.SampleKNNFilter(tsdm)
@@ -86,6 +86,7 @@ class TestSampleKNNFilter(object):
             skf.knn_filter_samples(1, [1, 2], 1)
         with pytest.raises(ValueError) as excinfo:
             skf.knn_filter_samples(1, 1, [1, 2])
+
 
 def test_remove_constant_features():
     tsfm = eda.SampleFeatureMatrix([[0, 1, 2, 5],
