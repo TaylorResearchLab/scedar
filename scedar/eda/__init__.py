@@ -7,8 +7,12 @@ from scedar.eda.plot import swarm
 
 from scedar.eda.slcs import SingleLabelClassifiedSamples
 from scedar.eda.slcs import MDLSingleLabelClassifiedSamples
+
 from scedar.eda.sfm import SampleFeatureMatrix
-from scedar.eda.sdm import SampleDistanceMatrix, tsne, HClustTree
+
+from scedar.eda.sdm import SampleDistanceMatrix
+from scedar.eda.sdm import tsne
+from scedar.eda.sdm import HClustTree
 
 from scedar.eda import mtype
 from scedar.eda import stats
