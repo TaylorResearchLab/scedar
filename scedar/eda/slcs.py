@@ -884,11 +884,28 @@ class MDLSingleLabelClassifiedSamples(SingleLabelClassifiedSamples):
         ulab_s_ind_list = [np.where(self._labs == ulab)[0].tolist()
                            for ulab in self._uniq_labs]
         # summarize mdls of all clusters
-        ulab_mdls = [MDLSingleLabelClassifiedSamples(
-            self._x[s_inds], labs=[0]*len(s_inds),
-            encode_type=self._encode_type, mdl_method=self._mdl_method,
-            d=self._d[s_inds][:, s_inds], metric=self._metric,
-            nprocs=self._nprocs).no_lab_mdl() for s_inds in ulab_s_ind_list]
+        if self._encode_type == "distance":
+            ulab_mdls = [MDLSingleLabelClassifiedSamples(
+                            self._x[s_inds], labs=[0]*len(s_inds),
+                            encode_type=self._encode_type,
+                            mdl_method=self._mdl_method,
+                            d=self._d[s_inds][:, s_inds],
+                            metric=self._metric,
+                            nprocs=self._nprocs).no_lab_mdl()
+                         for s_inds in ulab_s_ind_list]
+        elif self._encode_type == "data":
+            # do not pass d
+            ulab_mdls = [MDLSingleLabelClassifiedSamples(
+                            self._x[s_inds], labs=[0]*len(s_inds),
+                            encode_type=self._encode_type,
+                            mdl_method=self._mdl_method,
+                            metric=self._metric,
+                            nprocs=self._nprocs).no_lab_mdl()
+                         for s_inds in ulab_s_ind_list]
+        else:
+            raise NotImplementedError("Do not change encode_type after init. "
+                                      "Unknown encode type "
+                                      "{}".format(self._encode_type))
         # add cluster overhead mdl to each cluster
         ulab_cnt_ratios = self._uniq_lab_cnts / np.int_(self._x.shape[0])
         ulab_cl_mdls = [ulab_mdls[i] + cluster_mdl * ulab_cnt_ratios[i]
