@@ -1,0 +1,422 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>scedar.qc package &mdash; scedar 0.0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="scedar 0.0.1 documentation" href="index.html"/>
+        <link rel="up" title="scedar package" href="scedar.html"/>
+        <link rel="prev" title="scedar.eda package" href="scedar.eda.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> scedar
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">scedar</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="scedar.html">scedar package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="scedar.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="scedar.cluster.html">scedar.cluster package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="scedar.eda.html">scedar.eda package</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">scedar.qc package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="scedar.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="scedar.html#module-scedar.utils">scedar.utils module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="scedar.html#module-scedar">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">scedar</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="modules.html">scedar</a> &raquo;</li>
+        
+          <li><a href="scedar.html">scedar package</a> &raquo;</li>
+        
+      <li>scedar.qc package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/scedar.qc.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="scedar-qc-package">
+<h1>scedar.qc package<a class="headerlink" href="#scedar-qc-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-scedar.qc.filter">
+<span id="scedar-qc-filter-module"></span><h2>scedar.qc.filter module<a class="headerlink" href="#module-scedar.qc.filter" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="scedar.qc.filter.SampleKNNFilter">
+<em class="property">class </em><code class="descclassname">scedar.qc.filter.</code><code class="descname">SampleKNNFilter</code><span class="sig-paren">(</span><em>sdm</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/qc/filter.html#SampleKNNFilter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.qc.filter.SampleKNNFilter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>K nearest neighbor filter on sample distance matrix.</p>
+<p>Perform filter with multiple filters in parallel, with each combination
+of parameters as a process. Because this filter runs iteratively,
+parallelizing each individual parameter combination run is not implemented.</p>
+<p>Stores the results for further lookup.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>sdm</strong> (<a class="reference internal" href="scedar.eda.html#scedar.eda.sdm.SampleDistanceMatrix" title="scedar.eda.sdm.SampleDistanceMatrix"><em>SampleDistanceMatrix</em></a><em> or </em><em>its subclass</em>) – </td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="scedar.qc.filter.SampleKNNFilter._sdm">
+<code class="descname">_sdm</code><a class="headerlink" href="#scedar.qc.filter.SampleKNNFilter._sdm" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>SampleDistanceMatrix</em></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="scedar.qc.filter.SampleKNNFilter._filter_res_lut">
+<code class="descname">_filter_res_lut</code><a class="headerlink" href="#scedar.qc.filter.SampleKNNFilter._filter_res_lut" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>dict</em> – lookup table of KNN filter results</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="scedar.qc.filter.SampleKNNFilter.knn_filter_samples">
+<code class="descname">knn_filter_samples</code><span class="sig-paren">(</span><em>k</em>, <em>d_cutoff</em>, <em>n_iter</em>, <em>nprocs=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/qc/filter.html#SampleKNNFilter.knn_filter_samples"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.qc.filter.SampleKNNFilter.knn_filter_samples" title="Permalink to this definition">¶</a></dt>
+<dd><p>KNN filter on samples with multiple parameter combinations.</p>
+<p>Assuming that there are at least k samples look similar in this
+dataset, the samples with less than k similar neighbors may be
+outliers. The outliers can either be really distinct from the general
+populaton or caused by technical errors.</p>
+<p>This filter iteratively filters samples according to their k-th nearest
+neighbors. The samples most distinct from its k-th nearest neighbors
+are removed first. Then, the left samples are filtered by less
+stringent distance cutoff. The distance cutoff decreases linearly
+from maximum distance to d_cutoff with n_iter iterations.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>k</strong> (<em>int list</em><em> or </em><em>scalar</em>) – K nearest neighbors to filter samples.</li>
+<li><strong>d_cutoff</strong> (<em>float list</em><em> or </em><em>scalar</em>) – Samples with &gt;= d_cutoff distances are distinct from each other.
+Minimum (&gt;=) distance to be called as distinct.</li>
+<li><strong>n_iter</strong> (<em>int list</em><em> or </em><em>scalar</em>) – N progressive iNN filters on the dataset. See description for more
+details.</li>
+<li><strong>nproces</strong> (<em>int</em>) – N processes to run all parameter tuples.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Filtered SampleDistanceMatrix of each corresponding parameter
+tuple.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">res_list</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>If parameters are provided as lists of equal length n, the n
+corresponding parameter tuples will be executed parallely.</p>
+<p>Example:</p>
+<p><cite>k = [10, 15, 20]</cite></p>
+<p><cite>d_cutoff = [1, 2, 3]</cite></p>
+<p><cite>n_iter = [10, 20, 30]</cite></p>
+<p><cite>(k, d_cutoff, n_iter)</cite> tuples <cite>(10, 1, 10), (15, 2, 20), (20, 3, 30)</cite>
+will be tried parallely with nprocs.</p>
+<p>This filter can be applied on filters by transforming the data matrix
+when creating SampleDistanceMatrix, but it might not be
+very meaningful. For example, if there is 100 features all have values
+of 1 across all samples, they will always be kept with KNN filter
+strategy with k &lt; 100.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="scedar.qc.filter.remove_constant_features">
+<code class="descclassname">scedar.qc.filter.</code><code class="descname">remove_constant_features</code><span class="sig-paren">(</span><em>sfm</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/qc/filter.html#remove_constant_features"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.qc.filter.remove_constant_features" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove features that are constant across all samples</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-scedar.qc.pickup">
+<span id="scedar-qc-pickup-module"></span><h2>scedar.qc.pickup module<a class="headerlink" href="#module-scedar.qc.pickup" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="scedar.qc.pickup.FeatureKNNPickUp">
+<em class="property">class </em><code class="descclassname">scedar.qc.pickup.</code><code class="descname">FeatureKNNPickUp</code><span class="sig-paren">(</span><em>sdm</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/qc/pickup.html#FeatureKNNPickUp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.qc.pickup.FeatureKNNPickUp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>“Pick-up” dropped out features using K nearest neighbors (KNN) approach.</p>
+<p>If the value of a feature is below min_present_val in a sample, and all
+its KNNs have above min_present_val, replace the value with the median
+of KNN above threshold values.</p>
+<dl class="attribute">
+<dt id="scedar.qc.pickup.FeatureKNNPickUp._sdm">
+<code class="descname">_sdm</code><a class="headerlink" href="#scedar.qc.pickup.FeatureKNNPickUp._sdm" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>SampleDistanceMatrix</em></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="scedar.qc.pickup.FeatureKNNPickUp._res_lut">
+<code class="descname">_res_lut</code><a class="headerlink" href="#scedar.qc.pickup.FeatureKNNPickUp._res_lut" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>dict</em> – lookup table of the results.
+<cite>{(k, n_do, min_present_val, n_iter): (pu_sdm, pu_idc_arr, stats),           …}</cite></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="scedar.qc.pickup.FeatureKNNPickUp.knn_pickup_features">
+<code class="descname">knn_pickup_features</code><span class="sig-paren">(</span><em>k</em>, <em>n_do</em>, <em>min_present_val</em>, <em>n_iter</em>, <em>nprocs=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/qc/pickup.html#FeatureKNNPickUp.knn_pickup_features"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.qc.pickup.FeatureKNNPickUp.knn_pickup_features" title="Permalink to this definition">¶</a></dt>
+<dd><p>Runs KNN pick-up on multiple parameter sets parallely.</p>
+<p>Each parameter set will be executed in one process.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>k</strong> (<em>int</em>) – Look at k nearest neighbors to decide whether to pickup or not.</li>
+<li><strong>n_do</strong> (<em>int</em>) – Minimum (<cite>&gt;=</cite>) number of above min_present_val neighbors among KNN
+to be callsed as drop-out, so that pick-up will be performed.</li>
+<li><strong>min_present_val</strong> (<em>float</em>) – Minimum (<cite>&gt;=</cite>) values of a feature to be called as present.</li>
+<li><strong>n_iter</strong> (<em>int</em>) – The number of iterations to run.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><p><strong>resl</strong> – list of results, <cite>[(pu_sdm, pu_idc_arr, stats), …]</cite>.</p>
+<dl class="docutils">
+<dt>pu_sdm: SampleDistanceMatrix</dt>
+<dd><p class="first last">SampleDistanceMatrix after pick-up</p>
+</dd>
+<dt>pu_idc_arr: array of shape (n_samples, n_features)</dt>
+<dd><p class="first last">Indicator matrix of the ith iteration an entry is being
+picked up.</p>
+</dd>
+<dt>stats: str</dt>
+<dd><p class="first last">Stats of the run.</p>
+</dd>
+</dl>
+</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">list</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>If parameters are provided as lists of equal length n, the n
+corresponding parameter tuples will be executed parallely.</p>
+<p class="rubric">Example</p>
+<p>If <cite>k = [10, 15]</cite>, <cite>n_do = [1, 2]</cite>, <cite>min_present_val = [5, 6]</cite>, and
+<cite>n_iter = [10, 20]</cite>, <cite>(k, n_do, min_present_val, n_iter)</cite> tuples
+<cite>(10, 1, 5, 10) and (15, 2, 6, 20)</cite> will be tried parallely
+with nprocs.</p>
+<p>n_do, min_present_val, n_iter</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-scedar.qc">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-scedar.qc" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="scedar.eda.html" class="btn btn-neutral" title="scedar.eda package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Yuanchao Zhang.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

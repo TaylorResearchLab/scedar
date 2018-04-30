@@ -2,17 +2,16 @@
 *.pyc
 
 # Setuptools distribution folder.
-dist
+/dist
+
+/build
 
 # Python egg metadata, regenerated from source files by setuptools.
 *.egg-info
 
 *.eggs
 
-
 .pytest_cache
-
-build
 
 .tox
 
@@ -20,10 +19,6 @@ build
 .coverage
 
 *.sublime-workspace
-
-doc/_build
-doc/_static
-doc/_templates
 
 *.DS_Store
 

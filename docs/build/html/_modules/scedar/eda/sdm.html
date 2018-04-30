@@ -1,0 +1,1214 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>scedar.eda.sdm &mdash; scedar 0.0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../../../genindex.html"/>
+        <link rel="search" title="Search" href="../../../search.html"/>
+    <link rel="top" title="scedar 0.0.1 documentation" href="../../../index.html"/>
+        <link rel="up" title="Module code" href="../../index.html"/> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> scedar
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">scedar</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../scedar.html">scedar package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../scedar.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../scedar.cluster.html">scedar.cluster package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../scedar.eda.html">scedar.eda package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../scedar.qc.html">scedar.qc package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../scedar.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../scedar.html#module-scedar.utils">scedar.utils module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../scedar.html#module-scedar">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">scedar</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>scedar.eda.sdm</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for scedar.eda.sdm</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">import</span> <span class="nn">scipy.cluster.hierarchy</span> <span class="k">as</span> <span class="nn">sch</span>
+<span class="kn">import</span> <span class="nn">scipy.spatial</span> <span class="k">as</span> <span class="nn">spspatial</span>
+
+<span class="kn">import</span> <span class="nn">sklearn</span> <span class="k">as</span> <span class="nn">skl</span>
+<span class="kn">import</span> <span class="nn">sklearn.metrics</span>
+<span class="kn">import</span> <span class="nn">sklearn.manifold</span>
+<span class="kn">from</span> <span class="nn">sklearn.neighbors</span> <span class="k">import</span> <span class="n">kneighbors_graph</span>
+<span class="kn">import</span> <span class="nn">sklearn.preprocessing</span>
+
+<span class="kn">import</span> <span class="nn">warnings</span>
+
+<span class="kn">import</span> <span class="nn">random</span>
+
+<span class="kn">import</span> <span class="nn">networkx</span> <span class="k">as</span> <span class="nn">nx</span>
+<span class="kn">from</span> <span class="nn">fa2</span> <span class="k">import</span> <span class="n">ForceAtlas2</span>
+
+<span class="kn">import</span> <span class="nn">scedar</span>
+<span class="kn">from</span> <span class="nn">scedar.eda.plot</span> <span class="k">import</span> <span class="n">cluster_scatter</span>
+<span class="kn">from</span> <span class="nn">scedar.eda.plot</span> <span class="k">import</span> <span class="n">heatmap</span>
+<span class="kn">from</span> <span class="nn">scedar.eda.plot</span> <span class="k">import</span> <span class="n">hist_dens_plot</span>
+<span class="kn">from</span> <span class="nn">scedar.eda.plot</span> <span class="k">import</span> <span class="n">networkx_graph</span>
+<span class="kn">from</span> <span class="nn">scedar.eda.sfm</span> <span class="k">import</span> <span class="n">SampleFeatureMatrix</span>
+<span class="kn">from</span> <span class="nn">scedar.eda.mdl</span> <span class="k">import</span> <span class="n">MultinomialMdl</span>
+<span class="kn">from</span> <span class="nn">scedar</span> <span class="k">import</span> <span class="n">utils</span>
+<span class="kn">from</span> <span class="nn">scedar.eda</span> <span class="k">import</span> <span class="n">mtype</span>
+
+
+<div class="viewcode-block" id="SampleDistanceMatrix"><a class="viewcode-back" href="../../../scedar.eda.html#scedar.eda.sdm.SampleDistanceMatrix">[docs]</a><span class="k">class</span> <span class="nc">SampleDistanceMatrix</span><span class="p">(</span><span class="n">SampleFeatureMatrix</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    SampleDistanceMatrix: data with pairwise distance matrix</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    x : ndarray or list</span>
+<span class="sd">        data matrix (n_samples, n_features)</span>
+<span class="sd">    d : ndarray or list or None</span>
+<span class="sd">        distance matrix (n_samples, n_samples)</span>
+<span class="sd">        If is None, d will be computed with x, metric, and nprocs.</span>
+<span class="sd">    metric : string</span>
+<span class="sd">        distance metric</span>
+<span class="sd">    sids : homogenous list of int or string</span>
+<span class="sd">        sample ids. Should not contain duplicated elements.</span>
+<span class="sd">    fids : homogenous list of int or string</span>
+<span class="sd">        feature ids. Should not contain duplicated elements.</span>
+<span class="sd">    nprocs : int</span>
+<span class="sd">        the number of processes for computing pairwise distance matrix</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    _x : ndarray</span>
+<span class="sd">        data matrix (n_samples, n_features)</span>
+<span class="sd">    _d : ndarray</span>
+<span class="sd">        distance matrix (n_samples, n_samples)</span>
+<span class="sd">    _metric : string</span>
+<span class="sd">        distance metric</span>
+<span class="sd">    _sids : ndarray</span>
+<span class="sd">        sample ids.</span>
+<span class="sd">    _fids : ndarray</span>
+<span class="sd">        sample ids.</span>
+<span class="sd">    _tsne_lut: dict</span>
+<span class="sd">        lookup table for previous tsne calculations. Each run has an</span>
+<span class="sd">        indexed entry, {(param_str, index) : tsne_res}</span>
+<span class="sd">    _last_tsne: float array</span>
+<span class="sd">        The last *stored* tsne results. In no tsne performed before, a run</span>
+<span class="sd">        with default parameters will be performed.</span>
+<span class="sd">    _knn_ng_lut: dict</span>
+<span class="sd">        {(k, aff_scale): knn_graph}</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">metric</span><span class="o">=</span><span class="s2">&quot;correlation&quot;</span><span class="p">,</span>
+                 <span class="n">sids</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fids</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">nprocs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">SampleDistanceMatrix</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">sids</span><span class="o">=</span><span class="n">sids</span><span class="p">,</span> <span class="n">fids</span><span class="o">=</span><span class="n">fids</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">d</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float64&quot;</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;d must be float. </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+
+            <span class="k">if</span> <span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">2</span> <span class="ow">or</span>
+                    <span class="n">d</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">d</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">or</span>
+                    <span class="n">d</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+                <span class="c1"># check provided distance matrix shape</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;d should have shape (n_samples, n_samples)&quot;</span><span class="p">)</span>
+
+            <span class="n">d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_correct_dist_mat</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">metric</span> <span class="o">==</span> <span class="s2">&quot;precomputed&quot;</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;metric cannot be precomputed when &quot;</span>
+                                 <span class="s2">&quot;d is None.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">nprocs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_nprocs</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_nprocs</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">nprocs</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lazy_load_d</span> <span class="o">=</span> <span class="n">d</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_tsne_lut</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lazy_load_last_tsne</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_metric</span> <span class="o">=</span> <span class="n">metric</span>
+        <span class="c1"># Sorted distance matrix. Each column ascending from top to bottom.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lazy_load_col_sorted_d</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lazy_load_col_argsorted_d</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_knn_ng_lut</span> <span class="o">=</span> <span class="p">{}</span>
+
+<div class="viewcode-block" id="SampleDistanceMatrix.sort_features"><a class="viewcode-back" href="../../../scedar.eda.html#scedar.eda.sdm.SampleDistanceMatrix.sort_features">[docs]</a>    <span class="k">def</span> <span class="nf">sort_features</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fdist_metric</span><span class="o">=</span><span class="s2">&quot;correlation&quot;</span><span class="p">):</span>
+        <span class="n">optimal_f_inds</span> <span class="o">=</span> <span class="n">HClustTree</span><span class="o">.</span><span class="n">sort_x_by_d</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_x</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">metric</span><span class="o">=</span><span class="n">fdist_metric</span><span class="p">,</span>
+                                                <span class="n">nprocs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_nprocs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_x</span><span class="p">[:,</span> <span class="n">optimal_f_inds</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fids</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fids</span><span class="p">[</span><span class="n">optimal_f_inds</span><span class="p">]</span>
+        <span class="k">return</span></div>
+
+    <span class="c1"># numerically correct dmat</span>
+<div class="viewcode-block" id="SampleDistanceMatrix.num_correct_dist_mat"><a class="viewcode-back" href="../../../scedar.eda.html#scedar.eda.sdm.SampleDistanceMatrix.num_correct_dist_mat">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">num_correct_dist_mat</span><span class="p">(</span><span class="n">dmat</span><span class="p">,</span> <span class="n">upper_bound</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dmat</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="ow">or</span>
+                <span class="n">dmat</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">2</span> <span class="ow">or</span>
+                <span class="n">dmat</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">dmat</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+            <span class="c1"># check distance matrix shape</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;dmat must be a 2D (n_samples, n_samples)&quot;</span>
+                             <span class="s2">&quot; np array&quot;</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># Distance matrix diag vals should be close to 0.</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_allclose</span><span class="p">(</span><span class="n">dmat</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">diag_indices</span><span class="p">(</span><span class="n">dmat</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])],</span> <span class="mi">0</span><span class="p">,</span>
+                                       <span class="n">atol</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">AssertionError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;distance matrix might not be numerically &quot;</span>
+                          <span class="s2">&quot;correct. diag vals &quot;</span>
+                          <span class="s2">&quot;should be close to 0. </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># distance matrix should be approximately symmetric</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_allclose</span><span class="p">(</span><span class="n">dmat</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">triu_indices_from</span><span class="p">(</span><span class="n">dmat</span><span class="p">)],</span>
+                                       <span class="n">dmat</span><span class="o">.</span><span class="n">T</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">triu_indices_from</span><span class="p">(</span><span class="n">dmat</span><span class="p">)],</span>
+                                       <span class="n">rtol</span><span class="o">=</span><span class="mf">0.001</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">AssertionError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;distance matrix might not be numerically &quot;</span>
+                          <span class="s2">&quot;correct. should be approximately &quot;</span>
+                          <span class="s2">&quot;symmetric. </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+
+        <span class="n">dmat</span><span class="p">[</span><span class="n">dmat</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">dmat</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">diag_indices</span><span class="p">(</span><span class="n">dmat</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="n">upper_bound</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">upper_bound</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">upper_bound</span><span class="p">)</span>
+            <span class="n">dmat</span><span class="p">[</span><span class="n">dmat</span> <span class="o">&gt;</span> <span class="n">upper_bound</span><span class="p">]</span> <span class="o">=</span> <span class="n">upper_bound</span>
+
+        <span class="n">dmat</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">triu_indices_from</span><span class="p">(</span><span class="n">dmat</span><span class="p">)]</span> <span class="o">=</span> <span class="n">dmat</span><span class="o">.</span><span class="n">T</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">triu_indices_from</span><span class="p">(</span><span class="n">dmat</span><span class="p">)]</span>
+        <span class="k">return</span> <span class="n">dmat</span></div>
+
+<div class="viewcode-block" id="SampleDistanceMatrix.put_tsne"><a class="viewcode-back" href="../../../scedar.eda.html#scedar.eda.sdm.SampleDistanceMatrix.put_tsne">[docs]</a>    <span class="k">def</span> <span class="nf">put_tsne</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">str_params</span><span class="p">,</span> <span class="n">res</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Put t-SNE results into the lookup table.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">str_params</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">str</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unknown key type: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">str_params</span><span class="p">))</span>
+        <span class="n">curr_store_ind</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tsne_lut</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="n">tsne_params_key</span> <span class="o">=</span> <span class="p">(</span><span class="n">str_params</span><span class="p">,</span> <span class="n">curr_store_ind</span><span class="p">)</span>
+        <span class="n">res_copy</span> <span class="o">=</span> <span class="n">res</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_tsne_lut</span><span class="p">[</span><span class="n">tsne_params_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">res_copy</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lazy_load_last_tsne</span> <span class="o">=</span> <span class="n">res_copy</span></div>
+
+<div class="viewcode-block" id="SampleDistanceMatrix.get_tsne_kv"><a class="viewcode-back" href="../../../scedar.eda.html#scedar.eda.sdm.SampleDistanceMatrix.get_tsne_kv">[docs]</a>    <span class="k">def</span> <span class="nf">get_tsne_kv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get t-SNE results from the lookup table. Return None if non-existent.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        res_tuple: tuple</span>
+<span class="sd">            (key, val) pair of tsne result.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="o">==</span> <span class="nb">int</span><span class="p">:</span>
+            <span class="c1"># tuple key (param_str, ind)</span>
+            <span class="k">for</span> <span class="n">tk</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tsne_lut</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="n">tk</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+                    <span class="k">return</span> <span class="p">(</span><span class="n">tk</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tsne_lut</span><span class="p">[</span><span class="n">tk</span><span class="p">])</span>
+        <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="o">==</span> <span class="nb">str</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">tk</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tsne_lut</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="n">tk</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                    <span class="k">return</span> <span class="p">(</span><span class="n">tk</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tsne_lut</span><span class="p">[</span><span class="n">tk</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unknown key type: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="p">))</span>
+        <span class="c1"># key cannot be found</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="SampleDistanceMatrix.tsne"><a class="viewcode-back" href="../../../scedar.eda.html#scedar.eda.sdm.SampleDistanceMatrix.tsne">[docs]</a>    <span class="k">def</span> <span class="nf">tsne</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">store_res</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Run t-SNE on distance matrix.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        store_res: bool</span>
+<span class="sd">            Store the results in lookup table or not.</span>
+<span class="sd">        **kwargs</span>
+<span class="sd">            Keyword arguments passed to tsne computation.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tsne_res: float array</span>
+<span class="sd">            t-SNE projections, (n_samples, m dimensions).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># TODO: make parameter keys consistent such that same set of</span>
+        <span class="c1"># parameters but different order will sill be the same.</span>
+        <span class="c1"># check input args</span>
+        <span class="k">if</span> <span class="p">(</span><span class="s2">&quot;metric&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span> <span class="ow">and</span>
+                <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;metric&quot;</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;precomputed&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metric</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;If you want to calculate t-SNE of a different &quot;</span>
+                             <span class="s2">&quot;metric than the instance metric, create another &quot;</span>
+                             <span class="s2">&quot;instance of the desired metric.&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;metric&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;precomputed&quot;</span>
+        <span class="n">str_params</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">tsne_kv</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_tsne_kv</span><span class="p">(</span><span class="n">str_params</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">tsne_kv</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">tsne_res</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">tsne_res</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">tsne_res</span> <span class="o">=</span> <span class="n">tsne</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_d</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">tsne_res</span> <span class="o">=</span> <span class="n">tsne_kv</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">store_res</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">put_tsne</span><span class="p">(</span><span class="n">str_params</span><span class="p">,</span> <span class="n">tsne_res</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">tsne_res</span></div>
+
+<div class="viewcode-block" id="SampleDistanceMatrix.par_tsne"><a class="viewcode-back" href="../../../scedar.eda.html#scedar.eda.sdm.SampleDistanceMatrix.par_tsne">[docs]</a>    <span class="k">def</span> <span class="nf">par_tsne</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param_list</span><span class="p">,</span> <span class="n">store_res</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">nprocs</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Run t-SNE with multiple sets of parameters parallely.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        param_list: list of dict</span>
+<span class="sd">            List of parameters being passed to t-SNE.</span>
+<span class="sd">        nprocs: int</span>
+<span class="sd">            Number of processes.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tsne_res_list: list of float arrays</span>
+<span class="sd">            List of t-SNE results of corresponding parameter set.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        Parallel running results cannot be stored during the run, because</span>
+<span class="sd">        racing conditions may happen.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">nprocs</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">nprocs</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">param_list</span><span class="p">))</span>
+        <span class="c1"># single run tsne</span>
+
+        <span class="k">def</span> <span class="nf">srun_tsne</span><span class="p">(</span><span class="n">param_dict</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">tsne</span><span class="p">(</span><span class="n">store_res</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">param_dict</span><span class="p">)</span>
+
+        <span class="n">resl</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">parmap</span><span class="p">(</span><span class="n">srun_tsne</span><span class="p">,</span> <span class="n">param_list</span><span class="p">,</span> <span class="n">nprocs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">store_res</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">param_list</span><span class="p">)):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">put_tsne</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">param_list</span><span class="p">[</span><span class="n">i</span><span class="p">]),</span> <span class="n">resl</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">resl</span></div>
+
+<div class="viewcode-block" id="SampleDistanceMatrix.tsne_gradient_plot"><a class="viewcode-back" href="../../../scedar.eda.html#scedar.eda.sdm.SampleDistanceMatrix.tsne_gradient_plot">[docs]</a>    <span class="k">def</span> <span class="nf">tsne_gradient_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gradient</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                           <span class="n">selected_labels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                           <span class="n">shuffle_label_colors</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                           <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">xlab</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ylab</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                           <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">20</span><span class="p">),</span> <span class="n">add_legend</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                           <span class="n">n_txt_per_cluster</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+                           <span class="n">random_state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Plot the last t-SNE projection with the provided gradient as color.</span>
+<span class="sd">        Gradient is None by default.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># labels are checked in cluster_scatter</span>
+        <span class="k">return</span> <span class="n">cluster_scatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_last_tsne</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="n">labels</span><span class="p">,</span>
+                               <span class="n">selected_labels</span><span class="o">=</span><span class="n">selected_labels</span><span class="p">,</span>
+                               <span class="n">shuffle_label_colors</span><span class="o">=</span><span class="n">shuffle_label_colors</span><span class="p">,</span>
+                               <span class="n">gradient</span><span class="o">=</span><span class="n">gradient</span><span class="p">,</span>
+                               <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">,</span> <span class="n">xlab</span><span class="o">=</span><span class="n">xlab</span><span class="p">,</span> <span class="n">ylab</span><span class="o">=</span><span class="n">ylab</span><span class="p">,</span>
+                               <span class="n">figsize</span><span class="o">=</span><span class="n">figsize</span><span class="p">,</span> <span class="n">add_legend</span><span class="o">=</span><span class="n">add_legend</span><span class="p">,</span>
+                               <span class="n">n_txt_per_cluster</span><span class="o">=</span><span class="n">n_txt_per_cluster</span><span class="p">,</span>
+                               <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="n">s</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="n">random_state</span><span class="p">,</span>
+                               <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SampleDistanceMatrix.tsne_feature_gradient_plot"><a class="viewcode-back" href="../../../scedar.eda.html#scedar.eda.sdm.SampleDistanceMatrix.tsne_feature_gradient_plot">[docs]</a>    <span class="k">def</span> <span class="nf">tsne_feature_gradient_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fid</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                                   <span class="n">selected_labels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                                   <span class="n">shuffle_label_colors</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                   <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">xlab</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ylab</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                                   <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">20</span><span class="p">),</span> <span class="n">add_legend</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                   <span class="n">n_txt_per_cluster</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+                                   <span class="n">random_state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Plot the last t-SNE projection with the provided gradient as color.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        fid: feature id scalar</span>
+<span class="sd">            ID of the feature to be used for gradient plot.</span>
+<span class="sd">        transform: callable</span>
+<span class="sd">            Map transform on feature before plotting.</span>
+<span class="sd">        labels: label array</span>
+<span class="sd">            Labels assigned to each point, (n_samples,).</span>
+<span class="sd">        selected_labels: label array</span>
+<span class="sd">            Show gradient only for selected labels. Do not show non-selected.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">mtype</span><span class="o">.</span><span class="n">is_valid_sfid</span><span class="p">(</span><span class="n">fid</span><span class="p">):</span>
+            <span class="n">fid</span> <span class="o">=</span> <span class="p">[</span><span class="n">fid</span><span class="p">]</span>
+            <span class="n">f_ind</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">f_id_to_ind</span><span class="p">(</span><span class="n">fid</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid fid </span><span class="si">{}</span><span class="s2">.&quot;</span>
+                             <span class="s2">&quot;Currently only support 1 &quot;</span>
+                             <span class="s2">&quot;feature gradient plot.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">fid</span><span class="p">))</span>
+
+        <span class="n">fx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_x</span><span class="p">[:,</span> <span class="n">f_ind</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">transform</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">callable</span><span class="p">(</span><span class="n">transform</span><span class="p">):</span>
+                <span class="n">fx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">transform</span><span class="p">,</span> <span class="n">fx</span><span class="p">)))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;transform must be a callable&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">labels</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span> <span class="o">!=</span> <span class="n">fx</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;labels (</span><span class="si">{}</span><span class="s2">) must have same length as &quot;</span>
+                             <span class="s2">&quot;n_samples.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">labels</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">cluster_scatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_last_tsne</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="n">labels</span><span class="p">,</span>
+                               <span class="n">selected_labels</span><span class="o">=</span><span class="n">selected_labels</span><span class="p">,</span>
+                               <span class="n">shuffle_label_colors</span><span class="o">=</span><span class="n">shuffle_label_colors</span><span class="p">,</span>
+                               <span class="n">gradient</span><span class="o">=</span><span class="n">fx</span><span class="p">,</span>
+                               <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">,</span> <span class="n">xlab</span><span class="o">=</span><span class="n">xlab</span><span class="p">,</span> <span class="n">ylab</span><span class="o">=</span><span class="n">ylab</span><span class="p">,</span>
+                               <span class="n">figsize</span><span class="o">=</span><span class="n">figsize</span><span class="p">,</span> <span class="n">add_legend</span><span class="o">=</span><span class="n">add_legend</span><span class="p">,</span>
+                               <span class="n">n_txt_per_cluster</span><span class="o">=</span><span class="n">n_txt_per_cluster</span><span class="p">,</span>
+                               <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="n">s</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="n">random_state</span><span class="p">,</span>
+                               <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SampleDistanceMatrix.ind_x"><a class="viewcode-back" href="../../../scedar.eda.html#scedar.eda.sdm.SampleDistanceMatrix.ind_x">[docs]</a>    <span class="k">def</span> <span class="nf">ind_x</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">selected_s_inds</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">selected_f_inds</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Subset samples by (sample IDs, feature IDs).</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        selected_s_inds: int array</span>
+<span class="sd">            Index array of selected samples. If is None, select all.</span>
+<span class="sd">        selected_f_inds: int array</span>
+<span class="sd">            Index array of selected features. If is None, select all.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        subset: SampleDistanceMatrix</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">selected_s_inds</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">selected_s_inds</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">selected_f_inds</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">selected_f_inds</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">SampleDistanceMatrix</span><span class="p">(</span>
+            <span class="n">x</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_x</span><span class="p">[</span><span class="n">selected_s_inds</span><span class="p">,</span> <span class="p">:][:,</span> <span class="n">selected_f_inds</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span>
+            <span class="n">d</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_d</span><span class="p">[</span><span class="n">selected_s_inds</span><span class="p">,</span> <span class="p">:][:,</span> <span class="n">selected_s_inds</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span>
+            <span class="n">metric</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_metric</span><span class="p">,</span>
+            <span class="n">sids</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_sids</span><span class="p">[</span><span class="n">selected_s_inds</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+            <span class="n">fids</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_fids</span><span class="p">[</span><span class="n">selected_f_inds</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+            <span class="n">nprocs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_nprocs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SampleDistanceMatrix.id_x"><a class="viewcode-back" href="../../../scedar.eda.html#scedar.eda.sdm.SampleDistanceMatrix.id_x">[docs]</a>    <span class="k">def</span> <span class="nf">id_x</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">selected_sids</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">selected_fids</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Subset samples by (sample IDs, feature IDs).</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        selected_s_inds: int array</span>
+<span class="sd">            Index array of selected samples. If is None, select all.</span>
+<span class="sd">        selected_f_inds: int array</span>
+<span class="sd">            Index array of selected features. If is None, select all.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        subset: SampleDistanceMatrix</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">selected_sids</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">selected_s_inds</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">selected_s_inds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">s_id_to_ind</span><span class="p">(</span><span class="n">selected_sids</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">selected_fids</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">selected_f_inds</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">selected_f_inds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">f_id_to_ind</span><span class="p">(</span><span class="n">selected_fids</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ind_x</span><span class="p">(</span><span class="n">selected_s_inds</span><span class="p">,</span> <span class="n">selected_f_inds</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SampleDistanceMatrix.s_ith_nn_d"><a class="viewcode-back" href="../../../scedar.eda.html#scedar.eda.sdm.SampleDistanceMatrix.s_ith_nn_d">[docs]</a>    <span class="k">def</span> <span class="nf">s_ith_nn_d</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes the distances of the i-th nearest neighbor of all samples.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_col_sorted_d</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:]</span></div>
+
+<div class="viewcode-block" id="SampleDistanceMatrix.s_ith_nn_ind"><a class="viewcode-back" href="../../../scedar.eda.html#scedar.eda.sdm.SampleDistanceMatrix.s_ith_nn_ind">[docs]</a>    <span class="k">def</span> <span class="nf">s_ith_nn_ind</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes the sample indices of the i-th nearest neighbor of all</span>
+<span class="sd">        samples.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_col_argsorted_d</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:]</span></div>
+
+<div class="viewcode-block" id="SampleDistanceMatrix.s_knn_ind_lut"><a class="viewcode-back" href="../../../scedar.eda.html#scedar.eda.sdm.SampleDistanceMatrix.s_knn_ind_lut">[docs]</a>    <span class="k">def</span> <span class="nf">s_knn_ind_lut</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes the lookup table for sample i and its KNN indices, i.e.</span>
+<span class="sd">        `{i : [1st_NN_ind, 2nd_NN_ind, ..., nth_NN_ind], ...}`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># each column is its KNN index from 1 to k</span>
+        <span class="k">if</span> <span class="n">k</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">k</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_col_argsorted_d</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;k (</span><span class="si">{}</span><span class="s2">) should &gt;= 0 and &lt;= n_samples-1&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">k</span><span class="p">))</span>
+        <span class="n">k</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
+        <span class="n">knn_ind_arr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_col_argsorted_d</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="n">k</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">knn_order_ind_lut</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">knn_ind_arr</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+                                     <span class="n">knn_ind_arr</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">tolist</span><span class="p">()))</span>
+        <span class="k">return</span> <span class="n">knn_order_ind_lut</span></div>
+
+<div class="viewcode-block" id="SampleDistanceMatrix.s_ith_nn_d_dist"><a class="viewcode-back" href="../../../scedar.eda.html#scedar.eda.sdm.SampleDistanceMatrix.s_ith_nn_d_dist">[docs]</a>    <span class="k">def</span> <span class="nf">s_ith_nn_d_dist</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">xlab</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ylab</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                        <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Plot the distances of the i-th nearest neighbor of all samples.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">s_ith_nn_d</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">hist_dens_plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">,</span> <span class="n">xlab</span><span class="o">=</span><span class="n">xlab</span><span class="p">,</span> <span class="n">ylab</span><span class="o">=</span><span class="n">ylab</span><span class="p">,</span>
+                              <span class="n">figsize</span><span class="o">=</span><span class="n">figsize</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SampleDistanceMatrix.s_knn_connectivity_matrix"><a class="viewcode-back" href="../../../scedar.eda.html#scedar.eda.sdm.SampleDistanceMatrix.s_knn_connectivity_matrix">[docs]</a>    <span class="k">def</span> <span class="nf">s_knn_connectivity_matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes the connectivity matrix of KNN of samples. If an entry</span>
+<span class="sd">        `(i, j)` has value 0, node `i` is not in node `j`&#39;s KNN. If an entry</span>
+<span class="sd">        `(i, j)` has value &gt; 0, node `i` is in `j`&#39;s KNN, and their distance</span>
+<span class="sd">        is the entry value.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        k: int</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        knn_conn_mat: float array</span>
+<span class="sd">            (n_samples, n_samles)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">knn_conn_mat</span> <span class="o">=</span> <span class="n">kneighbors_graph</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_d</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;distance&quot;</span><span class="p">,</span>
+                                        <span class="n">metric</span><span class="o">=</span><span class="s2">&quot;precomputed&quot;</span><span class="p">,</span>
+                                        <span class="n">include_self</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">toarray</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">knn_conn_mat</span></div>
+
+<div class="viewcode-block" id="SampleDistanceMatrix.draw_s_knn_graph"><a class="viewcode-back" href="../../../scedar.eda.html#scedar.eda.sdm.SampleDistanceMatrix.draw_s_knn_graph">[docs]</a>    <span class="k">def</span> <span class="nf">draw_s_knn_graph</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">aff_scale</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">gradient</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">iterations</span><span class="o">=</span><span class="mi">2000</span><span class="p">,</span>
+                         <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">20</span><span class="p">),</span> <span class="n">node_size</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span>
+                         <span class="n">random_state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">init_pos</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                         <span class="n">with_labels</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">fa2_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                         <span class="n">nx_draw_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Draw KNN graph of SampleDistanceMatrix. Graph layout using</span>
+<span class="sd">        forceatlas2 for its speed on large graph.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        k: int</span>
+<span class="sd">        aff_scale: float</span>
+<span class="sd">            Affinity is calculated by `(max(distance) - distance) * aff_scale`</span>
+<span class="sd">        gradient: float array</span>
+<span class="sd">            (n_samples,) color gradient</span>
+<span class="sd">        iterations: int</span>
+<span class="sd">            ForceAtlas2 iterations</span>
+<span class="sd">        figsize: (float, float)</span>
+<span class="sd">        node_size: float</span>
+<span class="sd">        alpha: float</span>
+<span class="sd">        random_state: int</span>
+<span class="sd">        init_pos: float array</span>
+<span class="sd">            Initial position of ForceAtlas2, (n_samples, 2).</span>
+<span class="sd">        with_labels: bool</span>
+<span class="sd">        fa2_kwargs: dict</span>
+<span class="sd">        nx_draw_kwargs: dict</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        fig: matplotlib figure</span>
+<span class="sd">            KNN graph.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># TODO: Docstring. Feature gradient.</span>
+        <span class="c1"># (n_samples, n_samples). Non-neighbor entries are 0.</span>
+        <span class="n">knn_ng_param_key</span> <span class="o">=</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">aff_scale</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">knn_ng_param_key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_knn_ng_lut</span><span class="p">:</span>
+            <span class="n">ng</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_knn_ng_lut</span><span class="p">[</span><span class="n">knn_ng_param_key</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">knn_d_arr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">s_knn_connectivity_matrix</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
+            <span class="c1"># Undirected graph</span>
+            <span class="n">ng</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">Graph</span><span class="p">()</span>
+            <span class="c1"># affinity shoud negatively correlate to distance</span>
+            <span class="n">aff_mat</span> <span class="o">=</span> <span class="p">(</span><span class="n">knn_d_arr</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">-</span> <span class="n">knn_d_arr</span><span class="p">)</span> <span class="o">*</span> <span class="n">aff_scale</span>
+            <span class="c1"># Add graph edges</span>
+            <span class="c1"># Nodes are in the same order with their indices</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">knn_d_arr</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">knn_d_arr</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+                    <span class="k">if</span> <span class="n">knn_d_arr</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="n">ng</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_sids</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sids</span><span class="p">[</span><span class="n">j</span><span class="p">],</span>
+                                    <span class="n">weight</span><span class="o">=</span><span class="n">aff_mat</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_knn_ng_lut</span><span class="p">[</span><span class="n">knn_ng_param_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">ng</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">fa2_kwargs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">fa2_kwargs</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">fa2_kwargs</span> <span class="o">=</span> <span class="n">fa2_kwargs</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">random_state</span><span class="p">)</span>
+        <span class="n">forceatlas2</span> <span class="o">=</span> <span class="n">ForceAtlas2</span><span class="p">(</span>
+            <span class="c1"># Dissuade hubs</span>
+            <span class="n">outboundAttractionDistribution</span><span class="o">=</span><span class="n">fa2_kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span>
+                <span class="s2">&quot;outboundAttractionDistribution&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+            <span class="n">edgeWeightInfluence</span><span class="o">=</span><span class="n">fa2_kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;edgeWeightInfluence&quot;</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span>
+            <span class="c1"># Performance</span>
+            <span class="c1"># Tolerance</span>
+            <span class="n">jitterTolerance</span><span class="o">=</span><span class="n">fa2_kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;jitterTolerance&quot;</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span>
+            <span class="n">barnesHutOptimize</span><span class="o">=</span><span class="n">fa2_kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;barnesHutOptimize&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+            <span class="n">barnesHutTheta</span><span class="o">=</span><span class="n">fa2_kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;barnesHutTheta&quot;</span><span class="p">,</span> <span class="mf">1.2</span><span class="p">),</span>
+            <span class="c1"># Tuning</span>
+            <span class="n">scalingRatio</span><span class="o">=</span><span class="n">fa2_kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;scalingRatio&quot;</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">),</span>
+            <span class="n">strongGravityMode</span><span class="o">=</span><span class="n">fa2_kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;strongGravityMode&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+            <span class="n">gravity</span><span class="o">=</span><span class="n">fa2_kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;gravity&quot;</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span>
+            <span class="c1"># Log</span>
+            <span class="n">verbose</span><span class="o">=</span><span class="n">fa2_kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;verbose&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span> <span class="o">**</span><span class="n">fa2_kwargs</span><span class="p">)</span>
+        <span class="n">knn_fa2pos</span> <span class="o">=</span> <span class="n">forceatlas2</span><span class="o">.</span><span class="n">forceatlas2_networkx_layout</span><span class="p">(</span>
+            <span class="n">ng</span><span class="p">,</span> <span class="n">pos</span><span class="o">=</span><span class="n">init_pos</span><span class="p">,</span> <span class="n">iterations</span><span class="o">=</span><span class="n">iterations</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">nx_draw_kwargs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">nx_draw_kwargs</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">nx_draw_kwargs</span> <span class="o">=</span> <span class="n">nx_draw_kwargs</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">gradient</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">node_color</span> <span class="o">=</span> <span class="n">nx_draw_kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;node_color&quot;</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">)</span>
+            <span class="n">cmap</span> <span class="o">=</span> <span class="n">nx_draw_kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;cmap&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">node_color</span> <span class="o">=</span> <span class="n">gradient</span>
+            <span class="n">cmap</span> <span class="o">=</span> <span class="n">nx_draw_kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;cmap&quot;</span><span class="p">,</span> <span class="s2">&quot;viridis&quot;</span><span class="p">)</span>
+
+        <span class="n">fig</span> <span class="o">=</span> <span class="n">networkx_graph</span><span class="p">(</span><span class="n">ng</span><span class="p">,</span> <span class="n">knn_fa2pos</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="n">figsize</span><span class="p">,</span>
+                             <span class="n">node_color</span><span class="o">=</span><span class="n">node_color</span><span class="p">,</span> <span class="n">node_size</span><span class="o">=</span><span class="n">node_size</span><span class="p">,</span>
+                             <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">,</span> <span class="n">with_labels</span><span class="o">=</span><span class="n">with_labels</span><span class="p">,</span>
+                             <span class="o">**</span><span class="n">nx_draw_kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">fig</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">d</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_d</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_d</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># TODO: Implement corr/cosine distance computation using numpy</span>
+        <span class="c1"># matrix operations. Extremely faster than pdist and pairwise_distance.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lazy_load_d</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_x</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_lazy_load_d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">_x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                                              <span class="bp">self</span><span class="o">.</span><span class="n">_x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metric</span> <span class="o">==</span> <span class="s2">&quot;cosine&quot;</span><span class="p">:</span>
+                    <span class="n">pdmat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cosine_pdist</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_x</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metric</span> <span class="o">==</span> <span class="s2">&quot;correlation&quot;</span><span class="p">:</span>
+                    <span class="n">pdmat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">correlation_pdist</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_x</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">pdmat</span> <span class="o">=</span> <span class="n">skl</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">pairwise</span><span class="o">.</span><span class="n">pairwise_distances</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_x</span><span class="p">,</span> <span class="n">metric</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_metric</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_nprocs</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_lazy_load_d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_correct_dist_mat</span><span class="p">(</span><span class="n">pdmat</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lazy_load_d</span>
+
+<div class="viewcode-block" id="SampleDistanceMatrix.cosine_pdist"><a class="viewcode-back" href="../../../scedar.eda.html#scedar.eda.sdm.SampleDistanceMatrix.cosine_pdist">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">cosine_pdist</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute pairwise cosine pdist for x (n_samples, n_features).</span>
+
+<span class="sd">        Adapted from Waylon Flinn&#39;s post on</span>
+<span class="sd">        https://stackoverflow.com/a/20687984/4638182 .</span>
+
+<span class="sd">        Cosine distance is undefined if one of the vectors contain only 0s.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        x: ndarray</span>
+<span class="sd">            (n_samples, n_features)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        d: ndarray</span>
+<span class="sd">            Pairwise distance matrix, (n_samples, n_samples).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># pairwise dot product matrix</span>
+        <span class="n">pdot_prod</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+        <span class="c1"># diagonal values are self dot product, i.e. squared and sum.</span>
+        <span class="n">squared_sum</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">pdot_prod</span><span class="p">)</span>
+        <span class="c1"># inverse squared sum</span>
+        <span class="c1"># when a sample has all 0s, its squared sum is also 0, thus inverse</span>
+        <span class="c1"># is infinite. By sklearn pairwise_distances convention,</span>
+        <span class="c1"># Zero vectors, e.g. [0, 0, 0, 0, 0], have cosine distance 0 to</span>
+        <span class="c1"># themselves, but 1 distance to any other vectors including another</span>
+        <span class="c1"># zero vector. In correlation distance, zero vectors have 0 distances</span>
+        <span class="c1"># to themselves, but nan to others.</span>
+        <span class="c1"># if it doesn&#39;t occur, set it&#39;s inverse magnitude to zero (instead of</span>
+        <span class="c1"># inf)</span>
+        <span class="n">inv_squared_sum</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span> <span class="o">/</span> <span class="n">ss</span> <span class="k">if</span> <span class="n">ss</span> <span class="o">!=</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">ss</span> <span class="ow">in</span> <span class="n">squared_sum</span><span class="p">]</span>
+        <span class="c1"># square root of squared sum is l2 norm.</span>
+        <span class="n">inv_l2norm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">inv_squared_sum</span><span class="p">)</span>
+        <span class="c1"># cosine similarity (elementwise multiply by inverse l2norm product)</span>
+        <span class="n">cosine_sim</span> <span class="o">=</span> <span class="n">pdot_prod</span> <span class="o">*</span> <span class="n">inv_l2norm</span>
+        <span class="n">cosine_sim</span> <span class="o">=</span> <span class="n">cosine_sim</span><span class="o">.</span><span class="n">T</span> <span class="o">*</span> <span class="n">inv_l2norm</span>
+        <span class="n">cosine_sim</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">diag_indices_from</span><span class="p">(</span><span class="n">cosine_sim</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">cosine_sim</span></div>
+
+<div class="viewcode-block" id="SampleDistanceMatrix.correlation_pdist"><a class="viewcode-back" href="../../../scedar.eda.html#scedar.eda.sdm.SampleDistanceMatrix.correlation_pdist">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">correlation_pdist</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute pairwise correlation pdist for x (n_samples, n_features).</span>
+
+<span class="sd">        Adapted from Waylon Flinn&#39;s post on</span>
+<span class="sd">        https://stackoverflow.com/a/20687984/4638182 .</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        x: ndarray</span>
+<span class="sd">            (n_samples, n_features)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        d: ndarray</span>
+<span class="sd">            Pairwise distance matrix, (n_samples, n_samples).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">centered_x</span> <span class="o">=</span> <span class="n">x</span> <span class="o">-</span> <span class="n">x</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">SampleDistanceMatrix</span><span class="o">.</span><span class="n">cosine_pdist</span><span class="p">(</span><span class="n">centered_x</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_col_sorted_d</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Use mergesort to be stable</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lazy_load_col_sorted_d</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_lazy_load_col_sorted_d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_d</span><span class="p">,</span>
+                                                   <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;mergesort&quot;</span><span class="p">,</span>
+                                                   <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lazy_load_col_sorted_d</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_col_argsorted_d</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Use mergesort to be stable</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lazy_load_col_argsorted_d</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_lazy_load_col_argsorted_d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_d</span><span class="p">,</span>
+                                                         <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;mergesort&quot;</span><span class="p">,</span>
+                                                         <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lazy_load_col_argsorted_d</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_last_tsne</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lazy_load_last_tsne</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_lazy_load_last_tsne</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tsne</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lazy_load_last_tsne</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">metric</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metric</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">tsne_lut</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">dict</span><span class="p">((</span><span class="n">key</span><span class="p">,</span> <span class="n">val</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tsne_lut</span><span class="o">.</span><span class="n">items</span><span class="p">())</span></div>
+
+
+<span class="c1"># x : (n_samples, n_features) or (n_samples, n_samples)</span>
+<span class="c1"># If metric is &#39;precomputed&#39;, x must be a pairwise distance matrix</span>
+<div class="viewcode-block" id="tsne"><a class="viewcode-back" href="../../../scedar.eda.html#scedar.eda.sdm.tsne">[docs]</a><span class="k">def</span> <span class="nf">tsne</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">n_components</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">perplexity</span><span class="o">=</span><span class="mf">30.0</span><span class="p">,</span> <span class="n">early_exaggeration</span><span class="o">=</span><span class="mf">12.0</span><span class="p">,</span>
+         <span class="n">learning_rate</span><span class="o">=</span><span class="mf">200.0</span><span class="p">,</span> <span class="n">n_iter</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">n_iter_without_progress</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span>
+         <span class="n">min_grad_norm</span><span class="o">=</span><span class="mf">1e-07</span><span class="p">,</span> <span class="n">metric</span><span class="o">=</span><span class="s2">&quot;euclidean&quot;</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="s2">&quot;random&quot;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+         <span class="n">random_state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;barnes_hut&quot;</span><span class="p">,</span> <span class="n">angle</span><span class="o">=</span><span class="mf">0.5</span><span class="p">):</span>
+    <span class="n">x_tsne</span> <span class="o">=</span> <span class="n">sklearn</span><span class="o">.</span><span class="n">manifold</span><span class="o">.</span><span class="n">TSNE</span><span class="p">(</span>
+        <span class="n">n_components</span><span class="o">=</span><span class="n">n_components</span><span class="p">,</span> <span class="n">perplexity</span><span class="o">=</span><span class="n">perplexity</span><span class="p">,</span>
+        <span class="n">early_exaggeration</span><span class="o">=</span><span class="n">early_exaggeration</span><span class="p">,</span>
+        <span class="n">learning_rate</span><span class="o">=</span><span class="n">learning_rate</span><span class="p">,</span> <span class="n">n_iter</span><span class="o">=</span><span class="n">n_iter</span><span class="p">,</span>
+        <span class="n">n_iter_without_progress</span><span class="o">=</span><span class="n">n_iter_without_progress</span><span class="p">,</span>
+        <span class="n">min_grad_norm</span><span class="o">=</span><span class="n">min_grad_norm</span><span class="p">,</span> <span class="n">metric</span><span class="o">=</span><span class="n">metric</span><span class="p">,</span>
+        <span class="n">init</span><span class="o">=</span><span class="n">init</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
+        <span class="n">random_state</span><span class="o">=</span><span class="n">random_state</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">,</span>
+        <span class="n">angle</span><span class="o">=</span><span class="n">angle</span><span class="p">)</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">x_tsne</span></div>
+
+
+<div class="viewcode-block" id="HClustTree"><a class="viewcode-back" href="../../../scedar.eda.html#scedar.eda.sdm.HClustTree">[docs]</a><span class="k">class</span> <span class="nc">HClustTree</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Hierarchical clustering tree.</span>
+
+<span class="sd">    Implement simple tree operation routines. HCT is binary unbalanced tree.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    node : scipy.cluster.hierarchy.ClusterNode</span>
+<span class="sd">        current node</span>
+<span class="sd">    prev : HClustTree</span>
+<span class="sd">        parent of current node</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">prev</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">HClustTree</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_node</span> <span class="o">=</span> <span class="n">node</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_prev</span> <span class="o">=</span> <span class="n">prev</span>
+
+        <span class="k">if</span> <span class="n">node</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">left</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">right</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">left</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">get_left</span><span class="p">()</span>
+            <span class="n">right</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">get_right</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_left</span> <span class="o">=</span> <span class="n">left</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_right</span> <span class="o">=</span> <span class="n">right</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">prev</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prev</span>
+
+<div class="viewcode-block" id="HClustTree.count"><a class="viewcode-back" href="../../../scedar.eda.html#scedar.eda.sdm.HClustTree.count">[docs]</a>    <span class="k">def</span> <span class="nf">count</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_node</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">0</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_node</span><span class="o">.</span><span class="n">get_count</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="HClustTree.left"><a class="viewcode-back" href="../../../scedar.eda.html#scedar.eda.sdm.HClustTree.left">[docs]</a>    <span class="k">def</span> <span class="nf">left</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">HClustTree</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_left</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="HClustTree.left_count"><a class="viewcode-back" href="../../../scedar.eda.html#scedar.eda.sdm.HClustTree.left_count">[docs]</a>    <span class="k">def</span> <span class="nf">left_count</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="p">()</span><span class="o">.</span><span class="n">count</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="HClustTree.right"><a class="viewcode-back" href="../../../scedar.eda.html#scedar.eda.sdm.HClustTree.right">[docs]</a>    <span class="k">def</span> <span class="nf">right</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">HClustTree</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_right</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="HClustTree.right_count"><a class="viewcode-back" href="../../../scedar.eda.html#scedar.eda.sdm.HClustTree.right_count">[docs]</a>    <span class="k">def</span> <span class="nf">right_count</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="p">()</span><span class="o">.</span><span class="n">count</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="HClustTree.leaf_ids"><a class="viewcode-back" href="../../../scedar.eda.html#scedar.eda.sdm.HClustTree.leaf_ids">[docs]</a>    <span class="k">def</span> <span class="nf">leaf_ids</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_node</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_node</span><span class="o">.</span><span class="n">pre_order</span><span class="p">(</span><span class="k">lambda</span> <span class="n">xn</span><span class="p">:</span> <span class="n">xn</span><span class="o">.</span><span class="n">get_id</span><span class="p">())</span></div>
+
+<div class="viewcode-block" id="HClustTree.left_leaf_ids"><a class="viewcode-back" href="../../../scedar.eda.html#scedar.eda.sdm.HClustTree.left_leaf_ids">[docs]</a>    <span class="k">def</span> <span class="nf">left_leaf_ids</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="p">()</span><span class="o">.</span><span class="n">leaf_ids</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="HClustTree.right_leaf_ids"><a class="viewcode-back" href="../../../scedar.eda.html#scedar.eda.sdm.HClustTree.right_leaf_ids">[docs]</a>    <span class="k">def</span> <span class="nf">right_leaf_ids</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="p">()</span><span class="o">.</span><span class="n">leaf_ids</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="HClustTree.bi_partition"><a class="viewcode-back" href="../../../scedar.eda.html#scedar.eda.sdm.HClustTree.bi_partition">[docs]</a>    <span class="k">def</span> <span class="nf">bi_partition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">soft_min_subtree_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                     <span class="n">return_subtrees</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        soft_min_subtree_size: when curr tree size &lt; 2 * soft_min_subtree_size,</span>
+<span class="sd">        it is impossible to have a bipartition with a minimum sub tree size</span>
+<span class="sd">        bigger than soft_min_subtree_size. In this case, return the first</span>
+<span class="sd">        partition.</span>
+
+<span class="sd">        When soft_min_subtree_size = 1, the performance is the same as taking</span>
+<span class="sd">        the first bipartition.</span>
+
+<span class="sd">        When curr size = 1, the first bipartition gives</span>
+<span class="sd">        (1, 0). Because curr size &lt; 2 * soft_min_subtree_size, it goes directly</span>
+<span class="sd">        to return.</span>
+
+<span class="sd">        When curr size = 2, the first bipartition guarantees to give (1, 1),</span>
+<span class="sd">        with the invariant that parent nodes of leaves always have 2 child</span>
+<span class="sd">        nodes. This also goes directly to return.</span>
+
+<span class="sd">        When curr size &gt;= 3, the first bipartition guarantees to give two</span>
+<span class="sd">        subtrees with size &gt;= 1, with the same invariant in size = 2.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">soft_min_subtree_size</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">soft_min_subtree_size</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">soft_min_subtree_size</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;soft_min_subtree_size should &gt;= 1&quot;</span><span class="p">)</span>
+        <span class="n">lst</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="p">()</span>
+        <span class="n">rst</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="p">()</span>
+        <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="o">&gt;=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">soft_min_subtree_size</span> <span class="ow">and</span>
+                <span class="n">lst</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="o">!=</span> <span class="n">rst</span><span class="o">.</span><span class="n">count</span><span class="p">()):</span>
+            <span class="c1"># cut is not balanced</span>
+            <span class="k">if</span> <span class="n">lst</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">rst</span><span class="o">.</span><span class="n">count</span><span class="p">():</span>
+                <span class="n">min_st</span> <span class="o">=</span> <span class="n">lst</span>
+                <span class="n">max_st</span> <span class="o">=</span> <span class="n">rst</span>
+                <span class="n">min_side</span> <span class="o">=</span> <span class="s2">&quot;left&quot;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">min_st</span> <span class="o">=</span> <span class="n">rst</span>
+                <span class="n">max_st</span> <span class="o">=</span> <span class="n">lst</span>
+                <span class="n">min_side</span> <span class="o">=</span> <span class="s2">&quot;right&quot;</span>
+            <span class="c1"># Invariants:</span>
+            <span class="c1"># 1. min_st &lt; max_st</span>
+            <span class="c1"># 2. min_st size &gt;= 1, which implies that max_st size &gt;= 2</span>
+            <span class="c1"># 3. parent node of a leaf has two child nodes.</span>
+            <span class="k">while</span> <span class="n">min_st</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">soft_min_subtree_size</span><span class="p">:</span>
+                <span class="c1"># increase min_st size until it is larger than min_st_size</span>
+                <span class="c1"># or the max st size</span>
+                <span class="k">if</span> <span class="n">min_side</span> <span class="o">==</span> <span class="s2">&quot;left&quot;</span><span class="p">:</span>
+                    <span class="n">max_spl_st</span> <span class="o">=</span> <span class="n">max_st</span><span class="o">.</span><span class="n">left</span><span class="p">()</span>
+                    <span class="n">max_const_st</span> <span class="o">=</span> <span class="n">max_st</span><span class="o">.</span><span class="n">right</span><span class="p">()</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># min side is right</span>
+                    <span class="n">max_spl_st</span> <span class="o">=</span> <span class="n">max_st</span><span class="o">.</span><span class="n">right</span><span class="p">()</span>
+                    <span class="n">max_const_st</span> <span class="o">=</span> <span class="n">max_st</span><span class="o">.</span><span class="n">left</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">max_spl_st</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">max_spl_st</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="c1"># count &lt; 1 or count == 0</span>
+                        <span class="c1"># This should not happen given max_st &gt; min_st &gt;= 1</span>
+                        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Unexpected branch reached&quot;</span><span class="p">)</span>
+                    <span class="c1"># split side only has 1 node</span>
+                    <span class="c1"># create an empty tree</span>
+                    <span class="n">min_merge_st</span> <span class="o">=</span> <span class="n">min_st</span>
+                    <span class="n">max_merge_st</span> <span class="o">=</span> <span class="n">max_spl_st</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># split max_spl_st</span>
+                    <span class="k">if</span> <span class="n">min_side</span> <span class="o">==</span> <span class="s2">&quot;left&quot;</span><span class="p">:</span>
+                        <span class="n">max_merge_st</span> <span class="o">=</span> <span class="n">max_spl_st</span><span class="o">.</span><span class="n">right</span><span class="p">()</span>
+                        <span class="n">min_merge_st_node</span> <span class="o">=</span> <span class="n">sch</span><span class="o">.</span><span class="n">ClusterNode</span><span class="p">(</span>
+                            <span class="nb">id</span><span class="o">=</span><span class="n">max_spl_st</span><span class="o">.</span><span class="n">_node</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+                            <span class="n">left</span><span class="o">=</span><span class="n">min_st</span><span class="o">.</span><span class="n">_node</span><span class="p">,</span>
+                            <span class="n">right</span><span class="o">=</span><span class="n">max_spl_st</span><span class="o">.</span><span class="n">_left</span><span class="p">,</span>
+                            <span class="n">dist</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                            <span class="n">count</span><span class="o">=</span><span class="n">min_st</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="o">+</span> <span class="n">max_spl_st</span><span class="o">.</span><span class="n">left_count</span><span class="p">())</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">max_merge_st</span> <span class="o">=</span> <span class="n">max_spl_st</span><span class="o">.</span><span class="n">left</span><span class="p">()</span>
+                        <span class="n">min_merge_st_node</span> <span class="o">=</span> <span class="n">sch</span><span class="o">.</span><span class="n">ClusterNode</span><span class="p">(</span>
+                            <span class="nb">id</span><span class="o">=</span><span class="n">max_spl_st</span><span class="o">.</span><span class="n">_node</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+                            <span class="n">left</span><span class="o">=</span><span class="n">max_spl_st</span><span class="o">.</span><span class="n">_right</span><span class="p">,</span>
+                            <span class="n">right</span><span class="o">=</span><span class="n">min_st</span><span class="o">.</span><span class="n">_node</span><span class="p">,</span>
+                            <span class="n">dist</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                            <span class="n">count</span><span class="o">=</span><span class="n">min_st</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="o">+</span> <span class="n">max_spl_st</span><span class="o">.</span><span class="n">right_count</span><span class="p">())</span>
+                    <span class="n">min_merge_st</span> <span class="o">=</span> <span class="n">HClustTree</span><span class="p">(</span><span class="n">min_merge_st_node</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">min_side</span> <span class="o">==</span> <span class="s2">&quot;left&quot;</span><span class="p">:</span>
+                    <span class="n">merge_st_node</span> <span class="o">=</span> <span class="n">sch</span><span class="o">.</span><span class="n">ClusterNode</span><span class="p">(</span>
+                        <span class="nb">id</span><span class="o">=</span><span class="n">max_st</span><span class="o">.</span><span class="n">_node</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+                        <span class="n">left</span><span class="o">=</span><span class="n">min_merge_st</span><span class="o">.</span><span class="n">_node</span><span class="p">,</span>
+                        <span class="n">right</span><span class="o">=</span><span class="n">max_merge_st</span><span class="o">.</span><span class="n">_node</span><span class="p">,</span>
+                        <span class="n">dist</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                        <span class="n">count</span><span class="o">=</span><span class="n">min_merge_st</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="o">+</span> <span class="n">max_merge_st</span><span class="o">.</span><span class="n">count</span><span class="p">())</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">merge_st_node</span> <span class="o">=</span> <span class="n">sch</span><span class="o">.</span><span class="n">ClusterNode</span><span class="p">(</span>
+                        <span class="nb">id</span><span class="o">=</span><span class="n">max_st</span><span class="o">.</span><span class="n">_node</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+                        <span class="n">left</span><span class="o">=</span><span class="n">max_merge_st</span><span class="o">.</span><span class="n">_node</span><span class="p">,</span>
+                        <span class="n">right</span><span class="o">=</span><span class="n">min_merge_st</span><span class="o">.</span><span class="n">_node</span><span class="p">,</span>
+                        <span class="n">dist</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                        <span class="n">count</span><span class="o">=</span><span class="n">min_merge_st</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="o">+</span> <span class="n">max_merge_st</span><span class="o">.</span><span class="n">count</span><span class="p">())</span>
+                <span class="n">merge_st</span> <span class="o">=</span> <span class="n">HClustTree</span><span class="p">(</span><span class="n">merge_st_node</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+                <span class="n">min_merge_st</span><span class="o">.</span><span class="n">_prev</span> <span class="o">=</span> <span class="n">merge_st</span>
+                <span class="n">max_merge_st</span><span class="o">.</span><span class="n">_prev</span> <span class="o">=</span> <span class="n">merge_st</span>
+
+                <span class="n">max_const_st</span><span class="o">.</span><span class="n">_prev</span> <span class="o">=</span> <span class="bp">self</span>
+
+                <span class="k">if</span> <span class="n">max_const_st</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="o">&gt;=</span> <span class="n">merge_st</span><span class="o">.</span><span class="n">count</span><span class="p">():</span>
+                    <span class="n">max_st</span> <span class="o">=</span> <span class="n">max_const_st</span>
+                    <span class="n">min_st</span> <span class="o">=</span> <span class="n">merge_st</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># max_st &gt; min_st</span>
+                    <span class="n">max_st</span> <span class="o">=</span> <span class="n">merge_st</span>
+                    <span class="n">min_st</span> <span class="o">=</span> <span class="n">max_const_st</span>
+                    <span class="c1"># reverse min side</span>
+                    <span class="n">min_side</span> <span class="o">=</span> <span class="s2">&quot;left&quot;</span> <span class="k">if</span> <span class="n">min_side</span> <span class="o">==</span> <span class="s2">&quot;right&quot;</span> <span class="k">else</span> <span class="s2">&quot;right&quot;</span>
+            <span class="c1"># obtained a min size cut</span>
+            <span class="k">if</span> <span class="n">min_side</span> <span class="o">==</span> <span class="s2">&quot;left&quot;</span><span class="p">:</span>
+                <span class="n">lst</span> <span class="o">=</span> <span class="n">min_st</span>
+                <span class="n">rst</span> <span class="o">=</span> <span class="n">max_st</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">lst</span> <span class="o">=</span> <span class="n">max_st</span>
+                <span class="n">rst</span> <span class="o">=</span> <span class="n">min_st</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_left</span> <span class="o">=</span> <span class="n">lst</span><span class="o">.</span><span class="n">_node</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_right</span> <span class="o">=</span> <span class="n">rst</span><span class="o">.</span><span class="n">_node</span>
+        <span class="n">labs</span><span class="p">,</span> <span class="n">sids</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cluster_id_to_lab_list</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">lst</span><span class="o">.</span><span class="n">leaf_ids</span><span class="p">(),</span> <span class="n">rst</span><span class="o">.</span><span class="n">leaf_ids</span><span class="p">()],</span> <span class="bp">self</span><span class="o">.</span><span class="n">leaf_ids</span><span class="p">())</span>
+        <span class="k">if</span> <span class="n">return_subtrees</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">labs</span><span class="p">,</span> <span class="n">sids</span><span class="p">,</span> <span class="n">lst</span><span class="p">,</span> <span class="n">rst</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">labs</span><span class="p">,</span> <span class="n">sids</span></div>
+
+<div class="viewcode-block" id="HClustTree.n_round_bipar_cnt"><a class="viewcode-back" href="../../../scedar.eda.html#scedar.eda.sdm.HClustTree.n_round_bipar_cnt">[docs]</a>    <span class="k">def</span> <span class="nf">n_round_bipar_cnt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">n</span> <span class="o">&gt;</span> <span class="mi">0</span>
+        <span class="n">nr_bipar_cnt_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">curr_hct_list</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="p">]</span>
+        <span class="n">curr_hct_cnt_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">next_hct_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">iter_hct</span> <span class="ow">in</span> <span class="n">curr_hct_list</span><span class="p">:</span>
+                <span class="n">iter_left</span> <span class="o">=</span> <span class="n">iter_hct</span><span class="o">.</span><span class="n">left</span><span class="p">()</span>
+                <span class="n">iter_right</span> <span class="o">=</span> <span class="n">iter_hct</span><span class="o">.</span><span class="n">right</span><span class="p">()</span>
+                <span class="n">next_hct_list</span> <span class="o">+=</span> <span class="p">[</span><span class="n">iter_left</span><span class="p">,</span> <span class="n">iter_right</span><span class="p">]</span>
+                <span class="n">curr_hct_cnt_list</span> <span class="o">+=</span> <span class="p">[</span><span class="n">iter_left</span><span class="o">.</span><span class="n">count</span><span class="p">(),</span> <span class="n">iter_right</span><span class="o">.</span><span class="n">count</span><span class="p">()]</span>
+            <span class="n">nr_bipar_cnt_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">curr_hct_cnt_list</span><span class="p">)</span>
+
+            <span class="n">curr_hct_list</span> <span class="o">=</span> <span class="n">next_hct_list</span>
+            <span class="n">next_hct_list</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">curr_hct_cnt_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">return</span> <span class="n">nr_bipar_cnt_list</span></div>
+
+<div class="viewcode-block" id="HClustTree.cluster_id_to_lab_list"><a class="viewcode-back" href="../../../scedar.eda.html#scedar.eda.sdm.HClustTree.cluster_id_to_lab_list">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">cluster_id_to_lab_list</span><span class="p">(</span><span class="n">cl_sid_list</span><span class="p">,</span> <span class="n">sid_list</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convert nested clustered ID list into cluster label list.</span>
+
+<span class="sd">        For example, convert `[[0, 1, 2], [3,4]]` to `[0, 0, 0, 1, 1]`</span>
+<span class="sd">        according to id_arr `[0, 1, 2, 3, 4]`</span>
+
+<span class="sd">        Parameters</span>
+
+<span class="sd">        cl_sid_list: list[list[id]]</span>
+<span class="sd">            Nested list with each sublist as a sert of IDs from a cluster.</span>
+<span class="sd">        sid_list: list[id]</span>
+<span class="sd">            Flat list of lists.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># checks uniqueness</span>
+        <span class="c1"># This guarantees that clusters are all non-empty</span>
+        <span class="n">mtype</span><span class="o">.</span><span class="n">check_is_valid_sfids</span><span class="p">(</span><span class="n">sid_list</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">cl_sid_list</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">list</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;cl_sid_list must be a list: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cl_sid_list</span><span class="p">))</span>
+
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">cl_sid_list</span><span class="p">:</span>
+            <span class="n">mtype</span><span class="o">.</span><span class="n">check_is_valid_sfids</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+        <span class="n">cl_id_mlist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">cl_sid_list</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="n">mtype</span><span class="o">.</span><span class="n">check_is_valid_sfids</span><span class="p">(</span><span class="n">cl_id_mlist</span><span class="p">)</span>
+
+        <span class="c1"># np.unique returns sorted unique values</span>
+        <span class="k">if</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">sid_list</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">cl_id_mlist</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;sid_list should have the same ids as cl_sid_list.&quot;</span><span class="p">)</span>
+
+        <span class="n">cl_ind_lut</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="c1"># iter_cl_ind : cluster index</span>
+        <span class="c1"># iter_cl_sids: individual cluster list</span>
+        <span class="k">for</span> <span class="n">iter_cl_ind</span><span class="p">,</span> <span class="n">iter_cl_sids</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">cl_sid_list</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">sid</span> <span class="ow">in</span> <span class="n">iter_cl_sids</span><span class="p">:</span>
+                <span class="n">cl_ind_lut</span><span class="p">[</span><span class="n">sid</span><span class="p">]</span> <span class="o">=</span> <span class="n">iter_cl_ind</span>
+
+        <span class="n">lab_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">cl_ind_lut</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">sid_list</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">lab_list</span><span class="p">,</span> <span class="n">sid_list</span></div>
+
+<div class="viewcode-block" id="HClustTree.hclust_tree"><a class="viewcode-back" href="../../../scedar.eda.html#scedar.eda.sdm.HClustTree.hclust_tree">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">hclust_tree</span><span class="p">(</span><span class="n">dmat</span><span class="p">,</span> <span class="n">linkage</span><span class="o">=</span><span class="s2">&quot;complete&quot;</span><span class="p">,</span> <span class="n">n_eval_rounds</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                    <span class="n">is_euc_dist</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">optimal_ordering</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="n">dmat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">dmat</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float&quot;</span><span class="p">)</span>
+        <span class="n">dmat</span> <span class="o">=</span> <span class="n">SampleDistanceMatrix</span><span class="o">.</span><span class="n">num_correct_dist_mat</span><span class="p">(</span><span class="n">dmat</span><span class="p">)</span>
+
+        <span class="n">n</span> <span class="o">=</span> <span class="n">dmat</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">linkage</span> <span class="o">==</span> <span class="s2">&quot;auto&quot;</span><span class="p">:</span>
+            <span class="n">try_linkages</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;single&quot;</span><span class="p">,</span> <span class="s2">&quot;complete&quot;</span><span class="p">,</span> <span class="s2">&quot;average&quot;</span><span class="p">,</span> <span class="s2">&quot;weighted&quot;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">is_euc_dist</span><span class="p">:</span>
+                <span class="n">try_linkages</span> <span class="o">+=</span> <span class="p">(</span><span class="s2">&quot;centroid&quot;</span><span class="p">,</span> <span class="s2">&quot;median&quot;</span><span class="p">,</span> <span class="s2">&quot;ward&quot;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">n_eval_rounds</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">n_eval_rounds</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log2</span><span class="p">(</span><span class="n">n</span><span class="p">)))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">n_eval_rounds</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log2</span><span class="p">(</span><span class="n">n</span><span class="p">),</span> <span class="n">n_eval_rounds</span><span class="p">)))</span>
+
+            <span class="n">ltype_mdl_list</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">iter_ltype</span> <span class="ow">in</span> <span class="n">try_linkages</span><span class="p">:</span>
+                <span class="n">iter_lhct</span> <span class="o">=</span> <span class="n">HClustTree</span><span class="o">.</span><span class="n">hclust_tree</span><span class="p">(</span><span class="n">dmat</span><span class="p">,</span> <span class="n">linkage</span><span class="o">=</span><span class="n">iter_ltype</span><span class="p">)</span>
+                <span class="n">iter_nbp_cnt_list</span> <span class="o">=</span> <span class="n">iter_lhct</span><span class="o">.</span><span class="n">n_round_bipar_cnt</span><span class="p">(</span><span class="n">n_eval_rounds</span><span class="p">)</span>
+                <span class="n">iter_nbp_mdl_arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span>
+                    <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">MultinomialMdl</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">x</span><span class="p">))</span><span class="o">.</span><span class="n">mdl</span><span class="p">,</span>
+                    <span class="n">iter_nbp_cnt_list</span><span class="p">)))</span>
+                <span class="n">iter_nbp_mdl</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span>
+                    <span class="n">iter_nbp_mdl_arr</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_eval_rounds</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+                <span class="n">ltype_mdl_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">iter_nbp_mdl</span><span class="p">)</span>
+
+            <span class="n">linkage</span> <span class="o">=</span> <span class="n">try_linkages</span><span class="p">[</span><span class="n">ltype_mdl_list</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">ltype_mdl_list</span><span class="p">))]</span>
+
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">linkage</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">try_linkages</span><span class="p">,</span> <span class="n">ltype_mdl_list</span><span class="p">)),</span>
+                      <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="n">dmat_sf</span> <span class="o">=</span> <span class="n">spspatial</span><span class="o">.</span><span class="n">distance</span><span class="o">.</span><span class="n">squareform</span><span class="p">(</span><span class="n">dmat</span><span class="p">)</span>
+        <span class="n">hac_z</span> <span class="o">=</span> <span class="n">sch</span><span class="o">.</span><span class="n">linkage</span><span class="p">(</span><span class="n">dmat_sf</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="n">linkage</span><span class="p">,</span>
+                            <span class="n">optimal_ordering</span><span class="o">=</span><span class="n">optimal_ordering</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">HClustTree</span><span class="p">(</span><span class="n">sch</span><span class="o">.</span><span class="n">to_tree</span><span class="p">(</span><span class="n">hac_z</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="HClustTree.sort_x_by_d"><a class="viewcode-back" href="../../../scedar.eda.html#scedar.eda.sdm.HClustTree.sort_x_by_d">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">sort_x_by_d</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">dmat</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">metric</span><span class="o">=</span><span class="s2">&quot;correlation&quot;</span><span class="p">,</span> <span class="n">linkage</span><span class="o">=</span><span class="s2">&quot;auto&quot;</span><span class="p">,</span>
+                    <span class="n">n_eval_rounds</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">nprocs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="n">dmat</span> <span class="o">=</span> <span class="n">SampleDistanceMatrix</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="n">dmat</span><span class="p">,</span> <span class="n">metric</span><span class="o">=</span><span class="n">metric</span><span class="p">,</span>
+                                    <span class="n">nprocs</span><span class="o">=</span><span class="n">nprocs</span><span class="p">)</span><span class="o">.</span><span class="n">_d</span>
+        <span class="n">xhct</span> <span class="o">=</span> <span class="n">HClustTree</span><span class="o">.</span><span class="n">hclust_tree</span><span class="p">(</span><span class="n">dmat</span><span class="p">,</span> <span class="n">linkage</span><span class="o">=</span><span class="s2">&quot;auto&quot;</span><span class="p">,</span>
+                                      <span class="n">is_euc_dist</span><span class="o">=</span><span class="p">(</span><span class="n">metric</span> <span class="o">==</span> <span class="s2">&quot;euclidean&quot;</span><span class="p">),</span>
+                                      <span class="n">optimal_ordering</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">xhct</span><span class="o">.</span><span class="n">leaf_ids</span><span class="p">()</span></div></div>
+</pre></div>
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Yuanchao Zhang.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'0.0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

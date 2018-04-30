@@ -7,6 +7,7 @@ from abc import ABC, abstractmethod
 
 def np_number_1d(x, dtype=np.dtype("f8"), copy=True):
     """Convert x to 1d np number array
+
     Args:
         x (1d sequence of values convertable to np.number)
         dtype (np number type): default to 64-bit float

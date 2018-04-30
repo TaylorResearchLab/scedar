@@ -1,0 +1,2050 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>scedar.eda package &mdash; scedar 0.0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="scedar 0.0.1 documentation" href="index.html"/>
+        <link rel="up" title="scedar package" href="scedar.html"/>
+        <link rel="next" title="scedar.qc package" href="scedar.qc.html"/>
+        <link rel="prev" title="scedar.cluster package" href="scedar.cluster.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> scedar
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">scedar</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="scedar.html">scedar package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="scedar.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="scedar.cluster.html">scedar.cluster package</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">scedar.eda package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="scedar.qc.html">scedar.qc package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="scedar.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="scedar.html#module-scedar.utils">scedar.utils module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="scedar.html#module-scedar">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">scedar</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="modules.html">scedar</a> &raquo;</li>
+        
+          <li><a href="scedar.html">scedar package</a> &raquo;</li>
+        
+      <li>scedar.eda package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/scedar.eda.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="scedar-eda-package">
+<h1>scedar.eda package<a class="headerlink" href="#scedar-eda-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-scedar.eda.mdl">
+<span id="scedar-eda-mdl-module"></span><h2>scedar.eda.mdl module<a class="headerlink" href="#module-scedar.eda.mdl" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="scedar.eda.mdl.GKdeMdl">
+<em class="property">class </em><code class="descclassname">scedar.eda.mdl.</code><code class="descname">GKdeMdl</code><span class="sig-paren">(</span><em>x</em>, <em>kde_bw_method='scott'</em>, <em>dtype=dtype('float64')</em>, <em>copy=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/mdl.html#GKdeMdl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.mdl.GKdeMdl" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#scedar.eda.mdl.Mdl" title="scedar.eda.mdl.Mdl"><code class="xref py py-class docutils literal notranslate"><span class="pre">scedar.eda.mdl.Mdl</span></code></a></p>
+<p>Use Gaussian kernel density estimation to compute mdl</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>x</strong> (<em>1D np.number array</em>) – data used for fit mdl</li>
+<li><strong>bandwidth_method</strong> – string
+KDE bandwidth estimation method bing passed to
+<cite>scipy.stats.gaussian_kde</cite>.
+Types:
+* <cite>“scott”</cite>: Scott’s rule of thumb.
+* <cite>“silverman”</cite>: Silverman”s rule of thumb.
+* <cite>constant</cite>: constant will be timed by x.std(ddof=1) internally,
+because scipy times bw_method value by std. “Scipy weights its
+bandwidth by the ovariance of the input data” [3].
+* <cite>callable</cite>: scipy calls the function on self</li>
+<li><strong>dtype</strong> (<em>np.dtype</em>) – default to 64-bit float</li>
+<li><strong>copy</strong> (<em>bool</em>) – passed to np.array()</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="scedar.eda.mdl.GKdeMdl._x">
+<code class="descname">_x</code><a class="headerlink" href="#scedar.eda.mdl.GKdeMdl._x" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>1d float array</em> – data to fit</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="scedar.eda.mdl.GKdeMdl._n">
+<code class="descname">_n</code><a class="headerlink" href="#scedar.eda.mdl.GKdeMdl._n" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>int</em> – number of elements in data</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="scedar.eda.mdl.GKdeMdl._bw_method">
+<code class="descname">_bw_method</code><a class="headerlink" href="#scedar.eda.mdl.GKdeMdl._bw_method" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>str</em> – bandwidth method</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="scedar.eda.mdl.GKdeMdl._kde">
+<code class="descname">_kde</code><a class="headerlink" href="#scedar.eda.mdl.GKdeMdl._kde" title="Permalink to this definition">¶</a></dt>
+<dd><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">scipy</span> <span class="pre">kde</span></code></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="scedar.eda.mdl.GKdeMdl._logdens">
+<code class="descname">_logdens</code><a class="headerlink" href="#scedar.eda.mdl.GKdeMdl._logdens" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>1d float array</em> – log density</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="scedar.eda.mdl.GKdeMdl.bandwidth">
+<code class="descname">bandwidth</code><a class="headerlink" href="#scedar.eda.mdl.GKdeMdl.bandwidth" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="scedar.eda.mdl.GKdeMdl.encode">
+<code class="descname">encode</code><span class="sig-paren">(</span><em>qx</em>, <em>mdl_scale_factor=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/mdl.html#GKdeMdl.encode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.mdl.GKdeMdl.encode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Encode query data using fitted KDE code</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>qx</strong> (<em>1d float array</em>) – </li>
+<li><strong>mdl_scale_factor</strong> (<em>number</em>) – times mdl by this number</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">mdl</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">float</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="scedar.eda.mdl.GKdeMdl.gaussian_kde_logdens">
+<em class="property">static </em><code class="descname">gaussian_kde_logdens</code><span class="sig-paren">(</span><em>bandwidth_method='scott'</em>, <em>ret_kernel=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/mdl.html#GKdeMdl.gaussian_kde_logdens"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.mdl.GKdeMdl.gaussian_kde_logdens" title="Permalink to this definition">¶</a></dt>
+<dd><p>Estimate Gaussian kernel density estimation bandwidth for input <cite>x</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>x</strong> (float array of shape <cite>(n_samples)</cite> or <cite>(n_samples, n_features)</cite>) – Data points for KDE estimation.</li>
+<li><strong>bandwidth_method</strong> (<em>string</em>) – KDE bandwidth estimation method bing passed to
+<cite>scipy.stats.gaussian_kde</cite>.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="scedar.eda.mdl.GKdeMdl.kde">
+<code class="descname">kde</code><a class="headerlink" href="#scedar.eda.mdl.GKdeMdl.kde" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="scedar.eda.mdl.GKdeMdl.mdl">
+<code class="descname">mdl</code><a class="headerlink" href="#scedar.eda.mdl.GKdeMdl.mdl" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="scedar.eda.mdl.Mdl">
+<em class="property">class </em><code class="descclassname">scedar.eda.mdl.</code><code class="descname">Mdl</code><span class="sig-paren">(</span><em>x</em>, <em>dtype=dtype('float64')</em>, <em>copy=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/mdl.html#Mdl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.mdl.Mdl" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
+<p>Minimum description length abstract base class</p>
+<dl class="docutils">
+<dt>Interface of various mdl schemas. Subclasses must implement mdl property</dt>
+<dd>and encode method.</dd>
+</dl>
+<dl class="attribute">
+<dt id="scedar.eda.mdl.Mdl._x">
+<code class="descname">_x</code><a class="headerlink" href="#scedar.eda.mdl.Mdl._x" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>1D np.number array</em> – data used for fit mdl</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="scedar.eda.mdl.Mdl._n">
+<code class="descname">_n</code><a class="headerlink" href="#scedar.eda.mdl.Mdl._n" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>np.int</em> – number of points in x</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="scedar.eda.mdl.Mdl.encode">
+<code class="descname">encode</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/mdl.html#Mdl.encode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.mdl.Mdl.encode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Encode another 1D number array with fitted code
+:param x: data to encode
+:type x: 1D np.number array</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="scedar.eda.mdl.Mdl.mdl">
+<code class="descname">mdl</code><a class="headerlink" href="#scedar.eda.mdl.Mdl.mdl" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="scedar.eda.mdl.Mdl.x">
+<code class="descname">x</code><a class="headerlink" href="#scedar.eda.mdl.Mdl.x" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="scedar.eda.mdl.MultinomialMdl">
+<em class="property">class </em><code class="descclassname">scedar.eda.mdl.</code><code class="descname">MultinomialMdl</code><span class="sig-paren">(</span><em>x</em>, <em>dtype=dtype('float64')</em>, <em>copy=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/mdl.html#MultinomialMdl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.mdl.MultinomialMdl" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#scedar.eda.mdl.Mdl" title="scedar.eda.mdl.Mdl"><code class="xref py py-class docutils literal notranslate"><span class="pre">scedar.eda.mdl.Mdl</span></code></a></p>
+<p>Encode discrete values using multinomial distribution</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>x</strong> (<em>1D np.number array</em>) – data used for fit mdl</li>
+<li><strong>dtype</strong> (<em>np.dtype</em>) – default to 64-bit float</li>
+<li><strong>copy</strong> (<em>bool</em>) – passed to np.array()</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">When x only has 1 uniq value. Encode the the number of values only.</p>
+</div>
+<dl class="method">
+<dt id="scedar.eda.mdl.MultinomialMdl.encode">
+<code class="descname">encode</code><span class="sig-paren">(</span><em>qx</em>, <em>use_adjescent_when_absent=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/mdl.html#MultinomialMdl.encode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.mdl.MultinomialMdl.encode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Encode another 1D float array with fitted code</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>qx</strong> (<em>1d float array</em>) – query data</li>
+<li><strong>use_adjescent_when_absent</strong> (<em>bool</em>) – whether to use adjascent value
+to compute query mdl. If not, uniform mdl is used. If
+adjascent values have same distance to query value, choose the
+one with smaller mdl.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">qmdl (float)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="scedar.eda.mdl.MultinomialMdl.mdl">
+<code class="descname">mdl</code><a class="headerlink" href="#scedar.eda.mdl.MultinomialMdl.mdl" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="scedar.eda.mdl.ZeroIGKdeMdl">
+<em class="property">class </em><code class="descclassname">scedar.eda.mdl.</code><code class="descname">ZeroIGKdeMdl</code><span class="sig-paren">(</span><em>x</em>, <em>kde_bw_method='scott'</em>, <em>dtype=dtype('float64')</em>, <em>copy=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/mdl.html#ZeroIGKdeMdl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.mdl.ZeroIGKdeMdl" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#scedar.eda.mdl.Mdl" title="scedar.eda.mdl.Mdl"><code class="xref py py-class docutils literal notranslate"><span class="pre">scedar.eda.mdl.Mdl</span></code></a></p>
+<p>Zero indicator Gaussian KDE MDL</p>
+<p>Encode the 0s and non-0s using bernoulli distribution.
+Then, encode non-0s using gaussian kde. Finally, one ternary val indicates
+all 0s, all non-0s, or otherwise</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>x</strong> (<em>1D np.number array</em>) – data used for fit mdl</li>
+<li><strong>bandwidth_method</strong> – string
+KDE bandwidth estimation method bing passed to
+<cite>scipy.stats.gaussian_kde</cite>.
+Types:
+* <cite>“scott”</cite>: Scott’s rule of thumb.
+* <cite>“silverman”</cite>: Silverman”s rule of thumb.
+* <cite>constant</cite>: constant will be timed by x.std(ddof=1) internally,
+because scipy times bw_method value by std. “Scipy weights its
+bandwidth by the ovariance of the input data” [3].
+* <cite>callable</cite>: scipy calls the function on self</li>
+<li><strong>dtype</strong> (<em>np.dtype</em>) – default to 64-bit float</li>
+<li><strong>copy</strong> (<em>bool</em>) – passed to np.array()</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">References</p>
+<p>[1] <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.gaussian_kde.html">https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.gaussian_kde.html</a></p>
+<p>[2] <a class="reference external" href="https://en.wikipedia.org/wiki/Kernel_density_estimation">https://en.wikipedia.org/wiki/Kernel_density_estimation</a></p>
+<p>[3] <a class="reference external" href="https://jakevdp.github.io/blog/2013/12/01/kernel-density-estimation/">https://jakevdp.github.io/blog/2013/12/01/kernel-density-estimation/</a></p>
+<p>[4] <a class="reference external" href="https://github.com/scipy/scipy/blob/v1.0.0/scipy/stats/kde.py#L42-L564">https://github.com/scipy/scipy/blob/v1.0.0/scipy/stats/kde.py#L42-L564</a></p>
+<dl class="attribute">
+<dt id="scedar.eda.mdl.ZeroIGKdeMdl.bandwidth">
+<code class="descname">bandwidth</code><a class="headerlink" href="#scedar.eda.mdl.ZeroIGKdeMdl.bandwidth" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="scedar.eda.mdl.ZeroIGKdeMdl.encode">
+<code class="descname">encode</code><span class="sig-paren">(</span><em>qx</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/mdl.html#ZeroIGKdeMdl.encode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.mdl.ZeroIGKdeMdl.encode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Encode qx</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>qx</strong> (<em>1d np number array</em>) – </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">mdl (float)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="scedar.eda.mdl.ZeroIGKdeMdl.kde">
+<code class="descname">kde</code><a class="headerlink" href="#scedar.eda.mdl.ZeroIGKdeMdl.kde" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="scedar.eda.mdl.ZeroIGKdeMdl.kde_mdl">
+<code class="descname">kde_mdl</code><a class="headerlink" href="#scedar.eda.mdl.ZeroIGKdeMdl.kde_mdl" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="scedar.eda.mdl.ZeroIGKdeMdl.mdl">
+<code class="descname">mdl</code><a class="headerlink" href="#scedar.eda.mdl.ZeroIGKdeMdl.mdl" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="scedar.eda.mdl.ZeroIGKdeMdl.x_nonzero">
+<code class="descname">x_nonzero</code><a class="headerlink" href="#scedar.eda.mdl.ZeroIGKdeMdl.x_nonzero" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="scedar.eda.mdl.ZeroIGKdeMdl.zi_mdl">
+<code class="descname">zi_mdl</code><a class="headerlink" href="#scedar.eda.mdl.ZeroIGKdeMdl.zi_mdl" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="scedar.eda.mdl.ZeroIMdl">
+<em class="property">class </em><code class="descclassname">scedar.eda.mdl.</code><code class="descname">ZeroIMdl</code><span class="sig-paren">(</span><em>x</em>, <em>dtype=dtype('float64')</em>, <em>copy=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/mdl.html#ZeroIMdl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.mdl.ZeroIMdl" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#scedar.eda.mdl.Mdl" title="scedar.eda.mdl.Mdl"><code class="xref py py-class docutils literal notranslate"><span class="pre">scedar.eda.mdl.Mdl</span></code></a></p>
+<p>Encode an indicator vector of 0s and non-0s</p>
+<dl class="method">
+<dt id="scedar.eda.mdl.ZeroIMdl.encode">
+<code class="descname">encode</code><span class="sig-paren">(</span><em>qx</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/mdl.html#ZeroIMdl.encode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.mdl.ZeroIMdl.encode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Encode another 1D number array with fitted code
+:param x: data to encode
+:type x: 1D np.number array</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="scedar.eda.mdl.ZeroIMdl.mdl">
+<code class="descname">mdl</code><a class="headerlink" href="#scedar.eda.mdl.ZeroIMdl.mdl" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="scedar.eda.mdl.ZeroIMultinomialMdl">
+<em class="property">class </em><code class="descclassname">scedar.eda.mdl.</code><code class="descname">ZeroIMultinomialMdl</code><span class="sig-paren">(</span><em>x</em>, <em>dtype=dtype('float64')</em>, <em>copy=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/mdl.html#ZeroIMultinomialMdl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.mdl.ZeroIMultinomialMdl" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#scedar.eda.mdl.Mdl" title="scedar.eda.mdl.Mdl"><code class="xref py py-class docutils literal notranslate"><span class="pre">scedar.eda.mdl.Mdl</span></code></a></p>
+<dl class="method">
+<dt id="scedar.eda.mdl.ZeroIMultinomialMdl.encode">
+<code class="descname">encode</code><span class="sig-paren">(</span><em>qx</em>, <em>use_adjescent_when_absent=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/mdl.html#ZeroIMultinomialMdl.encode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.mdl.ZeroIMultinomialMdl.encode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Encode another 1D number array with fitted code
+:param x: data to encode
+:type x: 1D np.number array</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="scedar.eda.mdl.ZeroIMultinomialMdl.mdl">
+<code class="descname">mdl</code><a class="headerlink" href="#scedar.eda.mdl.ZeroIMultinomialMdl.mdl" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="scedar.eda.mdl.np_number_1d">
+<code class="descclassname">scedar.eda.mdl.</code><code class="descname">np_number_1d</code><span class="sig-paren">(</span><em>x</em>, <em>dtype=dtype('float64')</em>, <em>copy=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/mdl.html#np_number_1d"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.mdl.np_number_1d" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert x to 1d np number array</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>x</strong> (<em>1d sequence of values convertable to np.number</em>) – </li>
+<li><strong>dtype</strong> (<em>np number type</em>) – default to 64-bit float</li>
+<li><strong>copy</strong> (<em>bool</em>) – passed to np.array()</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">xarr (1d np.number array)</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If x is not convertable to provided dtype or non-1d.
+If dtype is not subdtype of np number.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-scedar.eda.mtype">
+<span id="scedar-eda-mtype-module"></span><h2>scedar.eda.mtype module<a class="headerlink" href="#module-scedar.eda.mtype" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="scedar.eda.mtype.check_is_valid_labs">
+<code class="descclassname">scedar.eda.mtype.</code><code class="descname">check_is_valid_labs</code><span class="sig-paren">(</span><em>labs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/mtype.html#check_is_valid_labs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.mtype.check_is_valid_labs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="scedar.eda.mtype.check_is_valid_sfids">
+<code class="descclassname">scedar.eda.mtype.</code><code class="descname">check_is_valid_sfids</code><span class="sig-paren">(</span><em>sfids</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/mtype.html#check_is_valid_sfids"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.mtype.check_is_valid_sfids" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="scedar.eda.mtype.is_uniq_np1darr">
+<code class="descclassname">scedar.eda.mtype.</code><code class="descname">is_uniq_np1darr</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/mtype.html#is_uniq_np1darr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.mtype.is_uniq_np1darr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test whether x is a 1D np array that only contains unique values.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="scedar.eda.mtype.is_valid_full_cut_tree_mat">
+<code class="descclassname">scedar.eda.mtype.</code><code class="descname">is_valid_full_cut_tree_mat</code><span class="sig-paren">(</span><em>cmat</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/mtype.html#is_valid_full_cut_tree_mat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.mtype.is_valid_full_cut_tree_mat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Validate scipy hierarchical clustering cut tree
+Number of clusters should decrease from n to 1</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="scedar.eda.mtype.is_valid_lab">
+<code class="descclassname">scedar.eda.mtype.</code><code class="descname">is_valid_lab</code><span class="sig-paren">(</span><em>lab</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/mtype.html#is_valid_lab"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.mtype.is_valid_lab" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="scedar.eda.mtype.is_valid_sfid">
+<code class="descclassname">scedar.eda.mtype.</code><code class="descname">is_valid_sfid</code><span class="sig-paren">(</span><em>sfid</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/mtype.html#is_valid_sfid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.mtype.is_valid_sfid" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-scedar.eda.plot">
+<span id="scedar-eda-plot-module"></span><h2>scedar.eda.plot module<a class="headerlink" href="#module-scedar.eda.plot" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="scedar.eda.plot.cluster_scatter">
+<code class="descclassname">scedar.eda.plot.</code><code class="descname">cluster_scatter</code><span class="sig-paren">(</span><em>projection2d</em>, <em>labels=None</em>, <em>selected_labels=None</em>, <em>shuffle_label_colors=False</em>, <em>gradient=None</em>, <em>title=None</em>, <em>xlab=None</em>, <em>ylab=None</em>, <em>figsize=(20</em>, <em>20)</em>, <em>add_legend=True</em>, <em>n_txt_per_cluster=3</em>, <em>alpha=1</em>, <em>s=0.5</em>, <em>random_state=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/plot.html#cluster_scatter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.plot.cluster_scatter" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="scedar.eda.plot.heatmap">
+<code class="descclassname">scedar.eda.plot.</code><code class="descname">heatmap</code><span class="sig-paren">(</span><em>x</em>, <em>row_labels=None</em>, <em>col_labels=None</em>, <em>title=None</em>, <em>xlab=None</em>, <em>ylab=None</em>, <em>figsize=(20</em>, <em>20)</em>, <em>transform=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/plot.html#heatmap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.plot.heatmap" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="scedar.eda.plot.hist_dens_plot">
+<code class="descclassname">scedar.eda.plot.</code><code class="descname">hist_dens_plot</code><span class="sig-paren">(</span><em>x</em>, <em>title=None</em>, <em>xlab=None</em>, <em>ylab=None</em>, <em>figsize=(5</em>, <em>5)</em>, <em>ax=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/plot.html#hist_dens_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.plot.hist_dens_plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot histogram and density plot of x.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="scedar.eda.plot.labs_to_cmap">
+<code class="descclassname">scedar.eda.plot.</code><code class="descname">labs_to_cmap</code><span class="sig-paren">(</span><em>labels</em>, <em>return_lut=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/plot.html#labs_to_cmap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.plot.labs_to_cmap" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="scedar.eda.plot.networkx_graph">
+<code class="descclassname">scedar.eda.plot.</code><code class="descname">networkx_graph</code><span class="sig-paren">(</span><em>ng</em>, <em>pos=None</em>, <em>figsize=(20</em>, <em>20)</em>, <em>node_size=30</em>, <em>alpha=0.05</em>, <em>with_labels=False</em>, <em>node_color='b'</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/plot.html#networkx_graph"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.plot.networkx_graph" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="scedar.eda.plot.regression_scatter">
+<code class="descclassname">scedar.eda.plot.</code><code class="descname">regression_scatter</code><span class="sig-paren">(</span><em>x</em>, <em>y</em>, <em>title=None</em>, <em>xlab=None</em>, <em>ylab=None</em>, <em>figsize=(5</em>, <em>5)</em>, <em>alpha=1</em>, <em>s=0.5</em>, <em>ax=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/plot.html#regression_scatter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.plot.regression_scatter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Paired vector scatter plot.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="scedar.eda.plot.swarm">
+<code class="descclassname">scedar.eda.plot.</code><code class="descname">swarm</code><span class="sig-paren">(</span><em>x</em>, <em>labels=None</em>, <em>selected_labels=None</em>, <em>title=None</em>, <em>xlab=None</em>, <em>ylab=None</em>, <em>figsize=(10</em>, <em>10)</em>, <em>ax=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/plot.html#swarm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.plot.swarm" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-scedar.eda.sdm">
+<span id="scedar-eda-sdm-module"></span><h2>scedar.eda.sdm module<a class="headerlink" href="#module-scedar.eda.sdm" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="scedar.eda.sdm.HClustTree">
+<em class="property">class </em><code class="descclassname">scedar.eda.sdm.</code><code class="descname">HClustTree</code><span class="sig-paren">(</span><em>node</em>, <em>prev=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/sdm.html#HClustTree"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.sdm.HClustTree" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Hierarchical clustering tree.</p>
+<p>Implement simple tree operation routines. HCT is binary unbalanced tree.</p>
+<dl class="attribute">
+<dt id="scedar.eda.sdm.HClustTree.node">
+<code class="descname">node</code><a class="headerlink" href="#scedar.eda.sdm.HClustTree.node" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>scipy.cluster.hierarchy.ClusterNode</em> – current node</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="scedar.eda.sdm.HClustTree.prev">
+<code class="descname">prev</code><a class="headerlink" href="#scedar.eda.sdm.HClustTree.prev" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>HClustTree</em> – parent of current node</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="scedar.eda.sdm.HClustTree.bi_partition">
+<code class="descname">bi_partition</code><span class="sig-paren">(</span><em>soft_min_subtree_size=1</em>, <em>return_subtrees=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/sdm.html#HClustTree.bi_partition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.sdm.HClustTree.bi_partition" title="Permalink to this definition">¶</a></dt>
+<dd><p>soft_min_subtree_size: when curr tree size &lt; 2 * soft_min_subtree_size,
+it is impossible to have a bipartition with a minimum sub tree size
+bigger than soft_min_subtree_size. In this case, return the first
+partition.</p>
+<p>When soft_min_subtree_size = 1, the performance is the same as taking
+the first bipartition.</p>
+<p>When curr size = 1, the first bipartition gives
+(1, 0). Because curr size &lt; 2 * soft_min_subtree_size, it goes directly
+to return.</p>
+<p>When curr size = 2, the first bipartition guarantees to give (1, 1),
+with the invariant that parent nodes of leaves always have 2 child
+nodes. This also goes directly to return.</p>
+<p>When curr size &gt;= 3, the first bipartition guarantees to give two
+subtrees with size &gt;= 1, with the same invariant in size = 2.</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="scedar.eda.sdm.HClustTree.cluster_id_to_lab_list">
+<em class="property">static </em><code class="descname">cluster_id_to_lab_list</code><span class="sig-paren">(</span><em>sid_list</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/sdm.html#HClustTree.cluster_id_to_lab_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.sdm.HClustTree.cluster_id_to_lab_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert nested clustered ID list into cluster label list.</p>
+<p>For example, convert <cite>[[0, 1, 2], [3,4]]</cite> to <cite>[0, 0, 0, 1, 1]</cite>
+according to id_arr <cite>[0, 1, 2, 3, 4]</cite></p>
+<p>Parameters</p>
+<dl class="docutils">
+<dt>cl_sid_list: list[list[id]]</dt>
+<dd>Nested list with each sublist as a sert of IDs from a cluster.</dd>
+<dt>sid_list: list[id]</dt>
+<dd>Flat list of lists.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="scedar.eda.sdm.HClustTree.count">
+<code class="descname">count</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/sdm.html#HClustTree.count"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.sdm.HClustTree.count" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="scedar.eda.sdm.HClustTree.hclust_tree">
+<em class="property">static </em><code class="descname">hclust_tree</code><span class="sig-paren">(</span><em>linkage='complete'</em>, <em>n_eval_rounds=None</em>, <em>is_euc_dist=False</em>, <em>optimal_ordering=False</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/sdm.html#HClustTree.hclust_tree"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.sdm.HClustTree.hclust_tree" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="scedar.eda.sdm.HClustTree.leaf_ids">
+<code class="descname">leaf_ids</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/sdm.html#HClustTree.leaf_ids"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.sdm.HClustTree.leaf_ids" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="scedar.eda.sdm.HClustTree.left">
+<code class="descname">left</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/sdm.html#HClustTree.left"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.sdm.HClustTree.left" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="scedar.eda.sdm.HClustTree.left_count">
+<code class="descname">left_count</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/sdm.html#HClustTree.left_count"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.sdm.HClustTree.left_count" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="scedar.eda.sdm.HClustTree.left_leaf_ids">
+<code class="descname">left_leaf_ids</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/sdm.html#HClustTree.left_leaf_ids"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.sdm.HClustTree.left_leaf_ids" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="scedar.eda.sdm.HClustTree.n_round_bipar_cnt">
+<code class="descname">n_round_bipar_cnt</code><span class="sig-paren">(</span><em>n</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/sdm.html#HClustTree.n_round_bipar_cnt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.sdm.HClustTree.n_round_bipar_cnt" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">prev</code></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="scedar.eda.sdm.HClustTree.right">
+<code class="descname">right</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/sdm.html#HClustTree.right"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.sdm.HClustTree.right" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="scedar.eda.sdm.HClustTree.right_count">
+<code class="descname">right_count</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/sdm.html#HClustTree.right_count"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.sdm.HClustTree.right_count" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="scedar.eda.sdm.HClustTree.right_leaf_ids">
+<code class="descname">right_leaf_ids</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/sdm.html#HClustTree.right_leaf_ids"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.sdm.HClustTree.right_leaf_ids" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="scedar.eda.sdm.HClustTree.sort_x_by_d">
+<em class="property">static </em><code class="descname">sort_x_by_d</code><span class="sig-paren">(</span><em>dmat=None</em>, <em>metric='correlation'</em>, <em>linkage='auto'</em>, <em>n_eval_rounds=None</em>, <em>nprocs=None</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/sdm.html#HClustTree.sort_x_by_d"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.sdm.HClustTree.sort_x_by_d" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="scedar.eda.sdm.SampleDistanceMatrix">
+<em class="property">class </em><code class="descclassname">scedar.eda.sdm.</code><code class="descname">SampleDistanceMatrix</code><span class="sig-paren">(</span><em>x</em>, <em>d=None</em>, <em>metric='correlation'</em>, <em>sids=None</em>, <em>fids=None</em>, <em>nprocs=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/sdm.html#SampleDistanceMatrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.sdm.SampleDistanceMatrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#scedar.eda.sfm.SampleFeatureMatrix" title="scedar.eda.sfm.SampleFeatureMatrix"><code class="xref py py-class docutils literal notranslate"><span class="pre">scedar.eda.sfm.SampleFeatureMatrix</span></code></a></p>
+<p>SampleDistanceMatrix: data with pairwise distance matrix</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>x</strong> (<em>ndarray</em><em> or </em><em>list</em>) – data matrix (n_samples, n_features)</li>
+<li><strong>d</strong> (<em>ndarray</em><em> or </em><em>list</em><em> or </em><em>None</em>) – distance matrix (n_samples, n_samples)
+If is None, d will be computed with x, metric, and nprocs.</li>
+<li><strong>metric</strong> (<em>string</em>) – distance metric</li>
+<li><strong>sids</strong> (<em>homogenous list of int</em><em> or </em><em>string</em>) – sample ids. Should not contain duplicated elements.</li>
+<li><strong>fids</strong> (<em>homogenous list of int</em><em> or </em><em>string</em>) – feature ids. Should not contain duplicated elements.</li>
+<li><strong>nprocs</strong> (<em>int</em>) – the number of processes for computing pairwise distance matrix</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="scedar.eda.sdm.SampleDistanceMatrix._x">
+<code class="descname">_x</code><a class="headerlink" href="#scedar.eda.sdm.SampleDistanceMatrix._x" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>ndarray</em> – data matrix (n_samples, n_features)</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="scedar.eda.sdm.SampleDistanceMatrix._d">
+<code class="descname">_d</code><a class="headerlink" href="#scedar.eda.sdm.SampleDistanceMatrix._d" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>ndarray</em> – distance matrix (n_samples, n_samples)</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="scedar.eda.sdm.SampleDistanceMatrix._metric">
+<code class="descname">_metric</code><a class="headerlink" href="#scedar.eda.sdm.SampleDistanceMatrix._metric" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>string</em> – distance metric</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="scedar.eda.sdm.SampleDistanceMatrix._sids">
+<code class="descname">_sids</code><a class="headerlink" href="#scedar.eda.sdm.SampleDistanceMatrix._sids" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>ndarray</em> – sample ids.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="scedar.eda.sdm.SampleDistanceMatrix._fids">
+<code class="descname">_fids</code><a class="headerlink" href="#scedar.eda.sdm.SampleDistanceMatrix._fids" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>ndarray</em> – sample ids.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="scedar.eda.sdm.SampleDistanceMatrix._tsne_lut">
+<code class="descname">_tsne_lut</code><a class="headerlink" href="#scedar.eda.sdm.SampleDistanceMatrix._tsne_lut" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>dict</em> – lookup table for previous tsne calculations. Each run has an
+indexed entry, {(param_str, index) : tsne_res}</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="scedar.eda.sdm.SampleDistanceMatrix._last_tsne">
+<code class="descname">_last_tsne</code><a class="headerlink" href="#scedar.eda.sdm.SampleDistanceMatrix._last_tsne" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>float array</em> – The last <em>stored</em> tsne results. In no tsne performed before, a run
+with default parameters will be performed.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="scedar.eda.sdm.SampleDistanceMatrix._knn_ng_lut">
+<code class="descname">_knn_ng_lut</code><a class="headerlink" href="#scedar.eda.sdm.SampleDistanceMatrix._knn_ng_lut" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>dict</em> – {(k, aff_scale): knn_graph}</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="scedar.eda.sdm.SampleDistanceMatrix.correlation_pdist">
+<em class="property">static </em><code class="descname">correlation_pdist</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/sdm.html#SampleDistanceMatrix.correlation_pdist"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.sdm.SampleDistanceMatrix.correlation_pdist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute pairwise correlation pdist for x (n_samples, n_features).</p>
+<p>Adapted from Waylon Flinn’s post on
+<a class="reference external" href="https://stackoverflow.com/a/20687984/4638182">https://stackoverflow.com/a/20687984/4638182</a> .</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>x</strong> (<em>ndarray</em>) – (n_samples, n_features)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>d</strong> – Pairwise distance matrix, (n_samples, n_samples).</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">ndarray</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="scedar.eda.sdm.SampleDistanceMatrix.cosine_pdist">
+<em class="property">static </em><code class="descname">cosine_pdist</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/sdm.html#SampleDistanceMatrix.cosine_pdist"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.sdm.SampleDistanceMatrix.cosine_pdist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute pairwise cosine pdist for x (n_samples, n_features).</p>
+<p>Adapted from Waylon Flinn’s post on
+<a class="reference external" href="https://stackoverflow.com/a/20687984/4638182">https://stackoverflow.com/a/20687984/4638182</a> .</p>
+<p>Cosine distance is undefined if one of the vectors contain only 0s.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>x</strong> (<em>ndarray</em>) – (n_samples, n_features)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>d</strong> – Pairwise distance matrix, (n_samples, n_samples).</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">ndarray</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="scedar.eda.sdm.SampleDistanceMatrix.d">
+<code class="descname">d</code><a class="headerlink" href="#scedar.eda.sdm.SampleDistanceMatrix.d" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="scedar.eda.sdm.SampleDistanceMatrix.draw_s_knn_graph">
+<code class="descname">draw_s_knn_graph</code><span class="sig-paren">(</span><em>k</em>, <em>aff_scale=1</em>, <em>gradient=None</em>, <em>iterations=2000</em>, <em>figsize=(20</em>, <em>20)</em>, <em>node_size=30</em>, <em>alpha=0.05</em>, <em>random_state=None</em>, <em>init_pos=None</em>, <em>with_labels=False</em>, <em>fa2_kwargs=None</em>, <em>nx_draw_kwargs=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/sdm.html#SampleDistanceMatrix.draw_s_knn_graph"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.sdm.SampleDistanceMatrix.draw_s_knn_graph" title="Permalink to this definition">¶</a></dt>
+<dd><p>Draw KNN graph of SampleDistanceMatrix. Graph layout using
+forceatlas2 for its speed on large graph.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>k</strong> (<em>int</em>) – </li>
+<li><strong>aff_scale</strong> (<em>float</em>) – Affinity is calculated by <cite>(max(distance) - distance) * aff_scale</cite></li>
+<li><strong>gradient</strong> (<em>float array</em>) – (n_samples,) color gradient</li>
+<li><strong>iterations</strong> (<em>int</em>) – ForceAtlas2 iterations</li>
+<li><strong>figsize</strong> (<em>(</em><em>float</em><em>, </em><em>float</em><em>)</em>) – </li>
+<li><strong>node_size</strong> (<em>float</em>) – </li>
+<li><strong>alpha</strong> (<em>float</em>) – </li>
+<li><strong>random_state</strong> (<em>int</em>) – </li>
+<li><strong>init_pos</strong> (<em>float array</em>) – Initial position of ForceAtlas2, (n_samples, 2).</li>
+<li><strong>with_labels</strong> (<em>bool</em>) – </li>
+<li><strong>fa2_kwargs</strong> (<em>dict</em>) – </li>
+<li><strong>nx_draw_kwargs</strong> (<em>dict</em>) – </li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>fig</strong> – KNN graph.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">matplotlib figure</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="scedar.eda.sdm.SampleDistanceMatrix.get_tsne_kv">
+<code class="descname">get_tsne_kv</code><span class="sig-paren">(</span><em>key</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/sdm.html#SampleDistanceMatrix.get_tsne_kv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.sdm.SampleDistanceMatrix.get_tsne_kv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get t-SNE results from the lookup table. Return None if non-existent.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><strong>res_tuple</strong> – (key, val) pair of tsne result.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">tuple</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="scedar.eda.sdm.SampleDistanceMatrix.id_x">
+<code class="descname">id_x</code><span class="sig-paren">(</span><em>selected_sids=None</em>, <em>selected_fids=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/sdm.html#SampleDistanceMatrix.id_x"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.sdm.SampleDistanceMatrix.id_x" title="Permalink to this definition">¶</a></dt>
+<dd><p>Subset samples by (sample IDs, feature IDs).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>selected_s_inds</strong> (<em>int array</em>) – Index array of selected samples. If is None, select all.</li>
+<li><strong>selected_f_inds</strong> (<em>int array</em>) – Index array of selected features. If is None, select all.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>subset</strong></p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#scedar.eda.sdm.SampleDistanceMatrix" title="scedar.eda.sdm.SampleDistanceMatrix">SampleDistanceMatrix</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="scedar.eda.sdm.SampleDistanceMatrix.ind_x">
+<code class="descname">ind_x</code><span class="sig-paren">(</span><em>selected_s_inds=None</em>, <em>selected_f_inds=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/sdm.html#SampleDistanceMatrix.ind_x"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.sdm.SampleDistanceMatrix.ind_x" title="Permalink to this definition">¶</a></dt>
+<dd><p>Subset samples by (sample IDs, feature IDs).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>selected_s_inds</strong> (<em>int array</em>) – Index array of selected samples. If is None, select all.</li>
+<li><strong>selected_f_inds</strong> (<em>int array</em>) – Index array of selected features. If is None, select all.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>subset</strong></p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#scedar.eda.sdm.SampleDistanceMatrix" title="scedar.eda.sdm.SampleDistanceMatrix">SampleDistanceMatrix</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="scedar.eda.sdm.SampleDistanceMatrix.metric">
+<code class="descname">metric</code><a class="headerlink" href="#scedar.eda.sdm.SampleDistanceMatrix.metric" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="scedar.eda.sdm.SampleDistanceMatrix.num_correct_dist_mat">
+<em class="property">static </em><code class="descname">num_correct_dist_mat</code><span class="sig-paren">(</span><em>upper_bound=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/sdm.html#SampleDistanceMatrix.num_correct_dist_mat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.sdm.SampleDistanceMatrix.num_correct_dist_mat" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="scedar.eda.sdm.SampleDistanceMatrix.par_tsne">
+<code class="descname">par_tsne</code><span class="sig-paren">(</span><em>param_list</em>, <em>store_res=True</em>, <em>nprocs=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/sdm.html#SampleDistanceMatrix.par_tsne"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.sdm.SampleDistanceMatrix.par_tsne" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run t-SNE with multiple sets of parameters parallely.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>param_list</strong> (<em>list of dict</em>) – List of parameters being passed to t-SNE.</li>
+<li><strong>nprocs</strong> (<em>int</em>) – Number of processes.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>tsne_res_list</strong> – List of t-SNE results of corresponding parameter set.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">list of float arrays</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>Parallel running results cannot be stored during the run, because
+racing conditions may happen.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="scedar.eda.sdm.SampleDistanceMatrix.put_tsne">
+<code class="descname">put_tsne</code><span class="sig-paren">(</span><em>str_params</em>, <em>res</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/sdm.html#SampleDistanceMatrix.put_tsne"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.sdm.SampleDistanceMatrix.put_tsne" title="Permalink to this definition">¶</a></dt>
+<dd><p>Put t-SNE results into the lookup table.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="scedar.eda.sdm.SampleDistanceMatrix.s_ith_nn_d">
+<code class="descname">s_ith_nn_d</code><span class="sig-paren">(</span><em>i</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/sdm.html#SampleDistanceMatrix.s_ith_nn_d"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.sdm.SampleDistanceMatrix.s_ith_nn_d" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the distances of the i-th nearest neighbor of all samples.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="scedar.eda.sdm.SampleDistanceMatrix.s_ith_nn_d_dist">
+<code class="descname">s_ith_nn_d_dist</code><span class="sig-paren">(</span><em>i</em>, <em>xlab=None</em>, <em>ylab=None</em>, <em>title=None</em>, <em>figsize=(5</em>, <em>5)</em>, <em>ax=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/sdm.html#SampleDistanceMatrix.s_ith_nn_d_dist"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.sdm.SampleDistanceMatrix.s_ith_nn_d_dist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the distances of the i-th nearest neighbor of all samples.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="scedar.eda.sdm.SampleDistanceMatrix.s_ith_nn_ind">
+<code class="descname">s_ith_nn_ind</code><span class="sig-paren">(</span><em>i</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/sdm.html#SampleDistanceMatrix.s_ith_nn_ind"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.sdm.SampleDistanceMatrix.s_ith_nn_ind" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the sample indices of the i-th nearest neighbor of all
+samples.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="scedar.eda.sdm.SampleDistanceMatrix.s_knn_connectivity_matrix">
+<code class="descname">s_knn_connectivity_matrix</code><span class="sig-paren">(</span><em>k</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/sdm.html#SampleDistanceMatrix.s_knn_connectivity_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.sdm.SampleDistanceMatrix.s_knn_connectivity_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the connectivity matrix of KNN of samples. If an entry
+<cite>(i, j)</cite> has value 0, node <cite>i</cite> is not in node <cite>j</cite>’s KNN. If an entry
+<cite>(i, j)</cite> has value &gt; 0, node <cite>i</cite> is in <cite>j</cite>’s KNN, and their distance
+is the entry value.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>k</strong> (<em>int</em>) – </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>knn_conn_mat</strong> – (n_samples, n_samles)</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">float array</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="scedar.eda.sdm.SampleDistanceMatrix.s_knn_ind_lut">
+<code class="descname">s_knn_ind_lut</code><span class="sig-paren">(</span><em>k</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/sdm.html#SampleDistanceMatrix.s_knn_ind_lut"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.sdm.SampleDistanceMatrix.s_knn_ind_lut" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the lookup table for sample i and its KNN indices, i.e.
+<cite>{i : [1st_NN_ind, 2nd_NN_ind, …, nth_NN_ind], …}</cite></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="scedar.eda.sdm.SampleDistanceMatrix.sort_features">
+<code class="descname">sort_features</code><span class="sig-paren">(</span><em>fdist_metric='correlation'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/sdm.html#SampleDistanceMatrix.sort_features"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.sdm.SampleDistanceMatrix.sort_features" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="scedar.eda.sdm.SampleDistanceMatrix.tsne">
+<code class="descname">tsne</code><span class="sig-paren">(</span><em>store_res=True</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/sdm.html#SampleDistanceMatrix.tsne"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.sdm.SampleDistanceMatrix.tsne" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run t-SNE on distance matrix.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>store_res</strong> (<em>bool</em>) – Store the results in lookup table or not.</li>
+<li><strong>**kwargs</strong> – Keyword arguments passed to tsne computation.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>tsne_res</strong> – t-SNE projections, (n_samples, m dimensions).</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">float array</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="scedar.eda.sdm.SampleDistanceMatrix.tsne_feature_gradient_plot">
+<code class="descname">tsne_feature_gradient_plot</code><span class="sig-paren">(</span><em>fid</em>, <em>transform=None</em>, <em>labels=None</em>, <em>selected_labels=None</em>, <em>shuffle_label_colors=False</em>, <em>title=None</em>, <em>xlab=None</em>, <em>ylab=None</em>, <em>figsize=(20</em>, <em>20)</em>, <em>add_legend=True</em>, <em>n_txt_per_cluster=3</em>, <em>alpha=1</em>, <em>s=0.5</em>, <em>random_state=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/sdm.html#SampleDistanceMatrix.tsne_feature_gradient_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.sdm.SampleDistanceMatrix.tsne_feature_gradient_plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the last t-SNE projection with the provided gradient as color.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>fid</strong> (<em>feature id scalar</em>) – ID of the feature to be used for gradient plot.</li>
+<li><strong>transform</strong> (<em>callable</em>) – Map transform on feature before plotting.</li>
+<li><strong>labels</strong> (<em>label array</em>) – Labels assigned to each point, (n_samples,).</li>
+<li><strong>selected_labels</strong> (<em>label array</em>) – Show gradient only for selected labels. Do not show non-selected.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="scedar.eda.sdm.SampleDistanceMatrix.tsne_gradient_plot">
+<code class="descname">tsne_gradient_plot</code><span class="sig-paren">(</span><em>gradient=None</em>, <em>labels=None</em>, <em>selected_labels=None</em>, <em>shuffle_label_colors=False</em>, <em>title=None</em>, <em>xlab=None</em>, <em>ylab=None</em>, <em>figsize=(20</em>, <em>20)</em>, <em>add_legend=True</em>, <em>n_txt_per_cluster=3</em>, <em>alpha=1</em>, <em>s=0.5</em>, <em>random_state=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/sdm.html#SampleDistanceMatrix.tsne_gradient_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.sdm.SampleDistanceMatrix.tsne_gradient_plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the last t-SNE projection with the provided gradient as color.
+Gradient is None by default.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="scedar.eda.sdm.SampleDistanceMatrix.tsne_lut">
+<code class="descname">tsne_lut</code><a class="headerlink" href="#scedar.eda.sdm.SampleDistanceMatrix.tsne_lut" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="scedar.eda.sdm.tsne">
+<code class="descclassname">scedar.eda.sdm.</code><code class="descname">tsne</code><span class="sig-paren">(</span><em>x</em>, <em>n_components=2</em>, <em>perplexity=30.0</em>, <em>early_exaggeration=12.0</em>, <em>learning_rate=200.0</em>, <em>n_iter=1000</em>, <em>n_iter_without_progress=300</em>, <em>min_grad_norm=1e-07</em>, <em>metric='euclidean'</em>, <em>init='random'</em>, <em>verbose=0</em>, <em>random_state=None</em>, <em>method='barnes_hut'</em>, <em>angle=0.5</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/sdm.html#tsne"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.sdm.tsne" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-scedar.eda.sfm">
+<span id="scedar-eda-sfm-module"></span><h2>scedar.eda.sfm module<a class="headerlink" href="#module-scedar.eda.sfm" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="scedar.eda.sfm.SampleFeatureMatrix">
+<em class="property">class </em><code class="descclassname">scedar.eda.sfm.</code><code class="descname">SampleFeatureMatrix</code><span class="sig-paren">(</span><em>x</em>, <em>sids=None</em>, <em>fids=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/sfm.html#SampleFeatureMatrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.sfm.SampleFeatureMatrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>SampleFeatureMatrix is a (n_samples, n_features) matrix.</p>
+<p>In this package, we are only interested in float features as measured
+expression levels.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>x</strong> (<em>ndarray</em><em> or </em><em>list</em>) – data matrix (n_samples, n_features)</li>
+<li><strong>sids</strong> (<em>homogenous list of int</em><em> or </em><em>string</em>) – sample ids. Should not contain duplicated elements.</li>
+<li><strong>fids</strong> (<em>homogenous list of int</em><em> or </em><em>string</em>) – feature ids. Should not contain duplicated elements.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="scedar.eda.sfm.SampleFeatureMatrix._x">
+<code class="descname">_x</code><a class="headerlink" href="#scedar.eda.sfm.SampleFeatureMatrix._x" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>ndarray</em> – data matrix (n_samples, n_features)</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="scedar.eda.sfm.SampleFeatureMatrix._sids">
+<code class="descname">_sids</code><a class="headerlink" href="#scedar.eda.sfm.SampleFeatureMatrix._sids" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>ndarray</em> – sample ids.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="scedar.eda.sfm.SampleFeatureMatrix._fids">
+<code class="descname">_fids</code><a class="headerlink" href="#scedar.eda.sfm.SampleFeatureMatrix._fids" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>ndarray</em> – sample ids.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="scedar.eda.sfm.SampleFeatureMatrix.f_cv">
+<code class="descname">f_cv</code><span class="sig-paren">(</span><em>f_cv_filter=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/sfm.html#SampleFeatureMatrix.f_cv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.sfm.SampleFeatureMatrix.f_cv" title="Permalink to this definition">¶</a></dt>
+<dd><p>For each sample, compute the coefficient of variation of all features.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><strong>xf</strong> – (filtered_n_samples,)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">float array</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="scedar.eda.sfm.SampleFeatureMatrix.f_cv_dist">
+<code class="descname">f_cv_dist</code><span class="sig-paren">(</span><em>f_cv_filter=None</em>, <em>xlab=None</em>, <em>ylab=None</em>, <em>title=None</em>, <em>figsize=(5</em>, <em>5)</em>, <em>ax=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/sfm.html#SampleFeatureMatrix.f_cv_dist"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.sfm.SampleFeatureMatrix.f_cv_dist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the distribution of the feature sum of each sample, (n_samples,).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="scedar.eda.sfm.SampleFeatureMatrix.f_gc">
+<code class="descname">f_gc</code><span class="sig-paren">(</span><em>f_gc_filter=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/sfm.html#SampleFeatureMatrix.f_gc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.sfm.SampleFeatureMatrix.f_gc" title="Permalink to this definition">¶</a></dt>
+<dd><p>For each sample, compute the Gini coefficients of all features.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><strong>xf</strong> – (filtered_n_samples,)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">float array</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="scedar.eda.sfm.SampleFeatureMatrix.f_gc_dist">
+<code class="descname">f_gc_dist</code><span class="sig-paren">(</span><em>f_gc_filter=None</em>, <em>xlab=None</em>, <em>ylab=None</em>, <em>title=None</em>, <em>figsize=(5</em>, <em>5)</em>, <em>ax=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/sfm.html#SampleFeatureMatrix.f_gc_dist"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.sfm.SampleFeatureMatrix.f_gc_dist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the distribution of the feature Gini coefficient of each
+sample, (n_samples,).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="scedar.eda.sfm.SampleFeatureMatrix.f_id_dist">
+<code class="descname">f_id_dist</code><span class="sig-paren">(</span><em>f_id</em>, <em>sample_filter=None</em>, <em>xlab=None</em>, <em>ylab=None</em>, <em>title=None</em>, <em>figsize=(5</em>, <em>5)</em>, <em>ax=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/sfm.html#SampleFeatureMatrix.f_id_dist"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.sfm.SampleFeatureMatrix.f_id_dist" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="scedar.eda.sfm.SampleFeatureMatrix.f_id_regression_scatter">
+<code class="descname">f_id_regression_scatter</code><span class="sig-paren">(</span><em>xf_id</em>, <em>yf_id</em>, <em>sample_filter=None</em>, <em>xlab=None</em>, <em>ylab=None</em>, <em>title=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/sfm.html#SampleFeatureMatrix.f_id_regression_scatter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.sfm.SampleFeatureMatrix.f_id_regression_scatter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Regression plot on two features with xf_id and yf_id.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>xf_id</strong> (<em>int</em>) – Sample ID of x.</li>
+<li><strong>yf_ind</strong> (<em>int</em>) – Sample ID of y.</li>
+<li><strong>sample_filter</strong> (<em>bool array</em><em>, or </em><em>int array</em><em>, or </em><em>callable</em><em>(</em><em>x</em><em>, </em><em>y</em><em>)</em>) – If sample_filter is bool / int array, directly select features
+with it. If sample_filter is callable, it will be applied on each
+(x, y) value tuple.</li>
+<li><strong>xlab</strong> (<em>str</em>) – </li>
+<li><strong>ylab</strong> (<em>str</em>) – </li>
+<li><strong>title</strong> (<em>str</em>) – </li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="scedar.eda.sfm.SampleFeatureMatrix.f_id_to_ind">
+<code class="descname">f_id_to_ind</code><span class="sig-paren">(</span><em>selected_fids</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/sfm.html#SampleFeatureMatrix.f_id_to_ind"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.sfm.SampleFeatureMatrix.f_id_to_ind" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert a list of feature IDs into feature indices.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="scedar.eda.sfm.SampleFeatureMatrix.f_id_x_vec">
+<code class="descname">f_id_x_vec</code><span class="sig-paren">(</span><em>f_id</em>, <em>sample_filter=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/sfm.html#SampleFeatureMatrix.f_id_x_vec"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.sfm.SampleFeatureMatrix.f_id_x_vec" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="scedar.eda.sfm.SampleFeatureMatrix.f_ind_dist">
+<code class="descname">f_ind_dist</code><span class="sig-paren">(</span><em>f_ind</em>, <em>sample_filter=None</em>, <em>xlab=None</em>, <em>ylab=None</em>, <em>title=None</em>, <em>figsize=(5</em>, <em>5)</em>, <em>ax=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/sfm.html#SampleFeatureMatrix.f_ind_dist"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.sfm.SampleFeatureMatrix.f_ind_dist" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="scedar.eda.sfm.SampleFeatureMatrix.f_ind_regression_scatter">
+<code class="descname">f_ind_regression_scatter</code><span class="sig-paren">(</span><em>xf_ind</em>, <em>yf_ind</em>, <em>sample_filter=None</em>, <em>xlab=None</em>, <em>ylab=None</em>, <em>title=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/sfm.html#SampleFeatureMatrix.f_ind_regression_scatter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.sfm.SampleFeatureMatrix.f_ind_regression_scatter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Regression plot on two features with xf_ind and yf_ind.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>xf_ind</strong> (<em>int</em>) – Sample index of x.</li>
+<li><strong>yf_ind</strong> (<em>int</em>) – Sample index of y.</li>
+<li><strong>sample_filter</strong> (<em>bool array</em><em>, or </em><em>int array</em><em>, or </em><em>callable</em><em>(</em><em>x</em><em>, </em><em>y</em><em>)</em>) – If sample_filter is bool / int array, directly select features
+with it. If sample_filter is callable, it will be applied on each
+(x, y) value tuple.</li>
+<li><strong>xlab</strong> (<em>str</em>) – </li>
+<li><strong>ylab</strong> (<em>str</em>) – </li>
+<li><strong>title</strong> (<em>str</em>) – </li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="scedar.eda.sfm.SampleFeatureMatrix.f_ind_x_pair">
+<code class="descname">f_ind_x_pair</code><span class="sig-paren">(</span><em>xf_ind</em>, <em>yf_ind</em>, <em>sample_filter=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/sfm.html#SampleFeatureMatrix.f_ind_x_pair"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.sfm.SampleFeatureMatrix.f_ind_x_pair" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="scedar.eda.sfm.SampleFeatureMatrix.f_ind_x_vec">
+<code class="descname">f_ind_x_vec</code><span class="sig-paren">(</span><em>f_ind</em>, <em>sample_filter=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/sfm.html#SampleFeatureMatrix.f_ind_x_vec"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.sfm.SampleFeatureMatrix.f_ind_x_vec" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access a single vector of a sample.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="scedar.eda.sfm.SampleFeatureMatrix.f_n_above_threshold">
+<code class="descname">f_n_above_threshold</code><span class="sig-paren">(</span><em>closed_threshold</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/sfm.html#SampleFeatureMatrix.f_n_above_threshold"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.sfm.SampleFeatureMatrix.f_n_above_threshold" title="Permalink to this definition">¶</a></dt>
+<dd><p>For each sample, compute the number of features above a closed
+threshold.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="scedar.eda.sfm.SampleFeatureMatrix.f_n_above_threshold_dist">
+<code class="descname">f_n_above_threshold_dist</code><span class="sig-paren">(</span><em>closed_threshold</em>, <em>xlab=None</em>, <em>ylab=None</em>, <em>title=None</em>, <em>figsize=(5</em>, <em>5)</em>, <em>ax=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/sfm.html#SampleFeatureMatrix.f_n_above_threshold_dist"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.sfm.SampleFeatureMatrix.f_n_above_threshold_dist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the distribution of the the number of above threshold samples
+of each feature, (n_features,).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="scedar.eda.sfm.SampleFeatureMatrix.f_sum">
+<code class="descname">f_sum</code><span class="sig-paren">(</span><em>f_sum_filter=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/sfm.html#SampleFeatureMatrix.f_sum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.sfm.SampleFeatureMatrix.f_sum" title="Permalink to this definition">¶</a></dt>
+<dd><p>For each sample, compute the sum of all features.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><strong>rowsum</strong> – (filtered_n_samples,)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">float array</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="scedar.eda.sfm.SampleFeatureMatrix.f_sum_dist">
+<code class="descname">f_sum_dist</code><span class="sig-paren">(</span><em>f_sum_filter=None</em>, <em>xlab=None</em>, <em>ylab=None</em>, <em>title=None</em>, <em>figsize=(5</em>, <em>5)</em>, <em>ax=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/sfm.html#SampleFeatureMatrix.f_sum_dist"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.sfm.SampleFeatureMatrix.f_sum_dist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the distribution of the feature sum of each sample, (n_samples,).</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="scedar.eda.sfm.SampleFeatureMatrix.fids">
+<code class="descname">fids</code><a class="headerlink" href="#scedar.eda.sfm.SampleFeatureMatrix.fids" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="scedar.eda.sfm.SampleFeatureMatrix.filter_1d_inds">
+<em class="property">static </em><code class="descname">filter_1d_inds</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/sfm.html#SampleFeatureMatrix.filter_1d_inds"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.sfm.SampleFeatureMatrix.filter_1d_inds" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="scedar.eda.sfm.SampleFeatureMatrix.id_x">
+<code class="descname">id_x</code><span class="sig-paren">(</span><em>selected_sids=None</em>, <em>selected_fids=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/sfm.html#SampleFeatureMatrix.id_x"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.sfm.SampleFeatureMatrix.id_x" title="Permalink to this definition">¶</a></dt>
+<dd><p>Subset samples by (sample IDs, feature IDs).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>selected_sids</strong> (<em>id array</em>) – ID array of selected samples. If is None, select all.</li>
+<li><strong>selected_fids</strong> (<em>id array</em>) – ID array of selected features. If is None, select all.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>subset</strong></p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#scedar.eda.sfm.SampleFeatureMatrix" title="scedar.eda.sfm.SampleFeatureMatrix">SampleFeatureMatrix</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="scedar.eda.sfm.SampleFeatureMatrix.ind_x">
+<code class="descname">ind_x</code><span class="sig-paren">(</span><em>selected_s_inds=None</em>, <em>selected_f_inds=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/sfm.html#SampleFeatureMatrix.ind_x"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.sfm.SampleFeatureMatrix.ind_x" title="Permalink to this definition">¶</a></dt>
+<dd><p>Subset samples by (sample IDs, feature IDs).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>selected_s_inds</strong> (<em>int array</em>) – Index array of selected samples. If is None, select all.</li>
+<li><strong>selected_f_inds</strong> (<em>int array</em>) – Index array of selected features. If is None, select all.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>subset</strong></p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#scedar.eda.sfm.SampleFeatureMatrix" title="scedar.eda.sfm.SampleFeatureMatrix">SampleFeatureMatrix</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="scedar.eda.sfm.SampleFeatureMatrix.s_cv">
+<code class="descname">s_cv</code><span class="sig-paren">(</span><em>s_cv_filter=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/sfm.html#SampleFeatureMatrix.s_cv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.sfm.SampleFeatureMatrix.s_cv" title="Permalink to this definition">¶</a></dt>
+<dd><p>For each feature, compute the coefficient of variation of all samples.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><strong>xf</strong> – (n_features,)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">float array</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="scedar.eda.sfm.SampleFeatureMatrix.s_cv_dist">
+<code class="descname">s_cv_dist</code><span class="sig-paren">(</span><em>s_cv_filter=None</em>, <em>xlab=None</em>, <em>ylab=None</em>, <em>title=None</em>, <em>figsize=(5</em>, <em>5)</em>, <em>ax=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/sfm.html#SampleFeatureMatrix.s_cv_dist"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.sfm.SampleFeatureMatrix.s_cv_dist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the distribution of the sample coefficient of variation
+of each feature, (n_features,).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="scedar.eda.sfm.SampleFeatureMatrix.s_gc">
+<code class="descname">s_gc</code><span class="sig-paren">(</span><em>s_gc_filter=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/sfm.html#SampleFeatureMatrix.s_gc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.sfm.SampleFeatureMatrix.s_gc" title="Permalink to this definition">¶</a></dt>
+<dd><p>For each feature, compute the Gini coefficient of all samples.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><strong>xf</strong> – (n_features,)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">float array</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="scedar.eda.sfm.SampleFeatureMatrix.s_gc_dist">
+<code class="descname">s_gc_dist</code><span class="sig-paren">(</span><em>s_gc_filter=None</em>, <em>xlab=None</em>, <em>ylab=None</em>, <em>title=None</em>, <em>figsize=(5</em>, <em>5)</em>, <em>ax=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/sfm.html#SampleFeatureMatrix.s_gc_dist"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.sfm.SampleFeatureMatrix.s_gc_dist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the distribution of the sample Gini coefficients
+of each feature, (n_features,).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="scedar.eda.sfm.SampleFeatureMatrix.s_id_dist">
+<code class="descname">s_id_dist</code><span class="sig-paren">(</span><em>s_id</em>, <em>feature_filter=None</em>, <em>xlab=None</em>, <em>ylab=None</em>, <em>title=None</em>, <em>figsize=(5</em>, <em>5)</em>, <em>ax=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/sfm.html#SampleFeatureMatrix.s_id_dist"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.sfm.SampleFeatureMatrix.s_id_dist" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="scedar.eda.sfm.SampleFeatureMatrix.s_id_regression_scatter">
+<code class="descname">s_id_regression_scatter</code><span class="sig-paren">(</span><em>xs_id</em>, <em>ys_id</em>, <em>feature_filter=None</em>, <em>xlab=None</em>, <em>ylab=None</em>, <em>title=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/sfm.html#SampleFeatureMatrix.s_id_regression_scatter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.sfm.SampleFeatureMatrix.s_id_regression_scatter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Regression plot on two samples with xs_id and ys_id.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>xs_ind</strong> (<em>int</em>) – Sample ID of x.</li>
+<li><strong>ys_ind</strong> (<em>int</em>) – Sample ID of y.</li>
+<li><strong>feature_filter</strong> (<em>bool array</em><em>, or </em><em>int array</em><em>, or </em><em>callable</em><em>(</em><em>x</em><em>, </em><em>y</em><em>)</em>) – If feature_filter is bool / int array, directly select features
+with it. If feature_filter is callable, it will be applied on each
+(x, y) value tuple.</li>
+<li><strong>xlab</strong> (<em>str</em>) – </li>
+<li><strong>ylab</strong> (<em>str</em>) – </li>
+<li><strong>title</strong> (<em>str</em>) – </li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="scedar.eda.sfm.SampleFeatureMatrix.s_id_to_ind">
+<code class="descname">s_id_to_ind</code><span class="sig-paren">(</span><em>selected_sids</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/sfm.html#SampleFeatureMatrix.s_id_to_ind"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.sfm.SampleFeatureMatrix.s_id_to_ind" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert a list of sample IDs into sample indices.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="scedar.eda.sfm.SampleFeatureMatrix.s_ind_dist">
+<code class="descname">s_ind_dist</code><span class="sig-paren">(</span><em>s_ind</em>, <em>feature_filter=None</em>, <em>xlab=None</em>, <em>ylab=None</em>, <em>title=None</em>, <em>figsize=(5</em>, <em>5)</em>, <em>ax=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/sfm.html#SampleFeatureMatrix.s_ind_dist"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.sfm.SampleFeatureMatrix.s_ind_dist" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="scedar.eda.sfm.SampleFeatureMatrix.s_ind_regression_scatter">
+<code class="descname">s_ind_regression_scatter</code><span class="sig-paren">(</span><em>xs_ind</em>, <em>ys_ind</em>, <em>feature_filter=None</em>, <em>xlab=None</em>, <em>ylab=None</em>, <em>title=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/sfm.html#SampleFeatureMatrix.s_ind_regression_scatter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.sfm.SampleFeatureMatrix.s_ind_regression_scatter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Regression plot on two samples with xs_ind and ys_ind.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>xs_ind</strong> (<em>int</em>) – Sample index of x.</li>
+<li><strong>ys_ind</strong> (<em>int</em>) – Sample index of y.</li>
+<li><strong>feature_filter</strong> (<em>bool array</em><em>, or </em><em>int array</em><em>, or </em><em>callable</em><em>(</em><em>x</em><em>, </em><em>y</em><em>)</em>) – If feature_filter is bool / int array, directly select features
+with it. If feature_filter is callable, it will be applied on each
+(x, y) value tuple.</li>
+<li><strong>xlab</strong> (<em>str</em>) – </li>
+<li><strong>ylab</strong> (<em>str</em>) – </li>
+<li><strong>title</strong> (<em>str</em>) – </li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="scedar.eda.sfm.SampleFeatureMatrix.s_ind_x_pair">
+<code class="descname">s_ind_x_pair</code><span class="sig-paren">(</span><em>xs_ind</em>, <em>ys_ind</em>, <em>feature_filter=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/sfm.html#SampleFeatureMatrix.s_ind_x_pair"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.sfm.SampleFeatureMatrix.s_ind_x_pair" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="scedar.eda.sfm.SampleFeatureMatrix.s_ind_x_vec">
+<code class="descname">s_ind_x_vec</code><span class="sig-paren">(</span><em>s_ind</em>, <em>feature_filter=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/sfm.html#SampleFeatureMatrix.s_ind_x_vec"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.sfm.SampleFeatureMatrix.s_ind_x_vec" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access a single vector of a sample.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="scedar.eda.sfm.SampleFeatureMatrix.s_n_above_threshold">
+<code class="descname">s_n_above_threshold</code><span class="sig-paren">(</span><em>closed_threshold</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/sfm.html#SampleFeatureMatrix.s_n_above_threshold"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.sfm.SampleFeatureMatrix.s_n_above_threshold" title="Permalink to this definition">¶</a></dt>
+<dd><p>For each feature, compute the number of samples above a closed
+threshold.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="scedar.eda.sfm.SampleFeatureMatrix.s_n_above_threshold_dist">
+<code class="descname">s_n_above_threshold_dist</code><span class="sig-paren">(</span><em>closed_threshold</em>, <em>xlab=None</em>, <em>ylab=None</em>, <em>title=None</em>, <em>figsize=(5</em>, <em>5)</em>, <em>ax=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/sfm.html#SampleFeatureMatrix.s_n_above_threshold_dist"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.sfm.SampleFeatureMatrix.s_n_above_threshold_dist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the distribution of the the number of above threshold samples
+of each feature, (n_features,).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="scedar.eda.sfm.SampleFeatureMatrix.s_sum">
+<code class="descname">s_sum</code><span class="sig-paren">(</span><em>s_sum_filter=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/sfm.html#SampleFeatureMatrix.s_sum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.sfm.SampleFeatureMatrix.s_sum" title="Permalink to this definition">¶</a></dt>
+<dd><p>For each feature, computer the sum of all samples.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><strong>xf</strong> – (filtered_n_features,)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">float array</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="scedar.eda.sfm.SampleFeatureMatrix.s_sum_dist">
+<code class="descname">s_sum_dist</code><span class="sig-paren">(</span><em>s_sum_filter=None</em>, <em>xlab=None</em>, <em>ylab=None</em>, <em>title=None</em>, <em>figsize=(5</em>, <em>5)</em>, <em>ax=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/sfm.html#SampleFeatureMatrix.s_sum_dist"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.sfm.SampleFeatureMatrix.s_sum_dist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the distribution of the sample sum of each feature, (n_features,).</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="scedar.eda.sfm.SampleFeatureMatrix.sids">
+<code class="descname">sids</code><a class="headerlink" href="#scedar.eda.sfm.SampleFeatureMatrix.sids" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="scedar.eda.sfm.SampleFeatureMatrix.x">
+<code class="descname">x</code><a class="headerlink" href="#scedar.eda.sfm.SampleFeatureMatrix.x" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-scedar.eda.slcs">
+<span id="scedar-eda-slcs-module"></span><h2>scedar.eda.slcs module<a class="headerlink" href="#module-scedar.eda.slcs" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="scedar.eda.slcs.MDLSingleLabelClassifiedSamples">
+<em class="property">class </em><code class="descclassname">scedar.eda.slcs.</code><code class="descname">MDLSingleLabelClassifiedSamples</code><span class="sig-paren">(</span><em>x</em>, <em>labs</em>, <em>sids=None</em>, <em>fids=None</em>, <em>encode_type='data'</em>, <em>mdl_method=&lt;class 'scedar.eda.mdl.ZeroIGKdeMdl'&gt;</em>, <em>d=None</em>, <em>metric='correlation'</em>, <em>nprocs=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/slcs.html#MDLSingleLabelClassifiedSamples"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.slcs.MDLSingleLabelClassifiedSamples" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#scedar.eda.slcs.SingleLabelClassifiedSamples" title="scedar.eda.slcs.SingleLabelClassifiedSamples"><code class="xref py py-class docutils literal notranslate"><span class="pre">scedar.eda.slcs.SingleLabelClassifiedSamples</span></code></a></p>
+<p>MDLSingleLabelClassifiedSamples inherits SingleLabelClassifiedSamples to
+offer MDL operations.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>x</strong> (<em>2d number array</em>) – data matrix</li>
+<li><strong>labs</strong> (<em>list of str</em><em> or </em><em>int</em>) – labels</li>
+<li><strong>sids</strong> (<em>list of str</em><em> or </em><em>int</em>) – sample ids</li>
+<li><strong>fids</strong> (<em>list of str</em><em> or </em><em>int</em>) – feature ids</li>
+<li><strong>encode_type</strong> (<em>&quot;auto&quot;</em><em>, </em><em>&quot;data&quot;</em><em>, or </em><em>&quot;distance&quot;</em>) – Type of values to encode.
+If “auto”, encode data when n_features &lt;= 100.</li>
+<li><strong>mdl_method</strong> (<a class="reference internal" href="#scedar.eda.mdl.Mdl" title="scedar.eda.mdl.Mdl"><em>mdl.Mdl</em></a>) – If None, use ZeroIGKdeMdl for encoded values
+with &gt;= 50% zeros, and use GKdeMdl otherwise.</li>
+<li><strong>d</strong> (<em>2d number array</em>) – distance matrix</li>
+<li><strong>metric</strong> (<em>str</em>) – distance metric for scipy</li>
+<li><strong>nprocs</strong> (<em>int</em>) – </li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="scedar.eda.slcs.MDLSingleLabelClassifiedSamples._mdl_method">
+<code class="descname">_mdl_method</code><a class="headerlink" href="#scedar.eda.slcs.MDLSingleLabelClassifiedSamples._mdl_method" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>.mdl.Mdl</em></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="scedar.eda.slcs.MDLSingleLabelClassifiedSamples.LabMdlResult">
+<em class="property">class </em><code class="descname">LabMdlResult</code><span class="sig-paren">(</span><em>ulab_mdl_sum</em>, <em>ulab_s_inds</em>, <em>ulab_cnts</em>, <em>ulab_mdls</em>, <em>cluster_mdl</em><span class="sig-paren">)</span><a class="headerlink" href="#scedar.eda.slcs.MDLSingleLabelClassifiedSamples.LabMdlResult" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></p>
+<dl class="attribute">
+<dt id="scedar.eda.slcs.MDLSingleLabelClassifiedSamples.LabMdlResult.cluster_mdl">
+<code class="descname">cluster_mdl</code><a class="headerlink" href="#scedar.eda.slcs.MDLSingleLabelClassifiedSamples.LabMdlResult.cluster_mdl" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 4</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="scedar.eda.slcs.MDLSingleLabelClassifiedSamples.LabMdlResult.ulab_cnts">
+<code class="descname">ulab_cnts</code><a class="headerlink" href="#scedar.eda.slcs.MDLSingleLabelClassifiedSamples.LabMdlResult.ulab_cnts" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 2</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="scedar.eda.slcs.MDLSingleLabelClassifiedSamples.LabMdlResult.ulab_mdl_sum">
+<code class="descname">ulab_mdl_sum</code><a class="headerlink" href="#scedar.eda.slcs.MDLSingleLabelClassifiedSamples.LabMdlResult.ulab_mdl_sum" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 0</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="scedar.eda.slcs.MDLSingleLabelClassifiedSamples.LabMdlResult.ulab_mdls">
+<code class="descname">ulab_mdls</code><a class="headerlink" href="#scedar.eda.slcs.MDLSingleLabelClassifiedSamples.LabMdlResult.ulab_mdls" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 3</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="scedar.eda.slcs.MDLSingleLabelClassifiedSamples.LabMdlResult.ulab_s_inds">
+<code class="descname">ulab_s_inds</code><a class="headerlink" href="#scedar.eda.slcs.MDLSingleLabelClassifiedSamples.LabMdlResult.ulab_s_inds" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 1</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="scedar.eda.slcs.MDLSingleLabelClassifiedSamples.compute_cluster_mdl">
+<em class="property">static </em><code class="descname">compute_cluster_mdl</code><span class="sig-paren">(</span><em>cl_mdl_scale_factor=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/slcs.html#MDLSingleLabelClassifiedSamples.compute_cluster_mdl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.slcs.MDLSingleLabelClassifiedSamples.compute_cluster_mdl" title="Permalink to this definition">¶</a></dt>
+<dd><p>Additional MDL for encoding the cluster</p>
+<ul class="simple">
+<li>labels are encoded by multinomial distribution</li>
+<li>parameters are encoded by 32bit float
+np.log(2**32) = 22.18070977791825</li>
+<li>scaled by factor</li>
+</ul>
+<p>TODO: formalize parameter mdl</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="scedar.eda.slcs.MDLSingleLabelClassifiedSamples.encode">
+<code class="descname">encode</code><span class="sig-paren">(</span><em>qx</em>, <em>col_summary_func=&lt;built-in function sum&gt;</em>, <em>non_zero_only=False</em>, <em>nprocs=1</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/slcs.html#MDLSingleLabelClassifiedSamples.encode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.slcs.MDLSingleLabelClassifiedSamples.encode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Encode input array qx with fitted code without label</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>qx</strong> (<em>2d np number array</em>) – </li>
+<li><strong>col_summary_func</strong> (<em>callable</em>) – function applied on column mdls</li>
+<li><strong>non_zero_only</strong> (<em>bool</em>) – whether to encode non-zero entries only</li>
+<li><strong>nprocs</strong> (<em>int</em>) – </li>
+<li><strong>verbose</strong> (<em>bool</em>) – </li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">mdl for encoding qx</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">float</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="scedar.eda.slcs.MDLSingleLabelClassifiedSamples.lab_mdl">
+<code class="descname">lab_mdl</code><span class="sig-paren">(</span><em>cl_mdl_scale_factor=1</em>, <em>nprocs=1</em>, <em>verbose=False</em>, <em>ret_internal=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/slcs.html#MDLSingleLabelClassifiedSamples.lab_mdl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.slcs.MDLSingleLabelClassifiedSamples.lab_mdl" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute mdl of each feature after separating samples by labels</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>cl_mdl_scale_factor</strong> (<em>float</em>) – multiplies cluster related mdl by this
+number</li>
+<li><strong>nprocs</strong> (<em>int</em>) – </li>
+<li><strong>verbose</strong> (<em>bool</em>) – Not implemented</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">mdl of matrix after separating sampels by labels</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">float</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="scedar.eda.slcs.MDLSingleLabelClassifiedSamples.no_lab_mdl">
+<code class="descname">no_lab_mdl</code><span class="sig-paren">(</span><em>nprocs=1</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/slcs.html#MDLSingleLabelClassifiedSamples.no_lab_mdl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.slcs.MDLSingleLabelClassifiedSamples.no_lab_mdl" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute mdl of each feature without separating samples by labels</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>nprocs</strong> (<em>int</em>) – </li>
+<li><strong>verbose</strong> (<em>bool</em>) – Not implemented</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">mdl of matrix without separating samples by labels</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">float</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="scedar.eda.slcs.MDLSingleLabelClassifiedSamples.per_col_encoders">
+<em class="property">static </em><code class="descname">per_col_encoders</code><span class="sig-paren">(</span><em>encode_type</em>, <em>mdl_method=&lt;class 'scedar.eda.mdl.ZeroIGKdeMdl'&gt;</em>, <em>nprocs=1</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/slcs.html#MDLSingleLabelClassifiedSamples.per_col_encoders"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.slcs.MDLSingleLabelClassifiedSamples.per_col_encoders" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute mdl encoder for each column</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>x</strong> (<em>2d number array</em>) – </li>
+<li><strong>encode_type</strong> (<em>&quot;data&quot;</em><em> or </em><em>&quot;distance&quot;</em>) – </li>
+<li><strong>mdl_method</strong> (<a class="reference internal" href="#scedar.eda.mdl.Mdl" title="scedar.eda.mdl.Mdl"><em>mdl.Mdl</em></a>) – </li>
+<li><strong>nprocs</strong> (<em>int</em>) – </li>
+<li><strong>verbose</strong> (<em>bool</em>) – </li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">obj: list of column mdl encoders of x</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="scedar.eda.slcs.SingleLabelClassifiedSamples">
+<em class="property">class </em><code class="descclassname">scedar.eda.slcs.</code><code class="descname">SingleLabelClassifiedSamples</code><span class="sig-paren">(</span><em>x</em>, <em>labs</em>, <em>sids=None</em>, <em>fids=None</em>, <em>d=None</em>, <em>metric='correlation'</em>, <em>nprocs=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/slcs.html#SingleLabelClassifiedSamples"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.slcs.SingleLabelClassifiedSamples" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#scedar.eda.sdm.SampleDistanceMatrix" title="scedar.eda.sdm.SampleDistanceMatrix"><code class="xref py py-class docutils literal notranslate"><span class="pre">scedar.eda.sdm.SampleDistanceMatrix</span></code></a></p>
+<p>If sort by labels, the samples will be reordered, so that samples from
+left to right are from one label to another.</p>
+<dl class="method">
+<dt id="scedar.eda.slcs.SingleLabelClassifiedSamples.cross_labs">
+<code class="descname">cross_labs</code><span class="sig-paren">(</span><em>q_slc_samples</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/slcs.html#SingleLabelClassifiedSamples.cross_labs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.slcs.SingleLabelClassifiedSamples.cross_labs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="scedar.eda.slcs.SingleLabelClassifiedSamples.dmat_heatmap">
+<code class="descname">dmat_heatmap</code><span class="sig-paren">(</span><em>selected_labels=None</em>, <em>col_labels=None</em>, <em>transform=None</em>, <em>title=None</em>, <em>xlab=None</em>, <em>ylab=None</em>, <em>figsize=(10</em>, <em>10)</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/slcs.html#SingleLabelClassifiedSamples.dmat_heatmap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.slcs.SingleLabelClassifiedSamples.dmat_heatmap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot distance matrix with rows colored by current labels.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="scedar.eda.slcs.SingleLabelClassifiedSamples.feature_importance_across_labs">
+<code class="descname">feature_importance_across_labs</code><span class="sig-paren">(</span><em>selected_labs</em>, <em>test_size=0.3</em>, <em>num_boost_round=10</em>, <em>nprocs=1</em>, <em>random_state=None</em>, <em>silent=1</em>, <em>xgb_params=None</em>, <em>num_bootstrap_round=0</em>, <em>bootstrap_size=None</em>, <em>shuffle_features=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/slcs.html#SingleLabelClassifiedSamples.feature_importance_across_labs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.slcs.SingleLabelClassifiedSamples.feature_importance_across_labs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Use xgboost to determine the importance of features determining the
+difference between samples with different labels.</p>
+<p>Run cross validation on dataset and obtain import features.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>selected_labs</strong> (<em>label list</em>) – Labels to compare using xgboost.</li>
+<li><strong>test_size</strong> (<em>float in range</em><em> (</em><em>0</em><em>, </em><em>1</em><em>)</em>) – Ratio of samples to be used for testing</li>
+<li><strong>num_bootstrap_round</strong> (<em>int</em>) – Do num_bootstrap_round times of simple bootstrapping if
+<cite>num_bootstrap_round &gt; 0</cite>.</li>
+<li><strong>bootstrap_size</strong> (<em>int</em>) – The number of samples for each bootstrapping run.</li>
+<li><strong>shuffle_features</strong> (<em>bool</em>) – </li>
+<li><strong>num_boost_round</strong> (<em>int</em>) – The number of rounds for xgboost training.</li>
+<li><strong>random_state</strong> (<em>int</em>) – </li>
+<li><strong>nprocs</strong> (<em>int</em>) – </li>
+<li><strong>xgb_params</strong> (<em>dict</em>) – Parameters for xgboost run. If None, default will be used. If
+provided, they will be directly used for xgbooster.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><ul class="simple">
+<li><strong>feature_importance_list</strong> (<em>list of feature importance of each run</em>) – <cite>[(feature_id, fscore), …]</cite></li>
+<li><strong>bst_list</strong> (<em>list of xgb Booster</em>) – Fitted boost tree model</li>
+</ul>
+</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>If multiple features are highly correlated, they may not all show up
+in the resulting tree. You could try to reduce redundant features first
+before comparing different clusters, or you could also interpret the
+important features further after obtaining the important features.</p>
+<p>For details about xgboost parameters, check the following links:</p>
+<p>[1] <a class="reference external" href="https://www.analyticsvidhya.com/blog/2016/03/complete-guide-parameter-tuning-xgboost-with-codes-python/">https://www.analyticsvidhya.com/blog/2016/03/complete-guide-parameter-tuning-xgboost-with-codes-python/</a></p>
+<p>[2] <a class="reference external" href="http://xgboost.readthedocs.io/en/latest/python/python_intro.html">http://xgboost.readthedocs.io/en/latest/python/python_intro.html</a></p>
+<p>[3] <a class="reference external" href="http://xgboost.readthedocs.io/en/latest/parameter.html">http://xgboost.readthedocs.io/en/latest/parameter.html</a></p>
+<p>[4] <a class="reference external" href="https://xgboost.readthedocs.io/en/latest/how_to/param_tuning.html">https://xgboost.readthedocs.io/en/latest/how_to/param_tuning.html</a></p>
+<p>[5] <a class="reference external" href="https://www.analyticsvidhya.com/blog/2016/03/complete-guide-parameter-tuning-xgboost-with-codes-python/">https://www.analyticsvidhya.com/blog/2016/03/complete-guide-parameter-tuning-xgboost-with-codes-python/</a></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="scedar.eda.slcs.SingleLabelClassifiedSamples.feature_importance_distintuishing_labs">
+<code class="descname">feature_importance_distintuishing_labs</code><span class="sig-paren">(</span><em>selected_labs</em>, <em>test_size=0.3</em>, <em>num_boost_round=10</em>, <em>nprocs=1</em>, <em>random_state=None</em>, <em>silent=1</em>, <em>xgb_params=None</em>, <em>num_bootstrap_round=0</em>, <em>bootstrap_size=None</em>, <em>shuffle_features=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/slcs.html#SingleLabelClassifiedSamples.feature_importance_distintuishing_labs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.slcs.SingleLabelClassifiedSamples.feature_importance_distintuishing_labs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Use xgboost to compare selected labels and others.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="scedar.eda.slcs.SingleLabelClassifiedSamples.feature_importance_each_lab">
+<code class="descname">feature_importance_each_lab</code><span class="sig-paren">(</span><em>test_size=0.3</em>, <em>num_boost_round=10</em>, <em>nprocs=1</em>, <em>random_state=None</em>, <em>silent=1</em>, <em>xgb_params=None</em>, <em>num_bootstrap_round=0</em>, <em>bootstrap_size=None</em>, <em>shuffle_features=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/slcs.html#SingleLabelClassifiedSamples.feature_importance_each_lab"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.slcs.SingleLabelClassifiedSamples.feature_importance_each_lab" title="Permalink to this definition">¶</a></dt>
+<dd><p>Use xgboost to compare each label with others. Experimental.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="scedar.eda.slcs.SingleLabelClassifiedSamples.feature_swarm_plot">
+<code class="descname">feature_swarm_plot</code><span class="sig-paren">(</span><em>fid</em>, <em>transform=None</em>, <em>labels=None</em>, <em>selected_labels=None</em>, <em>title=None</em>, <em>xlab=None</em>, <em>ylab=None</em>, <em>figsize=(10</em>, <em>10)</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/slcs.html#SingleLabelClassifiedSamples.feature_swarm_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.slcs.SingleLabelClassifiedSamples.feature_swarm_plot" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="scedar.eda.slcs.SingleLabelClassifiedSamples.filter_min_class_n">
+<code class="descname">filter_min_class_n</code><span class="sig-paren">(</span><em>min_class_n</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/slcs.html#SingleLabelClassifiedSamples.filter_min_class_n"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.slcs.SingleLabelClassifiedSamples.filter_min_class_n" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="scedar.eda.slcs.SingleLabelClassifiedSamples.id_x">
+<code class="descname">id_x</code><span class="sig-paren">(</span><em>selected_sids=None</em>, <em>selected_fids=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/slcs.html#SingleLabelClassifiedSamples.id_x"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.slcs.SingleLabelClassifiedSamples.id_x" title="Permalink to this definition">¶</a></dt>
+<dd><p>Subset samples by (sample IDs, feature IDs).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>selected_s_inds</strong> (<em>int array</em>) – Index array of selected samples. If is None, select all.</li>
+<li><strong>selected_f_inds</strong> (<em>int array</em>) – Index array of selected features. If is None, select all.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>subset</strong></p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#scedar.eda.slcs.SingleLabelClassifiedSamples" title="scedar.eda.slcs.SingleLabelClassifiedSamples">SingleLabelClassifiedSamples</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="scedar.eda.slcs.SingleLabelClassifiedSamples.ind_x">
+<code class="descname">ind_x</code><span class="sig-paren">(</span><em>selected_s_inds=None</em>, <em>selected_f_inds=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/slcs.html#SingleLabelClassifiedSamples.ind_x"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.slcs.SingleLabelClassifiedSamples.ind_x" title="Permalink to this definition">¶</a></dt>
+<dd><p>Subset samples by (sample IDs, feature IDs).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>selected_s_inds</strong> (<em>int array</em>) – Index array of selected samples. If is None, select all.</li>
+<li><strong>selected_f_inds</strong> (<em>int array</em>) – Index array of selected features. If is None, select all.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>subset</strong></p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#scedar.eda.slcs.SingleLabelClassifiedSamples" title="scedar.eda.slcs.SingleLabelClassifiedSamples">SingleLabelClassifiedSamples</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="scedar.eda.slcs.SingleLabelClassifiedSamples.lab_sorted_sids">
+<code class="descname">lab_sorted_sids</code><span class="sig-paren">(</span><em>ref_sid_order=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/slcs.html#SingleLabelClassifiedSamples.lab_sorted_sids"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.slcs.SingleLabelClassifiedSamples.lab_sorted_sids" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="scedar.eda.slcs.SingleLabelClassifiedSamples.lab_x">
+<code class="descname">lab_x</code><span class="sig-paren">(</span><em>selected_labs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/slcs.html#SingleLabelClassifiedSamples.lab_x"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.slcs.SingleLabelClassifiedSamples.lab_x" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="scedar.eda.slcs.SingleLabelClassifiedSamples.lab_x_bool_inds">
+<code class="descname">lab_x_bool_inds</code><span class="sig-paren">(</span><em>selected_labs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/slcs.html#SingleLabelClassifiedSamples.lab_x_bool_inds"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.slcs.SingleLabelClassifiedSamples.lab_x_bool_inds" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="scedar.eda.slcs.SingleLabelClassifiedSamples.labs">
+<code class="descname">labs</code><a class="headerlink" href="#scedar.eda.slcs.SingleLabelClassifiedSamples.labs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="scedar.eda.slcs.SingleLabelClassifiedSamples.labs_to_sids">
+<code class="descname">labs_to_sids</code><span class="sig-paren">(</span><em>labs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/slcs.html#SingleLabelClassifiedSamples.labs_to_sids"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.slcs.SingleLabelClassifiedSamples.labs_to_sids" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="scedar.eda.slcs.SingleLabelClassifiedSamples.relabel">
+<code class="descname">relabel</code><span class="sig-paren">(</span><em>labels</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/slcs.html#SingleLabelClassifiedSamples.relabel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.slcs.SingleLabelClassifiedSamples.relabel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a new SingleLabelClassifiedSamples with new labels.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="scedar.eda.slcs.SingleLabelClassifiedSamples.sids_to_labs">
+<code class="descname">sids_to_labs</code><span class="sig-paren">(</span><em>sids</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/slcs.html#SingleLabelClassifiedSamples.sids_to_labs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.slcs.SingleLabelClassifiedSamples.sids_to_labs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="scedar.eda.slcs.SingleLabelClassifiedSamples.sort_by_labels">
+<code class="descname">sort_by_labels</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/slcs.html#SingleLabelClassifiedSamples.sort_by_labels"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.slcs.SingleLabelClassifiedSamples.sort_by_labels" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sort sample indices by labels and distances.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="scedar.eda.slcs.SingleLabelClassifiedSamples.tsne_feature_gradient_plot">
+<code class="descname">tsne_feature_gradient_plot</code><span class="sig-paren">(</span><em>fid</em>, <em>transform=None</em>, <em>labels=None</em>, <em>selected_labels=None</em>, <em>shuffle_label_colors=False</em>, <em>title=None</em>, <em>xlab=None</em>, <em>ylab=None</em>, <em>figsize=(20</em>, <em>20)</em>, <em>add_legend=True</em>, <em>n_txt_per_cluster=3</em>, <em>alpha=1</em>, <em>s=0.5</em>, <em>random_state=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/slcs.html#SingleLabelClassifiedSamples.tsne_feature_gradient_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.slcs.SingleLabelClassifiedSamples.tsne_feature_gradient_plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the last t-SNE projection with the provided gradient as color.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>fid</strong> (<em>feature id scalar</em>) – ID of the feature to be used for gradient plot.</li>
+<li><strong>transform</strong> (<em>callable</em>) – Map transform on feature before plotting.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="scedar.eda.slcs.SingleLabelClassifiedSamples.tsne_gradient_plot">
+<code class="descname">tsne_gradient_plot</code><span class="sig-paren">(</span><em>gradient=None</em>, <em>labels=None</em>, <em>selected_labels=None</em>, <em>shuffle_label_colors=False</em>, <em>title=None</em>, <em>xlab=None</em>, <em>ylab=None</em>, <em>figsize=(20</em>, <em>20)</em>, <em>add_legend=True</em>, <em>n_txt_per_cluster=3</em>, <em>alpha=1</em>, <em>s=0.5</em>, <em>random_state=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/slcs.html#SingleLabelClassifiedSamples.tsne_gradient_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.slcs.SingleLabelClassifiedSamples.tsne_gradient_plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the last t-SNE projection with the provided gradient as color.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="scedar.eda.slcs.SingleLabelClassifiedSamples.xmat_heatmap">
+<code class="descname">xmat_heatmap</code><span class="sig-paren">(</span><em>selected_labels=None</em>, <em>selected_fids=None</em>, <em>col_labels=None</em>, <em>transform=None</em>, <em>title=None</em>, <em>xlab=None</em>, <em>ylab=None</em>, <em>figsize=(10</em>, <em>10)</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/slcs.html#SingleLabelClassifiedSamples.xmat_heatmap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.slcs.SingleLabelClassifiedSamples.xmat_heatmap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot x as heatmap.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-scedar.eda.stats">
+<span id="scedar-eda-stats-module"></span><h2>scedar.eda.stats module<a class="headerlink" href="#module-scedar.eda.stats" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="scedar.eda.stats.bidir_ReLU">
+<code class="descclassname">scedar.eda.stats.</code><code class="descname">bidir_ReLU</code><span class="sig-paren">(</span><em>x</em>, <em>start</em>, <em>end</em>, <em>lb=0</em>, <em>ub=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/stats.html#bidir_ReLU"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.stats.bidir_ReLU" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="scedar.eda.stats.gc1d">
+<code class="descclassname">scedar.eda.stats.</code><code class="descname">gc1d</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/stats.html#gc1d"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.stats.gc1d" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute Gini Index for 1D array.</p>
+<p class="rubric">References</p>
+<p>[1] <a class="reference external" href="http://mathworld.wolfram.com/GiniCoefficient.html">http://mathworld.wolfram.com/GiniCoefficient.html</a></p>
+<p>[2] Damgaard, C. and Weiner, J. “Describing Inequality in Plant Size
+or Fecundity.” Ecology 81, 1139-1142, 2000.</p>
+<p>[3] Dixon, P. M.; Weiner, J.; Mitchell-Olds, T.; and Woodley, R.
+“Bootstrapping the Gini Coefficient of Inequality.”
+Ecology 68, 1548-1551, 1987.</p>
+<p>[4] Dixon, P. M.; Weiner, J.; Mitchell-Olds, T.; and Woodley, R.
+“Erratum to ‘Bootstrapping the Gini Coefficient of Inequality.’ ”
+Ecology 69, 1307, 1988.</p>
+<p>[5] <a class="reference external" href="https://en.wikipedia.org/wiki/Gini_coefficient">https://en.wikipedia.org/wiki/Gini_coefficient</a></p>
+<p>[6] <a class="reference external" href="https://github.com/oliviaguest/gini/blob/master/gini.py">https://github.com/oliviaguest/gini/blob/master/gini.py</a></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="scedar.eda.stats.multiple_testing_correction">
+<code class="descclassname">scedar.eda.stats.</code><code class="descname">multiple_testing_correction</code><span class="sig-paren">(</span><em>pvalues</em>, <em>correction_type='FDR'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/stats.html#multiple_testing_correction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.stats.multiple_testing_correction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Consistent with R.</p>
+<dl class="docutils">
+<dt>correct_pvalues_for_multiple_testing([0.0, 0.01, 0.029, 0.03, 0.031, 0.05,</dt>
+<dd>0.069, 0.07, 0.071, 0.09, 0.1])</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-scedar.eda">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-scedar.eda" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="scedar.qc.html" class="btn btn-neutral float-right" title="scedar.qc package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="scedar.cluster.html" class="btn btn-neutral" title="scedar.cluster package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Yuanchao Zhang.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
