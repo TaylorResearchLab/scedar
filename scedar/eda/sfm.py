@@ -298,13 +298,18 @@ class SampleFeatureMatrix(object):
                                title=title, xlab=xlab, ylab=ylab,
                                figsize=figsize, ax=ax, **kwargs)
 
-    def f_ind_x_vec(self, f_ind, sample_filter=None):
+    def f_ind_x_vec(self, f_ind, sample_filter=None, transform=None):
         """
         Access a single vector of a sample.
         """
         x = self._x[:, f_ind]
         s_inds = self.filter_1d_inds(sample_filter, x)
         xf = x[s_inds]
+        if transform is not None:
+            if callable(transform):
+                xf = np.array(list(map(transform, xf)))
+            else:
+                raise ValueError("transform must be a callable")
         return xf
 
     def f_id_x_vec(self, f_id, sample_filter=None):

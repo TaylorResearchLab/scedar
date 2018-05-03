@@ -8,6 +8,7 @@ import sklearn.metrics
 import sklearn.manifold
 from sklearn.neighbors import kneighbors_graph
 import sklearn.preprocessing
+from sklearn.decomposition import PCA
 
 import warnings
 
@@ -103,6 +104,10 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
         self._lazy_load_col_sorted_d = None
         self._lazy_load_col_argsorted_d = None
         self._knn_ng_lut = {}
+        # sklearn.decomposition.PCA instance
+        self._pca_n_components = min(200, self._x.shape[0], self._x.shape[1])
+        self._lazy_load_skd_pca = None
+        self._lazy_load_pca_x = None
 
     def sort_features(self, fdist_metric="correlation"):
         optimal_f_inds = HClustTree.sort_x_by_d(self._x.T, metric=fdist_metric,
@@ -310,12 +315,7 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
                              "Currently only support 1 "
                              "feature gradient plot.".format(fid))
 
-        fx = self._x[:, f_ind]
-        if transform is not None:
-            if callable(transform):
-                fx = np.array(list(map(transform, fx)))
-            else:
-                raise ValueError("transform must be a callable")
+        fx = self.f_ind_x_vec(f_ind, transform=transform)
 
         if labels is not None and len(labels) != fx.shape[0]:
             raise ValueError("labels ({}) must have same length as "
@@ -323,6 +323,76 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
 
         return cluster_scatter(self._last_tsne, labels=labels,
                                selected_labels=selected_labels,
+                               shuffle_label_colors=shuffle_label_colors,
+                               gradient=fx,
+                               title=title, xlab=xlab, ylab=ylab,
+                               figsize=figsize, add_legend=add_legend,
+                               n_txt_per_cluster=n_txt_per_cluster,
+                               alpha=alpha, s=s, random_state=random_state,
+                               **kwargs)
+
+    def pca_gradient_plot(self, component_ind_pair=(0, 1), gradient=None,
+                          labels=None, selected_labels=None,
+                          shuffle_label_colors=False,
+                          title=None, xlab=None, ylab=None,
+                          figsize=(20, 20), add_legend=True,
+                          n_txt_per_cluster=3, alpha=1, s=0.5,
+                          random_state=None, **kwargs):
+        """
+        Plot the PCA projection with the provided gradient as color.
+        Gradient is None by default.
+        """
+        # labels are checked in cluster_scatter
+        return cluster_scatter(self._pca_x[:, component_ind_pair],
+                               labels=labels, selected_labels=selected_labels,
+                               shuffle_label_colors=shuffle_label_colors,
+                               gradient=gradient,
+                               title=title, xlab=xlab, ylab=ylab,
+                               figsize=figsize, add_legend=add_legend,
+                               n_txt_per_cluster=n_txt_per_cluster,
+                               alpha=alpha, s=s, random_state=random_state,
+                               **kwargs)
+
+    def pca_feature_gradient_plot(self, fid, component_ind_pair=(0, 1),
+                                  transform=None, labels=None,
+                                  selected_labels=None,
+                                  shuffle_label_colors=False,
+                                  title=None, xlab=None, ylab=None,
+                                  figsize=(20, 20), add_legend=True,
+                                  n_txt_per_cluster=3, alpha=1, s=0.5,
+                                  random_state=None, **kwargs):
+        """
+        Plot the last PCA projection with the provided gradient as color.
+
+        Parameters
+        ----------
+        component_ind_pair: tuple of two ints
+            Indices of the components to plot.
+        fid: feature id scalar
+            ID of the feature to be used for gradient plot.
+        transform: callable
+            Map transform on feature before plotting.
+        labels: label array
+            Labels assigned to each point, (n_samples,).
+        selected_labels: label array
+            Show gradient only for selected labels. Do not show non-selected.
+        """
+        if mtype.is_valid_sfid(fid):
+            fid = [fid]
+            f_ind = self.f_id_to_ind(fid)[0]
+        else:
+            raise ValueError("Invalid fid {}."
+                             "Currently only support 1 "
+                             "feature gradient plot.".format(fid))
+
+        fx = self.f_ind_x_vec(f_ind, transform=transform)
+
+        if labels is not None and len(labels) != fx.shape[0]:
+            raise ValueError("labels ({}) must have same length as "
+                             "n_samples.".format(labels))
+
+        return cluster_scatter(self._pca_x[:, component_ind_pair],
+                               labels=labels, selected_labels=selected_labels,
                                shuffle_label_colors=shuffle_label_colors,
                                gradient=fx,
                                title=title, xlab=xlab, ylab=ylab,
@@ -646,6 +716,20 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
         if self._lazy_load_last_tsne is None:
             self._lazy_load_last_tsne = self.tsne()
         return self._lazy_load_last_tsne
+
+    @property
+    def _skd_pca(self):
+        if self._lazy_load_skd_pca is None:
+            self._lazy_load_skd_pca = PCA(n_components=self._pca_n_components,
+                                          svd_solver="full")
+            self._lazy_load_skd_pca.fit(self._x)
+        return self._lazy_load_skd_pca
+
+    @property
+    def _pca_x(self):
+        if self._lazy_load_pca_x is None:
+            self._lazy_load_pca_x = self._skd_pca.transform(self._x)
+        return self._lazy_load_pca_x
 
     @property
     def metric(self):
