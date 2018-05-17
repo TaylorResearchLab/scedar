@@ -7,4 +7,4 @@ install:
   - pip install .
 # command to run tests
 script:
-  - ./scripts/gen_baseline_images.sh && ./scripts/pytest_all.sh
+  - sh ./scripts/gen_baseline_images.sh && sh ./scripts/pytest_all.sh
