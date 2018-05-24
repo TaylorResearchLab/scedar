@@ -811,6 +811,11 @@ class HClustTree(object):
         return self.right().count()
 
     def leaf_ids(self):
+        """Returns the list of leaf IDs from left to right
+
+        Returns:
+            :obj:`list` of leaf IDs
+        """
         if self._node is None:
             return []
         else:

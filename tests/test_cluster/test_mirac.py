@@ -12,7 +12,7 @@ import scipy.cluster.hierarchy as sch
 
 
 class TestMIRAC(object):
-    """docstring for TestMIRAC"""
+    '''docstring for TestMIRAC'''
 
     def test_mirac_wrong_args(self):
         x = np.zeros((10, 10))
@@ -82,3 +82,80 @@ class TestMIRAC(object):
         sdm = eda.SampleDistanceMatrix([[], []], metric='euclidean')
         m = cluster.MIRAC(sdm._x, sdm._d, metric='euclidean', linkage='ward',
                           min_cl_n=35, cl_mdl_scale_factor=1, verbose=True)
+
+    @pytest.mark.mpl_image_compare
+    def test_mirac_dmat_heatmap(self):
+        # create a dummy MIRAC object
+        sdm = eda.SampleDistanceMatrix([[], []], metric='euclidean')
+        m = cluster.MIRAC(sdm._x, sdm._d, metric='euclidean', linkage='ward',
+                          min_cl_n=35, cl_mdl_scale_factor=1, verbose=True)
+        # empty tree
+        m._hac_tree = eda.HClustTree(None)
+        assert m.dmat_heatmap() is None
+        # normal tree and d
+        sdm_5x2 = eda.SampleDistanceMatrix([[0, 0],
+                                            [100, 100],
+                                            [1, 1],
+                                            [101, 101],
+                                            [80, 80]],
+                                           metric='euclidean')
+        # This tree should be
+        #   _______|_____
+        #   |       ____|___
+        # __|___    |    __|___
+        # |    |    |    |    |
+        # 0    2    4    1    3
+        # Leaves are in optimal order.
+        hct = eda.HClustTree.hclust_tree(sdm_5x2.d, linkage='auto')
+        m._hac_tree = hct
+        m._sdm = sdm_5x2
+
+        # invalid labels
+        # leaf order: [0, 2, 4, 1, 3]
+        # leaf labs : [1, 1, 2, 3, 2]
+        m._labs = [1, 3, 1, 2, 2]
+        with pytest.raises(ValueError) as excinfo:
+            m.dmat_heatmap()
+        m._labs = ['1', '3', '1', '2', '2']
+        with pytest.raises(ValueError) as excinfo:
+            m.dmat_heatmap()
+        # leaf order: [0, 2, 4, 1, 3]
+        # leaf labs : [5, 1, 2, 1, 2]
+        m._labs = [5, 1, 1, 2, 2]
+        with pytest.raises(ValueError) as excinfo:
+            m.dmat_heatmap()
+        # leaf order: [0, 2, 4, 1, 3]
+        # leaf labs : [5, 1, 2, 3, 2]
+        m._labs = [5, 3, 1, 2, 2]
+        with pytest.raises(ValueError) as excinfo:
+            m.dmat_heatmap()
+        # leaf order: [0, 2, 4, 1, 3]
+        # leaf labs : [5, 10, 20, 3, 5]
+        m._labs = [5, 3, 10, 5, 20]
+        with pytest.raises(ValueError) as excinfo:
+            m.dmat_heatmap()
+
+        # valid labels
+        # leaf order: [0, 2, 4, 1, 3]
+        # leaf labs : [2, 2, 1, 1, 0]
+        m._labs = [2, 1, 2, 0, 1]
+        m.dmat_heatmap()
+        m._labs = ['2', '1', '2', '0', '1']
+        m.dmat_heatmap()
+        # leaf order: [0, 2, 4, 1, 3]
+        # leaf labs : [0, 2, 4, 1, 3]
+        m._labs = [0, 1, 2, 3, 4]
+        m.dmat_heatmap()
+        # leaf order: [0, 2, 4, 1, 3]
+        # leaf labs : [0, 0, 0, 0, 0]
+        m._labs = [0]*5
+        m.dmat_heatmap()
+
+        # have a figure
+        # leaf order: [ 0 ,  2 ,  4 ,  1 ,  3 ]
+        # leaf labs : ['b', 'l', 'r', 'e', 'o']
+        m._labs = ['beginning', 'end', 'l', 'out', 'r']
+        fig = m.dmat_heatmap(
+            selected_labels=['beginning', 'end', 'l', 'r'])
+        assert fig is not None
+        return fig

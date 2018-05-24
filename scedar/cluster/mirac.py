@@ -3,6 +3,7 @@ import numpy as np
 
 from scedar import eda
 from scedar.eda.slcs import MDLSingleLabelClassifiedSamples as MDLSLCS
+from scedar.eda.slcs import SingleLabelClassifiedSamples as SLCS
 from scedar import utils
 
 
@@ -64,6 +65,7 @@ class MIRAC(object):
         self._linkage = linkage
         self._optimal_ordering = optimal_ordering
         self._min_split_mdl_red_ratio = min_split_mdl_red_ratio
+        # labels for computing MDL
         self._sdm = MDLSLCS(x=x, labs=[0]*len(x), d=d, metric=metric,
                             sids=sids, fids=fids, encode_type=encode_type,
                             mdl_method=mdl_method, nprocs=nprocs)
@@ -96,8 +98,53 @@ class MIRAC(object):
         self._min_cl_n = min_cl_n
         # run MIRAC with initialized parameters
         s_inds, s_labs = self._mirac()
-        # Initialize labels
+        # initialize labels
         self._labs = s_labs[np.argsort(s_inds, kind="mergesort")].tolist()
+
+    def dmat_heatmap(self, selected_labels=None, col_labels=None,
+                     transform=None,
+                     title=None, xlab=None, ylab=None, figsize=(10, 10),
+                     **kwargs):
+        # hierarchical clustering tree leaf sample inds ordered from
+        # left to right
+        leaf_order = self._hac_tree.leaf_ids()
+        if len(leaf_order) == 0:
+            return None
+        # leaf labels from left to right
+        leaf_ordered_labs = np.array(self._labs)[leaf_order].tolist()
+        # check labels not interrupted in leaf order
+        # in other word, same labels should be adjacent to each other
+        # Examples:
+        # - good: [1] and [1, 1, 2, 2, 3]
+        # - bad: [1, 2, 1, 1, 3, 3]
+        curr_lab = leaf_ordered_labs[0]
+        lab_set = set([curr_lab])
+        for ilab in leaf_ordered_labs:
+            if ilab != curr_lab:
+                # reached the next group of labels
+                if ilab in lab_set:
+                    raise ValueError("Same labels should be grouped "
+                                     "together.\n\t"
+                                     "iterating lab: {}\n\t"
+                                     "iterated lab set: {}\n\t"
+                                     "leaf order: {}\n\t"
+                                     "leaf ordered labs: {}".format(
+                                         ilab, lab_set, leaf_order,
+                                         leaf_ordered_labs))
+                lab_set.add(ilab)
+                curr_lab = ilab
+        # generate heatmap
+        # select labels to plot
+        s_lab_bool_inds = SLCS.select_labs_bool_inds(
+            leaf_ordered_labs, selected_labels)
+        s_leaf_order = list(itertools.compress(leaf_order, s_lab_bool_inds))
+        s_leaf_ordered_labs = list(itertools.compress(leaf_ordered_labs,
+                                                      s_lab_bool_inds))
+        s_d = self._sdm._d[s_leaf_order][:, s_leaf_order]
+        return eda.heatmap(s_d, row_labels=s_leaf_ordered_labs,
+                           col_labels=col_labels, transform=transform,
+                           title=title, xlab=xlab, ylab=ylab,
+                           figsize=figsize, **kwargs)
 
     @property
     def labs(self):

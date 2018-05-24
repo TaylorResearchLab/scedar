@@ -180,19 +180,24 @@ class SingleLabelClassifiedSamples(SampleDistanceMatrix):
             selected_f_inds = self.f_id_to_ind(selected_fids)
         return self.ind_x(selected_s_inds, selected_f_inds)
 
-    def lab_x_bool_inds(self, selected_labs):
+    @staticmethod
+    def select_labs_bool_inds(ref_labs, selected_labs):
         if selected_labs is None:
-            return np.repeat(True, len(self._labs))
+            return np.repeat(True, len(ref_labs))
 
         if np.isscalar(selected_labs):
             selected_labs = [selected_labs]
 
-        if not all([x in self._uniq_labs.tolist() for x in selected_labs]):
+        ref_uniq_labs = np.unique(ref_labs).tolist()
+        if not all([x in ref_uniq_labs for x in selected_labs]):
             raise ValueError("selected_labs: {} are not all existed "
-                             "in the SLCS unique labels "
-                             "{}".format(selected_labs, self._uniq_labs))
-        lab_selected_s_bool_inds = np.in1d(self._labs, selected_labs)
+                             "in the unique ref labels "
+                             "{}".format(selected_labs, ref_uniq_labs))
+        lab_selected_s_bool_inds = np.in1d(ref_labs, selected_labs)
         return lab_selected_s_bool_inds
+
+    def lab_x_bool_inds(self, selected_labs):
+        return self.select_labs_bool_inds(self._labs, selected_labs)
 
     def lab_x(self, selected_labs):
         lab_selected_s_bool_inds = self.lab_x_bool_inds(selected_labs)
