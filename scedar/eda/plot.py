@@ -55,10 +55,39 @@ def labs_to_cmap(labels, return_lut=False):
 
 def cluster_scatter(projection2d, labels=None,
                     selected_labels=None,
+                    plot_different_markers=False,
+                    label_markers=None,
                     shuffle_label_colors=False, gradient=None,
                     title=None, xlab=None, ylab=None,
                     figsize=(20, 20), add_legend=True, n_txt_per_cluster=3,
                     alpha=1, s=0.5, random_state=None, **kwargs):
+    """Scatter plot for clustering illustration
+
+    Args:
+        projection2d (2 col numeric array): (n, 2) matrix to plot
+        labels (list of labels): labels of n samples
+        selected_labels (list of labels): selected labels to plot
+        plot_different_markers (bool): plot different markers for samples with
+            different labels
+        label_markers (list of marker shapes): passed to matplotlib plot
+        shuffle_label_colors (bool): shuffle the color of labels to avoid
+            similar colors show up in close clusters
+        gradient (list of number): color gradient of n samples
+        title (str)
+        xlab (str): x axis label
+        ylab (str): y axis label
+        figsize (tuple of two number): (width, height)
+        add_legend (bool)
+        n_txt_per_cluster (number): the number of text to plot per cluster.
+            Could be 0.
+        alpha (number)
+        s (number): size of the points
+        random_state (int): random seed to shuffle features
+        **kwards: passed to matplotlib plot
+
+    Return:
+        matplotlib figure of the created scatter plot
+    """
     kwargs = kwargs.copy()
     # randomly:
     # - select labels for annotation if required
@@ -88,6 +117,13 @@ def cluster_scatter(projection2d, labels=None,
                              "n_samples in projection2d "
                              "(shape {})".format(labels.shape[0],
                                                  projection2d.shape[0]))
+    # check markers
+    if label_markers is not None:
+        if labels is None:
+            raise ValueError("labels should not be None when label_markers")
+        if len(label_markers) != len(labels):
+            raise ValueError("labels should have the same length as"
+                             "label_markers")
     # plot selected labels
     if selected_labels is not None:
         if labels is None:
@@ -114,7 +150,50 @@ def cluster_scatter(projection2d, labels=None,
 
     # TODO: optimize the if-else statement
     if labels is not None:
+        # markers for each label
         uniq_labels = np.unique(labels)
+        # create marker dict:
+        # lab_m_s_ind_lut: {marker1: marker_1_s_ind_list}
+        lab_m_s_ind_lut = {}
+        if plot_different_markers:
+            if label_markers is None:
+                # use a different marker for each label
+                # cycle use the following filled markers:
+                # "o": circle
+                # "s": square
+                # "^": triangle_up
+                # "D": diamond
+                # "x": x
+                # "v": triangle_down
+                # "d": thin_diamond
+                # "+": plus
+                # ">": triangle_right
+                # "p": pentagon
+                # "h": hexagon1
+                # "<": triangle_left
+                # "H": hexagon2
+                # "*": star
+                # order: "os^Dxvd+>ph<H*"
+                # Refs:
+                # - markers with shape:
+                # NOQA https://matplotlib.org/examples/lines_bars_and_markers/marker_reference.html
+                # - all merkers
+                # NOQA ref: https://matplotlib.org/api/markers_api.html
+                m_cycle = "os^Dxvd+>ph<H*"
+                for i, ulab in enumerate(uniq_labels):
+                    ulab_m = m_cycle[i % len(m_cycle)]
+                    lab_m_s_ind_lut[ulab_m] = list(
+                        filter(lambda j: labels[j] == ulab,
+                               range(len(labels)))
+                    )
+            else:
+                # use user provided markers
+                for ulab_m in set(label_markers):
+                    lab_m_s_ind_lut[ulab_m] = list(filter(
+                        lambda i: label_markers[i] == ulab_m,
+                        range(len(label_markers))))
+        else:
+            lab_m_s_ind_lut["o"] = list(range(len(labels)))
         if gradient is not None:
             cmap = kwargs.pop("cmap", "viridis")
             plt.figure(figsize=figsize)
