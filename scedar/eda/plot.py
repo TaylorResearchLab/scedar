@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import matplotlib.colors
 import matplotlib.patches
 import matplotlib.gridspec
+from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 
 import seaborn as sns
 
@@ -147,13 +148,14 @@ def cluster_scatter(projection2d, labels=None,
             projection2d = projection2d[slabels_bool]
             if gradient is not None:
                 gradient = gradient[slabels_bool]
-
+    fig, ax = plt.subplots(figsize=figsize)
     # TODO: optimize the if-else statement
     if labels is not None:
+        # return empty scatter plot if there is no point to plot
         # markers for each label
         uniq_labels = np.unique(labels)
         # create marker dict:
-        # lab_m_s_ind_lut: {marker1: marker_1_s_ind_list}
+        # lab_m_s_ind_lut: {(lab1, marker1): marker_1_s_ind_list}
         lab_m_s_ind_lut = {}
         if plot_different_markers:
             if label_markers is None:
@@ -176,55 +178,90 @@ def cluster_scatter(projection2d, labels=None,
                 # order: "os^Dxvd+>ph<H*"
                 # Refs:
                 # - markers with shape:
-                # NOQA https://matplotlib.org/examples/lines_bars_and_markers/marker_reference.html
+                # https://matplotlib.org/examples/lines_bars_and_markers/
+                # marker_reference.html
                 # - all merkers
-                # NOQA ref: https://matplotlib.org/api/markers_api.html
+                # ref: https://matplotlib.org/api/markers_api.html
                 m_cycle = "os^Dxvd+>ph<H*"
                 for i, ulab in enumerate(uniq_labels):
                     ulab_m = m_cycle[i % len(m_cycle)]
-                    lab_m_s_ind_lut[ulab_m] = list(
-                        filter(lambda j: labels[j] == ulab,
-                               range(len(labels)))
-                    )
+                    lab_m_s_ind_lut[(ulab, ulab_m)] = list(filter(
+                        lambda j: labels[j] == ulab, range(len(labels))))
             else:
                 # use user provided markers
                 for ulab_m in set(label_markers):
-                    lab_m_s_ind_lut[ulab_m] = list(filter(
+                    # if user provided, legend show marker rather than
+                    # label
+                    lab_m_s_ind_lut[(ulab_m, ulab_m)] = list(filter(
                         lambda i: label_markers[i] == ulab_m,
                         range(len(label_markers))))
         else:
-            lab_m_s_ind_lut["o"] = list(range(len(labels)))
+            # plot all labels with shape "o"
+            for i, ulab in enumerate(uniq_labels):
+                lab_m_s_ind_lut[(ulab, "o")] = list(filter(
+                    lambda j: labels[j] == ulab, range(len(labels))))
+        # plot
+        # list of ulabs
+        lgd_ulabs = []
+        # list of matplotlib.collections.PathCollection
+        lgd_mpcs = []
         if gradient is not None:
             cmap = kwargs.pop("cmap", "viridis")
-            plt.figure(figsize=figsize)
-            # matplotlib.collections.PathCollection
-            mpc = plt.scatter(x=projection2d[:, 0], y=projection2d[:, 1],
-                              c=gradient, cmap=cmap, s=s, alpha=alpha,
-                              **kwargs)
-            if add_legend:
-                plt.colorbar(mpc)
-            fig = mpc.get_figure()
-            ax = fig.get_axes()[0]
+            # lab_m_s_ind_lut = {(lab1, m1): [s_inds]}
+            for (ulab, ulab_m), s_inds in sorted(lab_m_s_ind_lut.items()):
+                mpc = plt.scatter(x=projection2d[s_inds, 0],
+                                  y=projection2d[s_inds, 1],
+                                  c=gradient[s_inds], cmap=cmap,
+                                  marker=ulab_m,
+                                  s=s, alpha=alpha,
+                                  **kwargs)
+                lgd_ulabs.append(ulab)
+                lgd_mpcs.append(mpc)
+            if add_legend and len(labels) != 0:
+                box = ax.get_position()
+                ax.set_position([box.x0, box.y0, box.width*0.7, box.height])
+                plt.legend(handles=lgd_mpcs, labels=lgd_ulabs,
+                           bbox_to_anchor=(1.25, 1), loc=2,
+                           borderaxespad=0.)
+                # colorbar location
+                # ref:
+                # https://matplotlib.org/gallery/axes_grid1/
+                # demo_colorbar_with_inset_locator.html
+                cb_axins = inset_axes(
+                    ax,
+                    width="5%",  # width = 10% of parent_bbox width
+                    height="100%",  # height : 50%
+                    loc=2,
+                    bbox_to_anchor=(1.05, 0., 1, 1),
+                    bbox_transform=ax.transAxes,
+                    borderpad=0)
+                plt.colorbar(cax=cb_axins)
         else:
-            fig, ax = plt.subplots(figsize=figsize)
-            label_color_arr = np.array(sns.color_palette("hls",
-                                                         len(uniq_labels)))
+            label_color_arr = np.array(
+                sns.color_palette("hls", len(uniq_labels)))
             if shuffle_label_colors:
                 np.random.shuffle(label_color_arr)
             color_lut = dict(zip(uniq_labels, label_color_arr))
-            ax.scatter(x=projection2d[:, 0], y=projection2d[:, 1],
-                       c=[color_lut[lab] for lab in labels],
-                       s=s, alpha=alpha, **kwargs)
+            s_col_arr = np.array([color_lut[lab] for lab in labels])
+            # lab_m_s_ind_lut = {(lab1, m1): [s_inds]}
+            for (ulab, ulab_m), s_inds in sorted(lab_m_s_ind_lut.items()):
+                mpc = plt.scatter(x=projection2d[s_inds, 0],
+                                  y=projection2d[s_inds, 1],
+                                  c=s_col_arr[s_inds],
+                                  marker=ulab_m,
+                                  s=s, alpha=alpha,
+                                  **kwargs)
+                lgd_ulabs.append(ulab)
+                lgd_mpcs.append(mpc)
             # Add legend
             # Shrink current axis by 20%
-            if add_legend:
+            if add_legend and len(labels) != 0:
                 box = ax.get_position()
-                ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
-                ax.legend(handles=[mpl.patches.Patch(color=color_lut[ulab],
-                                                     label=ulab)
-                                   for ulab in uniq_labels],
-                          bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
-        # [[label1 anno inds], [label2 anno ind], ...]
+                ax.set_position([box.x0, box.y0, box.width*0.8, box.height])
+                plt.legend(handles=lgd_mpcs, labels=lgd_ulabs,
+                           bbox_to_anchor=(1.05, 1), loc=2,
+                           borderaxespad=0.)
+        # add text annotation [[label1 anno inds], [label2 anno ind], ...]
         anno_ind_list = [np.random.choice(np.where(labels == ulab)[0],
                                           n_txt_per_cluster)
                          for ulab in uniq_labels]
@@ -234,20 +271,16 @@ def cluster_scatter(projection2d, labels=None,
                             (projection2d[i, 0], projection2d[i, 1]))
     else:
         if gradient is None:
-            fig, ax = plt.subplots(figsize=figsize)
             ax.scatter(x=projection2d[:, 0], y=projection2d[:, 1], s=s,
                        alpha=alpha, **kwargs)
         else:
             cmap = kwargs.pop("cmap", "viridis")
-            plt.figure(figsize=figsize)
             # matplotlib.collections.PathCollection
-            mpc = plt.scatter(x=projection2d[:, 0], y=projection2d[:, 1],
-                              c=gradient, cmap=cmap, s=s, alpha=alpha,
-                              **kwargs)
+            plt.scatter(x=projection2d[:, 0], y=projection2d[:, 1],
+                        c=gradient, cmap=cmap, s=s, alpha=alpha,
+                        **kwargs)
             if add_legend:
-                plt.colorbar(mpc)
-            fig = mpc.get_figure()
-            ax = fig.get_axes()[0]
+                plt.colorbar()
 
     if title is not None:
         ax.set_title(title)

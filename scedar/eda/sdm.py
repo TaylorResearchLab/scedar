@@ -266,6 +266,8 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
 
     def tsne_gradient_plot(self, gradient=None, labels=None,
                            selected_labels=None,
+                           plot_different_markers=False,
+                           label_markers=None,
                            shuffle_label_colors=False,
                            title=None, xlab=None, ylab=None,
                            figsize=(20, 20), add_legend=True,
@@ -278,6 +280,8 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
         # labels are checked in cluster_scatter
         return cluster_scatter(self._last_tsne, labels=labels,
                                selected_labels=selected_labels,
+                               plot_different_markers=plot_different_markers,
+                               label_markers=label_markers,
                                shuffle_label_colors=shuffle_label_colors,
                                gradient=gradient,
                                title=title, xlab=xlab, ylab=ylab,
@@ -288,6 +292,8 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
 
     def tsne_feature_gradient_plot(self, fid, transform=None, labels=None,
                                    selected_labels=None,
+                                   plot_different_markers=False,
+                                   label_markers=None,
                                    shuffle_label_colors=False,
                                    title=None, xlab=None, ylab=None,
                                    figsize=(20, 20), add_legend=True,
@@ -323,6 +329,8 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
 
         return cluster_scatter(self._last_tsne, labels=labels,
                                selected_labels=selected_labels,
+                               plot_different_markers=plot_different_markers,
+                               label_markers=label_markers,
                                shuffle_label_colors=shuffle_label_colors,
                                gradient=fx,
                                title=title, xlab=xlab, ylab=ylab,
@@ -333,6 +341,8 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
 
     def pca_gradient_plot(self, component_ind_pair=(0, 1), gradient=None,
                           labels=None, selected_labels=None,
+                          plot_different_markers=False,
+                          label_markers=None,
                           shuffle_label_colors=False,
                           title=None, xlab=None, ylab=None,
                           figsize=(20, 20), add_legend=True,
@@ -345,6 +355,8 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
         # labels are checked in cluster_scatter
         return cluster_scatter(self._pca_x[:, component_ind_pair],
                                labels=labels, selected_labels=selected_labels,
+                               plot_different_markers=plot_different_markers,
+                               label_markers=label_markers,
                                shuffle_label_colors=shuffle_label_colors,
                                gradient=gradient,
                                title=title, xlab=xlab, ylab=ylab,
@@ -356,6 +368,8 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
     def pca_feature_gradient_plot(self, fid, component_ind_pair=(0, 1),
                                   transform=None, labels=None,
                                   selected_labels=None,
+                                  plot_different_markers=False,
+                                  label_markers=None,
                                   shuffle_label_colors=False,
                                   title=None, xlab=None, ylab=None,
                                   figsize=(20, 20), add_legend=True,
@@ -393,6 +407,8 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
 
         return cluster_scatter(self._pca_x[:, component_ind_pair],
                                labels=labels, selected_labels=selected_labels,
+                               plot_different_markers=plot_different_markers,
+                               label_markers=label_markers,
                                shuffle_label_colors=shuffle_label_colors,
                                gradient=fx,
                                title=title, xlab=xlab, ylab=ylab,

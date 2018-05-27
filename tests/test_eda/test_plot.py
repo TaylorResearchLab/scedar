@@ -306,6 +306,99 @@ class TestClusterScatter(object):
                                 alpha=0.5,
                                 s=50, random_state=123)
 
+    # Test markers
+    @pytest.mark.mpl_image_compare
+    def test_cluster_scatter_grad_lab_diff_markers(self):
+        sorted_x = self.x_50x2[np.argsort(self.x_50x2[:, 1])]
+        # should not have error even if gradient is provided
+        eda.cluster_scatter(sorted_x,
+                            labels=[0]*25 + [1]*25,
+                            shuffle_label_colors=True,
+                            gradient=sorted_x[:, 1],
+                            title='test tsne scatter',
+                            xlab='tsne1', ylab='tsne2',
+                            figsize=(10, 10), n_txt_per_cluster=3,
+                            alpha=0.5, s=50, random_state=123)
+
+        fig = eda.cluster_scatter(sorted_x,
+                                  labels=[0]*25 + [1]*25,
+                                  gradient=sorted_x[:, 1],
+                                  plot_different_markers=True,
+                                  title='test tsne scatter',
+                                  xlab='tsne1', ylab='tsne2',
+                                  figsize=(10, 10), n_txt_per_cluster=3,
+                                  alpha=0.5, s=50, random_state=123)
+        return fig
+
+    @pytest.mark.mpl_image_compare
+    def test_cluster_scatter_grad_lab_diff_custom_markers(self):
+        sorted_x = self.x_50x2[np.argsort(self.x_50x2[:, 1])]
+        # should not have error even if gradient is provided
+        eda.cluster_scatter(sorted_x,
+                            labels=[0]*25 + [1]*25,
+                            shuffle_label_colors=True,
+                            gradient=sorted_x[:, 1],
+                            title='test tsne scatter',
+                            xlab='tsne1', ylab='tsne2',
+                            figsize=(10, 10), n_txt_per_cluster=3,
+                            alpha=0.5, s=50, random_state=123)
+
+        fig = eda.cluster_scatter(sorted_x,
+                                  labels=[0]*25 + [1]*25,
+                                  gradient=sorted_x[:, 1],
+                                  plot_different_markers=True,
+                                  label_markers=['o']*10 + ['*']*25 + ['^']*15,
+                                  title='test tsne scatter',
+                                  xlab='tsne1', ylab='tsne2',
+                                  figsize=(10, 10), n_txt_per_cluster=3,
+                                  alpha=0.5, s=50, random_state=123)
+        return fig
+
+    @pytest.mark.mpl_image_compare
+    def test_cluster_scatter_diff_lab_markers(self):
+        fig = eda.cluster_scatter(self.x_50x2,
+                                  [0]*25 + [1]*10 + [2]*15,
+                                  figsize=(10, 10), n_txt_per_cluster=3,
+                                  alpha=0.5, plot_different_markers=True,
+                                  s=50, random_state=123)
+        return fig
+
+    @pytest.mark.mpl_image_compare
+    def test_cluster_scatter_diff_lab_custom_markers(self):
+        fig = eda.cluster_scatter(self.x_50x2,
+                                  [0]*25 + [1]*10 + [2]*15,
+                                  figsize=(10, 10), n_txt_per_cluster=3,
+                                  alpha=0.5, plot_different_markers=True,
+                                  label_markers=['o']*10 + ['*']*25 + ['^']*15,
+                                  s=50, random_state=123)
+        return fig
+
+    def test_cluster_scatter_diff_lab_markers_wrong_args(self):
+        # labs not provided
+        with pytest.raises(ValueError) as excinfo:
+            eda.cluster_scatter(self.x_50x2,
+                                figsize=(10, 10), n_txt_per_cluster=3,
+                                alpha=0.5, plot_different_markers=True,
+                                label_markers=['o']*10 + ['*']*25 + ['^']*15,
+                                s=50, random_state=123)
+        # labs and markers have different lengths
+        # wrong marker length
+        with pytest.raises(ValueError) as excinfo:
+            eda.cluster_scatter(self.x_50x2,
+                                labels=[0]*25 + [1]*10 + [2]*15,
+                                figsize=(10, 10), n_txt_per_cluster=3,
+                                alpha=0.5, plot_different_markers=True,
+                                label_markers=['o']*10 + ['*']*25 + ['^']*10,
+                                s=50, random_state=123)
+        # wrong label length
+        with pytest.raises(ValueError) as excinfo:
+            eda.cluster_scatter(self.x_50x2,
+                                labels=[0]*25 + [1]*10 + [2]*10,
+                                figsize=(10, 10), n_txt_per_cluster=3,
+                                alpha=0.5, plot_different_markers=True,
+                                label_markers=['o']*10 + ['*']*25 + ['^']*15,
+                                s=50, random_state=123)
+
 
 @pytest.mark.filterwarnings("ignore:The 'normed' kwarg is depreca")
 @pytest.mark.mpl_image_compare
