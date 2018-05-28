@@ -174,7 +174,7 @@ class SingleLabelClassifiedSamples(SampleDistanceMatrix):
             Update labels in place.
         """
         if not mtype.is_valid_lab(new_lab):
-            raise ValueError("new_lab, {}, must be str or int")
+            raise ValueError("new_lab, {}, must  be str or int")
         mtype.check_is_valid_labs(orig_labs_to_merge)
         # all labs must be unique
         if len(orig_labs_to_merge) != len(np.unique(orig_labs_to_merge)):

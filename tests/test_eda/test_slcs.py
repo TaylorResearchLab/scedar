@@ -249,6 +249,27 @@ class TestSingleLabelClassifiedSamples(object):
         assert slcs._uniq_labs.tolist() == [0, 5]
         assert slcs._uniq_lab_cnts.tolist() == [2, 4]
 
+    def test_merge_labels_wrong_args(self):
+        sids = list('abcdef')
+        fids = list(range(10, 20))
+        labs = [0, 0, 1, 1, 2, 3]
+
+        slcs = eda.SingleLabelClassifiedSamples(
+            np.random.ranf(60).reshape(6, -1), labs=labs,
+            sids=sids, fids=fids)
+        # wrong new lab type
+        with pytest.raises(ValueError) as excinfo:
+            slcs.merge_labels([1, 2, 3], [5])
+        # wrong m lab type
+        with pytest.raises(ValueError) as excinfo:
+            slcs.merge_labels([[], [1]], 1)
+        # duplicated m labs
+        with pytest.raises(ValueError) as excinfo:
+            slcs.merge_labels([1, 1, 2], 1)
+        # m lab not in original lab
+        with pytest.raises(ValueError) as excinfo:
+            slcs.merge_labels([0, 1, 5], 1)
+
     def test_id_x(self):
         sids = list('abcdef')
         fids = list(range(10, 20))
