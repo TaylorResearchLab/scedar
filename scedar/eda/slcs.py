@@ -28,11 +28,21 @@ from scedar import utils
 
 
 class SingleLabelClassifiedSamples(SampleDistanceMatrix):
-    """
-    SingleLabelClassifiedSamples
+    """Data structure of single label classified samples
 
-    If sort by labels, the samples will be reordered, so that samples from
-    left to right are from one label to another.
+    Attributes:
+        _x (2D number array): (n_samples, n_features) data matrix.
+        _d (2D number array): (n_samples, n_samples) distance matrix.
+        _labs (list of labels): list of labels in the same type, int or str.
+        _fids (list of feature IDs): list of feature IDs in the same type,
+            int or str.
+        _sids (list of sample IDs): list of sample IDs in the same type,
+            int or str.
+        _metric (str): Distance metric.
+
+    Note:
+        If sort by labels, the samples will be reordered, so that samples from
+        left to right are from one label to another.
     """
     # sid, lab, fid, x
 
@@ -49,23 +59,28 @@ class SingleLabelClassifiedSamples(SampleDistanceMatrix):
         if self._sids.shape[0] != labs.shape[0]:
             raise ValueError("sids must have the same length as labs")
         self._labs = labs
+        self._set_up_lab_rel_attrs()
+        # keep a copy of original labels
+        self._orig_labs = labs
+        self._xgb_lut = {}
+        return
 
-        self._uniq_labs, self._uniq_lab_cnts = np.unique(labs,
-                                                         return_counts=True)
+    def _set_up_lab_rel_attrs(self):
+        """Set up labels related attrs
+        """
+        self._uniq_labs, self._uniq_lab_cnts = np.unique(
+            self._labs, return_counts=True)
         # {lab: array([sid0, ...]), ...}
         sid_lut = {}
         for ulab in self._uniq_labs:
-            sid_lut[ulab] = self._sids[labs == ulab]
+            sid_lut[ulab] = self._sids[self._labs == ulab]
         self._sid_lut = sid_lut
-
+        # {sid1: lab1, ...}
         lab_lut = {}
         # sids only contain unique values
         for i in range(self._sids.shape[0]):
-            lab_lut[self._sids[i]] = labs[i]
+            lab_lut[self._sids[i]] = self._labs[i]
         self._lab_lut = lab_lut
-
-        self._xgb_lut = {}
-        return
 
     def sort_by_labels(self):
         """
@@ -143,6 +158,38 @@ class SingleLabelClassifiedSamples(SampleDistanceMatrix):
                    sids=self._sids[selected_s_inds].tolist(),
                    fids=self._fids[selected_f_inds].tolist(),
                    metric=self._metric, nprocs=self._nprocs)
+
+    def merge_labels(self, orig_labs_to_merge, new_lab):
+        """Merge selected labels into a new label
+
+        Args:
+            orig_labs_to_merge (list of unique labels): original labels to be
+                merged into a new label
+            new_lab (label): new label of the merged labels
+
+        Returns:
+            None
+
+        Note:
+            Update labels in place.
+        """
+        if not mtype.is_valid_lab(new_lab):
+            raise ValueError("new_lab, {}, must be str or int")
+        mtype.check_is_valid_labs(orig_labs_to_merge)
+        # all labs must be unique
+        if len(orig_labs_to_merge) != len(np.unique(orig_labs_to_merge)):
+            raise ValueError("orig_labs_to_merge must all be unique")
+        for ulab in orig_labs_to_merge:
+            if ulab not in self._uniq_labs:
+                raise ValueError("label {} not in original unique "
+                                 "labels".format(ulab))
+        updated_labs = self._labs.copy()
+        for i, lab in enumerate(self._labs):
+            if lab in orig_labs_to_merge:
+                updated_labs[i] = new_lab
+        self._labs = updated_labs
+        self._set_up_lab_rel_attrs()
+        return
 
     def relabel(self, labels):
         """
