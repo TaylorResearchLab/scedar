@@ -398,6 +398,17 @@ class TestClusterScatter(object):
                                 alpha=0.5, plot_different_markers=True,
                                 label_markers=['o']*10 + ['*']*25 + ['^']*15,
                                 s=50, random_state=123)
+    @pytest.mark.mpl_image_compare
+    def test_cluster_scatter_xylim(self):
+        fig = eda.cluster_scatter(np.array([list(range(50)),
+                                            list(range(100, 150))]).T,
+                                  [0]*25 + [1]*25,
+                                  title='xlim=(25, 50), ylim=(120, 150)',
+                                  figsize=(10, 10), add_legend=False,
+                                  xlim=(25, 50), ylim=(120, 150),
+                                  n_txt_per_cluster=3, alpha=0.5,
+                                  s=50, random_state=123)
+        return fig
 
 
 @pytest.mark.filterwarnings("ignore:The 'normed' kwarg is depreca")

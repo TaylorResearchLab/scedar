@@ -59,6 +59,7 @@ def cluster_scatter(projection2d, labels=None,
                     plot_different_markers=False,
                     label_markers=None,
                     shuffle_label_colors=False, gradient=None,
+                    xlim=None, ylim=None,
                     title=None, xlab=None, ylab=None,
                     figsize=(20, 20), add_legend=True, n_txt_per_cluster=3,
                     alpha=1, s=0.5, random_state=None, **kwargs):
@@ -271,8 +272,8 @@ def cluster_scatter(projection2d, labels=None,
                             (projection2d[i, 0], projection2d[i, 1]))
     else:
         if gradient is None:
-            ax.scatter(x=projection2d[:, 0], y=projection2d[:, 1], s=s,
-                       alpha=alpha, **kwargs)
+            plt.scatter(x=projection2d[:, 0], y=projection2d[:, 1], s=s,
+                        alpha=alpha, **kwargs)
         else:
             cmap = kwargs.pop("cmap", "viridis")
             # matplotlib.collections.PathCollection
@@ -290,6 +291,9 @@ def cluster_scatter(projection2d, labels=None,
 
     if ylab is not None:
         ax.set_ylabel(ylab)
+
+    plt.xlim(xlim)
+    plt.ylim(ylim)
     plt.close()
     return fig
 
