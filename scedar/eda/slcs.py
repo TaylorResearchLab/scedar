@@ -84,7 +84,7 @@ class SingleLabelClassifiedSamples(SampleDistanceMatrix):
 
     def sort_by_labels(self):
         """
-        Sort sample indices by labels and distances.
+        Return a copy with sorted sample indices by labels and distances.
         """
         labels = np.array(self.labs)
         # slcs is empty
