@@ -553,9 +553,8 @@ def heatmap(x, row_labels=None, col_labels=None,
 
 
 def networkx_graph(ng, pos=None, alpha=0.05, figsize=(20, 20), gradient=None,
-                   labels=None, different_label_markers=True,
-                   node_size=30, node_with_labels=False,
-                   nx_draw_kwargs=None):
+                   labels=None, different_label_markers=True, node_size=30,
+                   node_with_labels=False, nx_draw_kwargs=None):
     # TODO: offset labels
     fig = plt.figure(figsize=figsize)
 
@@ -630,7 +629,8 @@ def networkx_graph(ng, pos=None, alpha=0.05, figsize=(20, 20), gradient=None,
             # has label. no gradient.
             # plot differnt labels with different colors and markers.
             for (ulab, ulab_m, ulab_c), ulab_s_inds in lab_m_s_ind_lut.items():
-                mcp = nx.draw_networkx_nodes(ng, pos, nodelist=ulab_s_inds,
+                mcp = nx.draw_networkx_nodes(ng, pos, alpha=alpha,
+                                             nodelist=ulab_s_inds,
                                              node_color=ulab_c,
                                              node_shape=ulab_m,
                                              node_size=node_size, label=ulab)
@@ -639,7 +639,8 @@ def networkx_graph(ng, pos=None, alpha=0.05, figsize=(20, 20), gradient=None,
             gradient = np.array(gradient)
             cmap = nx_draw_kwargs.pop("cmap", "viridis")
             for (ulab, ulab_m, ulab_c), ulab_s_inds in lab_m_s_ind_lut.items():
-                mcp = nx.draw_networkx_nodes(ng, pos, nodelist=ulab_s_inds,
+                mcp = nx.draw_networkx_nodes(ng, pos, alpha=alpha,
+                                             nodelist=ulab_s_inds,
                                              node_color=gradient[ulab_s_inds],
                                              node_shape=ulab_m,
                                              node_size=node_size,
