@@ -534,10 +534,11 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
                                         include_self=False).toarray()
         return knn_conn_mat
 
-    def draw_s_knn_graph(self, k, aff_scale=1, gradient=None, iterations=2000,
-                         figsize=(20, 20), node_size=30, alpha=0.05,
-                         random_state=None, init_pos=None,
-                         with_labels=False, fa2_kwargs=None,
+    def draw_s_knn_graph(self, k, gradient=None, labels=None,
+                         different_label_markers=True, aff_scale=1,
+                         iterations=2000, figsize=(20, 20), node_size=30,
+                         alpha=0.05, random_state=None, init_pos=None,
+                         node_with_labels=False, fa2_kwargs=None,
                          nx_draw_kwargs=None):
         """
         Draw KNN graph of SampleDistanceMatrix. Graph layout using
@@ -546,10 +547,14 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
         Parameters
         ----------
         k: int
-        aff_scale: float
-            Affinity is calculated by `(max(distance) - distance) * aff_scale`
         gradient: float array
             (n_samples,) color gradient
+        labels: label list
+            (n_samples,) labels
+        different_label_markers: bool
+            whether plot different labels with different markers
+        aff_scale: float
+            Affinity is calculated by `(max(distance) - distance) * aff_scale`
         iterations: int
             ForceAtlas2 iterations
         figsize: (float, float)
@@ -558,7 +563,7 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
         random_state: int
         init_pos: float array
             Initial position of ForceAtlas2, (n_samples, 2).
-        with_labels: bool
+        node_with_labels: bool
         fa2_kwargs: dict
         nx_draw_kwargs: dict
 
@@ -591,6 +596,7 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
             fa2_kwargs = {}
         else:
             fa2_kwargs = fa2_kwargs.copy()
+
         random.seed(random_state)
         forceatlas2 = ForceAtlas2(
             # Dissuade hubs
@@ -608,6 +614,7 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
             gravity=fa2_kwargs.pop("gravity", 1.0),
             # Log
             verbose=fa2_kwargs.pop("verbose", False), **fa2_kwargs)
+
         knn_fa2pos = forceatlas2.forceatlas2_networkx_layout(
             ng, pos=init_pos, iterations=iterations)
 
@@ -615,17 +622,13 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
             nx_draw_kwargs = {}
         else:
             nx_draw_kwargs = nx_draw_kwargs.copy()
-        if gradient is None:
-            node_color = nx_draw_kwargs.pop("node_color", "b")
-            cmap = nx_draw_kwargs.pop("cmap", None)
-        else:
-            node_color = gradient
-            cmap = nx_draw_kwargs.pop("cmap", "viridis")
 
         fig = networkx_graph(ng, knn_fa2pos, alpha=alpha, figsize=figsize,
-                             node_color=node_color, node_size=node_size,
-                             cmap=cmap, with_labels=with_labels,
-                             **nx_draw_kwargs)
+                             gradient=gradient, labels=labels,
+                             different_label_markers=different_label_markers,
+                             node_size=node_size,
+                             node_with_labels=node_with_labels,
+                             nx_draw_kwargs=nx_draw_kwargs)
         return fig
 
     @property

@@ -398,6 +398,7 @@ class TestClusterScatter(object):
                                 alpha=0.5, plot_different_markers=True,
                                 label_markers=['o']*10 + ['*']*25 + ['^']*15,
                                 s=50, random_state=123)
+
     @pytest.mark.mpl_image_compare
     def test_cluster_scatter_xylim(self):
         fig = eda.cluster_scatter(np.array([list(range(50)),
@@ -669,4 +670,4 @@ def test_networkx_graph():
     ng.add_edge(1, 2, weight=1)
     ng.add_edge(1, 3, weight=10)
     return eda.networkx_graph(ng, nx.kamada_kawai_layout(ng),
-                              figsize=(5, 5), alpha=1, with_labels=True)
+                              figsize=(5, 5), alpha=1, node_with_labels=True)

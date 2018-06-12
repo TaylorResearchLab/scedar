@@ -15,6 +15,7 @@ import networkx as nx
 
 from scedar.eda import mtype
 
+from collections import OrderedDict
 
 sns.set(style="ticks")
 
@@ -551,11 +552,101 @@ def heatmap(x, row_labels=None, col_labels=None,
     return fig
 
 
-def networkx_graph(ng, pos=None, figsize=(20, 20), node_size=30, alpha=0.05,
-                   with_labels=False, node_color="b", **kwargs):
+def networkx_graph(ng, pos=None, alpha=0.05, figsize=(20, 20), gradient=None,
+                   labels=None, different_label_markers=True,
+                   node_size=30, node_with_labels=False,
+                   nx_draw_kwargs=None):
     # TODO: offset labels
     fig = plt.figure(figsize=figsize)
-    nx.draw_networkx(ng, pos, alpha=alpha, node_color=node_color,
-                     node_size=node_size, with_labels=with_labels, **kwargs)
-    plt.close()
+
+    if nx_draw_kwargs is None:
+        nx_draw_kwargs = {}
+
+    if labels is not None:
+        # prepare markers and colors for each unique label
+        if different_label_markers:
+            # each marker for each label
+            # use a different marker for each label
+            # cycle use the following filled markers:
+            # "o": circle
+            # "s": square
+            # "^": triangle_up
+            # "D": diamond
+            # "x": x
+            # "v": triangle_down
+            # "d": thin_diamond
+            # "+": plus
+            # ">": triangle_right
+            # "p": pentagon
+            # "h": hexagon1
+            # "<": triangle_left
+            # "H": hexagon2
+            # "*": star
+            # order: "os^Dxvd+>ph<H*"
+            # Refs:
+            # - markers with shape:
+            # https://matplotlib.org/examples/lines_bars_and_markers/
+            # marker_reference.html
+            # - all merkers
+            # ref: https://matplotlib.org/api/markers_api.html
+            m_cycle = "os^Dxvd+>ph<H*"
+        else:
+            # all labels use "o"
+            m_cycle = "o"
+        # each label has a marker
+        uniq_labels = sorted(set(labels))
+        ulab_colors = sns.hls_palette(len(uniq_labels))
+        lab_m_s_ind_lut = OrderedDict()
+        for i, ulab in enumerate(uniq_labels):
+            ulab_m = m_cycle[i % len(m_cycle)]
+            ulab_c = ulab_colors[i]
+            lab_m_s_ind_lut[(ulab, ulab_m, ulab_c)] = list(filter(
+                lambda j: labels[j] == ulab, range(len(labels))))
+
+    if labels is None:
+        if gradient is None:
+            # no label. no gradient.
+            # plot all nodes as blue.
+            node_color = nx_draw_kwargs.pop("node_color", "b")
+            cmap = nx_draw_kwargs.pop("cmap", None)
+            nx.draw_networkx(ng, pos, alpha=alpha, node_color=node_color,
+                             cmap=cmap, node_size=node_size,
+                             with_labels=node_with_labels,
+                             **nx_draw_kwargs)
+        else:
+            # no label. has gradient.
+            cmap = nx_draw_kwargs.pop("cmap", "viridis")
+            # matplotlib.collections.PathCollection
+            nx.draw_networkx_edges(ng, pos, alpha=alpha)
+            mcp = nx.draw_networkx_nodes(ng, pos, alpha=alpha,
+                                         node_color=gradient, cmap=cmap,
+                                         node_size=node_size,
+                                         with_labels=node_with_labels,
+                                         **nx_draw_kwargs)
+            plt.colorbar(mcp)
+    else:
+        nx.draw_networkx_edges(ng, pos, alpha=alpha)
+        if gradient is None:
+            # has label. no gradient.
+            # plot differnt labels with different colors and markers.
+            for (ulab, ulab_m, ulab_c), ulab_s_inds in lab_m_s_ind_lut.items():
+                mcp = nx.draw_networkx_nodes(ng, pos, nodelist=ulab_s_inds,
+                                             node_color=ulab_c,
+                                             node_shape=ulab_m,
+                                             node_size=node_size, label=ulab)
+        else:
+            # has label. has gradient.
+            gradient = np.array(gradient)
+            cmap = nx_draw_kwargs.pop("cmap", "viridis")
+            for (ulab, ulab_m, ulab_c), ulab_s_inds in lab_m_s_ind_lut.items():
+                mcp = nx.draw_networkx_nodes(ng, pos, nodelist=ulab_s_inds,
+                                             node_color=gradient[ulab_s_inds],
+                                             node_shape=ulab_m,
+                                             node_size=node_size,
+                                             label=ulab, cmap=cmap)
+            # TODO: move legend out of the graph
+            plt.colorbar(mcp)
+        # TODO: move legend out of the graph
+        plt.legend(scatterpoints=1)
+    plt.close(fig)
     return fig
