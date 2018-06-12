@@ -585,11 +585,11 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
             aff_mat = (knn_d_arr.max() - knn_d_arr) * aff_scale
             # Add graph edges
             # Nodes are in the same order with their indices
+            # knn graph is not symmetric
             for i in range(knn_d_arr.shape[0]):
-                for j in range(i+1, knn_d_arr.shape[0]):
+                for j in range(knn_d_arr.shape[0]):
                     if knn_d_arr[i, j] > 0:
-                        ng.add_edge(self._sids[i], self._sids[j],
-                                    weight=aff_mat[i, j])
+                        ng.add_edge(i, j, weight=aff_mat[i, j])
             self._knn_ng_lut[knn_ng_param_key] = ng.copy()
 
         if fa2_kwargs is None:
