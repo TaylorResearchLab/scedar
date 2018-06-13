@@ -5,6 +5,8 @@ from scedar import utils
 
 import time
 
+from scipy.sparse import coo_matrix
+
 
 class FeatureKNNPickUp(object):
     """
@@ -93,16 +95,10 @@ class FeatureKNNPickUp(object):
                                 n_pu_entries, n_samples_wfpu,
                                 n_samples_wfpu / n_samples,
                                 n_pu_entries_ratio)
-
-        pu_sdm = eda.SampleDistanceMatrix(curr_x_arr,
-                                          metric=self._sdm._metric,
-                                          sids=self._sdm.sids,
-                                          fids=self._sdm.fids,
-                                          nprocs=self._sdm._nprocs)
-
+        curr_x_spm = coo_matrix(curr_x_arr)
+        pickup_idc_spm = coo_matrix(pickup_idc_arr)
         stats += "Complete in {:.2f}s\n".format(time.time() - start_time)
-
-        return pu_sdm, pickup_idc_arr, stats
+        return curr_x_spm, pickup_idc_spm, stats
 
     def knn_pickup_features(self, k, n_do, min_present_val, n_iter, nprocs=1):
         """
@@ -210,9 +206,16 @@ class FeatureKNNPickUp(object):
         res_list = utils.parmap(
             lambda ptup: self._knn_pickup_features_runner(*ptup),
             param_tups, nprocs)
-
+        
         for i in range(n_param_tups):
             if param_tups[i] not in self._res_lut:
                 self._res_lut[param_tups[i]] = res_list[i]
-
-        return [res[0] for res in res_list]
+        
+        kpu_sdm_list = []
+        for res in res_list:
+            kpu_x = res[0].toarray()
+            kpu_sdm = eda.SampleDistanceMatrix(
+                kpu_x, metric=self._sdm._metric, sids=self._sdm.sids,
+                fids=self._sdm.fids, nprocs=self._sdm._nprocs)
+            kpu_sdm_list.append(kpu_sdm)
+        return kpu_sdm_list
