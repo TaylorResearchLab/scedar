@@ -5,7 +5,9 @@ from scedar import utils
 
 import time
 
-from scipy.sparse import coo_matrix
+import gzip
+
+import pickle
 
 
 class FeatureKNNPickUp(object):
@@ -30,13 +32,13 @@ class FeatureKNNPickUp(object):
         self._res_lut = {}
 
     @staticmethod
-    def _knn_pickup_features_runner(sparse_x, knn_ordered_ind_dict, k, n_do,
+    def _knn_pickup_features_runner(gz_pb_x, knn_ordered_ind_dict, k, n_do,
                                     min_present_val, n_iter):
         """
         Runs KNN pick-up on single parameter set in one process.
         """
         start_time = time.time()
-        curr_x_arr = sparse_x.toarray()
+        curr_x_arr = pickle.loads(gzip.decompress(gz_pb_x))
         n_samples, n_features = curr_x_arr.shape
         # knn_ordered_ind_dict = {sample_ind : [1st_NN_ind(neq sample_ind),
         #                                       2nd_NN_ind, ..., nth_NN_ind], 
@@ -93,10 +95,10 @@ class FeatureKNNPickUp(object):
                                 n_pu_entries, n_samples_wfpu,
                                 n_samples_wfpu / n_samples,
                                 n_pu_entries_ratio)
-        curr_x_spm = coo_matrix(curr_x_arr)
-        pickup_idc_spm = coo_matrix(pickup_idc_arr)
+        curr_x_gz_pb = gzip.compress(pickle.dumps(curr_x_arr))
+        pickup_idc_gz_pb = gzip.compress(pickle.dumps(pickup_idc_arr))
         stats += "Complete in {:.2f}s\n".format(time.time() - start_time)
-        return curr_x_spm, pickup_idc_spm, stats
+        return curr_x_gz_pb, pickup_idc_gz_pb, stats
 
     def knn_pickup_features(self, k, n_do, min_present_val, n_iter, nprocs=1):
         """
@@ -216,14 +218,14 @@ class FeatureKNNPickUp(object):
                 res_list.append(None)
                 res_list_run_inds.append(i)
         # set up parameters for running
-        # use sparse matrix to save space, because python multiprocessing has
-        # a limit of sharing memory through pipe
-        sparse_x = coo_matrix(self._sdm._x)
+        # use gzipped pickle bytecode to save space, because python
+        # multiprocessing has a limit of sharing memory through pipe
+        gz_pb_x = gzip.compress(pickle.dumps(self._sdm._x))
         run_param_setup_tups = []
         for param_tup in run_param_tups:
             # assumes that the first element of the param_tup is k
             run_param_setup_tups.append(
-                (sparse_x, self._sdm.s_knn_ind_lut(param_tup[0])) + param_tup)
+                (gz_pb_x, self._sdm.s_knn_ind_lut(param_tup[0])) + param_tup)
 
         nprocs = int(nprocs)
         nprocs = min(nprocs, n_param_tups)
@@ -235,15 +237,18 @@ class FeatureKNNPickUp(object):
             # cache results
             if param_tup in self._res_lut:
                 raise NotImplementedError("Unexpected scenario encountered")
-            self._res_lut[param_tup] = run_res_list[i]
+            res_x = pickle.loads(gzip.decompress(run_res_list[i][0]))
+            res_idc = pickle.loads(gzip.decompress(run_res_list[i][1]))
+            res_tup = (res_x, res_idc, run_res_list[i][2])
+            self._res_lut[param_tup] = res_tup
             # fill res_list
             if res_list[res_list_run_inds[i]] is not None:
                 raise NotImplementedError("Unexpected scenario encountered")
-            res_list[res_list_run_inds[i]] = run_res_list[i]
+            res_list[res_list_run_inds[i]] = res_tup
 
         kpu_sdm_list = []
         for res in res_list:
-            kpu_x = res[0].toarray()
+            kpu_x = res[0]
             kpu_sdm = eda.SampleDistanceMatrix(
                 kpu_x,
                 metric=self._sdm._metric,

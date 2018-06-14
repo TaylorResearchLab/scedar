@@ -45,11 +45,11 @@ class TestFeatureKNNPickUp(object):
         assert res_sdml[2]._x[7, 0] > 0
 
         # lookup
-        np.testing.assert_equal(fkp._res_lut[(1, 1, 0.5, 1)][0].toarray(),
+        np.testing.assert_equal(fkp._res_lut[(1, 1, 0.5, 1)][0],
                                 res_sdml[0]._x)
-        np.testing.assert_equal(fkp._res_lut[(3, 1, 1.5, 1)][0].toarray(),
+        np.testing.assert_equal(fkp._res_lut[(3, 1, 1.5, 1)][0],
                                 res_sdml[1]._x)
-        np.testing.assert_equal(fkp._res_lut[(5, 3, 0.5, 5)][0].toarray(),
+        np.testing.assert_equal(fkp._res_lut[(5, 3, 0.5, 5)][0],
                                 res_sdml[2]._x)
         # d should not be changed
         np.testing.assert_equal(fkp._sdm._d, d)
