@@ -59,6 +59,21 @@ class TestFeatureKNNPickUp(object):
         assert len(fkp._res_lut) == 3
         np.testing.assert_equal(fkp._sdm._d, d)
         np.testing.assert_equal(fkp._sdm.x, self.tx)
+        # run results should be placed with the correct order
+        fkp2 = qc.FeatureKNNPickUp(self.tsdm)
+        res1 = fkp2.knn_pickup_features([1, 3, 5], [1, 1, 3],
+                                        [0.5, 1.5, 0.5], [1, 1, 5],
+                                        nprocs=nprocs)
+        fkp3 = qc.FeatureKNNPickUp(self.tsdm)
+        res2 = fkp3.knn_pickup_features([2, 3, 4], [1, 1, 3],
+                                        [0.5, 1.5, 0.5], [1, 1, 5],
+                                        nprocs=nprocs)
+        res3 = fkp2.knn_pickup_features([2, 3, 4], [1, 1, 3],
+                                        [0.5, 1.5, 0.5], [1, 1, 5],
+                                        nprocs=nprocs)
+        np.testing.assert_equal(res1[1]._x, res3[1]._x)
+        np.testing.assert_equal(res2[0]._x, res3[0]._x)
+        np.testing.assert_equal(res2[2]._x, res3[2]._x)
 
     def test_knn_pickup_features(self):
         self.run_test_knn_pickup_features(1)

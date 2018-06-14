@@ -29,21 +29,19 @@ class FeatureKNNPickUp(object):
         self._sdm = sdm
         self._res_lut = {}
 
-    def _knn_pickup_features_runner(self, k, n_do, min_present_val, n_iter):
+    @staticmethod
+    def _knn_pickup_features_runner(sparse_x, knn_ordered_ind_dict, k, n_do,
+                                    min_present_val, n_iter):
         """
         Runs KNN pick-up on single parameter set in one process.
         """
-        param_key = (k, n_do, min_present_val, n_iter)
-        if param_key in self._res_lut:
-            return self._res_lut[param_key]
-
         start_time = time.time()
-        n_samples, n_features = self._sdm._x.shape
-        # {sample_ind : [1st_NN_ind(neq sample_ind),
-        #                 2nd_NN_ind, ..., nth_NN_ind], ...}
-        knn_ordered_ind_dict = self._sdm.s_knn_ind_lut(k)
+        curr_x_arr = sparse_x.toarray()
+        n_samples, n_features = curr_x_arr.shape
+        # knn_ordered_ind_dict = {sample_ind : [1st_NN_ind(neq sample_ind),
+        #                                       2nd_NN_ind, ..., nth_NN_ind], 
+        #                         ...}
         # curr_x_arr is only accessed but not edited
-        curr_x_arr = self._sdm._x
         next_x_arr = np.copy(curr_x_arr)
         curr_x_present_arr = curr_x_arr >= min_present_val
         curr_x_absent_arr = np.logical_not(curr_x_present_arr)
@@ -200,22 +198,57 @@ class FeatureKNNPickUp(object):
         param_tups = [(k_list[i], n_do_list[i], min_present_val_list[i],
                        n_iter_list[i])
                       for i in range(n_param_tups)]
+        res_list = []
+        # use cached results with the following procedure
+        # 1. put cached results to res_list, with not cached ones as None
+        # 2. run not cached ones
+        # 3. after running, cache the results results and fill res_list
+
+        # parameter tuples without cached results for running
+        run_param_tups = []
+        # indices of results to be filled after running
+        res_list_run_inds = []
+        for i, param_tup in enumerate(param_tups):
+            if param_tup in self._res_lut:
+                res_list.append(self._res_lut[param_tup])
+            else:
+                run_param_tups.append(param_tup)
+                res_list.append(None)
+                res_list_run_inds.append(i)
+        # set up parameters for running
+        # use sparse matrix to save space, because python multiprocessing has
+        # a limit of sharing memory through pipe
+        sparse_x = coo_matrix(self._sdm._x)
+        run_param_setup_tups = []
+        for param_tup in run_param_tups:
+            # assumes that the first element of the param_tup is k
+            run_param_setup_tups.append(
+                (sparse_x, self._sdm.s_knn_ind_lut(param_tup[0])) + param_tup)
+
         nprocs = int(nprocs)
         nprocs = min(nprocs, n_param_tups)
-
-        res_list = utils.parmap(
+        run_res_list = utils.parmap(
             lambda ptup: self._knn_pickup_features_runner(*ptup),
-            param_tups, nprocs)
-        
-        for i in range(n_param_tups):
-            if param_tups[i] not in self._res_lut:
-                self._res_lut[param_tups[i]] = res_list[i]
-        
+            run_param_setup_tups, nprocs)
+
+        for i, param_tup in enumerate(run_param_tups):
+            # cache results
+            if param_tup in self._res_lut:
+                raise NotImplementedError("Unexpected scenario encountered")
+            self._res_lut[param_tup] = run_res_list[i]
+            # fill res_list
+            if res_list[res_list_run_inds[i]] is not None:
+                raise NotImplementedError("Unexpected scenario encountered")
+            res_list[res_list_run_inds[i]] = run_res_list[i]
+
         kpu_sdm_list = []
         for res in res_list:
             kpu_x = res[0].toarray()
             kpu_sdm = eda.SampleDistanceMatrix(
-                kpu_x, metric=self._sdm._metric, sids=self._sdm.sids,
-                fids=self._sdm.fids, nprocs=self._sdm._nprocs)
+                kpu_x,
+                metric=self._sdm._metric,
+                sids=self._sdm.sids,
+                fids=self._sdm.fids,
+                nprocs=self._sdm._nprocs)
             kpu_sdm_list.append(kpu_sdm)
         return kpu_sdm_list
