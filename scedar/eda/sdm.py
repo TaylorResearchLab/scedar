@@ -109,6 +109,34 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
         self._lazy_load_skd_pca = None
         self._lazy_load_pca_x = None
 
+    def to_single_label_classified_samples(self, labels):
+        """Convert to SingleLabelClassifiedSamples
+
+        Args:
+            labels (list of labels): sample labels.
+
+        Returns:
+            SingleLabelClassifiedSamples
+        """
+        slcs = scedar.eda.SingleLabelClassifiedSamples(
+            self._x, labels, sids=self.sids, fids=self.fids, d=None,
+            metric=self._metric, nprocs=self._nprocs)
+        # pairwise distance matrix
+        slcs._lazy_load_d = self._lazy_load_d
+        # tsne
+        slcs._tsne_lut = self._tsne_lut.copy()
+        slcs._lazy_load_last_tsne = self._lazy_load_last_tsne
+        # sorted distance matrix
+        slcs._lazy_load_col_sorted_d = self._lazy_load_col_sorted_d
+        slcs._lazy_load_col_argsorted_d = self._lazy_load_col_argsorted_d
+        # knn graph
+        slcs._knn_ng_lut = self._knn_ng_lut.copy()
+        # pca
+        slcs._pca_n_components = self._pca_n_components
+        slcs._lazy_load_skd_pca = self._lazy_load_skd_pca
+        slcs._lazy_load_pca_x = self._lazy_load_pca_x
+        return slcs
+
     def sort_features(self, fdist_metric="correlation"):
         optimal_f_inds = HClustTree.sort_x_by_d(self._x.T, metric=fdist_metric,
                                                 nprocs=self._nprocs)

@@ -127,6 +127,46 @@ class TestSampleDistanceMatrix(object):
         with pytest.raises(Exception) as excinfo:
             eda.SampleDistanceMatrix(self.x_3x2, d_1x6)
 
+    def test_to_single_label_classified_samples(self):
+        sdm = eda.SampleDistanceMatrix(np.arange(100).reshape(50, -1),
+                                       metric='euclidean')
+        # initialize cached results
+        sdm.tsne_gradient_plot()
+        sdm.pca_gradient_plot()
+        sdm.draw_s_knn_graph(2)
+        sdm.s_ith_nn_d(1)
+        sdm.s_ith_nn_ind(1)
+        labs = [0]*10 + [1]*20 + [0]*10 + [2]*10
+        slcs = sdm.to_single_label_classified_samples(labs)
+        assert slcs.labs == labs
+        assert slcs._x is sdm._x
+        assert slcs._lazy_load_d is sdm._lazy_load_d
+        assert slcs._lazy_load_d is not None
+        assert slcs._metric == sdm._metric
+        assert slcs._nprocs == sdm._nprocs
+        assert slcs.sids == sdm.sids
+        assert slcs.fids == sdm.fids
+        # tsne
+        assert slcs._tsne_lut is not None
+        assert slcs._tsne_lut == sdm._tsne_lut
+        assert slcs._lazy_load_last_tsne is not None
+        assert slcs._lazy_load_last_tsne is sdm._lazy_load_last_tsne
+        # knn
+        assert slcs._lazy_load_col_sorted_d is not None
+        assert slcs._lazy_load_col_sorted_d is sdm._lazy_load_col_sorted_d
+        assert slcs._lazy_load_col_argsorted_d is not None
+        assert (slcs._lazy_load_col_argsorted_d is
+                sdm._lazy_load_col_argsorted_d)
+        assert slcs._knn_ng_lut is not None
+        assert slcs._knn_ng_lut == sdm._knn_ng_lut
+        # pca
+        assert slcs._pca_n_components is not None
+        assert slcs._lazy_load_skd_pca is not None
+        assert slcs._lazy_load_pca_x is not None
+        assert slcs._pca_n_components == sdm._pca_n_components
+        assert slcs._lazy_load_skd_pca is sdm._lazy_load_skd_pca
+        assert slcs._lazy_load_pca_x is sdm._lazy_load_pca_x
+
     def test_sort_x_by_d(self):
         x1 = np.array([[0, 5, 30, 10],
                       [1, 5, 30, 10],

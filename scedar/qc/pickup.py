@@ -9,6 +9,8 @@ import gzip
 
 import pickle
 
+# TODO: use multiprocessing.Manager to share data between processes
+
 
 class FeatureKNNPickUp(object):
     """
@@ -41,7 +43,7 @@ class FeatureKNNPickUp(object):
         curr_x_arr = pickle.loads(gzip.decompress(gz_pb_x))
         n_samples, n_features = curr_x_arr.shape
         # knn_ordered_ind_dict = {sample_ind : [1st_NN_ind(neq sample_ind),
-        #                                       2nd_NN_ind, ..., nth_NN_ind], 
+        #                                       2nd_NN_ind, ..., nth_NN_ind],
         #                         ...}
         # curr_x_arr is only accessed but not edited
         next_x_arr = np.copy(curr_x_arr)
