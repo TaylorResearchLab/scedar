@@ -127,17 +127,17 @@ class TestSampleDistanceMatrix(object):
         with pytest.raises(Exception) as excinfo:
             eda.SampleDistanceMatrix(self.x_3x2, d_1x6)
 
-    def test_to_single_label_classified_samples(self):
+    def test_to_classified(self):
         sdm = eda.SampleDistanceMatrix(np.arange(100).reshape(50, -1),
                                        metric='euclidean')
         # initialize cached results
-        sdm.tsne_gradient_plot()
+        sdm.tsne_plot()
         sdm.pca_gradient_plot()
-        sdm.draw_s_knn_graph(2)
+        sdm.s_knn_graph(2)
         sdm.s_ith_nn_d(1)
         sdm.s_ith_nn_ind(1)
         labs = [0]*10 + [1]*20 + [0]*10 + [2]*10
-        slcs = sdm.to_single_label_classified_samples(labs)
+        slcs = sdm.to_classified(labs)
         assert slcs.labs == labs
         assert slcs._x is sdm._x
         assert slcs._lazy_load_d is sdm._lazy_load_d
@@ -709,7 +709,7 @@ class TestSampleDistanceMatrix(object):
             sdm.tsne_feature_gradient_plot('123')
 
     @pytest.mark.mpl_image_compare
-    def test_sdm_tsne_gradient_plot(self):
+    def test_sdm_tsne_plot(self):
         sids = list(range(8))
         fids = [str(i) for i in range(10)]
         np.random.seed(123)
@@ -717,7 +717,7 @@ class TestSampleDistanceMatrix(object):
         x_sorted = x[np.argsort(x[:, 5])]
         g = x_sorted[:, 5]
         sdm = eda.SampleDistanceMatrix(x_sorted, sids=sids, fids=fids)
-        return sdm.tsne_gradient_plot(g, figsize=(10, 10), s=50)
+        return sdm.tsne_plot(g, figsize=(10, 10), s=50)
 
     @pytest.mark.mpl_image_compare
     def test_sdm_pca_feature_gradient_plot(self):
@@ -888,112 +888,112 @@ class TestSampleDistanceMatrix(object):
                                    nn_sdm.s_knn_connectivity_matrix(1))
 
     @pytest.mark.mpl_image_compare
-    def test_draw_s_knn_graph_grad_lab(self):
+    def test_s_knn_graph_grad_lab(self):
         np.random.seed(123)
         x = np.concatenate((np.random.normal(0, 1, 10),
                             np.random.normal(20, 1, 20))).reshape(30, -1)
         sdm = eda.SampleDistanceMatrix(x, metric='euclidean')
-        sdm.draw_s_knn_graph(5, figsize=(5, 5))
+        sdm.s_knn_graph(5, figsize=(5, 5))
         assert (5, 1) in sdm._knn_ng_lut
         assert len(sdm._knn_ng_lut) == 1
         # use cache
-        sdm.draw_s_knn_graph(5, figsize=(5, 5))
-        sdm.draw_s_knn_graph(5, figsize=(5, 5), fa2_kwargs={})
-        sdm.draw_s_knn_graph(5, figsize=(5, 5), nx_draw_kwargs={})
+        sdm.s_knn_graph(5, figsize=(5, 5))
+        sdm.s_knn_graph(5, figsize=(5, 5), fa2_kwargs={})
+        sdm.s_knn_graph(5, figsize=(5, 5), nx_draw_kwargs={})
         assert len(sdm._knn_ng_lut) == 1
         gradient = np.array([1] * 10 + [10] * 20)
         labs = gradient = np.array([1] * 10 + [2] * 20)
-        return sdm.draw_s_knn_graph(5, gradient=gradient, labels=labs,
-                                    figsize=(5, 5),
-                                    alpha=0.8, random_state=123)
+        return sdm.s_knn_graph(5, gradient=gradient, labels=labs,
+                               figsize=(5, 5),
+                               alpha=0.8, random_state=123)
 
     @pytest.mark.mpl_image_compare
-    def test_draw_s_knn_graph_grad_lab_same_marker(self):
+    def test_s_knn_graph_grad_lab_same_marker(self):
         np.random.seed(123)
         x = np.concatenate((np.random.normal(0, 1, 10),
                             np.random.normal(20, 1, 20))).reshape(30, -1)
         sdm = eda.SampleDistanceMatrix(x, metric='euclidean')
-        sdm.draw_s_knn_graph(5, figsize=(5, 5))
+        sdm.s_knn_graph(5, figsize=(5, 5))
         assert (5, 1) in sdm._knn_ng_lut
         assert len(sdm._knn_ng_lut) == 1
         gradient = np.array([1] * 10 + [10] * 20)
         labs = gradient = np.array([1] * 10 + [2] * 20)
-        return sdm.draw_s_knn_graph(5, gradient=gradient, labels=labs,
-                                    different_label_markers=False,
-                                    figsize=(5, 5),
-                                    alpha=0.8, random_state=123)
+        return sdm.s_knn_graph(5, gradient=gradient, labels=labs,
+                               different_label_markers=False,
+                               figsize=(5, 5),
+                               alpha=0.8, random_state=123)
 
     @pytest.mark.mpl_image_compare
-    def test_draw_s_knn_graph_grad_nolab(self):
+    def test_s_knn_graph_grad_nolab(self):
         np.random.seed(123)
         x = np.concatenate((np.random.normal(0, 1, 10),
                             np.random.normal(20, 1, 20))).reshape(30, -1)
         sdm = eda.SampleDistanceMatrix(x, metric='euclidean')
-        sdm.draw_s_knn_graph(5, figsize=(5, 5))
+        sdm.s_knn_graph(5, figsize=(5, 5))
         assert (5, 1) in sdm._knn_ng_lut
         assert len(sdm._knn_ng_lut) == 1
         # use cache
-        sdm.draw_s_knn_graph(5, figsize=(5, 5))
-        sdm.draw_s_knn_graph(5, figsize=(5, 5), fa2_kwargs={})
-        sdm.draw_s_knn_graph(5, figsize=(5, 5), nx_draw_kwargs={})
+        sdm.s_knn_graph(5, figsize=(5, 5))
+        sdm.s_knn_graph(5, figsize=(5, 5), fa2_kwargs={})
+        sdm.s_knn_graph(5, figsize=(5, 5), nx_draw_kwargs={})
         assert len(sdm._knn_ng_lut) == 1
         gradient = np.array([1] * 10 + [10] * 20)
-        return sdm.draw_s_knn_graph(5, gradient=gradient, figsize=(5, 5),
-                                    alpha=0.8, random_state=123)
+        return sdm.s_knn_graph(5, gradient=gradient, figsize=(5, 5),
+                               alpha=0.8, random_state=123)
 
     @pytest.mark.mpl_image_compare
-    def test_draw_s_knn_graph_nograd_nolab(self):
+    def test_s_knn_graph_nograd_nolab(self):
         np.random.seed(123)
         x = np.concatenate((np.random.normal(0, 1, 10),
                             np.random.normal(20, 1, 20))).reshape(30, -1)
         sdm = eda.SampleDistanceMatrix(x, metric='euclidean')
-        sdm.draw_s_knn_graph(5, figsize=(5, 5))
+        sdm.s_knn_graph(5, figsize=(5, 5))
         assert (5, 1) in sdm._knn_ng_lut
         assert len(sdm._knn_ng_lut) == 1
         # use cache
-        sdm.draw_s_knn_graph(5, figsize=(5, 5))
-        sdm.draw_s_knn_graph(5, figsize=(5, 5), fa2_kwargs={})
-        sdm.draw_s_knn_graph(5, figsize=(5, 5), nx_draw_kwargs={})
+        sdm.s_knn_graph(5, figsize=(5, 5))
+        sdm.s_knn_graph(5, figsize=(5, 5), fa2_kwargs={})
+        sdm.s_knn_graph(5, figsize=(5, 5), nx_draw_kwargs={})
         assert len(sdm._knn_ng_lut) == 1
-        return sdm.draw_s_knn_graph(5, figsize=(5, 5),
-                                    alpha=0.8, random_state=123)
+        return sdm.s_knn_graph(5, figsize=(5, 5),
+                               alpha=0.8, random_state=123)
 
     @pytest.mark.mpl_image_compare
-    def test_draw_s_knn_graph_nograd_lab(self):
+    def test_s_knn_graph_nograd_lab(self):
         np.random.seed(123)
         x = np.concatenate((np.random.normal(0, 1, 10),
                             np.random.normal(20, 1, 20))).reshape(30, -1)
         sdm = eda.SampleDistanceMatrix(x, metric='euclidean')
-        sdm.draw_s_knn_graph(5, figsize=(5, 5))
+        sdm.s_knn_graph(5, figsize=(5, 5))
         assert (5, 1) in sdm._knn_ng_lut
         assert len(sdm._knn_ng_lut) == 1
         # use cache
-        sdm.draw_s_knn_graph(5, figsize=(5, 5))
-        sdm.draw_s_knn_graph(5, figsize=(5, 5), fa2_kwargs={})
-        sdm.draw_s_knn_graph(5, figsize=(5, 5), nx_draw_kwargs={})
+        sdm.s_knn_graph(5, figsize=(5, 5))
+        sdm.s_knn_graph(5, figsize=(5, 5), fa2_kwargs={})
+        sdm.s_knn_graph(5, figsize=(5, 5), nx_draw_kwargs={})
         assert len(sdm._knn_ng_lut) == 1
         labs = np.array([1] * 10 + [2] * 20)
-        return sdm.draw_s_knn_graph(5, labels=labs, figsize=(5, 5),
-                                    alpha=0.8, random_state=123)
+        return sdm.s_knn_graph(5, labels=labs, figsize=(5, 5),
+                               alpha=0.8, random_state=123)
 
     @pytest.mark.mpl_image_compare
-    def test_draw_s_knn_graph_nograd_lab_same_marker(self):
+    def test_s_knn_graph_nograd_lab_same_marker(self):
         np.random.seed(123)
         x = np.concatenate((np.random.normal(0, 1, 10),
                             np.random.normal(20, 1, 20))).reshape(30, -1)
         sdm = eda.SampleDistanceMatrix(x, metric='euclidean')
-        sdm.draw_s_knn_graph(5, figsize=(5, 5))
+        sdm.s_knn_graph(5, figsize=(5, 5))
         assert (5, 1) in sdm._knn_ng_lut
         assert len(sdm._knn_ng_lut) == 1
         # use cache
-        sdm.draw_s_knn_graph(5, figsize=(5, 5))
-        sdm.draw_s_knn_graph(5, figsize=(5, 5), fa2_kwargs={})
-        sdm.draw_s_knn_graph(5, figsize=(5, 5), nx_draw_kwargs={})
+        sdm.s_knn_graph(5, figsize=(5, 5))
+        sdm.s_knn_graph(5, figsize=(5, 5), fa2_kwargs={})
+        sdm.s_knn_graph(5, figsize=(5, 5), nx_draw_kwargs={})
         assert len(sdm._knn_ng_lut) == 1
         labs = np.array([1] * 10 + [2] * 20)
-        return sdm.draw_s_knn_graph(5, labels=labs, figsize=(5, 5),
-                                    different_label_markers=False,
-                                    alpha=0.8, random_state=123)
+        return sdm.s_knn_graph(5, labels=labs, figsize=(5, 5),
+                               different_label_markers=False,
+                               alpha=0.8, random_state=123)
 
     def test_cosine_pdist(self):
         np.random.seed(222)

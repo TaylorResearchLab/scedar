@@ -655,7 +655,7 @@ class TestSingleLabelClassifiedSamples(object):
             '5', selected_labels=[5, 6, 7], figsize=(10, 10), s=50)
 
     @pytest.mark.mpl_image_compare
-    def test_tsne_gradient_plot(self):
+    def test_tsne_plot(self):
         sids = list(range(8))
         fids = [str(i) for i in range(10)]
         labs = list(range(8))
@@ -665,10 +665,10 @@ class TestSingleLabelClassifiedSamples(object):
         g = x_sorted[:, 5]
         slab_csamples = eda.SingleLabelClassifiedSamples(
             x_sorted, labs, sids=sids, fids=fids)
-        return slab_csamples.tsne_gradient_plot(g, figsize=(10, 10), s=50)
+        return slab_csamples.tsne_plot(g, figsize=(10, 10), s=50)
 
     @pytest.mark.mpl_image_compare
-    def test_tsne_gradient_plot_abclabs(self):
+    def test_tsne_plot_abclabs(self):
         sids = list(range(8))
         fids = [str(i) for i in range(10)]
         labs = list(range(8))
@@ -679,8 +679,8 @@ class TestSingleLabelClassifiedSamples(object):
         g = x_sorted[:, 5]
         slab_csamples = eda.SingleLabelClassifiedSamples(
             x_sorted, labs, sids=sids, fids=fids)
-        return slab_csamples.tsne_gradient_plot(g, labels=list('abcdefgh'),
-                                                figsize=(10, 10), s=50)
+        return slab_csamples.tsne_plot(g, labels=list('abcdefgh'),
+                                       figsize=(10, 10), s=50)
 
     def test_tsne_feature_gradient_plot_wrong_args(self):
         sids = list(range(8))

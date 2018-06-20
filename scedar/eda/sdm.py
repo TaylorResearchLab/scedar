@@ -109,7 +109,7 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
         self._lazy_load_skd_pca = None
         self._lazy_load_pca_x = None
 
-    def to_single_label_classified_samples(self, labels):
+    def to_classified(self, labels):
         """Convert to SingleLabelClassifiedSamples
 
         Args:
@@ -292,16 +292,16 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
                 self.put_tsne(str(param_list[i]), resl[i])
         return resl
 
-    def tsne_gradient_plot(self, gradient=None, labels=None,
-                           selected_labels=None,
-                           plot_different_markers=False,
-                           label_markers=None,
-                           shuffle_label_colors=False,
-                           xlim=None, ylim=None,
-                           title=None, xlab=None, ylab=None,
-                           figsize=(20, 20), add_legend=True,
-                           n_txt_per_cluster=3, alpha=1, s=0.5,
-                           random_state=None, **kwargs):
+    def tsne_plot(self, gradient=None, labels=None,
+                  selected_labels=None,
+                  plot_different_markers=False,
+                  label_markers=None,
+                  shuffle_label_colors=False,
+                  xlim=None, ylim=None,
+                  title=None, xlab=None, ylab=None,
+                  figsize=(20, 20), add_legend=True,
+                  n_txt_per_cluster=3, alpha=1, s=0.5,
+                  random_state=None, **kwargs):
         """
         Plot the last t-SNE projection with the provided gradient as color.
         Gradient is None by default.
@@ -562,12 +562,12 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
                                         include_self=False).toarray()
         return knn_conn_mat
 
-    def draw_s_knn_graph(self, k, gradient=None, labels=None,
-                         different_label_markers=True, aff_scale=1,
-                         iterations=2000, figsize=(20, 20), node_size=30,
-                         alpha=0.05, random_state=None, init_pos=None,
-                         node_with_labels=False, fa2_kwargs=None,
-                         nx_draw_kwargs=None):
+    def s_knn_graph(self, k, gradient=None, labels=None,
+                    different_label_markers=True, aff_scale=1,
+                    iterations=2000, figsize=(20, 20), node_size=30,
+                    alpha=0.05, random_state=None, init_pos=None,
+                    node_with_labels=False, fa2_kwargs=None,
+                    nx_draw_kwargs=None):
         """
         Draw KNN graph of SampleDistanceMatrix. Graph layout using
         forceatlas2 for its speed on large graph.

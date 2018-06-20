@@ -548,13 +548,13 @@ complete-guide-parameter-tuning-xgboost-with-codes-python/
             ulab_fi_lut[ulab] = [t for t in ulab_fi_lut[ulab]]
         return ulab_fi_lut
 
-    def tsne_gradient_plot(self, gradient=None, labels=None,
-                           selected_labels=None,
-                           shuffle_label_colors=False,
-                           title=None, xlab=None, ylab=None,
-                           figsize=(20, 20), add_legend=True,
-                           n_txt_per_cluster=3, alpha=1, s=0.5,
-                           random_state=None, **kwargs):
+    def tsne_plot(self, gradient=None, labels=None,
+                  selected_labels=None,
+                  shuffle_label_colors=False,
+                  title=None, xlab=None, ylab=None,
+                  figsize=(20, 20), add_legend=True,
+                  n_txt_per_cluster=3, alpha=1, s=0.5,
+                  random_state=None, **kwargs):
         """
         Plot the last t-SNE projection with the provided gradient as color.
         """
@@ -562,7 +562,7 @@ complete-guide-parameter-tuning-xgboost-with-codes-python/
             labels = self.labs
 
         return super(SingleLabelClassifiedSamples,
-                     self).tsne_gradient_plot(
+                     self).tsne_plot(
                         gradient=gradient, labels=labels,
                         selected_labels=selected_labels,
                         shuffle_label_colors=shuffle_label_colors,
