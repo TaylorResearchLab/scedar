@@ -207,16 +207,18 @@ class FeatureKNNPickUp(object):
         # 1. put cached results to res_list, with not cached ones as None
         # 2. run not cached ones
         # 3. after running, cache the results results and fill res_list
+        # same as filter
+        # TODO: abstract the running pattern into a function
 
         # parameter tuples without cached results for running
         run_param_tups = []
         # indices of results to be filled after running
         res_list_run_inds = []
-        for i, param_tup in enumerate(param_tups):
-            if param_tup in self._res_lut:
-                res_list.append(self._res_lut[param_tup])
+        for i, ptup in enumerate(param_tups):
+            if ptup in self._res_lut:
+                res_list.append(self._res_lut[ptup])
             else:
-                run_param_tups.append(param_tup)
+                run_param_tups.append(ptup)
                 res_list.append(None)
                 res_list_run_inds.append(i)
         # set up parameters for running
@@ -224,10 +226,10 @@ class FeatureKNNPickUp(object):
         # multiprocessing has a limit of sharing memory through pipe
         gz_pb_x = gzip.compress(pickle.dumps(self._sdm._x))
         run_param_setup_tups = []
-        for param_tup in run_param_tups:
-            # assumes that the first element of the param_tup is k
+        for ptup in run_param_tups:
+            # assumes that the first element of the ptup is k
             run_param_setup_tups.append(
-                (gz_pb_x, self._sdm.s_knn_ind_lut(param_tup[0])) + param_tup)
+                (gz_pb_x, self._sdm.s_knn_ind_lut(ptup[0])) + ptup)
 
         nprocs = int(nprocs)
         nprocs = min(nprocs, n_param_tups)

@@ -62,8 +62,8 @@ class SampleKNNFilter(object):
                                                  kept_curr_s_inds)]
             curr_s_inds = curr_s_inds[kept_curr_s_inds]
             progress_list.append(curr_s_inds.tolist())
-
-        return self._sdm.ind_x(curr_s_inds), progress_list
+        # thes last one of progress_list is equal to the curr_s_inds
+        return curr_s_inds.tolist(), progress_list
 
     def knn_filter_samples(self, k, d_cutoff, n_iter, nprocs=1):
         """

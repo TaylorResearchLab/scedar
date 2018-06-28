@@ -14,8 +14,7 @@ class TestSampleKNNFilter(object):
     def test_knn_filter_samples(self):
         skf = qc.SampleKNNFilter(self.tsdm)
         d = skf._sdm._d.copy()
-        res_sdml = skf.knn_filter_samples([3, 4, 5], [10]*3, [5, 6, 7])
-        resl = [x.sids for x in res_sdml]
+        resl = skf.knn_filter_samples([3, 4, 5], [10]*3, [5, 6, 7])
         assert resl == [list(range(5, 10)), list(range(5, 10)), []]
         assert len(skf._res_lut) == 3
         assert skf._res_lut[(3, 10, 5)][1][-1] == resl[0]
@@ -27,8 +26,7 @@ class TestSampleKNNFilter(object):
     def test_knn_filter_samples_par(self):
         skf = qc.SampleKNNFilter(self.tsdm)
         d = skf._sdm._d.copy()
-        res_sdml = skf.knn_filter_samples([3, 4, 5], [10]*3, [5, 6, 7], 3)
-        resl = [x.sids for x in res_sdml]
+        resl = skf.knn_filter_samples([3, 4, 5], [10]*3, [5, 6, 7], 3)
         assert resl == [list(range(5, 10)), list(range(5, 10)), []]
         assert len(skf._res_lut) == 3
         assert skf._res_lut[(3, 10, 5)][1][-1] == resl[0]
@@ -44,21 +42,19 @@ class TestSampleKNNFilter(object):
             metric="euclidean")
         skf = qc.SampleKNNFilter(tsdm)
         resl = skf.knn_filter_samples(1, 0.1, 1)
-        assert resl[0]._x.shape == (0, 2)
-        assert resl[0].sids == []
+        assert resl[0] == []
         resl2 = skf.knn_filter_samples(1, 0.1, 5)
-        assert resl2[0]._x.shape == (0, 2)
-        assert resl2[0].sids == []
+        assert resl2[0] == []
 
     def test_knn_filter_samples_empty_subset(self):
         skf = qc.SampleKNNFilter(self.tsdm)
         resl = skf.knn_filter_samples(1, 10, 5)
         resl2 = skf.knn_filter_samples([1], [10], 5)
         # scalar and list params should have the same results
-        assert [x.sids for x in resl] == [x.sids for x in resl2]
+        assert resl == resl2
         # result lut should be the same length
         assert len(skf._res_lut) == 1
-        assert skf._res_lut[(1, 10, 5)][1][-1] == resl[0].sids
+        assert skf._res_lut[(1, 10, 5)][1][-1] == resl[0]
 
     def test_knn_filter_samples_wrong_args(self):
         skf = qc.SampleKNNFilter(self.tsdm)
