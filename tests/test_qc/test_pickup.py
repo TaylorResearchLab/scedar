@@ -45,11 +45,11 @@ class TestFeatureKNNPickUp(object):
         assert res_sdml[2]._x[7, 0] > 0
 
         # lookup
-        np.testing.assert_equal(fkp._res_lut[(1, 1, 0.5, 1)][0],
+        np.testing.assert_equal(fkp._res_lut[(1, 1, 0.5, 1, np.median)][0],
                                 res_sdml[0]._x)
-        np.testing.assert_equal(fkp._res_lut[(3, 1, 1.5, 1)][0],
+        np.testing.assert_equal(fkp._res_lut[(3, 1, 1.5, 1, np.median)][0],
                                 res_sdml[1]._x)
-        np.testing.assert_equal(fkp._res_lut[(5, 3, 0.5, 5)][0],
+        np.testing.assert_equal(fkp._res_lut[(5, 3, 0.5, 5, np.median)][0],
                                 res_sdml[2]._x)
         # d should not be changed
         np.testing.assert_equal(fkp._sdm._d, d)
@@ -89,6 +89,35 @@ class TestFeatureKNNPickUp(object):
         res_sdml2 = fkp2.knn_pickup_features(8, 3, 0.5, 10)
         np.testing.assert_equal(res_sdml2[0]._x, res_sdml[0]._x)
 
+    def test_knn_pickup_features_stat_fun(self):
+        fkp = qc.FeatureKNNPickUp(self.tsdm)
+        d = fkp._sdm._d.copy()
+        assert d.shape == (9, 9)
+        res_sdml = fkp.knn_pickup_features([8], [3], [0.5], [10])
+
+        res_sdml2 = fkp.knn_pickup_features(8, 3, 0.5, 10, 1, np.median)
+        np.testing.assert_equal(res_sdml2[0]._x, res_sdml[0]._x)
+        assert len(fkp._res_lut) == 1
+
+        res_sdml3 = fkp.knn_pickup_features(8, 3, 0.5, 10, 1,
+                                            lambda x: np.median(x))
+        np.testing.assert_equal(res_sdml3[0]._x, res_sdml[0]._x)
+        assert len(fkp._res_lut) == 2
+
+        res_sdml4 = fkp.knn_pickup_features(8, 3, 0.5, 10, 1,
+                                            lambda x: np.median(x))
+        np.testing.assert_equal(res_sdml4[0]._x, res_sdml[0]._x)
+        assert len(fkp._res_lut) == 3
+
+        res_sdml5 = fkp.knn_pickup_features(8, 3, 0.5, 10, 1, np.min)
+        assert not np.array_equal(res_sdml5[0]._x, res_sdml[0]._x)
+        assert len(fkp._res_lut) == 4
+
+        res_sdml6 = fkp.knn_pickup_features(
+            8, 3, 0.5, 10, 1, lambda x: np.min(x))
+        np.testing.assert_equal(res_sdml5[0]._x, res_sdml6[0]._x)
+        assert len(fkp._res_lut) == 5
+
     def test_knn_pickup_features_wrong_args(self):
         fkp = qc.FeatureKNNPickUp(self.tsdm)
         # Invalid parameters
@@ -108,6 +137,23 @@ class TestFeatureKNNPickUp(object):
             fkp.knn_pickup_features(1, 1, 1, 10, 0.5)
         with pytest.raises(ValueError) as excinfo:
             fkp.knn_pickup_features(9, 1, 1, 10, 1)
+        # invalid stats funcs
+        with pytest.raises(ValueError) as excinfo:
+            fkp.knn_pickup_features([1, 3, 5], [1, 1, 3],
+                                    [0.5, 1.5, 0.5], [1, 1, 5],
+                                    1, 1)
+        with pytest.raises(ValueError) as excinfo:
+            fkp.knn_pickup_features([1, 3, 5], [1, 1, 3],
+                                    [0.5, 1.5, 0.5], [1, 1, 5],
+                                    1, np.array)
+        with pytest.raises(ValueError) as excinfo:
+            fkp.knn_pickup_features([1, 3, 5], [1, 1, 3],
+                                    [0.5, 1.5, 0.5], [1, 1, 5],
+                                    1, lambda x, y: x + y)
+        with pytest.raises(ValueError) as excinfo:
+            fkp.knn_pickup_features([1, 3, 5], [1, 1, 3],
+                                    [0.5, 1.5, 0.5], [1, 1, 5],
+                                    1, lambda x, y: x + y)
         # Parameters of different length
         with pytest.raises(ValueError) as excinfo:
             fkp.knn_pickup_features([1, 2], 1, 10, 1)

@@ -17,8 +17,8 @@ class FeatureKNNPickUp(object):
     "Pick-up" dropped out features using K nearest neighbors (KNN) approach.
 
     If the value of a feature is below min_present_val in a sample, and all
-    its KNNs have above min_present_val, replace the value with the median
-    of KNN above threshold values.
+    its KNNs have above min_present_val, replace the value with the summary
+    statistic (default is median) of KNN above threshold values.
 
     Attributes
     ----------
@@ -35,7 +35,8 @@ class FeatureKNNPickUp(object):
 
     @staticmethod
     def _knn_pickup_features_runner(gz_pb_x, knn_ordered_ind_dict, k, n_do,
-                                    min_present_val, n_iter):
+                                    min_present_val, n_iter,
+                                    statistic_fun=np.median):
         """
         Runs KNN pick-up on single parameter set in one process.
         """
@@ -73,11 +74,11 @@ class FeatureKNNPickUp(object):
                     if f_n_knn_present_arr[fai] >= n_do_i:
                         # Mark (s_ind, fai) as picked up
                         pickup_idc_arr[s_ind, fai] = i
-                        # Replace val in (s_ind, fai) with median of knn
+                        # Replace val in (s_ind, fai) with summ stat of knn
                         knn_x_arr = curr_x_arr[knn_ordered_inds, fai]
-                        knn_x_present_med = np.median(
+                        knn_x_present_ss = statistic_fun(
                             knn_x_arr[knn_x_arr >= min_present_val])
-                        next_x_arr[s_ind, fai] = knn_x_present_med
+                        next_x_arr[s_ind, fai] = knn_x_present_ss
 
             curr_x_arr = next_x_arr
             next_x_arr = np.copy(curr_x_arr)
@@ -102,7 +103,8 @@ class FeatureKNNPickUp(object):
         stats += "Complete in {:.2f}s\n".format(time.time() - start_time)
         return curr_x_gz_pb, pickup_idc_gz_pb, stats
 
-    def knn_pickup_features(self, k, n_do, min_present_val, n_iter, nprocs=1):
+    def knn_pickup_features(self, k, n_do, min_present_val, n_iter, nprocs=1,
+                            statistic_fun=np.median):
         """
         Runs KNN pick-up on multiple parameter sets parallely.
 
@@ -119,6 +121,9 @@ class FeatureKNNPickUp(object):
             Minimum (`>=`) values of a feature to be called as present.
         n_iter: int
             The number of iterations to run.
+        statistic_fun: callable
+            The summary statistic used to correct gene dropouts. Default is
+            median.
 
         Returns
         -------
@@ -149,6 +154,15 @@ class FeatureKNNPickUp(object):
 
         n_do, min_present_val, n_iter
         """
+        try:
+            # make sure that the function runs on list of numbers
+            if not np.isscalar(np.isreal(statistic_fun([0, 1, 2]))):
+                raise ValueError("statistic_fun should be a function of a"
+                                 "list of numbers that returns a scalar.")
+        except Exception:
+            raise ValueError("statistic_fun should be a function of a"
+                             "list of numbers that returns a scalar.")
+
         if np.isscalar(k):
             k_list = [k]
         else:
@@ -200,7 +214,7 @@ class FeatureKNNPickUp(object):
                 n_iter_list[i] = int(n_iter_list[i])
 
         param_tups = [(k_list[i], n_do_list[i], min_present_val_list[i],
-                       n_iter_list[i])
+                       n_iter_list[i], statistic_fun)
                       for i in range(n_param_tups)]
         res_list = []
         # use cached results with the following procedure
