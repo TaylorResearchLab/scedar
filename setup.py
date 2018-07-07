@@ -31,6 +31,7 @@ setup(
         'xgboost',
         'networkx',
         'fa2',
+        'umap-learn'
     ],
     setup_requires=[
         'pytest-mpl',
@@ -46,6 +47,7 @@ setup(
         'xgboost',
         'networkx',
         'fa2',
+        'umap-learn'
     ],
     tests_require=[
         'pytest'

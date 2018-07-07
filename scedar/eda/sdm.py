@@ -17,6 +17,8 @@ import random
 import networkx as nx
 from fa2 import ForceAtlas2
 
+from umap import UMAP
+
 import scedar
 from scedar.eda.plot import cluster_scatter
 from scedar.eda.plot import heatmap
@@ -108,6 +110,8 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
         self._pca_n_components = min(200, self._x.shape[0], self._x.shape[1])
         self._lazy_load_skd_pca = None
         self._lazy_load_pca_x = None
+        # umap
+        self._lazy_load_umap_x = None
 
     def to_classified(self, labels):
         """Convert to SingleLabelClassifiedSamples
@@ -370,16 +374,16 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
                                alpha=alpha, s=s, random_state=random_state,
                                **kwargs)
 
-    def pca_gradient_plot(self, component_ind_pair=(0, 1), gradient=None,
-                          labels=None, selected_labels=None,
-                          plot_different_markers=False,
-                          label_markers=None,
-                          shuffle_label_colors=False,
-                          xlim=None, ylim=None,
-                          title=None, xlab=None, ylab=None,
-                          figsize=(20, 20), add_legend=True,
-                          n_txt_per_cluster=3, alpha=1, s=0.5,
-                          random_state=None, **kwargs):
+    def pca_plot(self, component_ind_pair=(0, 1), gradient=None,
+                 labels=None, selected_labels=None,
+                 plot_different_markers=False,
+                 label_markers=None,
+                 shuffle_label_colors=False,
+                 xlim=None, ylim=None,
+                 title=None, xlab=None, ylab=None,
+                 figsize=(20, 20), add_legend=True,
+                 n_txt_per_cluster=3, alpha=1, s=0.5,
+                 random_state=None, **kwargs):
         """
         Plot the PCA projection with the provided gradient as color.
         Gradient is None by default.
@@ -439,6 +443,128 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
                              "n_samples.".format(labels))
 
         return cluster_scatter(self._pca_x[:, component_ind_pair],
+                               labels=labels, selected_labels=selected_labels,
+                               plot_different_markers=plot_different_markers,
+                               label_markers=label_markers,
+                               shuffle_label_colors=shuffle_label_colors,
+                               gradient=fx, xlim=xlim, ylim=ylim,
+                               title=title, xlab=xlab, ylab=ylab,
+                               figsize=figsize, add_legend=add_legend,
+                               n_txt_per_cluster=n_txt_per_cluster,
+                               alpha=alpha, s=s, random_state=random_state,
+                               **kwargs)
+
+    def umap(self,
+             n_neighbors=5,
+             n_components=2,
+             n_epochs=None,
+             alpha=1.0,
+             init='spectral',
+             spread=1.0,
+             min_dist=0.1,
+             set_op_mix_ratio=1.0,
+             local_connectivity=1.0,
+             bandwidth=1.0,
+             gamma=1.0,
+             negative_sample_rate=5,
+             a=None,
+             b=None,
+             random_state=None,
+             angular_rp_forest=False,
+             verbose=False):
+        umap_x = UMAP(n_neighbors=n_neighbors,
+                      n_components=n_components,
+                      metric='precomputed',
+                      n_epochs=n_epochs,
+                      alpha=alpha,
+                      init=init,
+                      spread=spread,
+                      min_dist=min_dist,
+                      set_op_mix_ratio=set_op_mix_ratio,
+                      local_connectivity=local_connectivity,
+                      bandwidth=bandwidth,
+                      gamma=gamma,
+                      negative_sample_rate=negative_sample_rate,
+                      a=a,
+                      b=b,
+                      random_state=random_state,
+                      angular_rp_forest=angular_rp_forest,
+                      verbose=verbose).fit_transform(self._d)
+        self._lazy_load_umap_x = umap_x
+        return umap_x
+
+    def umap_plot(self, component_ind_pair=(0, 1), gradient=None,
+                  labels=None, selected_labels=None,
+                  plot_different_markers=False,
+                  label_markers=None,
+                  shuffle_label_colors=False,
+                  xlim=None, ylim=None,
+                  title=None, xlab=None, ylab=None,
+                  figsize=(20, 20), add_legend=True,
+                  n_txt_per_cluster=3, alpha=1, s=0.5,
+                  random_state=None, **kwargs):
+        """
+        Plot the UMAP projection with the provided gradient as color.
+        Gradient is None by default.
+
+        TODO: refactor plotting interface. Merge multiple plotting methods into
+        one.
+        """
+        # labels are checked in cluster_scatter
+        return cluster_scatter(self._umap_x[:, component_ind_pair],
+                               labels=labels, selected_labels=selected_labels,
+                               plot_different_markers=plot_different_markers,
+                               label_markers=label_markers,
+                               shuffle_label_colors=shuffle_label_colors,
+                               gradient=gradient, xlim=xlim, ylim=ylim,
+                               title=title, xlab=xlab, ylab=ylab,
+                               figsize=figsize, add_legend=add_legend,
+                               n_txt_per_cluster=n_txt_per_cluster,
+                               alpha=alpha, s=s, random_state=random_state,
+                               **kwargs)
+
+    def umap_feature_gradient_plot(self, fid, component_ind_pair=(0, 1),
+                                   transform=None, labels=None,
+                                   selected_labels=None,
+                                   plot_different_markers=False,
+                                   label_markers=None,
+                                   shuffle_label_colors=False,
+                                   xlim=None, ylim=None,
+                                   title=None, xlab=None, ylab=None,
+                                   figsize=(20, 20), add_legend=True,
+                                   n_txt_per_cluster=3, alpha=1, s=0.5,
+                                   random_state=None, **kwargs):
+        """
+        Plot the last UMAP projection with the provided gradient as color.
+
+        Parameters
+        ----------
+        component_ind_pair: tuple of two ints
+            Indices of the components to plot.
+        fid: feature id scalar
+            ID of the feature to be used for gradient plot.
+        transform: callable
+            Map transform on feature before plotting.
+        labels: label array
+            Labels assigned to each point, (n_samples,).
+        selected_labels: label array
+            Show gradient only for selected labels. Do not show non-selected.
+        """
+        if mtype.is_valid_sfid(fid):
+            fid = [fid]
+            f_ind = self.f_id_to_ind(fid)[0]
+        else:
+            raise ValueError("Invalid fid {}."
+                             "Currently only support 1 "
+                             "feature gradient plot.".format(fid))
+
+        fx = self.f_ind_x_vec(f_ind, transform=transform)
+
+        if labels is not None and len(labels) != fx.shape[0]:
+            raise ValueError("labels ({}) must have same length as "
+                             "n_samples.".format(labels))
+
+        return cluster_scatter(self._umap_x[:, component_ind_pair],
                                labels=labels, selected_labels=selected_labels,
                                plot_different_markers=plot_different_markers,
                                label_markers=label_markers,
@@ -665,8 +791,6 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
 
     @property
     def _d(self):
-        # TODO: Implement corr/cosine distance computation using numpy
-        # matrix operations. Extremely faster than pdist and pairwise_distance.
         if self._lazy_load_d is None:
             if self._x.size == 0:
                 self._lazy_load_d = np.zeros((self._x.shape[0],
@@ -782,6 +906,12 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
         if self._lazy_load_pca_x is None:
             self._lazy_load_pca_x = self._skd_pca.transform(self._x)
         return self._lazy_load_pca_x
+
+    @property
+    def _umap_x(self):
+        if self._lazy_load_umap_x is None:
+            self._lazy_load_umap_x = self.umap()
+        return self._lazy_load_umap_x
 
     @property
     def metric(self):

@@ -132,7 +132,7 @@ class TestSampleDistanceMatrix(object):
                                        metric='euclidean')
         # initialize cached results
         sdm.tsne_plot()
-        sdm.pca_gradient_plot()
+        sdm.pca_plot()
         sdm.s_knn_graph(2)
         sdm.s_ith_nn_d(1)
         sdm.s_ith_nn_ind(1)
@@ -855,7 +855,7 @@ class TestSampleDistanceMatrix(object):
             sdm.pca_feature_gradient_plot('123')
 
     @pytest.mark.mpl_image_compare
-    def test_sdm_pca_gradient_plot(self):
+    def test_sdm_pca_plot(self):
         sids = list(range(8))
         fids = [str(i) for i in range(10)]
         np.random.seed(123)
@@ -863,7 +863,7 @@ class TestSampleDistanceMatrix(object):
         x_sorted = x[np.argsort(x[:, 5])]
         g = x_sorted[:, 5]
         sdm = eda.SampleDistanceMatrix(x_sorted, sids=sids, fids=fids)
-        return sdm.pca_gradient_plot(gradient=g, figsize=(10, 10), s=50)
+        return sdm.pca_plot(gradient=g, figsize=(10, 10), s=50)
 
     def test_pca_dim(self):
         np.random.seed(123)
@@ -878,6 +878,158 @@ class TestSampleDistanceMatrix(object):
         sdm = eda.SampleDistanceMatrix(x5k.reshape(20, -1))
         assert sdm._skd_pca.explained_variance_.shape == (20,)
         assert sdm._skd_pca.explained_variance_ratio_.shape == (20,)
+
+    @pytest.mark.mpl_image_compare
+    def test_sdm_umap_feature_gradient_plot(self):
+        sids = list(range(8))
+        fids = [str(i) for i in range(10)]
+        np.random.seed(123)
+        x = np.random.ranf(80).reshape(8, -1)
+        x_sorted = x[np.argsort(x[:, 5])]
+        sdm = eda.SampleDistanceMatrix(
+            x_sorted, sids=sids, fids=fids)
+        fig = sdm.umap_feature_gradient_plot(
+            '5', figsize=(10, 10), s=50)
+        np.testing.assert_equal(sdm._x, x_sorted)
+        np.testing.assert_equal(sdm._sids, sids)
+        np.testing.assert_equal(sdm._fids, fids)
+        return fig
+
+    @pytest.mark.mpl_image_compare
+    def test_sdm_umap_feature_gradient_plus10_plot(self):
+        sids = list(range(8))
+        fids = [str(i) for i in range(10)]
+        np.random.seed(123)
+        x = np.random.ranf(80).reshape(8, -1)
+        x_sorted = x[np.argsort(x[:, 5])]
+        sdm = eda.SampleDistanceMatrix(
+            x_sorted, sids=sids, fids=fids)
+        fig = sdm.umap_feature_gradient_plot(
+            '5', transform=lambda x: x + 10, figsize=(10, 10), s=50)
+        np.testing.assert_equal(sdm._x, x_sorted)
+        np.testing.assert_equal(sdm._sids, sids)
+        np.testing.assert_equal(sdm._fids, fids)
+        return fig
+
+    @pytest.mark.mpl_image_compare
+    def test_sdm_umap_feature_gradient_plot_sslabs(self):
+        sids = list(range(8))
+        fids = [str(i) for i in range(10)]
+        np.random.seed(123)
+        x = np.random.ranf(80).reshape(8, -1)
+        x_sorted = x[np.argsort(x[:, 5])]
+        sdm = eda.SampleDistanceMatrix(
+            x_sorted, sids=sids, fids=fids)
+        sdm.umap_feature_gradient_plot(
+            '5', labels=list('abcdefgh'), selected_labels='a',
+            transform=lambda x: np.log(x+1),
+            figsize=(10, 10), s=50)
+        fig = sdm.umap_feature_gradient_plot(
+            '5', labels=list('abcdefgh'), selected_labels='a',
+            figsize=(10, 10), s=50)
+        np.testing.assert_equal(sdm._x, x_sorted)
+        np.testing.assert_equal(sdm._sids, sids)
+        np.testing.assert_equal(sdm._fids, fids)
+        return fig
+
+    @pytest.mark.mpl_image_compare
+    def test_sdm_umap_feature_gradient_plot_sslabs_empty(self):
+        sids = list(range(8))
+        fids = [str(i) for i in range(10)]
+        np.random.seed(123)
+        x = np.random.ranf(80).reshape(8, -1)
+        x_sorted = x[np.argsort(x[:, 5])]
+        sdm = eda.SampleDistanceMatrix(
+            x_sorted, sids=sids, fids=fids)
+        fig = sdm.umap_feature_gradient_plot(
+            '5', labels=list('abcdefgh'), selected_labels=[],
+            figsize=(10, 10), s=50)
+        np.testing.assert_equal(sdm._x, x_sorted)
+        np.testing.assert_equal(sdm._sids, sids)
+        np.testing.assert_equal(sdm._fids, fids)
+        return fig
+
+    def test_sdm_umap_feature_gradient_plot_sslabs_wrong_args(self):
+        sids = list(range(8))
+        fids = [str(i) for i in range(10)]
+        np.random.seed(123)
+        x = np.random.ranf(80).reshape(8, -1)
+        x_sorted = x[np.argsort(x[:, 5])]
+        sdm = eda.SampleDistanceMatrix(
+            x_sorted, sids=sids, fids=fids)
+        # Mismatch labels
+        with pytest.raises(ValueError) as excinfo:
+            sdm.umap_feature_gradient_plot(
+                '5', labels=list('abcdefgh'), selected_labels=[11],
+                figsize=(10, 10), s=50)
+
+        with pytest.raises(ValueError) as excinfo:
+            sdm.umap_feature_gradient_plot(
+                '5', labels=list('abcdefgh'), selected_labels=['i'],
+                figsize=(10, 10), s=50)
+        # labels not provided
+        with pytest.raises(ValueError) as excinfo:
+            sdm.umap_feature_gradient_plot(
+                '5', selected_labels=[11], figsize=(10, 10), s=50)
+
+    def test_sdm_umap_feature_gradient_plot_wrong_args(self):
+        sids = list(range(8))
+        fids = [str(i) for i in range(10)]
+        np.random.seed(123)
+        x = np.random.ranf(80).reshape(8, -1)
+        x_sorted = x[np.argsort(x[:, 5])]
+        sdm = eda.SampleDistanceMatrix(x, sids=sids, fids=fids)
+        with pytest.raises(ValueError):
+            sdm.umap_feature_gradient_plot('5', transform=2)
+
+        # wrong labels size
+        with pytest.raises(ValueError):
+            sdm.umap_feature_gradient_plot('5', figsize=(10, 10),
+                                           s=50, labels=[])
+
+        with pytest.raises(ValueError):
+            sdm.umap_feature_gradient_plot('5', figsize=(10, 10),
+                                           s=50, labels=[1])
+
+        with pytest.raises(ValueError):
+            sdm.umap_feature_gradient_plot('5', figsize=(10, 10),
+                                           s=50, labels=[2])
+
+        # wrong gradient length
+        with pytest.raises(ValueError):
+            sdm.umap_feature_gradient_plot([0, 1])
+
+        with pytest.raises(ValueError):
+            sdm.umap_feature_gradient_plot(11)
+
+        with pytest.raises(ValueError):
+            sdm.umap_feature_gradient_plot(11)
+
+        with pytest.raises(ValueError):
+            sdm.umap_feature_gradient_plot(-1)
+
+        with pytest.raises(ValueError):
+            sdm.umap_feature_gradient_plot(5)
+
+        with pytest.raises(ValueError):
+            sdm.umap_feature_gradient_plot('123')
+
+    @pytest.mark.mpl_image_compare
+    def test_sdm_umap_plot(self):
+        sids = list(range(8))
+        fids = [str(i) for i in range(10)]
+        np.random.seed(123)
+        x = np.random.ranf(80).reshape(8, -1)
+        x_sorted = x[np.argsort(x[:, 5])]
+        g = x_sorted[:, 5]
+        sdm = eda.SampleDistanceMatrix(x_sorted, sids=sids, fids=fids)
+        return sdm.umap_plot(gradient=g, figsize=(10, 10), s=50)
+
+    def test_umap_dim(self):
+        np.random.seed(123)
+        x5k = np.random.normal(size=5000)
+        sdm = eda.SampleDistanceMatrix(x5k.reshape(20, -1))
+        assert sdm._umap_x.shape == (20, 2)
 
     def test_s_knn_connectivity_matrix(self):
         nn_sdm = eda.SampleDistanceMatrix([[0], [1], [5]],
