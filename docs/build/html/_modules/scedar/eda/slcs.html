@@ -196,11 +196,21 @@
 
 
 <div class="viewcode-block" id="SingleLabelClassifiedSamples"><a class="viewcode-back" href="../../../scedar.eda.html#scedar.eda.slcs.SingleLabelClassifiedSamples">[docs]</a><span class="k">class</span> <span class="nc">SingleLabelClassifiedSamples</span><span class="p">(</span><span class="n">SampleDistanceMatrix</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    SingleLabelClassifiedSamples</span>
+    <span class="sd">&quot;&quot;&quot;Data structure of single label classified samples</span>
 
-<span class="sd">    If sort by labels, the samples will be reordered, so that samples from</span>
-<span class="sd">    left to right are from one label to another.</span>
+<span class="sd">    Attributes:</span>
+<span class="sd">        _x (2D number array): (n_samples, n_features) data matrix.</span>
+<span class="sd">        _d (2D number array): (n_samples, n_samples) distance matrix.</span>
+<span class="sd">        _labs (list of labels): list of labels in the same type, int or str.</span>
+<span class="sd">        _fids (list of feature IDs): list of feature IDs in the same type,</span>
+<span class="sd">            int or str.</span>
+<span class="sd">        _sids (list of sample IDs): list of sample IDs in the same type,</span>
+<span class="sd">            int or str.</span>
+<span class="sd">        _metric (str): Distance metric.</span>
+
+<span class="sd">    Note:</span>
+<span class="sd">        If sort by labels, the samples will be reordered, so that samples from</span>
+<span class="sd">        left to right are from one label to another.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># sid, lab, fid, x</span>
 
@@ -217,27 +227,32 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sids</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">labs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;sids must have the same length as labs&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_labs</span> <span class="o">=</span> <span class="n">labs</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">_uniq_labs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_uniq_lab_cnts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">labs</span><span class="p">,</span>
-                                                         <span class="n">return_counts</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="c1"># {lab: array([sid0, ...]), ...}</span>
-        <span class="n">sid_lut</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">for</span> <span class="n">ulab</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_uniq_labs</span><span class="p">:</span>
-            <span class="n">sid_lut</span><span class="p">[</span><span class="n">ulab</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sids</span><span class="p">[</span><span class="n">labs</span> <span class="o">==</span> <span class="n">ulab</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_sid_lut</span> <span class="o">=</span> <span class="n">sid_lut</span>
-
-        <span class="n">lab_lut</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="c1"># sids only contain unique values</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_sids</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
-            <span class="n">lab_lut</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_sids</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="o">=</span> <span class="n">labs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_lab_lut</span> <span class="o">=</span> <span class="n">lab_lut</span>
-
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_up_lab_rel_attrs</span><span class="p">()</span>
+        <span class="c1"># keep a copy of original labels</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_orig_labs</span> <span class="o">=</span> <span class="n">labs</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_xgb_lut</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">return</span>
 
+    <span class="k">def</span> <span class="nf">_set_up_lab_rel_attrs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set up labels related attrs</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_uniq_labs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_uniq_lab_cnts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_labs</span><span class="p">,</span> <span class="n">return_counts</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="c1"># {lab: array([sid0, ...]), ...}</span>
+        <span class="n">sid_lut</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">ulab</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_uniq_labs</span><span class="p">:</span>
+            <span class="n">sid_lut</span><span class="p">[</span><span class="n">ulab</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sids</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_labs</span> <span class="o">==</span> <span class="n">ulab</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sid_lut</span> <span class="o">=</span> <span class="n">sid_lut</span>
+        <span class="c1"># {sid1: lab1, ...}</span>
+        <span class="n">lab_lut</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="c1"># sids only contain unique values</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_sids</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+            <span class="n">lab_lut</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_sids</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_labs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lab_lut</span> <span class="o">=</span> <span class="n">lab_lut</span>
+
 <div class="viewcode-block" id="SingleLabelClassifiedSamples.sort_by_labels"><a class="viewcode-back" href="../../../scedar.eda.html#scedar.eda.slcs.SingleLabelClassifiedSamples.sort_by_labels">[docs]</a>    <span class="k">def</span> <span class="nf">sort_by_labels</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Sort sample indices by labels and distances.</span>
+<span class="sd">        Return a copy with sorted sample indices by labels and distances.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">labs</span><span class="p">)</span>
         <span class="c1"># slcs is empty</span>
@@ -312,6 +327,38 @@
                    <span class="n">fids</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_fids</span><span class="p">[</span><span class="n">selected_f_inds</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
                    <span class="n">metric</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_metric</span><span class="p">,</span> <span class="n">nprocs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_nprocs</span><span class="p">)</span></div>
 
+<div class="viewcode-block" id="SingleLabelClassifiedSamples.merge_labels"><a class="viewcode-back" href="../../../scedar.eda.html#scedar.eda.slcs.SingleLabelClassifiedSamples.merge_labels">[docs]</a>    <span class="k">def</span> <span class="nf">merge_labels</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">orig_labs_to_merge</span><span class="p">,</span> <span class="n">new_lab</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Merge selected labels into a new label</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            orig_labs_to_merge (list of unique labels): original labels to be</span>
+<span class="sd">                merged into a new label</span>
+<span class="sd">            new_lab (label): new label of the merged labels</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            Update labels in place.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">mtype</span><span class="o">.</span><span class="n">is_valid_lab</span><span class="p">(</span><span class="n">new_lab</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;new_lab, </span><span class="si">{}</span><span class="s2">, must  be str or int&quot;</span><span class="p">)</span>
+        <span class="n">mtype</span><span class="o">.</span><span class="n">check_is_valid_labs</span><span class="p">(</span><span class="n">orig_labs_to_merge</span><span class="p">)</span>
+        <span class="c1"># all labs must be unique</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">orig_labs_to_merge</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">orig_labs_to_merge</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;orig_labs_to_merge must all be unique&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">ulab</span> <span class="ow">in</span> <span class="n">orig_labs_to_merge</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">ulab</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_uniq_labs</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;label </span><span class="si">{}</span><span class="s2"> not in original unique &quot;</span>
+                                 <span class="s2">&quot;labels&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ulab</span><span class="p">))</span>
+        <span class="n">updated_labs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_labs</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">lab</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_labs</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">lab</span> <span class="ow">in</span> <span class="n">orig_labs_to_merge</span><span class="p">:</span>
+                <span class="n">updated_labs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_lab</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_labs</span> <span class="o">=</span> <span class="n">updated_labs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_up_lab_rel_attrs</span><span class="p">()</span>
+        <span class="k">return</span></div>
+
 <div class="viewcode-block" id="SingleLabelClassifiedSamples.relabel"><a class="viewcode-back" href="../../../scedar.eda.html#scedar.eda.slcs.SingleLabelClassifiedSamples.relabel">[docs]</a>    <span class="k">def</span> <span class="nf">relabel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">labels</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return a new SingleLabelClassifiedSamples with new labels.</span>
@@ -348,19 +395,24 @@
             <span class="n">selected_f_inds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">f_id_to_ind</span><span class="p">(</span><span class="n">selected_fids</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ind_x</span><span class="p">(</span><span class="n">selected_s_inds</span><span class="p">,</span> <span class="n">selected_f_inds</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="SingleLabelClassifiedSamples.lab_x_bool_inds"><a class="viewcode-back" href="../../../scedar.eda.html#scedar.eda.slcs.SingleLabelClassifiedSamples.lab_x_bool_inds">[docs]</a>    <span class="k">def</span> <span class="nf">lab_x_bool_inds</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">selected_labs</span><span class="p">):</span>
+<div class="viewcode-block" id="SingleLabelClassifiedSamples.select_labs_bool_inds"><a class="viewcode-back" href="../../../scedar.eda.html#scedar.eda.slcs.SingleLabelClassifiedSamples.select_labs_bool_inds">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">select_labs_bool_inds</span><span class="p">(</span><span class="n">ref_labs</span><span class="p">,</span> <span class="n">selected_labs</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">selected_labs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_labs</span><span class="p">))</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">ref_labs</span><span class="p">))</span>
 
         <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isscalar</span><span class="p">(</span><span class="n">selected_labs</span><span class="p">):</span>
             <span class="n">selected_labs</span> <span class="o">=</span> <span class="p">[</span><span class="n">selected_labs</span><span class="p">]</span>
 
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">([</span><span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_uniq_labs</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">selected_labs</span><span class="p">]):</span>
+        <span class="n">ref_uniq_labs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">ref_labs</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">([</span><span class="n">x</span> <span class="ow">in</span> <span class="n">ref_uniq_labs</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">selected_labs</span><span class="p">]):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;selected_labs: </span><span class="si">{}</span><span class="s2"> are not all existed &quot;</span>
-                             <span class="s2">&quot;in the SLCS unique labels &quot;</span>
-                             <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">selected_labs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_uniq_labs</span><span class="p">))</span>
-        <span class="n">lab_selected_s_bool_inds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">in1d</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_labs</span><span class="p">,</span> <span class="n">selected_labs</span><span class="p">)</span>
+                             <span class="s2">&quot;in the unique ref labels &quot;</span>
+                             <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">selected_labs</span><span class="p">,</span> <span class="n">ref_uniq_labs</span><span class="p">))</span>
+        <span class="n">lab_selected_s_bool_inds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">in1d</span><span class="p">(</span><span class="n">ref_labs</span><span class="p">,</span> <span class="n">selected_labs</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">lab_selected_s_bool_inds</span></div>
+
+<div class="viewcode-block" id="SingleLabelClassifiedSamples.lab_x_bool_inds"><a class="viewcode-back" href="../../../scedar.eda.html#scedar.eda.slcs.SingleLabelClassifiedSamples.lab_x_bool_inds">[docs]</a>    <span class="k">def</span> <span class="nf">lab_x_bool_inds</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">selected_labs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">select_labs_bool_inds</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_labs</span><span class="p">,</span> <span class="n">selected_labs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="SingleLabelClassifiedSamples.lab_x"><a class="viewcode-back" href="../../../scedar.eda.html#scedar.eda.slcs.SingleLabelClassifiedSamples.lab_x">[docs]</a>    <span class="k">def</span> <span class="nf">lab_x</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">selected_labs</span><span class="p">):</span>
         <span class="n">lab_selected_s_bool_inds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lab_x_bool_inds</span><span class="p">(</span><span class="n">selected_labs</span><span class="p">)</span>
@@ -664,13 +716,13 @@
             <span class="n">ulab_fi_lut</span><span class="p">[</span><span class="n">ulab</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">t</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">ulab_fi_lut</span><span class="p">[</span><span class="n">ulab</span><span class="p">]]</span>
         <span class="k">return</span> <span class="n">ulab_fi_lut</span></div>
 
-<div class="viewcode-block" id="SingleLabelClassifiedSamples.tsne_gradient_plot"><a class="viewcode-back" href="../../../scedar.eda.html#scedar.eda.slcs.SingleLabelClassifiedSamples.tsne_gradient_plot">[docs]</a>    <span class="k">def</span> <span class="nf">tsne_gradient_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gradient</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                           <span class="n">selected_labels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                           <span class="n">shuffle_label_colors</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                           <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">xlab</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ylab</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                           <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">20</span><span class="p">),</span> <span class="n">add_legend</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                           <span class="n">n_txt_per_cluster</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
-                           <span class="n">random_state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="SingleLabelClassifiedSamples.tsne_plot"><a class="viewcode-back" href="../../../scedar.eda.html#scedar.eda.slcs.SingleLabelClassifiedSamples.tsne_plot">[docs]</a>    <span class="k">def</span> <span class="nf">tsne_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gradient</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                  <span class="n">selected_labels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                  <span class="n">shuffle_label_colors</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                  <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">xlab</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ylab</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                  <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">20</span><span class="p">),</span> <span class="n">add_legend</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                  <span class="n">n_txt_per_cluster</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+                  <span class="n">random_state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Plot the last t-SNE projection with the provided gradient as color.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -678,7 +730,7 @@
             <span class="n">labels</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">labs</span>
 
         <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">SingleLabelClassifiedSamples</span><span class="p">,</span>
-                     <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">tsne_gradient_plot</span><span class="p">(</span>
+                     <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">tsne_plot</span><span class="p">(</span>
                         <span class="n">gradient</span><span class="o">=</span><span class="n">gradient</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="n">labels</span><span class="p">,</span>
                         <span class="n">selected_labels</span><span class="o">=</span><span class="n">selected_labels</span><span class="p">,</span>
                         <span class="n">shuffle_label_colors</span><span class="o">=</span><span class="n">shuffle_label_colors</span><span class="p">,</span>

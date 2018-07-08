@@ -175,6 +175,7 @@
 <span class="kn">import</span> <span class="nn">matplotlib.colors</span>
 <span class="kn">import</span> <span class="nn">matplotlib.patches</span>
 <span class="kn">import</span> <span class="nn">matplotlib.gridspec</span>
+<span class="kn">from</span> <span class="nn">mpl_toolkits.axes_grid1.inset_locator</span> <span class="k">import</span> <span class="n">inset_axes</span>
 
 <span class="kn">import</span> <span class="nn">seaborn</span> <span class="k">as</span> <span class="nn">sns</span>
 
@@ -182,6 +183,7 @@
 
 <span class="kn">from</span> <span class="nn">scedar.eda</span> <span class="k">import</span> <span class="n">mtype</span>
 
+<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">OrderedDict</span>
 
 <span class="n">sns</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">style</span><span class="o">=</span><span class="s2">&quot;ticks&quot;</span><span class="p">)</span>
 
@@ -223,10 +225,40 @@
 
 <div class="viewcode-block" id="cluster_scatter"><a class="viewcode-back" href="../../../scedar.eda.html#scedar.eda.plot.cluster_scatter">[docs]</a><span class="k">def</span> <span class="nf">cluster_scatter</span><span class="p">(</span><span class="n">projection2d</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                     <span class="n">selected_labels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                    <span class="n">plot_different_markers</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                    <span class="n">label_markers</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                     <span class="n">shuffle_label_colors</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">gradient</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                    <span class="n">xlim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ylim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                     <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">xlab</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ylab</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                     <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">20</span><span class="p">),</span> <span class="n">add_legend</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">n_txt_per_cluster</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
                     <span class="n">alpha</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Scatter plot for clustering illustration</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        projection2d (2 col numeric array): (n, 2) matrix to plot</span>
+<span class="sd">        labels (list of labels): labels of n samples</span>
+<span class="sd">        selected_labels (list of labels): selected labels to plot</span>
+<span class="sd">        plot_different_markers (bool): plot different markers for samples with</span>
+<span class="sd">            different labels</span>
+<span class="sd">        label_markers (list of marker shapes): passed to matplotlib plot</span>
+<span class="sd">        shuffle_label_colors (bool): shuffle the color of labels to avoid</span>
+<span class="sd">            similar colors show up in close clusters</span>
+<span class="sd">        gradient (list of number): color gradient of n samples</span>
+<span class="sd">        title (str)</span>
+<span class="sd">        xlab (str): x axis label</span>
+<span class="sd">        ylab (str): y axis label</span>
+<span class="sd">        figsize (tuple of two number): (width, height)</span>
+<span class="sd">        add_legend (bool)</span>
+<span class="sd">        n_txt_per_cluster (number): the number of text to plot per cluster.</span>
+<span class="sd">            Could be 0.</span>
+<span class="sd">        alpha (number)</span>
+<span class="sd">        s (number): size of the points</span>
+<span class="sd">        random_state (int): random seed to shuffle features</span>
+<span class="sd">        **kwards: passed to matplotlib plot</span>
+
+<span class="sd">    Return:</span>
+<span class="sd">        matplotlib figure of the created scatter plot</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">kwargs</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
     <span class="c1"># randomly:</span>
     <span class="c1"># - select labels for annotation if required</span>
@@ -256,6 +288,13 @@
                              <span class="s2">&quot;n_samples in projection2d &quot;</span>
                              <span class="s2">&quot;(shape </span><span class="si">{}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">labels</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
                                                  <span class="n">projection2d</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+    <span class="c1"># check markers</span>
+    <span class="k">if</span> <span class="n">label_markers</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">labels</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;labels should not be None when label_markers&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">label_markers</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">labels</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;labels should have the same length as&quot;</span>
+                             <span class="s2">&quot;label_markers&quot;</span><span class="p">)</span>
     <span class="c1"># plot selected labels</span>
     <span class="k">if</span> <span class="n">selected_labels</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">labels</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -279,41 +318,120 @@
             <span class="n">projection2d</span> <span class="o">=</span> <span class="n">projection2d</span><span class="p">[</span><span class="n">slabels_bool</span><span class="p">]</span>
             <span class="k">if</span> <span class="n">gradient</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">gradient</span> <span class="o">=</span> <span class="n">gradient</span><span class="p">[</span><span class="n">slabels_bool</span><span class="p">]</span>
-
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="n">figsize</span><span class="p">)</span>
     <span class="c1"># TODO: optimize the if-else statement</span>
     <span class="k">if</span> <span class="n">labels</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># return empty scatter plot if there is no point to plot</span>
+        <span class="c1"># markers for each label</span>
         <span class="n">uniq_labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span>
+        <span class="c1"># create marker dict:</span>
+        <span class="c1"># lab_m_s_ind_lut: {(lab1, marker1): marker_1_s_ind_list}</span>
+        <span class="n">lab_m_s_ind_lut</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">plot_different_markers</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">label_markers</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="c1"># use a different marker for each label</span>
+                <span class="c1"># cycle use the following filled markers:</span>
+                <span class="c1"># &quot;o&quot;: circle</span>
+                <span class="c1"># &quot;s&quot;: square</span>
+                <span class="c1"># &quot;^&quot;: triangle_up</span>
+                <span class="c1"># &quot;D&quot;: diamond</span>
+                <span class="c1"># &quot;x&quot;: x</span>
+                <span class="c1"># &quot;v&quot;: triangle_down</span>
+                <span class="c1"># &quot;d&quot;: thin_diamond</span>
+                <span class="c1"># &quot;+&quot;: plus</span>
+                <span class="c1"># &quot;&gt;&quot;: triangle_right</span>
+                <span class="c1"># &quot;p&quot;: pentagon</span>
+                <span class="c1"># &quot;h&quot;: hexagon1</span>
+                <span class="c1"># &quot;&lt;&quot;: triangle_left</span>
+                <span class="c1"># &quot;H&quot;: hexagon2</span>
+                <span class="c1"># &quot;*&quot;: star</span>
+                <span class="c1"># order: &quot;os^Dxvd+&gt;ph&lt;H*&quot;</span>
+                <span class="c1"># Refs:</span>
+                <span class="c1"># - markers with shape:</span>
+                <span class="c1"># https://matplotlib.org/examples/lines_bars_and_markers/</span>
+                <span class="c1"># marker_reference.html</span>
+                <span class="c1"># - all merkers</span>
+                <span class="c1"># ref: https://matplotlib.org/api/markers_api.html</span>
+                <span class="n">m_cycle</span> <span class="o">=</span> <span class="s2">&quot;os^Dxvd+&gt;ph&lt;H*&quot;</span>
+                <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">ulab</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">uniq_labels</span><span class="p">):</span>
+                    <span class="n">ulab_m</span> <span class="o">=</span> <span class="n">m_cycle</span><span class="p">[</span><span class="n">i</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">m_cycle</span><span class="p">)]</span>
+                    <span class="n">lab_m_s_ind_lut</span><span class="p">[(</span><span class="n">ulab</span><span class="p">,</span> <span class="n">ulab_m</span><span class="p">)]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span>
+                        <span class="k">lambda</span> <span class="n">j</span><span class="p">:</span> <span class="n">labels</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">==</span> <span class="n">ulab</span><span class="p">,</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">labels</span><span class="p">))))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># use user provided markers</span>
+                <span class="k">for</span> <span class="n">ulab_m</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="n">label_markers</span><span class="p">):</span>
+                    <span class="c1"># if user provided, legend show marker rather than</span>
+                    <span class="c1"># label</span>
+                    <span class="n">lab_m_s_ind_lut</span><span class="p">[(</span><span class="n">ulab_m</span><span class="p">,</span> <span class="n">ulab_m</span><span class="p">)]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span>
+                        <span class="k">lambda</span> <span class="n">i</span><span class="p">:</span> <span class="n">label_markers</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="n">ulab_m</span><span class="p">,</span>
+                        <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">label_markers</span><span class="p">))))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># plot all labels with shape &quot;o&quot;</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">ulab</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">uniq_labels</span><span class="p">):</span>
+                <span class="n">lab_m_s_ind_lut</span><span class="p">[(</span><span class="n">ulab</span><span class="p">,</span> <span class="s2">&quot;o&quot;</span><span class="p">)]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span>
+                    <span class="k">lambda</span> <span class="n">j</span><span class="p">:</span> <span class="n">labels</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">==</span> <span class="n">ulab</span><span class="p">,</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">labels</span><span class="p">))))</span>
+        <span class="c1"># plot</span>
+        <span class="c1"># list of ulabs</span>
+        <span class="n">lgd_ulabs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c1"># list of matplotlib.collections.PathCollection</span>
+        <span class="n">lgd_mpcs</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">if</span> <span class="n">gradient</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">cmap</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;cmap&quot;</span><span class="p">,</span> <span class="s2">&quot;viridis&quot;</span><span class="p">)</span>
-            <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="n">figsize</span><span class="p">)</span>
-            <span class="c1"># matplotlib.collections.PathCollection</span>
-            <span class="n">mpc</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">projection2d</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">y</span><span class="o">=</span><span class="n">projection2d</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span>
-                              <span class="n">c</span><span class="o">=</span><span class="n">gradient</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="n">s</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span>
-                              <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">add_legend</span><span class="p">:</span>
-                <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">mpc</span><span class="p">)</span>
-            <span class="n">fig</span> <span class="o">=</span> <span class="n">mpc</span><span class="o">.</span><span class="n">get_figure</span><span class="p">()</span>
-            <span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">get_axes</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="c1"># lab_m_s_ind_lut = {(lab1, m1): [s_inds]}</span>
+            <span class="k">for</span> <span class="p">(</span><span class="n">ulab</span><span class="p">,</span> <span class="n">ulab_m</span><span class="p">),</span> <span class="n">s_inds</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">lab_m_s_ind_lut</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+                <span class="n">mpc</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">projection2d</span><span class="p">[</span><span class="n">s_inds</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+                                  <span class="n">y</span><span class="o">=</span><span class="n">projection2d</span><span class="p">[</span><span class="n">s_inds</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+                                  <span class="n">c</span><span class="o">=</span><span class="n">gradient</span><span class="p">[</span><span class="n">s_inds</span><span class="p">],</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">,</span>
+                                  <span class="n">marker</span><span class="o">=</span><span class="n">ulab_m</span><span class="p">,</span>
+                                  <span class="n">s</span><span class="o">=</span><span class="n">s</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span>
+                                  <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+                <span class="n">lgd_ulabs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ulab</span><span class="p">)</span>
+                <span class="n">lgd_mpcs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mpc</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">add_legend</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">box</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_position</span><span class="p">()</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">set_position</span><span class="p">([</span><span class="n">box</span><span class="o">.</span><span class="n">x0</span><span class="p">,</span> <span class="n">box</span><span class="o">.</span><span class="n">y0</span><span class="p">,</span> <span class="n">box</span><span class="o">.</span><span class="n">width</span><span class="o">*</span><span class="mf">0.7</span><span class="p">,</span> <span class="n">box</span><span class="o">.</span><span class="n">height</span><span class="p">])</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">handles</span><span class="o">=</span><span class="n">lgd_mpcs</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="n">lgd_ulabs</span><span class="p">,</span>
+                           <span class="n">bbox_to_anchor</span><span class="o">=</span><span class="p">(</span><span class="mf">1.25</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">loc</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                           <span class="n">borderaxespad</span><span class="o">=</span><span class="mf">0.</span><span class="p">)</span>
+                <span class="c1"># colorbar location</span>
+                <span class="c1"># ref:</span>
+                <span class="c1"># https://matplotlib.org/gallery/axes_grid1/</span>
+                <span class="c1"># demo_colorbar_with_inset_locator.html</span>
+                <span class="n">cb_axins</span> <span class="o">=</span> <span class="n">inset_axes</span><span class="p">(</span>
+                    <span class="n">ax</span><span class="p">,</span>
+                    <span class="n">width</span><span class="o">=</span><span class="s2">&quot;5%&quot;</span><span class="p">,</span>  <span class="c1"># width = 10% of parent_bbox width</span>
+                    <span class="n">height</span><span class="o">=</span><span class="s2">&quot;100%&quot;</span><span class="p">,</span>  <span class="c1"># height : 50%</span>
+                    <span class="n">loc</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                    <span class="n">bbox_to_anchor</span><span class="o">=</span><span class="p">(</span><span class="mf">1.05</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+                    <span class="n">bbox_transform</span><span class="o">=</span><span class="n">ax</span><span class="o">.</span><span class="n">transAxes</span><span class="p">,</span>
+                    <span class="n">borderpad</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">cax</span><span class="o">=</span><span class="n">cb_axins</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="n">figsize</span><span class="p">)</span>
-            <span class="n">label_color_arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">sns</span><span class="o">.</span><span class="n">color_palette</span><span class="p">(</span><span class="s2">&quot;hls&quot;</span><span class="p">,</span>
-                                                         <span class="nb">len</span><span class="p">(</span><span class="n">uniq_labels</span><span class="p">)))</span>
+            <span class="n">label_color_arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+                <span class="n">sns</span><span class="o">.</span><span class="n">color_palette</span><span class="p">(</span><span class="s2">&quot;hls&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">uniq_labels</span><span class="p">)))</span>
             <span class="k">if</span> <span class="n">shuffle_label_colors</span><span class="p">:</span>
                 <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">label_color_arr</span><span class="p">)</span>
             <span class="n">color_lut</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">uniq_labels</span><span class="p">,</span> <span class="n">label_color_arr</span><span class="p">))</span>
-            <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">projection2d</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">y</span><span class="o">=</span><span class="n">projection2d</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span>
-                       <span class="n">c</span><span class="o">=</span><span class="p">[</span><span class="n">color_lut</span><span class="p">[</span><span class="n">lab</span><span class="p">]</span> <span class="k">for</span> <span class="n">lab</span> <span class="ow">in</span> <span class="n">labels</span><span class="p">],</span>
-                       <span class="n">s</span><span class="o">=</span><span class="n">s</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="n">s_col_arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">color_lut</span><span class="p">[</span><span class="n">lab</span><span class="p">]</span> <span class="k">for</span> <span class="n">lab</span> <span class="ow">in</span> <span class="n">labels</span><span class="p">])</span>
+            <span class="c1"># lab_m_s_ind_lut = {(lab1, m1): [s_inds]}</span>
+            <span class="k">for</span> <span class="p">(</span><span class="n">ulab</span><span class="p">,</span> <span class="n">ulab_m</span><span class="p">),</span> <span class="n">s_inds</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">lab_m_s_ind_lut</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+                <span class="n">mpc</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">projection2d</span><span class="p">[</span><span class="n">s_inds</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+                                  <span class="n">y</span><span class="o">=</span><span class="n">projection2d</span><span class="p">[</span><span class="n">s_inds</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+                                  <span class="n">c</span><span class="o">=</span><span class="n">s_col_arr</span><span class="p">[</span><span class="n">s_inds</span><span class="p">],</span>
+                                  <span class="n">marker</span><span class="o">=</span><span class="n">ulab_m</span><span class="p">,</span>
+                                  <span class="n">s</span><span class="o">=</span><span class="n">s</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span>
+                                  <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+                <span class="n">lgd_ulabs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ulab</span><span class="p">)</span>
+                <span class="n">lgd_mpcs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mpc</span><span class="p">)</span>
             <span class="c1"># Add legend</span>
             <span class="c1"># Shrink current axis by 20%</span>
-            <span class="k">if</span> <span class="n">add_legend</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">add_legend</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="n">box</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_position</span><span class="p">()</span>
-                <span class="n">ax</span><span class="o">.</span><span class="n">set_position</span><span class="p">([</span><span class="n">box</span><span class="o">.</span><span class="n">x0</span><span class="p">,</span> <span class="n">box</span><span class="o">.</span><span class="n">y0</span><span class="p">,</span> <span class="n">box</span><span class="o">.</span><span class="n">width</span> <span class="o">*</span> <span class="mf">0.8</span><span class="p">,</span> <span class="n">box</span><span class="o">.</span><span class="n">height</span><span class="p">])</span>
-                <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">handles</span><span class="o">=</span><span class="p">[</span><span class="n">mpl</span><span class="o">.</span><span class="n">patches</span><span class="o">.</span><span class="n">Patch</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="n">color_lut</span><span class="p">[</span><span class="n">ulab</span><span class="p">],</span>
-                                                     <span class="n">label</span><span class="o">=</span><span class="n">ulab</span><span class="p">)</span>
-                                   <span class="k">for</span> <span class="n">ulab</span> <span class="ow">in</span> <span class="n">uniq_labels</span><span class="p">],</span>
-                          <span class="n">bbox_to_anchor</span><span class="o">=</span><span class="p">(</span><span class="mf">1.05</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">loc</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">borderaxespad</span><span class="o">=</span><span class="mf">0.</span><span class="p">)</span>
-        <span class="c1"># [[label1 anno inds], [label2 anno ind], ...]</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">set_position</span><span class="p">([</span><span class="n">box</span><span class="o">.</span><span class="n">x0</span><span class="p">,</span> <span class="n">box</span><span class="o">.</span><span class="n">y0</span><span class="p">,</span> <span class="n">box</span><span class="o">.</span><span class="n">width</span><span class="o">*</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">box</span><span class="o">.</span><span class="n">height</span><span class="p">])</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">handles</span><span class="o">=</span><span class="n">lgd_mpcs</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="n">lgd_ulabs</span><span class="p">,</span>
+                           <span class="n">bbox_to_anchor</span><span class="o">=</span><span class="p">(</span><span class="mf">1.05</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">loc</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                           <span class="n">borderaxespad</span><span class="o">=</span><span class="mf">0.</span><span class="p">)</span>
+        <span class="c1"># add text annotation [[label1 anno inds], [label2 anno ind], ...]</span>
         <span class="n">anno_ind_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">labels</span> <span class="o">==</span> <span class="n">ulab</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span>
                                           <span class="n">n_txt_per_cluster</span><span class="p">)</span>
                          <span class="k">for</span> <span class="n">ulab</span> <span class="ow">in</span> <span class="n">uniq_labels</span><span class="p">]</span>
@@ -323,20 +441,16 @@
                             <span class="p">(</span><span class="n">projection2d</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">projection2d</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">1</span><span class="p">]))</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">gradient</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="n">figsize</span><span class="p">)</span>
-            <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">projection2d</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">y</span><span class="o">=</span><span class="n">projection2d</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">s</span><span class="o">=</span><span class="n">s</span><span class="p">,</span>
-                       <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">projection2d</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">y</span><span class="o">=</span><span class="n">projection2d</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">s</span><span class="o">=</span><span class="n">s</span><span class="p">,</span>
+                        <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">cmap</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;cmap&quot;</span><span class="p">,</span> <span class="s2">&quot;viridis&quot;</span><span class="p">)</span>
-            <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="n">figsize</span><span class="p">)</span>
             <span class="c1"># matplotlib.collections.PathCollection</span>
-            <span class="n">mpc</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">projection2d</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">y</span><span class="o">=</span><span class="n">projection2d</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span>
-                              <span class="n">c</span><span class="o">=</span><span class="n">gradient</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="n">s</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span>
-                              <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">projection2d</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">y</span><span class="o">=</span><span class="n">projection2d</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span>
+                        <span class="n">c</span><span class="o">=</span><span class="n">gradient</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="n">s</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span>
+                        <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">add_legend</span><span class="p">:</span>
-                <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">mpc</span><span class="p">)</span>
-            <span class="n">fig</span> <span class="o">=</span> <span class="n">mpc</span><span class="o">.</span><span class="n">get_figure</span><span class="p">()</span>
-            <span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">get_axes</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">()</span>
 
     <span class="k">if</span> <span class="n">title</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
@@ -346,6 +460,9 @@
 
     <span class="k">if</span> <span class="n">ylab</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="n">ylab</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="n">xlim</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="n">ylim</span><span class="p">)</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">fig</span></div>
 
@@ -603,13 +720,104 @@
     <span class="k">return</span> <span class="n">fig</span></div>
 
 
-<div class="viewcode-block" id="networkx_graph"><a class="viewcode-back" href="../../../scedar.eda.html#scedar.eda.plot.networkx_graph">[docs]</a><span class="k">def</span> <span class="nf">networkx_graph</span><span class="p">(</span><span class="n">ng</span><span class="p">,</span> <span class="n">pos</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">20</span><span class="p">),</span> <span class="n">node_size</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span>
-                   <span class="n">with_labels</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">node_color</span><span class="o">=</span><span class="s2">&quot;b&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="networkx_graph"><a class="viewcode-back" href="../../../scedar.eda.html#scedar.eda.plot.networkx_graph">[docs]</a><span class="k">def</span> <span class="nf">networkx_graph</span><span class="p">(</span><span class="n">ng</span><span class="p">,</span> <span class="n">pos</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">20</span><span class="p">),</span> <span class="n">gradient</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                   <span class="n">labels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">different_label_markers</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">node_size</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span>
+                   <span class="n">node_with_labels</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">nx_draw_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="c1"># TODO: offset labels</span>
     <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="n">figsize</span><span class="p">)</span>
-    <span class="n">nx</span><span class="o">.</span><span class="n">draw_networkx</span><span class="p">(</span><span class="n">ng</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span> <span class="n">node_color</span><span class="o">=</span><span class="n">node_color</span><span class="p">,</span>
-                     <span class="n">node_size</span><span class="o">=</span><span class="n">node_size</span><span class="p">,</span> <span class="n">with_labels</span><span class="o">=</span><span class="n">with_labels</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">nx_draw_kwargs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">nx_draw_kwargs</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">if</span> <span class="n">labels</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># prepare markers and colors for each unique label</span>
+        <span class="k">if</span> <span class="n">different_label_markers</span><span class="p">:</span>
+            <span class="c1"># each marker for each label</span>
+            <span class="c1"># use a different marker for each label</span>
+            <span class="c1"># cycle use the following filled markers:</span>
+            <span class="c1"># &quot;o&quot;: circle</span>
+            <span class="c1"># &quot;s&quot;: square</span>
+            <span class="c1"># &quot;^&quot;: triangle_up</span>
+            <span class="c1"># &quot;D&quot;: diamond</span>
+            <span class="c1"># &quot;x&quot;: x</span>
+            <span class="c1"># &quot;v&quot;: triangle_down</span>
+            <span class="c1"># &quot;d&quot;: thin_diamond</span>
+            <span class="c1"># &quot;+&quot;: plus</span>
+            <span class="c1"># &quot;&gt;&quot;: triangle_right</span>
+            <span class="c1"># &quot;p&quot;: pentagon</span>
+            <span class="c1"># &quot;h&quot;: hexagon1</span>
+            <span class="c1"># &quot;&lt;&quot;: triangle_left</span>
+            <span class="c1"># &quot;H&quot;: hexagon2</span>
+            <span class="c1"># &quot;*&quot;: star</span>
+            <span class="c1"># order: &quot;os^Dxvd+&gt;ph&lt;H*&quot;</span>
+            <span class="c1"># Refs:</span>
+            <span class="c1"># - markers with shape:</span>
+            <span class="c1"># https://matplotlib.org/examples/lines_bars_and_markers/</span>
+            <span class="c1"># marker_reference.html</span>
+            <span class="c1"># - all merkers</span>
+            <span class="c1"># ref: https://matplotlib.org/api/markers_api.html</span>
+            <span class="n">m_cycle</span> <span class="o">=</span> <span class="s2">&quot;os^Dxvd+&gt;ph&lt;H*&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># all labels use &quot;o&quot;</span>
+            <span class="n">m_cycle</span> <span class="o">=</span> <span class="s2">&quot;o&quot;</span>
+        <span class="c1"># each label has a marker</span>
+        <span class="n">uniq_labels</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">labels</span><span class="p">))</span>
+        <span class="n">ulab_colors</span> <span class="o">=</span> <span class="n">sns</span><span class="o">.</span><span class="n">hls_palette</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">uniq_labels</span><span class="p">))</span>
+        <span class="n">lab_m_s_ind_lut</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">ulab</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">uniq_labels</span><span class="p">):</span>
+            <span class="n">ulab_m</span> <span class="o">=</span> <span class="n">m_cycle</span><span class="p">[</span><span class="n">i</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">m_cycle</span><span class="p">)]</span>
+            <span class="n">ulab_c</span> <span class="o">=</span> <span class="n">ulab_colors</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">lab_m_s_ind_lut</span><span class="p">[(</span><span class="n">ulab</span><span class="p">,</span> <span class="n">ulab_m</span><span class="p">,</span> <span class="n">ulab_c</span><span class="p">)]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span>
+                <span class="k">lambda</span> <span class="n">j</span><span class="p">:</span> <span class="n">labels</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">==</span> <span class="n">ulab</span><span class="p">,</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">labels</span><span class="p">))))</span>
+
+    <span class="k">if</span> <span class="n">labels</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">gradient</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># no label. no gradient.</span>
+            <span class="c1"># plot all nodes as blue.</span>
+            <span class="n">node_color</span> <span class="o">=</span> <span class="n">nx_draw_kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;node_color&quot;</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">)</span>
+            <span class="n">cmap</span> <span class="o">=</span> <span class="n">nx_draw_kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;cmap&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="n">nx</span><span class="o">.</span><span class="n">draw_networkx</span><span class="p">(</span><span class="n">ng</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span> <span class="n">node_color</span><span class="o">=</span><span class="n">node_color</span><span class="p">,</span>
+                             <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">,</span> <span class="n">node_size</span><span class="o">=</span><span class="n">node_size</span><span class="p">,</span>
+                             <span class="n">with_labels</span><span class="o">=</span><span class="n">node_with_labels</span><span class="p">,</span>
+                             <span class="o">**</span><span class="n">nx_draw_kwargs</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># no label. has gradient.</span>
+            <span class="n">cmap</span> <span class="o">=</span> <span class="n">nx_draw_kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;cmap&quot;</span><span class="p">,</span> <span class="s2">&quot;viridis&quot;</span><span class="p">)</span>
+            <span class="c1"># matplotlib.collections.PathCollection</span>
+            <span class="n">nx</span><span class="o">.</span><span class="n">draw_networkx_edges</span><span class="p">(</span><span class="n">ng</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">)</span>
+            <span class="n">mcp</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">draw_networkx_nodes</span><span class="p">(</span><span class="n">ng</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span>
+                                         <span class="n">node_color</span><span class="o">=</span><span class="n">gradient</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">,</span>
+                                         <span class="n">node_size</span><span class="o">=</span><span class="n">node_size</span><span class="p">,</span>
+                                         <span class="n">with_labels</span><span class="o">=</span><span class="n">node_with_labels</span><span class="p">,</span>
+                                         <span class="o">**</span><span class="n">nx_draw_kwargs</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">mcp</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">nx</span><span class="o">.</span><span class="n">draw_networkx_edges</span><span class="p">(</span><span class="n">ng</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">gradient</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># has label. no gradient.</span>
+            <span class="c1"># plot differnt labels with different colors and markers.</span>
+            <span class="k">for</span> <span class="p">(</span><span class="n">ulab</span><span class="p">,</span> <span class="n">ulab_m</span><span class="p">,</span> <span class="n">ulab_c</span><span class="p">),</span> <span class="n">ulab_s_inds</span> <span class="ow">in</span> <span class="n">lab_m_s_ind_lut</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">mcp</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">draw_networkx_nodes</span><span class="p">(</span><span class="n">ng</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span>
+                                             <span class="n">nodelist</span><span class="o">=</span><span class="n">ulab_s_inds</span><span class="p">,</span>
+                                             <span class="n">node_color</span><span class="o">=</span><span class="n">ulab_c</span><span class="p">,</span>
+                                             <span class="n">node_shape</span><span class="o">=</span><span class="n">ulab_m</span><span class="p">,</span>
+                                             <span class="n">node_size</span><span class="o">=</span><span class="n">node_size</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">ulab</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># has label. has gradient.</span>
+            <span class="n">gradient</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">gradient</span><span class="p">)</span>
+            <span class="n">cmap</span> <span class="o">=</span> <span class="n">nx_draw_kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;cmap&quot;</span><span class="p">,</span> <span class="s2">&quot;viridis&quot;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="p">(</span><span class="n">ulab</span><span class="p">,</span> <span class="n">ulab_m</span><span class="p">,</span> <span class="n">ulab_c</span><span class="p">),</span> <span class="n">ulab_s_inds</span> <span class="ow">in</span> <span class="n">lab_m_s_ind_lut</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">mcp</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">draw_networkx_nodes</span><span class="p">(</span><span class="n">ng</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span>
+                                             <span class="n">nodelist</span><span class="o">=</span><span class="n">ulab_s_inds</span><span class="p">,</span>
+                                             <span class="n">node_color</span><span class="o">=</span><span class="n">gradient</span><span class="p">[</span><span class="n">ulab_s_inds</span><span class="p">],</span>
+                                             <span class="n">node_shape</span><span class="o">=</span><span class="n">ulab_m</span><span class="p">,</span>
+                                             <span class="n">node_size</span><span class="o">=</span><span class="n">node_size</span><span class="p">,</span>
+                                             <span class="n">label</span><span class="o">=</span><span class="n">ulab</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">)</span>
+            <span class="c1"># TODO: move legend out of the graph</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">mcp</span><span class="p">)</span>
+        <span class="c1"># TODO: move legend out of the graph</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">scatterpoints</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">fig</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">fig</span></div>
 </pre></div>
 

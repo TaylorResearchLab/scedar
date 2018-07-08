@@ -180,7 +180,7 @@
 <span id="scedar-cluster-mirac-module"></span><h2>scedar.cluster.mirac module<a class="headerlink" href="#module-scedar.cluster.mirac" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="scedar.cluster.mirac.MIRAC">
-<em class="property">class </em><code class="descclassname">scedar.cluster.mirac.</code><code class="descname">MIRAC</code><span class="sig-paren">(</span><em>x</em>, <em>d=None</em>, <em>metric='cosine'</em>, <em>sids=None</em>, <em>fids=None</em>, <em>hac_tree=None</em>, <em>nprocs=1</em>, <em>cl_mdl_scale_factor=1</em>, <em>min_cl_n=25</em>, <em>encode_type='auto'</em>, <em>mdl_method=None</em>, <em>min_split_mdl_red_ratio=0.2</em>, <em>linkage='complete'</em>, <em>optimal_ordering=True</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/cluster/mirac.html#MIRAC"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.cluster.mirac.MIRAC" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">scedar.cluster.mirac.</code><code class="descname">MIRAC</code><span class="sig-paren">(</span><em>x</em>, <em>d=None</em>, <em>metric='cosine'</em>, <em>sids=None</em>, <em>fids=None</em>, <em>hac_tree=None</em>, <em>nprocs=1</em>, <em>cl_mdl_scale_factor=1</em>, <em>min_cl_n=25</em>, <em>encode_type='auto'</em>, <em>mdl_method=None</em>, <em>min_split_mdl_red_ratio=0.2</em>, <em>soft_min_subtree_size=1</em>, <em>linkage='complete'</em>, <em>optimal_ordering=True</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/cluster/mirac.html#MIRAC"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.cluster.mirac.MIRAC" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>MIRAC: MDL iteratively regularized agglomerative clustering.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -262,6 +262,11 @@ agglomerative clustering tree.</p>
 <li>Take HCTree as parameter. Computing it is non-trivial when n is large.</li>
 <li>Simplify splitting criteria.</li>
 </ul>
+<dl class="method">
+<dt id="scedar.cluster.mirac.MIRAC.dmat_heatmap">
+<code class="descname">dmat_heatmap</code><span class="sig-paren">(</span><em>selected_labels=None</em>, <em>col_labels=None</em>, <em>transform=None</em>, <em>title=None</em>, <em>xlab=None</em>, <em>ylab=None</em>, <em>figsize=(10</em>, <em>10)</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/cluster/mirac.html#MIRAC.dmat_heatmap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.cluster.mirac.MIRAC.dmat_heatmap" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="attribute">
 <dt>
 <code class="descname">labs</code></dt>

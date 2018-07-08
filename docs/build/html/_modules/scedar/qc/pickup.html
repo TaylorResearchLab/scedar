@@ -173,14 +173,20 @@
 
 <span class="kn">import</span> <span class="nn">time</span>
 
+<span class="kn">import</span> <span class="nn">gzip</span>
+
+<span class="kn">import</span> <span class="nn">pickle</span>
+
+<span class="c1"># TODO: use multiprocessing.Manager to share data between processes</span>
+
 
 <div class="viewcode-block" id="FeatureKNNPickUp"><a class="viewcode-back" href="../../../scedar.qc.html#scedar.qc.pickup.FeatureKNNPickUp">[docs]</a><span class="k">class</span> <span class="nc">FeatureKNNPickUp</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    &quot;Pick-up&quot; dropped out features using K nearest neighbors (KNN) approach.</span>
 
 <span class="sd">    If the value of a feature is below min_present_val in a sample, and all</span>
-<span class="sd">    its KNNs have above min_present_val, replace the value with the median</span>
-<span class="sd">    of KNN above threshold values.</span>
+<span class="sd">    its KNNs have above min_present_val, replace the value with the summary</span>
+<span class="sd">    statistic (default is median) of KNN above threshold values.</span>
 
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
@@ -195,21 +201,20 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_sdm</span> <span class="o">=</span> <span class="n">sdm</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_res_lut</span> <span class="o">=</span> <span class="p">{}</span>
 
-    <span class="k">def</span> <span class="nf">_knn_pickup_features_runner</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">n_do</span><span class="p">,</span> <span class="n">min_present_val</span><span class="p">,</span> <span class="n">n_iter</span><span class="p">):</span>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_knn_pickup_features_runner</span><span class="p">(</span><span class="n">gz_pb_x</span><span class="p">,</span> <span class="n">knn_ordered_ind_dict</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">n_do</span><span class="p">,</span>
+                                    <span class="n">min_present_val</span><span class="p">,</span> <span class="n">n_iter</span><span class="p">,</span>
+                                    <span class="n">statistic_fun</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Runs KNN pick-up on single parameter set in one process.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">param_key</span> <span class="o">=</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">n_do</span><span class="p">,</span> <span class="n">min_present_val</span><span class="p">,</span> <span class="n">n_iter</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">param_key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_res_lut</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_res_lut</span><span class="p">[</span><span class="n">param_key</span><span class="p">]</span>
-
         <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-        <span class="n">n_samples</span><span class="p">,</span> <span class="n">n_features</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sdm</span><span class="o">.</span><span class="n">_x</span><span class="o">.</span><span class="n">shape</span>
-        <span class="c1"># {sample_ind : [1st_NN_ind(neq sample_ind),</span>
-        <span class="c1">#                 2nd_NN_ind, ..., nth_NN_ind], ...}</span>
-        <span class="n">knn_ordered_ind_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sdm</span><span class="o">.</span><span class="n">s_knn_ind_lut</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
+        <span class="n">curr_x_arr</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">gzip</span><span class="o">.</span><span class="n">decompress</span><span class="p">(</span><span class="n">gz_pb_x</span><span class="p">))</span>
+        <span class="n">n_samples</span><span class="p">,</span> <span class="n">n_features</span> <span class="o">=</span> <span class="n">curr_x_arr</span><span class="o">.</span><span class="n">shape</span>
+        <span class="c1"># knn_ordered_ind_dict = {sample_ind : [1st_NN_ind(neq sample_ind),</span>
+        <span class="c1">#                                       2nd_NN_ind, ..., nth_NN_ind],</span>
+        <span class="c1">#                         ...}</span>
         <span class="c1"># curr_x_arr is only accessed but not edited</span>
-        <span class="n">curr_x_arr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sdm</span><span class="o">.</span><span class="n">_x</span>
         <span class="n">next_x_arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">curr_x_arr</span><span class="p">)</span>
         <span class="n">curr_x_present_arr</span> <span class="o">=</span> <span class="n">curr_x_arr</span> <span class="o">&gt;=</span> <span class="n">min_present_val</span>
         <span class="n">curr_x_absent_arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_not</span><span class="p">(</span><span class="n">curr_x_present_arr</span><span class="p">)</span>
@@ -237,11 +242,11 @@
                     <span class="k">if</span> <span class="n">f_n_knn_present_arr</span><span class="p">[</span><span class="n">fai</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">n_do_i</span><span class="p">:</span>
                         <span class="c1"># Mark (s_ind, fai) as picked up</span>
                         <span class="n">pickup_idc_arr</span><span class="p">[</span><span class="n">s_ind</span><span class="p">,</span> <span class="n">fai</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span>
-                        <span class="c1"># Replace val in (s_ind, fai) with median of knn</span>
+                        <span class="c1"># Replace val in (s_ind, fai) with summ stat of knn</span>
                         <span class="n">knn_x_arr</span> <span class="o">=</span> <span class="n">curr_x_arr</span><span class="p">[</span><span class="n">knn_ordered_inds</span><span class="p">,</span> <span class="n">fai</span><span class="p">]</span>
-                        <span class="n">knn_x_present_med</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span>
+                        <span class="n">knn_x_present_ss</span> <span class="o">=</span> <span class="n">statistic_fun</span><span class="p">(</span>
                             <span class="n">knn_x_arr</span><span class="p">[</span><span class="n">knn_x_arr</span> <span class="o">&gt;=</span> <span class="n">min_present_val</span><span class="p">])</span>
-                        <span class="n">next_x_arr</span><span class="p">[</span><span class="n">s_ind</span><span class="p">,</span> <span class="n">fai</span><span class="p">]</span> <span class="o">=</span> <span class="n">knn_x_present_med</span>
+                        <span class="n">next_x_arr</span><span class="p">[</span><span class="n">s_ind</span><span class="p">,</span> <span class="n">fai</span><span class="p">]</span> <span class="o">=</span> <span class="n">knn_x_present_ss</span>
 
             <span class="n">curr_x_arr</span> <span class="o">=</span> <span class="n">next_x_arr</span>
             <span class="n">next_x_arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">curr_x_arr</span><span class="p">)</span>
@@ -261,18 +266,13 @@
                                 <span class="n">n_pu_entries</span><span class="p">,</span> <span class="n">n_samples_wfpu</span><span class="p">,</span>
                                 <span class="n">n_samples_wfpu</span> <span class="o">/</span> <span class="n">n_samples</span><span class="p">,</span>
                                 <span class="n">n_pu_entries_ratio</span><span class="p">)</span>
-
-        <span class="n">pu_sdm</span> <span class="o">=</span> <span class="n">eda</span><span class="o">.</span><span class="n">SampleDistanceMatrix</span><span class="p">(</span><span class="n">curr_x_arr</span><span class="p">,</span>
-                                          <span class="n">metric</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_sdm</span><span class="o">.</span><span class="n">_metric</span><span class="p">,</span>
-                                          <span class="n">sids</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_sdm</span><span class="o">.</span><span class="n">sids</span><span class="p">,</span>
-                                          <span class="n">fids</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_sdm</span><span class="o">.</span><span class="n">fids</span><span class="p">,</span>
-                                          <span class="n">nprocs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_sdm</span><span class="o">.</span><span class="n">_nprocs</span><span class="p">)</span>
-
+        <span class="n">curr_x_gz_pb</span> <span class="o">=</span> <span class="n">gzip</span><span class="o">.</span><span class="n">compress</span><span class="p">(</span><span class="n">pickle</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">curr_x_arr</span><span class="p">))</span>
+        <span class="n">pickup_idc_gz_pb</span> <span class="o">=</span> <span class="n">gzip</span><span class="o">.</span><span class="n">compress</span><span class="p">(</span><span class="n">pickle</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">pickup_idc_arr</span><span class="p">))</span>
         <span class="n">stats</span> <span class="o">+=</span> <span class="s2">&quot;Complete in </span><span class="si">{:.2f}</span><span class="s2">s</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">curr_x_gz_pb</span><span class="p">,</span> <span class="n">pickup_idc_gz_pb</span><span class="p">,</span> <span class="n">stats</span>
 
-        <span class="k">return</span> <span class="n">pu_sdm</span><span class="p">,</span> <span class="n">pickup_idc_arr</span><span class="p">,</span> <span class="n">stats</span>
-
-<div class="viewcode-block" id="FeatureKNNPickUp.knn_pickup_features"><a class="viewcode-back" href="../../../scedar.qc.html#scedar.qc.pickup.FeatureKNNPickUp.knn_pickup_features">[docs]</a>    <span class="k">def</span> <span class="nf">knn_pickup_features</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">n_do</span><span class="p">,</span> <span class="n">min_present_val</span><span class="p">,</span> <span class="n">n_iter</span><span class="p">,</span> <span class="n">nprocs</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+<div class="viewcode-block" id="FeatureKNNPickUp.knn_pickup_features"><a class="viewcode-back" href="../../../scedar.qc.html#scedar.qc.pickup.FeatureKNNPickUp.knn_pickup_features">[docs]</a>    <span class="k">def</span> <span class="nf">knn_pickup_features</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">n_do</span><span class="p">,</span> <span class="n">min_present_val</span><span class="p">,</span> <span class="n">n_iter</span><span class="p">,</span> <span class="n">nprocs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                            <span class="n">statistic_fun</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Runs KNN pick-up on multiple parameter sets parallely.</span>
 
@@ -289,6 +289,9 @@
 <span class="sd">            Minimum (`&gt;=`) values of a feature to be called as present.</span>
 <span class="sd">        n_iter: int</span>
 <span class="sd">            The number of iterations to run.</span>
+<span class="sd">        statistic_fun: callable</span>
+<span class="sd">            The summary statistic used to correct gene dropouts. Default is</span>
+<span class="sd">            median.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -319,6 +322,15 @@
 
 <span class="sd">        n_do, min_present_val, n_iter</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># make sure that the function runs on list of numbers</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isscalar</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isreal</span><span class="p">(</span><span class="n">statistic_fun</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]))):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;statistic_fun should be a function of a&quot;</span>
+                                 <span class="s2">&quot;list of numbers that returns a scalar.&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;statistic_fun should be a function of a&quot;</span>
+                             <span class="s2">&quot;list of numbers that returns a scalar.&quot;</span><span class="p">)</span>
+
         <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isscalar</span><span class="p">(</span><span class="n">k</span><span class="p">):</span>
             <span class="n">k_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">k</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
@@ -370,20 +382,67 @@
                 <span class="n">n_iter_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">n_iter_list</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
 
         <span class="n">param_tups</span> <span class="o">=</span> <span class="p">[(</span><span class="n">k_list</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">n_do_list</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">min_present_val_list</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
-                       <span class="n">n_iter_list</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+                       <span class="n">n_iter_list</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">statistic_fun</span><span class="p">)</span>
                       <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_param_tups</span><span class="p">)]</span>
+        <span class="n">res_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c1"># use cached results with the following procedure</span>
+        <span class="c1"># 1. put cached results to res_list, with not cached ones as None</span>
+        <span class="c1"># 2. run not cached ones</span>
+        <span class="c1"># 3. after running, cache the results results and fill res_list</span>
+        <span class="c1"># same as filter</span>
+        <span class="c1"># TODO: abstract the running pattern into a function</span>
+
+        <span class="c1"># parameter tuples without cached results for running</span>
+        <span class="n">run_param_tups</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c1"># indices of results to be filled after running</span>
+        <span class="n">res_list_run_inds</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">ptup</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">param_tups</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">ptup</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_res_lut</span><span class="p">:</span>
+                <span class="n">res_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_res_lut</span><span class="p">[</span><span class="n">ptup</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">run_param_tups</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ptup</span><span class="p">)</span>
+                <span class="n">res_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+                <span class="n">res_list_run_inds</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+        <span class="c1"># set up parameters for running</span>
+        <span class="c1"># use gzipped pickle bytecode to save space, because python</span>
+        <span class="c1"># multiprocessing has a limit of sharing memory through pipe</span>
+        <span class="n">gz_pb_x</span> <span class="o">=</span> <span class="n">gzip</span><span class="o">.</span><span class="n">compress</span><span class="p">(</span><span class="n">pickle</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_sdm</span><span class="o">.</span><span class="n">_x</span><span class="p">))</span>
+        <span class="n">run_param_setup_tups</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">ptup</span> <span class="ow">in</span> <span class="n">run_param_tups</span><span class="p">:</span>
+            <span class="c1"># assumes that the first element of the ptup is k</span>
+            <span class="n">run_param_setup_tups</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="p">(</span><span class="n">gz_pb_x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sdm</span><span class="o">.</span><span class="n">s_knn_ind_lut</span><span class="p">(</span><span class="n">ptup</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span> <span class="o">+</span> <span class="n">ptup</span><span class="p">)</span>
+
         <span class="n">nprocs</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">nprocs</span><span class="p">)</span>
         <span class="n">nprocs</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">nprocs</span><span class="p">,</span> <span class="n">n_param_tups</span><span class="p">)</span>
-
-        <span class="n">res_list</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">parmap</span><span class="p">(</span>
+        <span class="n">run_res_list</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">parmap</span><span class="p">(</span>
             <span class="k">lambda</span> <span class="n">ptup</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_knn_pickup_features_runner</span><span class="p">(</span><span class="o">*</span><span class="n">ptup</span><span class="p">),</span>
-            <span class="n">param_tups</span><span class="p">,</span> <span class="n">nprocs</span><span class="p">)</span>
+            <span class="n">run_param_setup_tups</span><span class="p">,</span> <span class="n">nprocs</span><span class="p">)</span>
 
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_param_tups</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">param_tups</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_res_lut</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_res_lut</span><span class="p">[</span><span class="n">param_tups</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="o">=</span> <span class="n">res_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">param_tup</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">run_param_tups</span><span class="p">):</span>
+            <span class="c1"># cache results</span>
+            <span class="k">if</span> <span class="n">param_tup</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_res_lut</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Unexpected scenario encountered&quot;</span><span class="p">)</span>
+            <span class="n">res_x</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">gzip</span><span class="o">.</span><span class="n">decompress</span><span class="p">(</span><span class="n">run_res_list</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]))</span>
+            <span class="n">res_idc</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">gzip</span><span class="o">.</span><span class="n">decompress</span><span class="p">(</span><span class="n">run_res_list</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]))</span>
+            <span class="n">res_tup</span> <span class="o">=</span> <span class="p">(</span><span class="n">res_x</span><span class="p">,</span> <span class="n">res_idc</span><span class="p">,</span> <span class="n">run_res_list</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">2</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_res_lut</span><span class="p">[</span><span class="n">param_tup</span><span class="p">]</span> <span class="o">=</span> <span class="n">res_tup</span>
+            <span class="c1"># fill res_list</span>
+            <span class="k">if</span> <span class="n">res_list</span><span class="p">[</span><span class="n">res_list_run_inds</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Unexpected scenario encountered&quot;</span><span class="p">)</span>
+            <span class="n">res_list</span><span class="p">[</span><span class="n">res_list_run_inds</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="o">=</span> <span class="n">res_tup</span>
 
-        <span class="k">return</span> <span class="p">[</span><span class="n">res</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">res</span> <span class="ow">in</span> <span class="n">res_list</span><span class="p">]</span></div></div>
+        <span class="n">kpu_sdm_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">res</span> <span class="ow">in</span> <span class="n">res_list</span><span class="p">:</span>
+            <span class="n">kpu_x</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">kpu_sdm</span> <span class="o">=</span> <span class="n">eda</span><span class="o">.</span><span class="n">SampleDistanceMatrix</span><span class="p">(</span>
+                <span class="n">kpu_x</span><span class="p">,</span>
+                <span class="n">metric</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_sdm</span><span class="o">.</span><span class="n">_metric</span><span class="p">,</span>
+                <span class="n">sids</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_sdm</span><span class="o">.</span><span class="n">sids</span><span class="p">,</span>
+                <span class="n">fids</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_sdm</span><span class="o">.</span><span class="n">fids</span><span class="p">,</span>
+                <span class="n">nprocs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_sdm</span><span class="o">.</span><span class="n">_nprocs</span><span class="p">)</span>
+            <span class="n">kpu_sdm_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">kpu_sdm</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">kpu_sdm_list</span></div></div>
 </pre></div>
 
            </div>

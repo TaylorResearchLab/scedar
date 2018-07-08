@@ -580,8 +580,42 @@ Number of clusters should decrease from n to 1</p>
 <span id="scedar-eda-plot-module"></span><h2>scedar.eda.plot module<a class="headerlink" href="#module-scedar.eda.plot" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="scedar.eda.plot.cluster_scatter">
-<code class="descclassname">scedar.eda.plot.</code><code class="descname">cluster_scatter</code><span class="sig-paren">(</span><em>projection2d</em>, <em>labels=None</em>, <em>selected_labels=None</em>, <em>shuffle_label_colors=False</em>, <em>gradient=None</em>, <em>title=None</em>, <em>xlab=None</em>, <em>ylab=None</em>, <em>figsize=(20</em>, <em>20)</em>, <em>add_legend=True</em>, <em>n_txt_per_cluster=3</em>, <em>alpha=1</em>, <em>s=0.5</em>, <em>random_state=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/plot.html#cluster_scatter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.plot.cluster_scatter" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="descclassname">scedar.eda.plot.</code><code class="descname">cluster_scatter</code><span class="sig-paren">(</span><em>projection2d</em>, <em>labels=None</em>, <em>selected_labels=None</em>, <em>plot_different_markers=False</em>, <em>label_markers=None</em>, <em>shuffle_label_colors=False</em>, <em>gradient=None</em>, <em>xlim=None</em>, <em>ylim=None</em>, <em>title=None</em>, <em>xlab=None</em>, <em>ylab=None</em>, <em>figsize=(20</em>, <em>20)</em>, <em>add_legend=True</em>, <em>n_txt_per_cluster=3</em>, <em>alpha=1</em>, <em>s=0.5</em>, <em>random_state=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/plot.html#cluster_scatter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.plot.cluster_scatter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Scatter plot for clustering illustration</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>projection2d</strong> (<em>2 col numeric array</em>) – (n, 2) matrix to plot</li>
+<li><strong>labels</strong> (<em>list of labels</em>) – labels of n samples</li>
+<li><strong>selected_labels</strong> (<em>list of labels</em>) – selected labels to plot</li>
+<li><strong>plot_different_markers</strong> (<em>bool</em>) – plot different markers for samples with
+different labels</li>
+<li><strong>label_markers</strong> (<em>list of marker shapes</em>) – passed to matplotlib plot</li>
+<li><strong>shuffle_label_colors</strong> (<em>bool</em>) – shuffle the color of labels to avoid
+similar colors show up in close clusters</li>
+<li><strong>gradient</strong> (<em>list of number</em>) – color gradient of n samples</li>
+<li><strong>title</strong> (<em>str</em>) – </li>
+<li><strong>xlab</strong> (<em>str</em>) – x axis label</li>
+<li><strong>ylab</strong> (<em>str</em>) – y axis label</li>
+<li><strong>figsize</strong> (<em>tuple of two number</em>) – (width, height)</li>
+<li><strong>add_legend</strong> (<em>bool</em>) – </li>
+<li><strong>n_txt_per_cluster</strong> (<em>number</em>) – the number of text to plot per cluster.
+Could be 0.</li>
+<li><strong>alpha</strong> (<em>number</em>) – </li>
+<li><strong>s</strong> (<em>number</em>) – size of the points</li>
+<li><strong>random_state</strong> (<em>int</em>) – random seed to shuffle features</li>
+<li><strong>**kwards</strong> – passed to matplotlib plot</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">matplotlib figure of the created scatter plot</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="function">
 <dt id="scedar.eda.plot.heatmap">
@@ -601,7 +635,7 @@ Number of clusters should decrease from n to 1</p>
 
 <dl class="function">
 <dt id="scedar.eda.plot.networkx_graph">
-<code class="descclassname">scedar.eda.plot.</code><code class="descname">networkx_graph</code><span class="sig-paren">(</span><em>ng</em>, <em>pos=None</em>, <em>figsize=(20</em>, <em>20)</em>, <em>node_size=30</em>, <em>alpha=0.05</em>, <em>with_labels=False</em>, <em>node_color='b'</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/plot.html#networkx_graph"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.plot.networkx_graph" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">scedar.eda.plot.</code><code class="descname">networkx_graph</code><span class="sig-paren">(</span><em>ng</em>, <em>pos=None</em>, <em>alpha=0.05</em>, <em>figsize=(20</em>, <em>20)</em>, <em>gradient=None</em>, <em>labels=None</em>, <em>different_label_markers=True</em>, <em>node_size=30</em>, <em>node_with_labels=False</em>, <em>nx_draw_kwargs=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/plot.html#networkx_graph"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.plot.networkx_graph" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
@@ -683,7 +717,16 @@ according to id_arr <cite>[0, 1, 2, 3, 4]</cite></p>
 <dl class="method">
 <dt id="scedar.eda.sdm.HClustTree.leaf_ids">
 <code class="descname">leaf_ids</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/sdm.html#HClustTree.leaf_ids"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.sdm.HClustTree.leaf_ids" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Returns the list of leaf IDs from left to right</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><code class="xref py py-obj docutils literal notranslate"><span class="pre">list</span></code> of leaf IDs</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="method">
 <dt id="scedar.eda.sdm.HClustTree.left">
@@ -851,41 +894,6 @@ with default parameters will be performed.</p>
 <dd></dd></dl>
 
 <dl class="method">
-<dt id="scedar.eda.sdm.SampleDistanceMatrix.draw_s_knn_graph">
-<code class="descname">draw_s_knn_graph</code><span class="sig-paren">(</span><em>k</em>, <em>aff_scale=1</em>, <em>gradient=None</em>, <em>iterations=2000</em>, <em>figsize=(20</em>, <em>20)</em>, <em>node_size=30</em>, <em>alpha=0.05</em>, <em>random_state=None</em>, <em>init_pos=None</em>, <em>with_labels=False</em>, <em>fa2_kwargs=None</em>, <em>nx_draw_kwargs=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/sdm.html#SampleDistanceMatrix.draw_s_knn_graph"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.sdm.SampleDistanceMatrix.draw_s_knn_graph" title="Permalink to this definition">¶</a></dt>
-<dd><p>Draw KNN graph of SampleDistanceMatrix. Graph layout using
-forceatlas2 for its speed on large graph.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>k</strong> (<em>int</em>) – </li>
-<li><strong>aff_scale</strong> (<em>float</em>) – Affinity is calculated by <cite>(max(distance) - distance) * aff_scale</cite></li>
-<li><strong>gradient</strong> (<em>float array</em>) – (n_samples,) color gradient</li>
-<li><strong>iterations</strong> (<em>int</em>) – ForceAtlas2 iterations</li>
-<li><strong>figsize</strong> (<em>(</em><em>float</em><em>, </em><em>float</em><em>)</em>) – </li>
-<li><strong>node_size</strong> (<em>float</em>) – </li>
-<li><strong>alpha</strong> (<em>float</em>) – </li>
-<li><strong>random_state</strong> (<em>int</em>) – </li>
-<li><strong>init_pos</strong> (<em>float array</em>) – Initial position of ForceAtlas2, (n_samples, 2).</li>
-<li><strong>with_labels</strong> (<em>bool</em>) – </li>
-<li><strong>fa2_kwargs</strong> (<em>dict</em>) – </li>
-<li><strong>nx_draw_kwargs</strong> (<em>dict</em>) – </li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>fig</strong> – KNN graph.</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">matplotlib figure</p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
 <dt id="scedar.eda.sdm.SampleDistanceMatrix.get_tsne_kv">
 <code class="descname">get_tsne_kv</code><span class="sig-paren">(</span><em>key</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/sdm.html#SampleDistanceMatrix.get_tsne_kv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.sdm.SampleDistanceMatrix.get_tsne_kv" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get t-SNE results from the lookup table. Return None if non-existent.</p>
@@ -987,6 +995,34 @@ racing conditions may happen.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="scedar.eda.sdm.SampleDistanceMatrix.pca_feature_gradient_plot">
+<code class="descname">pca_feature_gradient_plot</code><span class="sig-paren">(</span><em>fid</em>, <em>component_ind_pair=(0</em>, <em>1)</em>, <em>transform=None</em>, <em>labels=None</em>, <em>selected_labels=None</em>, <em>plot_different_markers=False</em>, <em>label_markers=None</em>, <em>shuffle_label_colors=False</em>, <em>xlim=None</em>, <em>ylim=None</em>, <em>title=None</em>, <em>xlab=None</em>, <em>ylab=None</em>, <em>figsize=(20</em>, <em>20)</em>, <em>add_legend=True</em>, <em>n_txt_per_cluster=3</em>, <em>alpha=1</em>, <em>s=0.5</em>, <em>random_state=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/sdm.html#SampleDistanceMatrix.pca_feature_gradient_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.sdm.SampleDistanceMatrix.pca_feature_gradient_plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the last PCA projection with the provided gradient as color.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>component_ind_pair</strong> (<em>tuple of two ints</em>) – Indices of the components to plot.</li>
+<li><strong>fid</strong> (<em>feature id scalar</em>) – ID of the feature to be used for gradient plot.</li>
+<li><strong>transform</strong> (<em>callable</em>) – Map transform on feature before plotting.</li>
+<li><strong>labels</strong> (<em>label array</em>) – Labels assigned to each point, (n_samples,).</li>
+<li><strong>selected_labels</strong> (<em>label array</em>) – Show gradient only for selected labels. Do not show non-selected.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="scedar.eda.sdm.SampleDistanceMatrix.pca_plot">
+<code class="descname">pca_plot</code><span class="sig-paren">(</span><em>component_ind_pair=(0</em>, <em>1)</em>, <em>gradient=None</em>, <em>labels=None</em>, <em>selected_labels=None</em>, <em>plot_different_markers=False</em>, <em>label_markers=None</em>, <em>shuffle_label_colors=False</em>, <em>xlim=None</em>, <em>ylim=None</em>, <em>title=None</em>, <em>xlab=None</em>, <em>ylab=None</em>, <em>figsize=(20</em>, <em>20)</em>, <em>add_legend=True</em>, <em>n_txt_per_cluster=3</em>, <em>alpha=1</em>, <em>s=0.5</em>, <em>random_state=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/sdm.html#SampleDistanceMatrix.pca_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.sdm.SampleDistanceMatrix.pca_plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the PCA projection with the provided gradient as color.
+Gradient is None by default.</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="scedar.eda.sdm.SampleDistanceMatrix.put_tsne">
 <code class="descname">put_tsne</code><span class="sig-paren">(</span><em>str_params</em>, <em>res</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/sdm.html#SampleDistanceMatrix.put_tsne"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.sdm.SampleDistanceMatrix.put_tsne" title="Permalink to this definition">¶</a></dt>
 <dd><p>Put t-SNE results into the lookup table.</p>
@@ -1033,6 +1069,43 @@ is the entry value.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="scedar.eda.sdm.SampleDistanceMatrix.s_knn_graph">
+<code class="descname">s_knn_graph</code><span class="sig-paren">(</span><em>k</em>, <em>gradient=None</em>, <em>labels=None</em>, <em>different_label_markers=True</em>, <em>aff_scale=1</em>, <em>iterations=2000</em>, <em>figsize=(20</em>, <em>20)</em>, <em>node_size=30</em>, <em>alpha=0.05</em>, <em>random_state=None</em>, <em>init_pos=None</em>, <em>node_with_labels=False</em>, <em>fa2_kwargs=None</em>, <em>nx_draw_kwargs=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/sdm.html#SampleDistanceMatrix.s_knn_graph"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.sdm.SampleDistanceMatrix.s_knn_graph" title="Permalink to this definition">¶</a></dt>
+<dd><p>Draw KNN graph of SampleDistanceMatrix. Graph layout using
+forceatlas2 for its speed on large graph.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>k</strong> (<em>int</em>) – </li>
+<li><strong>gradient</strong> (<em>float array</em>) – (n_samples,) color gradient</li>
+<li><strong>labels</strong> (<em>label list</em>) – (n_samples,) labels</li>
+<li><strong>different_label_markers</strong> (<em>bool</em>) – whether plot different labels with different markers</li>
+<li><strong>aff_scale</strong> (<em>float</em>) – Affinity is calculated by <cite>(max(distance) - distance) * aff_scale</cite></li>
+<li><strong>iterations</strong> (<em>int</em>) – ForceAtlas2 iterations</li>
+<li><strong>figsize</strong> (<em>(</em><em>float</em><em>, </em><em>float</em><em>)</em>) – </li>
+<li><strong>node_size</strong> (<em>float</em>) – </li>
+<li><strong>alpha</strong> (<em>float</em>) – </li>
+<li><strong>random_state</strong> (<em>int</em>) – </li>
+<li><strong>init_pos</strong> (<em>float array</em>) – Initial position of ForceAtlas2, (n_samples, 2).</li>
+<li><strong>node_with_labels</strong> (<em>bool</em>) – </li>
+<li><strong>fa2_kwargs</strong> (<em>dict</em>) – </li>
+<li><strong>nx_draw_kwargs</strong> (<em>dict</em>) – </li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>fig</strong> – KNN graph.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">matplotlib figure</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="scedar.eda.sdm.SampleDistanceMatrix.s_knn_ind_lut">
 <code class="descname">s_knn_ind_lut</code><span class="sig-paren">(</span><em>k</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/sdm.html#SampleDistanceMatrix.s_knn_ind_lut"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.sdm.SampleDistanceMatrix.s_knn_ind_lut" title="Permalink to this definition">¶</a></dt>
 <dd><p>Computes the lookup table for sample i and its KNN indices, i.e.
@@ -1043,6 +1116,22 @@ is the entry value.</p>
 <dt id="scedar.eda.sdm.SampleDistanceMatrix.sort_features">
 <code class="descname">sort_features</code><span class="sig-paren">(</span><em>fdist_metric='correlation'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/sdm.html#SampleDistanceMatrix.sort_features"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.sdm.SampleDistanceMatrix.sort_features" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
+
+<dl class="method">
+<dt id="scedar.eda.sdm.SampleDistanceMatrix.to_classified">
+<code class="descname">to_classified</code><span class="sig-paren">(</span><em>labels</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/sdm.html#SampleDistanceMatrix.to_classified"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.sdm.SampleDistanceMatrix.to_classified" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert to SingleLabelClassifiedSamples</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>labels</strong> (<em>list of labels</em>) – sample labels.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">SingleLabelClassifiedSamples</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="method">
 <dt id="scedar.eda.sdm.SampleDistanceMatrix.tsne">
@@ -1070,7 +1159,7 @@ is the entry value.</p>
 
 <dl class="method">
 <dt id="scedar.eda.sdm.SampleDistanceMatrix.tsne_feature_gradient_plot">
-<code class="descname">tsne_feature_gradient_plot</code><span class="sig-paren">(</span><em>fid</em>, <em>transform=None</em>, <em>labels=None</em>, <em>selected_labels=None</em>, <em>shuffle_label_colors=False</em>, <em>title=None</em>, <em>xlab=None</em>, <em>ylab=None</em>, <em>figsize=(20</em>, <em>20)</em>, <em>add_legend=True</em>, <em>n_txt_per_cluster=3</em>, <em>alpha=1</em>, <em>s=0.5</em>, <em>random_state=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/sdm.html#SampleDistanceMatrix.tsne_feature_gradient_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.sdm.SampleDistanceMatrix.tsne_feature_gradient_plot" title="Permalink to this definition">¶</a></dt>
+<code class="descname">tsne_feature_gradient_plot</code><span class="sig-paren">(</span><em>fid</em>, <em>transform=None</em>, <em>labels=None</em>, <em>selected_labels=None</em>, <em>plot_different_markers=False</em>, <em>label_markers=None</em>, <em>shuffle_label_colors=False</em>, <em>xlim=None</em>, <em>ylim=None</em>, <em>title=None</em>, <em>xlab=None</em>, <em>ylab=None</em>, <em>figsize=(20</em>, <em>20)</em>, <em>add_legend=True</em>, <em>n_txt_per_cluster=3</em>, <em>alpha=1</em>, <em>s=0.5</em>, <em>random_state=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/sdm.html#SampleDistanceMatrix.tsne_feature_gradient_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.sdm.SampleDistanceMatrix.tsne_feature_gradient_plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot the last t-SNE projection with the provided gradient as color.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1088,17 +1177,52 @@ is the entry value.</p>
 </table>
 </dd></dl>
 
-<dl class="method">
-<dt id="scedar.eda.sdm.SampleDistanceMatrix.tsne_gradient_plot">
-<code class="descname">tsne_gradient_plot</code><span class="sig-paren">(</span><em>gradient=None</em>, <em>labels=None</em>, <em>selected_labels=None</em>, <em>shuffle_label_colors=False</em>, <em>title=None</em>, <em>xlab=None</em>, <em>ylab=None</em>, <em>figsize=(20</em>, <em>20)</em>, <em>add_legend=True</em>, <em>n_txt_per_cluster=3</em>, <em>alpha=1</em>, <em>s=0.5</em>, <em>random_state=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/sdm.html#SampleDistanceMatrix.tsne_gradient_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.sdm.SampleDistanceMatrix.tsne_gradient_plot" title="Permalink to this definition">¶</a></dt>
-<dd><p>Plot the last t-SNE projection with the provided gradient as color.
-Gradient is None by default.</p>
-</dd></dl>
-
 <dl class="attribute">
 <dt id="scedar.eda.sdm.SampleDistanceMatrix.tsne_lut">
 <code class="descname">tsne_lut</code><a class="headerlink" href="#scedar.eda.sdm.SampleDistanceMatrix.tsne_lut" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
+
+<dl class="method">
+<dt id="scedar.eda.sdm.SampleDistanceMatrix.tsne_plot">
+<code class="descname">tsne_plot</code><span class="sig-paren">(</span><em>gradient=None</em>, <em>labels=None</em>, <em>selected_labels=None</em>, <em>plot_different_markers=False</em>, <em>label_markers=None</em>, <em>shuffle_label_colors=False</em>, <em>xlim=None</em>, <em>ylim=None</em>, <em>title=None</em>, <em>xlab=None</em>, <em>ylab=None</em>, <em>figsize=(20</em>, <em>20)</em>, <em>add_legend=True</em>, <em>n_txt_per_cluster=3</em>, <em>alpha=1</em>, <em>s=0.5</em>, <em>random_state=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/sdm.html#SampleDistanceMatrix.tsne_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.sdm.SampleDistanceMatrix.tsne_plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the last t-SNE projection with the provided gradient as color.
+Gradient is None by default.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="scedar.eda.sdm.SampleDistanceMatrix.umap">
+<code class="descname">umap</code><span class="sig-paren">(</span><em>n_neighbors=5</em>, <em>n_components=2</em>, <em>n_epochs=None</em>, <em>alpha=1.0</em>, <em>init='spectral'</em>, <em>spread=1.0</em>, <em>min_dist=0.1</em>, <em>set_op_mix_ratio=1.0</em>, <em>local_connectivity=1.0</em>, <em>bandwidth=1.0</em>, <em>gamma=1.0</em>, <em>negative_sample_rate=5</em>, <em>a=None</em>, <em>b=None</em>, <em>random_state=None</em>, <em>angular_rp_forest=False</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/sdm.html#SampleDistanceMatrix.umap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.sdm.SampleDistanceMatrix.umap" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="scedar.eda.sdm.SampleDistanceMatrix.umap_feature_gradient_plot">
+<code class="descname">umap_feature_gradient_plot</code><span class="sig-paren">(</span><em>fid</em>, <em>component_ind_pair=(0</em>, <em>1)</em>, <em>transform=None</em>, <em>labels=None</em>, <em>selected_labels=None</em>, <em>plot_different_markers=False</em>, <em>label_markers=None</em>, <em>shuffle_label_colors=False</em>, <em>xlim=None</em>, <em>ylim=None</em>, <em>title=None</em>, <em>xlab=None</em>, <em>ylab=None</em>, <em>figsize=(20</em>, <em>20)</em>, <em>add_legend=True</em>, <em>n_txt_per_cluster=3</em>, <em>alpha=1</em>, <em>s=0.5</em>, <em>random_state=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/sdm.html#SampleDistanceMatrix.umap_feature_gradient_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.sdm.SampleDistanceMatrix.umap_feature_gradient_plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the last UMAP projection with the provided gradient as color.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>component_ind_pair</strong> (<em>tuple of two ints</em>) – Indices of the components to plot.</li>
+<li><strong>fid</strong> (<em>feature id scalar</em>) – ID of the feature to be used for gradient plot.</li>
+<li><strong>transform</strong> (<em>callable</em>) – Map transform on feature before plotting.</li>
+<li><strong>labels</strong> (<em>label array</em>) – Labels assigned to each point, (n_samples,).</li>
+<li><strong>selected_labels</strong> (<em>label array</em>) – Show gradient only for selected labels. Do not show non-selected.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="scedar.eda.sdm.SampleDistanceMatrix.umap_plot">
+<code class="descname">umap_plot</code><span class="sig-paren">(</span><em>component_ind_pair=(0</em>, <em>1)</em>, <em>gradient=None</em>, <em>labels=None</em>, <em>selected_labels=None</em>, <em>plot_different_markers=False</em>, <em>label_markers=None</em>, <em>shuffle_label_colors=False</em>, <em>xlim=None</em>, <em>ylim=None</em>, <em>title=None</em>, <em>xlab=None</em>, <em>ylab=None</em>, <em>figsize=(20</em>, <em>20)</em>, <em>add_legend=True</em>, <em>n_txt_per_cluster=3</em>, <em>alpha=1</em>, <em>s=0.5</em>, <em>random_state=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/sdm.html#SampleDistanceMatrix.umap_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.sdm.SampleDistanceMatrix.umap_plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the UMAP projection with the provided gradient as color.
+Gradient is None by default.</p>
+<p>TODO: refactor plotting interface. Merge multiple plotting methods into
+one.</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -1269,7 +1393,7 @@ with it. If sample_filter is callable, it will be applied on each
 
 <dl class="method">
 <dt id="scedar.eda.sfm.SampleFeatureMatrix.f_ind_x_vec">
-<code class="descname">f_ind_x_vec</code><span class="sig-paren">(</span><em>f_ind</em>, <em>sample_filter=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/sfm.html#SampleFeatureMatrix.f_ind_x_vec"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.sfm.SampleFeatureMatrix.f_ind_x_vec" title="Permalink to this definition">¶</a></dt>
+<code class="descname">f_ind_x_vec</code><span class="sig-paren">(</span><em>f_ind</em>, <em>sample_filter=None</em>, <em>transform=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/sfm.html#SampleFeatureMatrix.f_ind_x_vec"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.sfm.SampleFeatureMatrix.f_ind_x_vec" title="Permalink to this definition">¶</a></dt>
 <dd><p>Access a single vector of a sample.</p>
 </dd></dl>
 
@@ -1728,8 +1852,50 @@ number</li>
 <dt id="scedar.eda.slcs.SingleLabelClassifiedSamples">
 <em class="property">class </em><code class="descclassname">scedar.eda.slcs.</code><code class="descname">SingleLabelClassifiedSamples</code><span class="sig-paren">(</span><em>x</em>, <em>labs</em>, <em>sids=None</em>, <em>fids=None</em>, <em>d=None</em>, <em>metric='correlation'</em>, <em>nprocs=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/slcs.html#SingleLabelClassifiedSamples"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.slcs.SingleLabelClassifiedSamples" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#scedar.eda.sdm.SampleDistanceMatrix" title="scedar.eda.sdm.SampleDistanceMatrix"><code class="xref py py-class docutils literal notranslate"><span class="pre">scedar.eda.sdm.SampleDistanceMatrix</span></code></a></p>
-<p>If sort by labels, the samples will be reordered, so that samples from
+<p>Data structure of single label classified samples</p>
+<dl class="attribute">
+<dt id="scedar.eda.slcs.SingleLabelClassifiedSamples._x">
+<code class="descname">_x</code><a class="headerlink" href="#scedar.eda.slcs.SingleLabelClassifiedSamples._x" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>2D number array</em> – (n_samples, n_features) data matrix.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="scedar.eda.slcs.SingleLabelClassifiedSamples._d">
+<code class="descname">_d</code><a class="headerlink" href="#scedar.eda.slcs.SingleLabelClassifiedSamples._d" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>2D number array</em> – (n_samples, n_samples) distance matrix.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="scedar.eda.slcs.SingleLabelClassifiedSamples._labs">
+<code class="descname">_labs</code><a class="headerlink" href="#scedar.eda.slcs.SingleLabelClassifiedSamples._labs" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>list of labels</em> – list of labels in the same type, int or str.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="scedar.eda.slcs.SingleLabelClassifiedSamples._fids">
+<code class="descname">_fids</code><a class="headerlink" href="#scedar.eda.slcs.SingleLabelClassifiedSamples._fids" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>list of feature IDs</em> – list of feature IDs in the same type,
+int or str.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="scedar.eda.slcs.SingleLabelClassifiedSamples._sids">
+<code class="descname">_sids</code><a class="headerlink" href="#scedar.eda.slcs.SingleLabelClassifiedSamples._sids" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>list of sample IDs</em> – list of sample IDs in the same type,
+int or str.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="scedar.eda.slcs.SingleLabelClassifiedSamples._metric">
+<code class="descname">_metric</code><a class="headerlink" href="#scedar.eda.slcs.SingleLabelClassifiedSamples._metric" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>str</em> – Distance metric.</p>
+</dd></dl>
+
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">If sort by labels, the samples will be reordered, so that samples from
 left to right are from one label to another.</p>
+</div>
 <dl class="method">
 <dt id="scedar.eda.slcs.SingleLabelClassifiedSamples.cross_labs">
 <code class="descname">cross_labs</code><span class="sig-paren">(</span><em>q_slc_samples</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/slcs.html#SingleLabelClassifiedSamples.cross_labs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.slcs.SingleLabelClassifiedSamples.cross_labs" title="Permalink to this definition">¶</a></dt>
@@ -1884,10 +2050,41 @@ important features further after obtaining the important features.</p>
 <dd></dd></dl>
 
 <dl class="method">
+<dt id="scedar.eda.slcs.SingleLabelClassifiedSamples.merge_labels">
+<code class="descname">merge_labels</code><span class="sig-paren">(</span><em>orig_labs_to_merge</em>, <em>new_lab</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/slcs.html#SingleLabelClassifiedSamples.merge_labels"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.slcs.SingleLabelClassifiedSamples.merge_labels" title="Permalink to this definition">¶</a></dt>
+<dd><p>Merge selected labels into a new label</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>orig_labs_to_merge</strong> (<em>list of unique labels</em>) – original labels to be
+merged into a new label</li>
+<li><strong>new_lab</strong> (<em>label</em>) – new label of the merged labels</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">None</p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Update labels in place.</p>
+</div>
+</dd></dl>
+
+<dl class="method">
 <dt id="scedar.eda.slcs.SingleLabelClassifiedSamples.relabel">
 <code class="descname">relabel</code><span class="sig-paren">(</span><em>labels</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/slcs.html#SingleLabelClassifiedSamples.relabel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.slcs.SingleLabelClassifiedSamples.relabel" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a new SingleLabelClassifiedSamples with new labels.</p>
 </dd></dl>
+
+<dl class="staticmethod">
+<dt id="scedar.eda.slcs.SingleLabelClassifiedSamples.select_labs_bool_inds">
+<em class="property">static </em><code class="descname">select_labs_bool_inds</code><span class="sig-paren">(</span><em>selected_labs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/slcs.html#SingleLabelClassifiedSamples.select_labs_bool_inds"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.slcs.SingleLabelClassifiedSamples.select_labs_bool_inds" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="method">
 <dt id="scedar.eda.slcs.SingleLabelClassifiedSamples.sids_to_labs">
@@ -1897,7 +2094,7 @@ important features further after obtaining the important features.</p>
 <dl class="method">
 <dt id="scedar.eda.slcs.SingleLabelClassifiedSamples.sort_by_labels">
 <code class="descname">sort_by_labels</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/slcs.html#SingleLabelClassifiedSamples.sort_by_labels"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.slcs.SingleLabelClassifiedSamples.sort_by_labels" title="Permalink to this definition">¶</a></dt>
-<dd><p>Sort sample indices by labels and distances.</p>
+<dd><p>Return a copy with sorted sample indices by labels and distances.</p>
 </dd></dl>
 
 <dl class="method">
@@ -1919,8 +2116,8 @@ important features further after obtaining the important features.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="scedar.eda.slcs.SingleLabelClassifiedSamples.tsne_gradient_plot">
-<code class="descname">tsne_gradient_plot</code><span class="sig-paren">(</span><em>gradient=None</em>, <em>labels=None</em>, <em>selected_labels=None</em>, <em>shuffle_label_colors=False</em>, <em>title=None</em>, <em>xlab=None</em>, <em>ylab=None</em>, <em>figsize=(20</em>, <em>20)</em>, <em>add_legend=True</em>, <em>n_txt_per_cluster=3</em>, <em>alpha=1</em>, <em>s=0.5</em>, <em>random_state=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/slcs.html#SingleLabelClassifiedSamples.tsne_gradient_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.slcs.SingleLabelClassifiedSamples.tsne_gradient_plot" title="Permalink to this definition">¶</a></dt>
+<dt id="scedar.eda.slcs.SingleLabelClassifiedSamples.tsne_plot">
+<code class="descname">tsne_plot</code><span class="sig-paren">(</span><em>gradient=None</em>, <em>labels=None</em>, <em>selected_labels=None</em>, <em>shuffle_label_colors=False</em>, <em>title=None</em>, <em>xlab=None</em>, <em>ylab=None</em>, <em>figsize=(20</em>, <em>20)</em>, <em>add_legend=True</em>, <em>n_txt_per_cluster=3</em>, <em>alpha=1</em>, <em>s=0.5</em>, <em>random_state=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/eda/slcs.html#SingleLabelClassifiedSamples.tsne_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.eda.slcs.SingleLabelClassifiedSamples.tsne_plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot the last t-SNE projection with the provided gradient as color.</p>
 </dd></dl>
 

@@ -275,8 +275,8 @@ strategy with k &lt; 100.</p>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>“Pick-up” dropped out features using K nearest neighbors (KNN) approach.</p>
 <p>If the value of a feature is below min_present_val in a sample, and all
-its KNNs have above min_present_val, replace the value with the median
-of KNN above threshold values.</p>
+its KNNs have above min_present_val, replace the value with the summary
+statistic (default is median) of KNN above threshold values.</p>
 <dl class="attribute">
 <dt id="scedar.qc.pickup.FeatureKNNPickUp._sdm">
 <code class="descname">_sdm</code><a class="headerlink" href="#scedar.qc.pickup.FeatureKNNPickUp._sdm" title="Permalink to this definition">¶</a></dt>
@@ -292,7 +292,7 @@ of KNN above threshold values.</p>
 
 <dl class="method">
 <dt id="scedar.qc.pickup.FeatureKNNPickUp.knn_pickup_features">
-<code class="descname">knn_pickup_features</code><span class="sig-paren">(</span><em>k</em>, <em>n_do</em>, <em>min_present_val</em>, <em>n_iter</em>, <em>nprocs=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/qc/pickup.html#FeatureKNNPickUp.knn_pickup_features"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.qc.pickup.FeatureKNNPickUp.knn_pickup_features" title="Permalink to this definition">¶</a></dt>
+<code class="descname">knn_pickup_features</code><span class="sig-paren">(</span><em>k</em>, <em>n_do</em>, <em>min_present_val</em>, <em>n_iter</em>, <em>nprocs=1</em>, <em>statistic_fun=&lt;function median&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scedar/qc/pickup.html#FeatureKNNPickUp.knn_pickup_features"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scedar.qc.pickup.FeatureKNNPickUp.knn_pickup_features" title="Permalink to this definition">¶</a></dt>
 <dd><p>Runs KNN pick-up on multiple parameter sets parallely.</p>
 <p>Each parameter set will be executed in one process.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -305,6 +305,8 @@ of KNN above threshold values.</p>
 to be callsed as drop-out, so that pick-up will be performed.</li>
 <li><strong>min_present_val</strong> (<em>float</em>) – Minimum (<cite>&gt;=</cite>) values of a feature to be called as present.</li>
 <li><strong>n_iter</strong> (<em>int</em>) – The number of iterations to run.</li>
+<li><strong>statistic_fun</strong> (<em>callable</em>) – The summary statistic used to correct gene dropouts. Default is
+median.</li>
 </ul>
 </td>
 </tr>
