@@ -1,4 +1,4 @@
-# `scedar`
+# Scedar
 
 [![Build Status](https://travis-ci.com/logstar/scedar.svg?token=VYpRBjS777dyXHuzCsTN&branch=master)](https://travis-ci.com/logstar/scedar)
 
@@ -12,7 +12,7 @@ Use PyPI:
 
 ## Demo
 
-![alt text][demo](docs/images/demo.png)
+![demo](docs/images/demo.png)
 
 Workflow of using `scedar` to analyze an scRNA-seq dataset with 3005 mouse brain cells and 19,972 genes generated using the STRT-Seq UMI protocol by Zeisel et al. (2015). Procedures and parameters that are not directly related to data analysis are omitted. The full version of the demo is available at [docs/notebooks/mb3k-demo.ipynb](docs/notebooks/mb3k-demo.ipynb).
 
