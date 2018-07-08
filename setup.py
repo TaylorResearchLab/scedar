@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='scedar',
-    version='0.0.1.dev1',
+    version='0.0.1.dev2',
     description='Single-cell explorative data analysis for RNA-Seq',
     url='http://github.com/logstar/scedar',
     author='Yuanchao Zhang',
