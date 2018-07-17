@@ -47,7 +47,7 @@ setup(
         'xgboost',
         'networkx',
         'fa2',
-        'umap-learn'
+        'umap-learn==0.3.0'
     ],
     tests_require=[
         'pytest'

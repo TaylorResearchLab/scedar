@@ -420,18 +420,21 @@ complete-guide-parameter-tuning-xgboost-with-codes-python/
         if num_bootstrap_round <= 0:
             # no bootstrapping
             # _xgb_train_runner returns (fscores, bst, eval_stats)
-            sorted_fs_list, bst, eval_stats = self._xgb_train_runner(
+            fscores, bst, eval_stats = self._xgb_train_runner(
                 lab_selected_slcs._x[:, feature_inds],
                 lab_inds, fids, test_size=test_size,
                 num_boost_round=num_boost_round,
                 xgb_params=xgb_params, random_state=random_state,
                 nprocs=nprocs, silent=silent)
+            # make sorted_fs_list consistent to the bootstrapped one
+            sorted_fs_list = [(t[0], t[1], t[1], 0, 1, [t[1]])
+                              for t in fscores]
             print(eval_stats)
             bst_list = [bst]
         else:
             # do bootstrapping
             # ([dict of scores], [list of bsts], dict of eval stats)
-            fs_dict = defaultdict(lambda: 0)
+            fs_dict = defaultdict(list)
             bst_list = []
             eval_stats_dict = defaultdict(list)
             if bootstrap_size is None:
@@ -457,7 +460,7 @@ complete-guide-parameter-tuning-xgboost-with-codes-python/
                     nprocs=nprocs, silent=silent)
                 # Sum fscores
                 for fid, fs in fscores:
-                    fs_dict[fid] += fs
+                    fs_dict[fid] += [fs]
                 bst_list.append(bst)
                 # est: eval stats tuple
                 # [ [('train...', float), ...],
@@ -468,10 +471,12 @@ complete-guide-parameter-tuning-xgboost-with-codes-python/
                 if shuffle_features:
                     feature_inds, fids = sklearn.utils.shuffle(
                         feature_inds, fids)
-            # average score
-            for fid in fs_dict:
-                fs_dict[fid] /= num_bootstrap_round
-            sorted_fs_list = sorted(fs_dict.items(), key=lambda t: t[1],
+            # score summary: average, std, times showed up
+            fid_s_list = []
+            for fid, fs in fs_dict.items():
+                fid_s_list.append((fid, np.mean(fs), np.std(fs, ddof=0),
+                                   len(fs), fs))
+            sorted_fs_list = sorted(fid_s_list, key=lambda t: t[1],
                                     reverse=True)
             # calculate mean +/- std of eval stats
             for ename, evalue_list in eval_stats_dict.items():
@@ -529,7 +534,7 @@ complete-guide-parameter-tuning-xgboost-with-codes-python/
                 bootstrap_size=bootstrap_size,
                 shuffle_features=shuffle_features)
 
-            for fid, ffs in fi_res[0]:
+            for fid in [t[0] for t in fi_res[0]]:
                 fx = self.f_id_x_vec(fid)
                 # current label values
                 ulab_x = fx[ulab_s_bool_inds]
