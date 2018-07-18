@@ -427,9 +427,9 @@ complete-guide-parameter-tuning-xgboost-with-codes-python/
                 xgb_params=xgb_params, random_state=random_state,
                 nprocs=nprocs, silent=silent)
             # make sorted_fs_list consistent to the bootstrapped one
-            fs_list = [(t[0], t[1], t[1], 0, 1, [t[1]])
+            fs_list = [(t[0], t[1], 0, 1, [t[1]])
                        for t in fscores]
-            sorted_fs_list = sorted(fs_list, key=lambda t: (t[4], t[1]),
+            sorted_fs_list = sorted(fs_list, key=lambda t: (t[3], t[1]),
                                     reverse=True)
             print(eval_stats)
             bst_list = [bst]
@@ -478,7 +478,7 @@ complete-guide-parameter-tuning-xgboost-with-codes-python/
             for fid, fs in fs_dict.items():
                 fid_s_list.append((fid, np.mean(fs), np.std(fs, ddof=0),
                                    len(fs), fs))
-            sorted_fs_list = sorted(fid_s_list, key=lambda t: (t[4], t[1]),
+            sorted_fs_list = sorted(fid_s_list, key=lambda t: (t[3], t[1]),
                                     reverse=True)
             # calculate mean +/- std of eval stats
             for ename, evalue_list in eval_stats_dict.items():
