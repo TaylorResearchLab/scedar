@@ -1,15 +1,17 @@
 from setuptools import setup, find_packages
 
-with open("README.md", "r") as fh:
+with open("pypiREADME.md", "r") as fh:
     long_description = fh.read()
 
 setup(
     name='scedar',
-    version='0.1.1',
-    description='Single-cell explorative data analysis for RNA-Seq',
+    version='0.1.4',
     url='http://github.com/logstar/scedar',
     author='Yuanchao Zhang',
     author_email='logstarx@gmail.com',
+    description='Single-cell exploratory data analysis for RNA-Seq',
+    long_description=long_description,
+    long_description_content_type="text/markdown",
     license='MIT',
     classifiers=[  # Optional
         # How mature is this project? Common values are

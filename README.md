@@ -1,9 +1,10 @@
 # Scedar
 
-[![Build Status](https://travis-ci.com/logstar/scedar.svg?token=VYpRBjS777dyXHuzCsTN&branch=master)](https://travis-ci.com/logstar/scedar)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Build Status](https://travis-ci.org/logstar/scedar.svg?branch=master)](https://travis-ci.org/logstar/scedar.svg?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/logstar/scedar/badge.svg?branch=master)](https://coveralls.io/github/logstar/scedar?branch=master)
 [![PyPI version](https://badge.fury.io/py/scedar.svg)](https://badge.fury.io/py/scedar)
 [![Python env](https://img.shields.io/pypi/pyversions/scedar.svg?style=flat-square)](https://img.shields.io/pypi/pyversions/scedar.svg?style=flat-square)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 `Scedar` (Single-cell exploratory data analysis for RNA-Seq) is a reliable and easy-to-use Python package for efficient *quality control*, *visualization* and *clustering* of large-scale single cell RNA-seq (scRNA-seq) datasets.
 
