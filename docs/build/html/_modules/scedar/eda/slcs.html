@@ -588,18 +588,23 @@
         <span class="k">if</span> <span class="n">num_bootstrap_round</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
             <span class="c1"># no bootstrapping</span>
             <span class="c1"># _xgb_train_runner returns (fscores, bst, eval_stats)</span>
-            <span class="n">sorted_fs_list</span><span class="p">,</span> <span class="n">bst</span><span class="p">,</span> <span class="n">eval_stats</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_xgb_train_runner</span><span class="p">(</span>
+            <span class="n">fscores</span><span class="p">,</span> <span class="n">bst</span><span class="p">,</span> <span class="n">eval_stats</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_xgb_train_runner</span><span class="p">(</span>
                 <span class="n">lab_selected_slcs</span><span class="o">.</span><span class="n">_x</span><span class="p">[:,</span> <span class="n">feature_inds</span><span class="p">],</span>
                 <span class="n">lab_inds</span><span class="p">,</span> <span class="n">fids</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="n">test_size</span><span class="p">,</span>
                 <span class="n">num_boost_round</span><span class="o">=</span><span class="n">num_boost_round</span><span class="p">,</span>
                 <span class="n">xgb_params</span><span class="o">=</span><span class="n">xgb_params</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="n">random_state</span><span class="p">,</span>
                 <span class="n">nprocs</span><span class="o">=</span><span class="n">nprocs</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="n">silent</span><span class="p">)</span>
+            <span class="c1"># make sorted_fs_list consistent to the bootstrapped one</span>
+            <span class="n">fs_list</span> <span class="o">=</span> <span class="p">[(</span><span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="p">[</span><span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">]])</span>
+                       <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">fscores</span><span class="p">]</span>
+            <span class="n">sorted_fs_list</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">fs_list</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+                                    <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="nb">print</span><span class="p">(</span><span class="n">eval_stats</span><span class="p">)</span>
             <span class="n">bst_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">bst</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># do bootstrapping</span>
             <span class="c1"># ([dict of scores], [list of bsts], dict of eval stats)</span>
-            <span class="n">fs_dict</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="n">fs_dict</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
             <span class="n">bst_list</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="n">eval_stats_dict</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">bootstrap_size</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -625,7 +630,7 @@
                     <span class="n">nprocs</span><span class="o">=</span><span class="n">nprocs</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="n">silent</span><span class="p">)</span>
                 <span class="c1"># Sum fscores</span>
                 <span class="k">for</span> <span class="n">fid</span><span class="p">,</span> <span class="n">fs</span> <span class="ow">in</span> <span class="n">fscores</span><span class="p">:</span>
-                    <span class="n">fs_dict</span><span class="p">[</span><span class="n">fid</span><span class="p">]</span> <span class="o">+=</span> <span class="n">fs</span>
+                    <span class="n">fs_dict</span><span class="p">[</span><span class="n">fid</span><span class="p">]</span> <span class="o">+=</span> <span class="p">[</span><span class="n">fs</span><span class="p">]</span>
                 <span class="n">bst_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">bst</span><span class="p">)</span>
                 <span class="c1"># est: eval stats tuple</span>
                 <span class="c1"># [ [(&#39;train...&#39;, float), ...],</span>
@@ -636,10 +641,12 @@
                 <span class="k">if</span> <span class="n">shuffle_features</span><span class="p">:</span>
                     <span class="n">feature_inds</span><span class="p">,</span> <span class="n">fids</span> <span class="o">=</span> <span class="n">sklearn</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span>
                         <span class="n">feature_inds</span><span class="p">,</span> <span class="n">fids</span><span class="p">)</span>
-            <span class="c1"># average score</span>
-            <span class="k">for</span> <span class="n">fid</span> <span class="ow">in</span> <span class="n">fs_dict</span><span class="p">:</span>
-                <span class="n">fs_dict</span><span class="p">[</span><span class="n">fid</span><span class="p">]</span> <span class="o">/=</span> <span class="n">num_bootstrap_round</span>
-            <span class="n">sorted_fs_list</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">fs_dict</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+            <span class="c1"># score summary: average, std, times showed up</span>
+            <span class="n">fid_s_list</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">fid</span><span class="p">,</span> <span class="n">fs</span> <span class="ow">in</span> <span class="n">fs_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">fid_s_list</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">fid</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">fs</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">fs</span><span class="p">,</span> <span class="n">ddof</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span>
+                                   <span class="nb">len</span><span class="p">(</span><span class="n">fs</span><span class="p">),</span> <span class="n">fs</span><span class="p">))</span>
+            <span class="n">sorted_fs_list</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">fid_s_list</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
                                     <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="c1"># calculate mean +/- std of eval stats</span>
             <span class="k">for</span> <span class="n">ename</span><span class="p">,</span> <span class="n">evalue_list</span> <span class="ow">in</span> <span class="n">eval_stats_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
@@ -697,7 +704,7 @@
                 <span class="n">bootstrap_size</span><span class="o">=</span><span class="n">bootstrap_size</span><span class="p">,</span>
                 <span class="n">shuffle_features</span><span class="o">=</span><span class="n">shuffle_features</span><span class="p">)</span>
 
-            <span class="k">for</span> <span class="n">fid</span><span class="p">,</span> <span class="n">ffs</span> <span class="ow">in</span> <span class="n">fi_res</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="k">for</span> <span class="n">fid</span> <span class="ow">in</span> <span class="p">[</span><span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">fi_res</span><span class="p">[</span><span class="mi">0</span><span class="p">]]:</span>
                 <span class="n">fx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">f_id_x_vec</span><span class="p">(</span><span class="n">fid</span><span class="p">)</span>
                 <span class="c1"># current label values</span>
                 <span class="n">ulab_x</span> <span class="o">=</span> <span class="n">fx</span><span class="p">[</span><span class="n">ulab_s_bool_inds</span><span class="p">]</span>
