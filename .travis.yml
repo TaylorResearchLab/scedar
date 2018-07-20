@@ -8,3 +8,5 @@ install:
 # command to run tests
 script:
   - bash ./scripts/gen_baseline_images.sh && bash ./scripts/pytest_all.sh
+after_success:
+  - coveralls
