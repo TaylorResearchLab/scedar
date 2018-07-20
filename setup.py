@@ -1,9 +1,11 @@
 from setuptools import setup, find_packages
 
+with open("README.md", "r") as fh:
+    long_description = fh.read()
 
 setup(
     name='scedar',
-    version='0.0.1.dev2',
+    version='0.1.1',
     description='Single-cell explorative data analysis for RNA-Seq',
     url='http://github.com/logstar/scedar',
     author='Yuanchao Zhang',
@@ -14,13 +16,13 @@ setup(
         #   3 - Alpha
         #   4 - Beta
         #   5 - Production/Stable
-        'Development Status :: 1 - Planning',
+        'Development Status :: 3 - Alpha',
 
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
     ],
     packages=find_packages(exclude=['contrib', 'docs', 'tests*']),
-    python_requires='~=3.5',
+    python_requires='>=3.5, <3.7',
     install_requires=[
         'numpy',
         'scipy',
