@@ -25,6 +25,6 @@ Data sources:
 - Zeisel, A., Muñoz-Manchado, A. B., Codeluppi, S., Lönnerberg, P., La Manno, G., Juréus, A., Marques, S., Munguba, H., He, L., Betsholtz, C., Rolny, C., Castelo-Branco, G., Hjerling-Leffler, J., and Linnarsson, S. (2015). Brain structure. [Cell types in the mouse cortex and hippocampus revealed by single-cell RNA-seq](http://science.sciencemag.org/content/347/6226/1138). *Science*, **347**(6226), 1138–1142.
 - [Hemberg Group scRNA-seq datasets](https://hemberg-lab.github.io/scRNA.seq.datasets/mouse/brain/#zeisel)
 
-## Citation
+## Paper
 
-Zhang, Y. and Taylor, D. M. (2018) Scedar: a scalable Python package for single-cell RNA-seq data analysis, *In preparation*.
+Zhang, Y. and Taylor, D. M. (2018) Scedar: a scalable Python package for single-cell RNA-seq data analysis. *bioRxiv*, doi: [https://doi.org/10.1101/375196](https://doi.org/10.1101/375196).
