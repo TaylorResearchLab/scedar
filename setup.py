@@ -34,13 +34,14 @@ setup(
         'xgboost',
         'networkx',
         'fa2',
-        'umap-learn'
+        'umap-learn==0.3.0'
     ],
     setup_requires=[
-        'pytest-mpl',
-        'pytest-xdist',
-        'pytest-cov',
+        'coverage==4.5.1',
         'pytest-runner',
+        'pytest-cov',
+        'pytest-xdist',
+        'pytest-mpl',
         'numpy',
         'scipy',
         'matplotlib',
