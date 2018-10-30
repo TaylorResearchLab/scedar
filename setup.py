@@ -5,7 +5,7 @@ with open("pypiREADME.md", "r") as fh:
 
 setup(
     name='scedar',
-    version='0.1.4',
+    version='0.1.5',
     url='http://github.com/logstar/scedar',
     author='Yuanchao Zhang',
     author_email='logstarx@gmail.com',
@@ -19,7 +19,6 @@ setup(
         #   4 - Beta
         #   5 - Production/Stable
         'Development Status :: 3 - Alpha',
-
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
     ],
