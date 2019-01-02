@@ -1,4 +1,5 @@
 import scedar.utils as utils
+import scedar.eda as eda
 import numpy as np
 import os
 import shutil
@@ -125,3 +126,22 @@ def test_dict_str_key_wrong_arg():
         utils.dict_str_key((1, 2))
     with pytest.raises(ValueError) as excinfo:
         utils.dict_str_key(1.1)
+
+
+def test_remove_constant_features():
+    tsfm = eda.SampleFeatureMatrix([[0, 1, 2, 5],
+                                    [0, 1, 0, 2],
+                                    [0, 1, 0, 5],
+                                    [0, 1, 0, 5],
+                                    [0, 1, 0, 5]])
+    f_tsfm = utils.remove_constant_features(tsfm)
+    assert f_tsfm.x == [[2, 5],
+                        [0, 2],
+                        [0, 5],
+                        [0, 5],
+                        [0, 5]]
+    tsfm2 = eda.SampleFeatureMatrix([[0, 1, 2, 5]])
+    f_tsfm2 = utils.remove_constant_features(tsfm2)
+    assert f_tsfm2._x.shape == (1, 0)
+    assert f_tsfm2._sids.shape == (1,)
+    assert f_tsfm2._fids.shape == (0,)

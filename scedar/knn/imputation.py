@@ -12,9 +12,9 @@ import pickle
 # TODO: use multiprocessing.Manager to share data between processes
 
 
-class FeatureKNNPickUp(object):
+class FeatureImputation(object):
     """
-    "Pick-up" dropped out features using K nearest neighbors (KNN) approach.
+    Impute dropped out features using K nearest neighbors approach
 
     If the value of a feature is below min_present_val in a sample, and all
     its KNNs have above min_present_val, replace the value with the summary
@@ -29,16 +29,16 @@ class FeatureKNNPickUp(object):
           ...}`
     """
     def __init__(self, sdm):
-        super(FeatureKNNPickUp, self).__init__()
+        super(FeatureImputation, self).__init__()
         self._sdm = sdm
         self._res_lut = {}
 
     @staticmethod
-    def _knn_pickup_features_runner(gz_pb_x, knn_ordered_ind_dict, k, n_do,
-                                    min_present_val, n_iter,
-                                    statistic_fun=np.median):
+    def _impute_features_runner(gz_pb_x, knn_ordered_ind_dict, k, n_do,
+                                min_present_val, n_iter,
+                                statistic_fun=np.median):
         """
-        Runs KNN pick-up on single parameter set in one process.
+        Runs KNN dropout imputation on single parameter set in one process.
         """
         start_time = time.time()
         curr_x_arr = pickle.loads(gzip.decompress(gz_pb_x))
@@ -51,8 +51,8 @@ class FeatureKNNPickUp(object):
         curr_x_present_arr = curr_x_arr >= min_present_val
         curr_x_absent_arr = np.logical_not(curr_x_present_arr)
         # next_x_arr is edited
-        # Indicator matrix of whether an entry is picked up.
-        pickup_idc_arr = np.zeros(curr_x_arr.shape, dtype=int)
+        # Indicator matrix of whether an entry is imputed.
+        impute_idc_arr = np.zeros(curr_x_arr.shape, dtype=int)
 
         stats = "Preparation: {:.2f}s\n".format(time.time() - start_time)
 
@@ -73,7 +73,7 @@ class FeatureKNNPickUp(object):
                     # feature fai present in >= n_do_i NNs
                     if f_n_knn_present_arr[fai] >= n_do_i:
                         # Mark (s_ind, fai) as picked up
-                        pickup_idc_arr[s_ind, fai] = i
+                        impute_idc_arr[s_ind, fai] = i
                         # Replace val in (s_ind, fai) with summ stat of knn
                         knn_x_arr = curr_x_arr[knn_ordered_inds, fai]
                         knn_x_present_ss = statistic_fun(
@@ -85,11 +85,11 @@ class FeatureKNNPickUp(object):
             curr_x_present_arr = curr_x_arr >= min_present_val
             curr_x_absent_arr = np.logical_not(curr_x_present_arr)
 
-            n_pu_features_per_s = np.sum(pickup_idc_arr, axis=1)
+            n_pu_features_per_s = np.sum(impute_idc_arr, axis=1)
             n_pu_entries = np.sum(n_pu_features_per_s)
             # number of samples with feature being picked up.
             n_samples_wfpu = np.sum(n_pu_features_per_s > 0)
-            n_pu_entries_ratio = n_pu_entries / pickup_idc_arr.size
+            n_pu_entries_ratio = n_pu_entries / impute_idc_arr.size
 
             iter_time = time.time() - iter_start_time
             stats += str.format("Iteration {} ({:.2f}s): picked up {} total "
@@ -99,24 +99,24 @@ class FeatureKNNPickUp(object):
                                 n_samples_wfpu / n_samples,
                                 n_pu_entries_ratio)
         curr_x_gz_pb = gzip.compress(pickle.dumps(curr_x_arr))
-        pickup_idc_gz_pb = gzip.compress(pickle.dumps(pickup_idc_arr))
+        impute_idc_gz_pb = gzip.compress(pickle.dumps(impute_idc_arr))
         stats += "Complete in {:.2f}s\n".format(time.time() - start_time)
-        return curr_x_gz_pb, pickup_idc_gz_pb, stats
+        return curr_x_gz_pb, impute_idc_gz_pb, stats
 
-    def knn_pickup_features(self, k, n_do, min_present_val, n_iter, nprocs=1,
-                            statistic_fun=np.median):
+    def impute_features(self, k, n_do, min_present_val, n_iter, nprocs=1,
+                        statistic_fun=np.median):
         """
-        Runs KNN pick-up on multiple parameter sets parallely.
+        Runs KNN imputation on multiple parameter sets parallely.
 
         Each parameter set will be executed in one process.
 
         Parameters
         ----------
         k: int
-            Look at k nearest neighbors to decide whether to pickup or not.
+            Look at k nearest neighbors to decide whether to impute or not.
         n_do: int
             Minimum (`>=`) number of above min_present_val neighbors among KNN
-            to be callsed as drop-out, so that pick-up will be performed.
+            to be callsed as dropout, so that imputation will be performed.
         min_present_val: float
             Minimum (`>=`) values of a feature to be called as present.
         n_iter: int
@@ -131,10 +131,10 @@ class FeatureKNNPickUp(object):
             list of results, `[(pu_sdm, pu_idc_arr, stats), ...]`.
 
             pu_sdm: SampleDistanceMatrix
-                SampleDistanceMatrix after pick-up
+                SampleDistanceMatrix after imputation
             pu_idc_arr: array of shape (n_samples, n_features)
                 Indicator matrix of the ith iteration an entry is being
-                picked up.
+                imputed.
             stats: str
                 Stats of the run.
 
@@ -248,7 +248,7 @@ class FeatureKNNPickUp(object):
         nprocs = int(nprocs)
         nprocs = min(nprocs, n_param_tups)
         run_res_list = utils.parmap(
-            lambda ptup: self._knn_pickup_features_runner(*ptup),
+            lambda ptup: self._impute_features_runner(*ptup),
             run_param_setup_tups, nprocs)
 
         for i, param_tup in enumerate(run_param_tups):

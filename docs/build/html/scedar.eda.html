@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>scedar.eda package &mdash; scedar 0.0.1 documentation</title>
+  <title>scedar.eda package &mdash; scedar 0.1.6 documentation</title>
   
 
   
@@ -35,9 +35,9 @@
         <link rel="index" title="Index"
               href="genindex.html"/>
         <link rel="search" title="Search" href="search.html"/>
-    <link rel="top" title="scedar 0.0.1 documentation" href="index.html"/>
+    <link rel="top" title="scedar 0.1.6 documentation" href="index.html"/>
         <link rel="up" title="scedar package" href="scedar.html"/>
-        <link rel="next" title="scedar.qc package" href="scedar.qc.html"/>
+        <link rel="next" title="scedar.knn package" href="scedar.knn.html"/>
         <link rel="prev" title="scedar.cluster package" href="scedar.cluster.html"/> 
 
   
@@ -87,21 +87,39 @@
               
             
             
-              <p class="caption"><span class="caption-text">Contents:</span></p>
-<ul class="current">
-<li class="toctree-l1 current"><a class="reference internal" href="modules.html">scedar</a><ul class="current">
-<li class="toctree-l2 current"><a class="reference internal" href="scedar.html">scedar package</a><ul class="current">
-<li class="toctree-l3 current"><a class="reference internal" href="scedar.html#subpackages">Subpackages</a><ul class="current">
-<li class="toctree-l4"><a class="reference internal" href="scedar.cluster.html">scedar.cluster package</a></li>
-<li class="toctree-l4 current"><a class="current reference internal" href="#">scedar.eda package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="scedar.qc.html">scedar.qc package</a></li>
+              <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="scedar.html">scedar package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="scedar.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="scedar.cluster.html">scedar.cluster package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="scedar.cluster.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="scedar.cluster.html#module-scedar.cluster.mirac">scedar.cluster.mirac module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="scedar.cluster.html#module-scedar.cluster">Module contents</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="scedar.html#submodules">Submodules</a></li>
-<li class="toctree-l3"><a class="reference internal" href="scedar.html#module-scedar.utils">scedar.utils module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="scedar.html#module-scedar">Module contents</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">scedar.eda package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-scedar.eda.mdl">scedar.eda.mdl module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-scedar.eda.mtype">scedar.eda.mtype module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-scedar.eda.plot">scedar.eda.plot module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-scedar.eda.sdm">scedar.eda.sdm module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-scedar.eda.sfm">scedar.eda.sfm module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-scedar.eda.slcs">scedar.eda.slcs module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-scedar.eda.stats">scedar.eda.stats module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-scedar.eda">Module contents</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="scedar.knn.html">scedar.knn package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="scedar.knn.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="scedar.knn.html#module-scedar.knn.detection">scedar.knn.detection module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="scedar.knn.html#module-scedar.knn.imputation">scedar.knn.imputation module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="scedar.knn.html#module-scedar.knn">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="scedar.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="scedar.html#module-scedar.utils">scedar.utils module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="scedar.html#module-scedar">Module contents</a></li>
 </ul>
 </li>
 </ul>
@@ -147,8 +165,6 @@
   <ul class="wy-breadcrumbs">
     
       <li><a href="index.html">Docs</a> &raquo;</li>
-        
-          <li><a href="modules.html">scedar</a> &raquo;</li>
         
           <li><a href="scedar.html">scedar package</a> &raquo;</li>
         
@@ -2181,7 +2197,7 @@ Ecology 69, 1307, 1988.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="scedar.qc.html" class="btn btn-neutral float-right" title="scedar.qc package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="scedar.knn.html" class="btn btn-neutral float-right" title="scedar.knn package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="scedar.cluster.html" class="btn btn-neutral" title="scedar.cluster package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
@@ -2215,7 +2231,7 @@ Ecology 69, 1307, 1988.</p>
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'./',
-            VERSION:'0.0.1',
+            VERSION:'0.1.6',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true,

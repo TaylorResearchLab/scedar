@@ -4,13 +4,14 @@ from scedar import eda
 from scedar import utils
 
 
-class SampleKNNFilter(object):
+class RareSampleDetection(object):
     """
-    K nearest neighbor filter on sample distance matrix.
+    K nearest neighbor detection of rare samples
 
-    Perform filter with multiple filters in parallel, with each combination
-    of parameters as a process. Because this filter runs iteratively,
-    parallelizing each individual parameter combination run is not implemented.
+    Perform the rare sample detection procedure in parallel, with each
+    combination of parameters as a process. Because this procedure runs
+    iteratively, parallelizing each individual parameter combination run is
+    not implemented.
 
     Stores the results for further lookup.
 
@@ -21,17 +22,17 @@ class SampleKNNFilter(object):
     Attributes
     ----------
     _sdm: SampleDistanceMatrix
-    _filter_res_lut: dict
-        lookup table of KNN filter results
+    _res_lut: dict
+        lookup table of KNN rare sample detection results
     """
     def __init__(self, sdm):
-        super(SampleKNNFilter, self).__init__()
+        super(RareSampleDetection, self).__init__()
         self._sdm = sdm
         self._res_lut = {}
 
-    def _knn_filter_samples_runner(self, k, d_cutoff, n_iter):
+    def _rare_sample_detection_runner(self, k, d_cutoff, n_iter):
         """
-        KNN filter on samples with scalar tuple of parameters.
+        KNN rare sample detection with scalar tuple of parameters.
         """
         # TODO: copy lookup results
         param_key = (k, d_cutoff, n_iter)
@@ -65,31 +66,30 @@ class SampleKNNFilter(object):
         # thes last one of progress_list is equal to the curr_s_inds
         return curr_s_inds.tolist(), progress_list
 
-    def knn_filter_samples(self, k, d_cutoff, n_iter, nprocs=1):
+    def detect_rare_samples(self, k, d_cutoff, n_iter, nprocs=1):
         """
-        KNN filter on samples with multiple parameter combinations.
+        KNN rare sample detection with multiple parameter combinations
 
         Assuming that there are at least k samples look similar in this
         dataset, the samples with less than k similar neighbors may be
-        outliers. The outliers can either be really distinct from the general
+        rare. The rare samples can either be really distinct from the general
         populaton or caused by technical errors.
 
-        This filter iteratively filters samples according to their k-th nearest
-        neighbors. The samples most distinct from its k-th nearest neighbors
-        are removed first. Then, the left samples are filtered by less
-        stringent distance cutoff. The distance cutoff decreases linearly
-        from maximum distance to d_cutoff with n_iter iterations.
+        This procedure iteratively detects samples according to their k-th
+        nearest neighbors. The samples most distinct from its k-th nearest
+        neighbors are detected first. Then, the left samples are detected
+        by less stringent distance cutoff. The distance cutoff decreases
+        linearly from maximum distance to d_cutoff with n_iter iterations.
 
         Parameters
         ----------
         k: int list or scalar
-            K nearest neighbors to filter samples.
+            K nearest neighbors to detect rare samples.
         d_cutoff: float list or scalar
             Samples with >= d_cutoff distances are distinct from each other.
-            Minimum (>=) distance to be called as distinct.
+            Minimum (>=) distance to be called as rare.
         n_iter: int list or scalar
-            N progressive iNN filters on the dataset. See description for more
-            details.
+            N progressive iNN detections on the dataset.
         nproces: int
             N processes to run all parameter tuples.
 
@@ -114,12 +114,6 @@ class SampleKNNFilter(object):
 
         `(k, d_cutoff, n_iter)` tuples `(10, 1, 10), (15, 2, 20), (20, 3, 30)`
         will be tried parallely with nprocs.
-
-        This filter can be applied on filters by transforming the data matrix
-        when creating SampleDistanceMatrix, but it might not be
-        very meaningful. For example, if there is 100 features all have values
-        of 1 across all samples, they will always be kept with KNN filter
-        strategy with k < 100.
         """
         # Convert scalar to list
         if np.isscalar(k):
@@ -169,7 +163,7 @@ class SampleKNNFilter(object):
 
         # returns (filtered_sdm, progress_list (list of kept indices))
         res_list = utils.parmap(
-            lambda ptup: self._knn_filter_samples_runner(*ptup),
+            lambda ptup: self._rare_sample_detection_runner(*ptup),
             param_tups, nprocs)
 
         for i in range(n_param_tups):
@@ -177,13 +171,3 @@ class SampleKNNFilter(object):
                 self._res_lut[param_tups[i]] = res_list[i]
 
         return [res[0] for res in res_list]
-
-
-def remove_constant_features(sfm):
-    """
-    Remove features that are constant across all samples
-    """
-    # boolean matrix of whether x == first column (feature)
-    x_not_equal_to_1st_row = sfm._x != sfm._x[0]
-    non_const_f_bool_ind = x_not_equal_to_1st_row.sum(axis=0) >= 1
-    return sfm.ind_x(selected_f_inds=non_const_f_bool_ind)

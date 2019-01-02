@@ -103,3 +103,13 @@ def dict_str_key(d):
     sorted_key_str_pair = sorted(key_str_pair, key=lambda p: p[1])
     sorted_keys = map(lambda p: p[0], sorted_key_str_pair)
     return str([(k, d[k]) for k in sorted_keys])
+
+
+def remove_constant_features(sfm):
+    """
+    Remove features that are constant across all samples
+    """
+    # boolean matrix of whether x == first column (feature)
+    x_not_equal_to_1st_row = sfm._x != sfm._x[0]
+    non_const_f_bool_ind = x_not_equal_to_1st_row.sum(axis=0) >= 1
+    return sfm.ind_x(selected_f_inds=non_const_f_bool_ind)

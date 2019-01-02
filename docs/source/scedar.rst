@@ -8,7 +8,7 @@ Subpackages
 
     scedar.cluster
     scedar.eda
-    scedar.qc
+    scedar.knn
 
 Submodules
 ----------
