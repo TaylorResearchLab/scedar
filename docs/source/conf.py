@@ -21,8 +21,8 @@ sys.path.insert(0, os.path.abspath('../../'))
 # -- Project information -----------------------------------------------------
 
 project = 'scedar'
-copyright = '2018, Yuanchao Zhang'
-author = 'Yuanchao Zhang'
+copyright = '2018, Scedar developers'
+author = 'Scedar developers'
 
 # The short X.Y version
 version = ''

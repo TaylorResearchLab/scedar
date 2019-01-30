@@ -1,0 +1,360 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>scedar.eda.stats &mdash; scedar 0.1.6 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> scedar
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../install.html">Install</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../generated/modules.html">API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/scedar.html">scedar</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../generated/scedar.cluster.html">scedar.cluster module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../generated/scedar.cluster.html#module-scedar.cluster.mirac">scedar.cluster.mirac module</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../generated/scedar.eda.html">scedar.eda module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../generated/scedar.eda.html#module-scedar.eda.mdl">scedar.eda.mdl module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../generated/scedar.eda.html#module-scedar.eda.mtype">scedar.eda.mtype module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../generated/scedar.eda.html#module-scedar.eda.plot">scedar.eda.plot module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../generated/scedar.eda.html#module-scedar.eda.sdm">scedar.eda.sdm module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../generated/scedar.eda.html#module-scedar.eda.sfm">scedar.eda.sfm module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../generated/scedar.eda.html#module-scedar.eda.slcs">scedar.eda.slcs module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../generated/scedar.eda.html#module-scedar.eda.stats">scedar.eda.stats module</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../generated/scedar.knn.html">scedar.knn module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../generated/scedar.knn.html#module-scedar.knn.detection">scedar.knn.detection module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../generated/scedar.knn.html#module-scedar.knn.imputation">scedar.knn.imputation module</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../generated/scedar.utils.html">scedar.utils module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">Changelog</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../changelog.html#jan-2-2019">[0.1.6] - Jan 2, 2019</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../changelog.html#added">Added</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../changelog.html#changed">Changed</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">scedar</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>scedar.eda.stats</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for scedar.eda.stats</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+
+<div class="viewcode-block" id="gc1d"><a class="viewcode-back" href="../../../generated/scedar.eda.html#scedar.eda.stats.gc1d">[docs]</a><span class="k">def</span> <span class="nf">gc1d</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute Gini Index for 1D array.</span>
+
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+<span class="sd">    [1] http://mathworld.wolfram.com/GiniCoefficient.html</span>
+
+<span class="sd">    [2] Damgaard, C. and Weiner, J. &quot;Describing Inequality in Plant Size</span>
+<span class="sd">    or Fecundity.&quot; Ecology 81, 1139-1142, 2000.</span>
+
+<span class="sd">    [3] Dixon, P. M.; Weiner, J.; Mitchell-Olds, T.; and Woodley, R.</span>
+<span class="sd">    &quot;Bootstrapping the Gini Coefficient of Inequality.&quot;</span>
+<span class="sd">    Ecology 68, 1548-1551, 1987.</span>
+
+<span class="sd">    [4] Dixon, P. M.; Weiner, J.; Mitchell-Olds, T.; and Woodley, R.</span>
+<span class="sd">    &quot;Erratum to &#39;Bootstrapping the Gini Coefficient of Inequality.&#39; &quot;</span>
+<span class="sd">    Ecology 69, 1307, 1988.</span>
+
+<span class="sd">    [5] https://en.wikipedia.org/wiki/Gini_coefficient</span>
+
+<span class="sd">    [6] https://github.com/oliviaguest/gini/blob/master/gini.py</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float64&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Only support 1D array.&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Array size cannot be 0.&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+    <span class="c1"># sort into ascending order</span>
+    <span class="n">xs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">xs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">xs</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="mi">0</span>
+    <span class="c1"># Wrap with np.int64 to prevent division by 0</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">xs_ranks</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">xmean</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+    <span class="n">gc</span> <span class="o">=</span> <span class="p">((</span><span class="mi">2</span> <span class="o">*</span> <span class="n">xs_ranks</span> <span class="o">-</span> <span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">xs</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">/</span> <span class="p">(</span><span class="n">n</span> <span class="o">*</span> <span class="p">(</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">xmean</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">gc</span>
+
+
+<span class="c1"># Multiple testing correction adapted from</span>
+<span class="c1"># https://github.com/CoBiG2/cobig_misc_scripts/blob/master/FDR.py</span>
+<span class="c1">#</span>
+<span class="c1"># Following is the lincense info:</span>
+<span class="c1"># Copyright 2017 Francisco Pina Martins &lt;f.pinamartins@gmail.com&gt;</span>
+<span class="c1"># This file is part of structure_threader.</span>
+<span class="c1"># structure_threader is free software: you can redistribute it and/or modify</span>
+<span class="c1"># it under the terms of the GNU General Public License as published by</span>
+<span class="c1"># the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c1"># (at your option) any later version.</span>
+<span class="c1">#</span>
+<span class="c1"># structure_threader is distributed in the hope that it will be useful,</span>
+<span class="c1"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the</span>
+<span class="c1"># GNU General Public License for more details.</span>
+<span class="c1">#</span>
+<span class="c1"># You should have received a copy of the GNU General Public License</span>
+<span class="c1"># along with structure_threader. If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+<span class="c1">#</span>
+<span class="c1"># Taken from https://stackoverflow.com/a/21739593/3091595, ported to python 3</span>
+<span class="c1"># and improved readability.</span>
+<div class="viewcode-block" id="multiple_testing_correction"><a class="viewcode-back" href="../../../generated/scedar.eda.html#scedar.eda.stats.multiple_testing_correction">[docs]</a><span class="k">def</span> <span class="nf">multiple_testing_correction</span><span class="p">(</span><span class="n">pvalues</span><span class="p">,</span> <span class="n">correction_type</span><span class="o">=</span><span class="s2">&quot;FDR&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Consistent with R.</span>
+
+<span class="sd">    correct_pvalues_for_multiple_testing([0.0, 0.01, 0.029, 0.03, 0.031, 0.05,</span>
+<span class="sd">                                          0.069, 0.07, 0.071, 0.09, 0.1])</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">pvalues</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">pvalues</span><span class="p">)</span>
+    <span class="n">sample_size</span> <span class="o">=</span> <span class="n">pvalues</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">qvalues</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">sample_size</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">correction_type</span> <span class="o">==</span> <span class="s2">&quot;Bonferroni&quot;</span><span class="p">:</span>
+        <span class="c1"># Bonferroni correction</span>
+        <span class="n">qvalues</span> <span class="o">=</span> <span class="n">sample_size</span> <span class="o">*</span> <span class="n">pvalues</span>
+    <span class="k">elif</span> <span class="n">correction_type</span> <span class="o">==</span> <span class="s2">&quot;FDR&quot;</span><span class="p">:</span>
+        <span class="c1"># Benjamini-Hochberg, AKA - FDR test</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="p">[(</span><span class="n">pvalue</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">pvalue</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">pvalues</span><span class="p">)]</span>
+        <span class="n">values</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+        <span class="n">values</span><span class="o">.</span><span class="n">reverse</span><span class="p">()</span>
+        <span class="n">new_values</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">vals</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">values</span><span class="p">):</span>
+            <span class="n">rank</span> <span class="o">=</span> <span class="n">sample_size</span> <span class="o">-</span> <span class="n">i</span>
+            <span class="n">pvalue</span><span class="p">,</span> <span class="n">index</span> <span class="o">=</span> <span class="n">vals</span>
+            <span class="n">new_values</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">sample_size</span><span class="o">/</span><span class="n">rank</span><span class="p">)</span> <span class="o">*</span> <span class="n">pvalue</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">sample_size</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">new_values</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">new_values</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]:</span>
+                <span class="n">new_values</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_values</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">vals</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">values</span><span class="p">):</span>
+            <span class="n">pvalue</span><span class="p">,</span> <span class="n">index</span> <span class="o">=</span> <span class="n">vals</span>
+            <span class="n">qvalues</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_values</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Not supported correction type &quot;</span>
+                         <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">correction_type</span><span class="p">))</span></div>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">qvalues</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+
+<span class="c1"># lower upper bound</span>
+<span class="c1"># start, end, lb, ub should all be scalar</span>
+<div class="viewcode-block" id="bidir_ReLU"><a class="viewcode-back" href="../../../generated/scedar.eda.html#scedar.eda.stats.bidir_ReLU">[docs]</a><span class="k">def</span> <span class="nf">bidir_ReLU</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">lb</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ub</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">start</span> <span class="o">&gt;</span> <span class="n">end</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;start should &lt;= end&quot;</span>
+                         <span class="s2">&quot;start: </span><span class="si">{}</span><span class="s2">. end: </span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">lb</span> <span class="o">&gt;</span> <span class="n">ub</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;lb should &lt;= ub&quot;</span>
+                         <span class="s2">&quot;lower bound: </span><span class="si">{}</span><span class="s2">. &quot;</span>
+                         <span class="s2">&quot;upper bound: </span><span class="si">{}</span><span class="s2">. &quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">start</span> <span class="o">&lt;</span> <span class="n">end</span><span class="p">:</span>
+        <span class="n">width</span> <span class="o">=</span> <span class="n">end</span> <span class="o">-</span> <span class="n">start</span>
+        <span class="n">height</span> <span class="o">=</span> <span class="n">ub</span> <span class="o">-</span> <span class="n">lb</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="n">height</span> <span class="o">*</span> <span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">start</span><span class="p">)</span> <span class="o">/</span> <span class="n">width</span> <span class="o">+</span> <span class="n">lb</span><span class="p">,</span>
+                       <span class="n">a_min</span><span class="o">=</span><span class="n">lb</span><span class="p">,</span> <span class="n">a_max</span><span class="o">=</span><span class="n">ub</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># start == end</span></div>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">x</span> <span class="o">&gt;=</span> <span class="n">start</span><span class="p">,</span> <span class="n">ub</span><span class="p">,</span> <span class="n">lb</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Scedar developers
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript">
+          var DOCUMENTATION_OPTIONS = {
+              URL_ROOT:'../../../',
+              VERSION:'0.1.6',
+              LANGUAGE:'None',
+              COLLAPSE_INDEX:false,
+              FILE_SUFFIX:'.html',
+              HAS_SOURCE:  true,
+              SOURCELINK_SUFFIX: '.txt'
+          };
+      </script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

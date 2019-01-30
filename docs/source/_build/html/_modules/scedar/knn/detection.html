@@ -1,0 +1,412 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>scedar.knn.detection &mdash; scedar 0.1.6 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> scedar
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../install.html">Install</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../generated/modules.html">API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/scedar.html">scedar</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../generated/scedar.cluster.html">scedar.cluster module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../generated/scedar.cluster.html#module-scedar.cluster.mirac">scedar.cluster.mirac module</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../generated/scedar.eda.html">scedar.eda module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../generated/scedar.eda.html#module-scedar.eda.mdl">scedar.eda.mdl module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../generated/scedar.eda.html#module-scedar.eda.mtype">scedar.eda.mtype module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../generated/scedar.eda.html#module-scedar.eda.plot">scedar.eda.plot module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../generated/scedar.eda.html#module-scedar.eda.sdm">scedar.eda.sdm module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../generated/scedar.eda.html#module-scedar.eda.sfm">scedar.eda.sfm module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../generated/scedar.eda.html#module-scedar.eda.slcs">scedar.eda.slcs module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../generated/scedar.eda.html#module-scedar.eda.stats">scedar.eda.stats module</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../generated/scedar.knn.html">scedar.knn module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../generated/scedar.knn.html#module-scedar.knn.detection">scedar.knn.detection module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../generated/scedar.knn.html#module-scedar.knn.imputation">scedar.knn.imputation module</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../generated/scedar.utils.html">scedar.utils module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">Changelog</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../changelog.html#jan-2-2019">[0.1.6] - Jan 2, 2019</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../changelog.html#added">Added</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../changelog.html#changed">Changed</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">scedar</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>scedar.knn.detection</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for scedar.knn.detection</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">scedar</span> <span class="k">import</span> <span class="n">eda</span>
+<span class="kn">from</span> <span class="nn">scedar</span> <span class="k">import</span> <span class="n">utils</span>
+
+
+<div class="viewcode-block" id="RareSampleDetection"><a class="viewcode-back" href="../../../generated/scedar.knn.html#scedar.knn.detection.RareSampleDetection">[docs]</a><span class="k">class</span> <span class="nc">RareSampleDetection</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    K nearest neighbor detection of rare samples</span>
+
+<span class="sd">    Perform the rare sample detection procedure in parallel, with each</span>
+<span class="sd">    combination of parameters as a process. Because this procedure runs</span>
+<span class="sd">    iteratively, parallelizing each individual parameter combination run is</span>
+<span class="sd">    not implemented.</span>
+
+<span class="sd">    Stores the results for further lookup.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    sdm: SampleDistanceMatrix or its subclass</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    _sdm: SampleDistanceMatrix</span>
+<span class="sd">    _res_lut: dict</span>
+<span class="sd">        lookup table of KNN rare sample detection results</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sdm</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">RareSampleDetection</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sdm</span> <span class="o">=</span> <span class="n">sdm</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_res_lut</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">def</span> <span class="nf">_rare_sample_detection_runner</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">d_cutoff</span><span class="p">,</span> <span class="n">n_iter</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        KNN rare sample detection with scalar tuple of parameters.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># TODO: copy lookup results</span>
+        <span class="n">param_key</span> <span class="o">=</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">d_cutoff</span><span class="p">,</span> <span class="n">n_iter</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">param_key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_res_lut</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_res_lut</span><span class="p">[</span><span class="n">param_key</span><span class="p">]</span>
+
+        <span class="n">d_max</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sdm</span><span class="o">.</span><span class="n">_d</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+        <span class="c1"># curr_dist_mat being reduced by removing samples, but the data matrix</span>
+        <span class="c1"># is not edited. Thus, no need to copy.</span>
+        <span class="n">curr_dist_mat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sdm</span><span class="o">.</span><span class="n">_d</span>
+        <span class="n">curr_s_inds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">curr_dist_mat</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">progress_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">curr_s_inds</span><span class="o">.</span><span class="n">tolist</span><span class="p">()]</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_iter</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+            <span class="n">i_d_cutoff</span> <span class="o">=</span> <span class="p">(</span><span class="n">d_cutoff</span> <span class="o">+</span>
+                          <span class="p">(</span><span class="n">n_iter</span> <span class="o">-</span> <span class="n">i</span><span class="p">)</span> <span class="o">/</span> <span class="n">n_iter</span> <span class="o">*</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">d_max</span> <span class="o">-</span> <span class="n">d_cutoff</span><span class="p">))</span>
+            <span class="n">i_k</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">curr_dist_mat</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
+            <span class="n">kept_curr_s_inds</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="c1"># each column is sorted. Not in-place.</span>
+            <span class="n">sorted_curr_dist_mat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">curr_dist_mat</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="c1"># size of curr_dist_mat is updated each iteration</span>
+            <span class="k">for</span> <span class="n">s_ind</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">curr_dist_mat</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+                <span class="c1"># i_k&#39;th neighbor distance of sample s_ind</span>
+                <span class="k">if</span> <span class="n">sorted_curr_dist_mat</span><span class="p">[</span><span class="n">i_k</span><span class="p">,</span> <span class="n">s_ind</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">i_d_cutoff</span><span class="p">:</span>
+                    <span class="n">kept_curr_s_inds</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">s_ind</span><span class="p">)</span>
+            <span class="c1"># no change of value. No need to copy.</span>
+            <span class="n">curr_dist_mat</span> <span class="o">=</span> <span class="n">curr_dist_mat</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ix_</span><span class="p">(</span><span class="n">kept_curr_s_inds</span><span class="p">,</span>
+                                                 <span class="n">kept_curr_s_inds</span><span class="p">)]</span>
+            <span class="n">curr_s_inds</span> <span class="o">=</span> <span class="n">curr_s_inds</span><span class="p">[</span><span class="n">kept_curr_s_inds</span><span class="p">]</span>
+            <span class="n">progress_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">curr_s_inds</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
+        <span class="c1"># thes last one of progress_list is equal to the curr_s_inds</span>
+        <span class="k">return</span> <span class="n">curr_s_inds</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span> <span class="n">progress_list</span>
+
+<div class="viewcode-block" id="RareSampleDetection.detect_rare_samples"><a class="viewcode-back" href="../../../generated/scedar.knn.html#scedar.knn.detection.RareSampleDetection.detect_rare_samples">[docs]</a>    <span class="k">def</span> <span class="nf">detect_rare_samples</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">d_cutoff</span><span class="p">,</span> <span class="n">n_iter</span><span class="p">,</span> <span class="n">nprocs</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        KNN rare sample detection with multiple parameter combinations</span>
+
+<span class="sd">        Assuming that there are at least k samples look similar in this</span>
+<span class="sd">        dataset, the samples with less than k similar neighbors may be</span>
+<span class="sd">        rare. The rare samples can either be really distinct from the general</span>
+<span class="sd">        populaton or caused by technical errors.</span>
+
+<span class="sd">        This procedure iteratively detects samples according to their k-th</span>
+<span class="sd">        nearest neighbors. The samples most distinct from its k-th nearest</span>
+<span class="sd">        neighbors are detected first. Then, the left samples are detected</span>
+<span class="sd">        by less stringent distance cutoff. The distance cutoff decreases</span>
+<span class="sd">        linearly from maximum distance to d_cutoff with n_iter iterations.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        k: int list or scalar</span>
+<span class="sd">            K nearest neighbors to detect rare samples.</span>
+<span class="sd">        d_cutoff: float list or scalar</span>
+<span class="sd">            Samples with &gt;= d_cutoff distances are distinct from each other.</span>
+<span class="sd">            Minimum (&gt;=) distance to be called as rare.</span>
+<span class="sd">        n_iter: int list or scalar</span>
+<span class="sd">            N progressive iNN detections on the dataset.</span>
+<span class="sd">        nproces: int</span>
+<span class="sd">            N processes to run all parameter tuples.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        res_list</span>
+<span class="sd">            Filtered SampleDistanceMatrix of each corresponding parameter</span>
+<span class="sd">            tuple.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        If parameters are provided as lists of equal length n, the n</span>
+<span class="sd">        corresponding parameter tuples will be executed parallely.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        `k = [10, 15, 20]`</span>
+
+<span class="sd">        `d_cutoff = [1, 2, 3]`</span>
+
+<span class="sd">        `n_iter = [10, 20, 30]`</span>
+
+<span class="sd">        `(k, d_cutoff, n_iter)` tuples `(10, 1, 10), (15, 2, 20), (20, 3, 30)`</span>
+<span class="sd">        will be tried parallely with nprocs.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Convert scalar to list</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isscalar</span><span class="p">(</span><span class="n">k</span><span class="p">):</span>
+            <span class="n">k_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">k</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">k_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isscalar</span><span class="p">(</span><span class="n">d_cutoff</span><span class="p">):</span>
+            <span class="n">d_cutoff_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">d_cutoff</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">d_cutoff_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">d_cutoff</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isscalar</span><span class="p">(</span><span class="n">n_iter</span><span class="p">):</span>
+            <span class="n">n_iter_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">n_iter</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">n_iter_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">n_iter</span><span class="p">)</span>
+        <span class="c1"># Check all param lists have the same length</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">k_list</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">d_cutoff_list</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">n_iter_list</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Parameter should have the same length.&quot;</span>
+                             <span class="s2">&quot;k: </span><span class="si">{}</span><span class="s2">, d_cutoff: </span><span class="si">{}</span><span class="s2">, n_iter: </span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                                <span class="n">k</span><span class="p">,</span> <span class="n">d_cutoff</span><span class="p">,</span> <span class="n">n_iter</span><span class="p">))</span>
+        <span class="n">n_param_tups</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">k_list</span><span class="p">)</span>
+        <span class="c1"># type check all parameters</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_param_tups</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">k_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">1</span> <span class="ow">or</span> <span class="n">k_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sdm</span><span class="o">.</span><span class="n">_x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;k should be &gt;= 1 and &lt;= n_samples-1. &quot;</span>
+                                 <span class="s2">&quot;k: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">k</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">k_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">k_list</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+
+            <span class="k">if</span> <span class="n">d_cutoff_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;d_cutoff should be &gt; 0. &quot;</span>
+                                 <span class="s2">&quot;d_cutoff: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">d_cutoff</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">d_cutoff_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">d_cutoff_list</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+
+            <span class="k">if</span> <span class="n">n_iter_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;n_iter should be &gt;= 1. &quot;</span>
+                                 <span class="s2">&quot;n_iter: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">n_iter</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">n_iter_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">n_iter_list</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+
+        <span class="n">param_tups</span> <span class="o">=</span> <span class="p">[(</span><span class="n">k_list</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">d_cutoff_list</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">n_iter_list</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+                      <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_param_tups</span><span class="p">)]</span>
+        <span class="n">nprocs</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">nprocs</span><span class="p">)</span>
+        <span class="n">nprocs</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">nprocs</span><span class="p">,</span> <span class="n">n_param_tups</span><span class="p">)</span>
+
+        <span class="c1"># returns (filtered_sdm, progress_list (list of kept indices))</span>
+        <span class="n">res_list</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">parmap</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">ptup</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rare_sample_detection_runner</span><span class="p">(</span><span class="o">*</span><span class="n">ptup</span><span class="p">),</span>
+            <span class="n">param_tups</span><span class="p">,</span> <span class="n">nprocs</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_param_tups</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">param_tups</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_res_lut</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_res_lut</span><span class="p">[</span><span class="n">param_tups</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="o">=</span> <span class="n">res_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+</div></div>
+        <span class="k">return</span> <span class="p">[</span><span class="n">res</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">res</span> <span class="ow">in</span> <span class="n">res_list</span><span class="p">]</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Scedar developers
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript">
+          var DOCUMENTATION_OPTIONS = {
+              URL_ROOT:'../../../',
+              VERSION:'0.1.6',
+              LANGUAGE:'None',
+              COLLAPSE_INDEX:false,
+              FILE_SUFFIX:'.html',
+              HAS_SOURCE:  true,
+              SOURCELINK_SUFFIX: '.txt'
+          };
+      </script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

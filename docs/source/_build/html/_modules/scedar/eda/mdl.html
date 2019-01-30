@@ -1,0 +1,682 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>scedar.eda.mdl &mdash; scedar 0.1.6 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> scedar
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../install.html">Install</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../generated/modules.html">API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/scedar.html">scedar</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../generated/scedar.cluster.html">scedar.cluster module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../generated/scedar.cluster.html#module-scedar.cluster.mirac">scedar.cluster.mirac module</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../generated/scedar.eda.html">scedar.eda module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../generated/scedar.eda.html#module-scedar.eda.mdl">scedar.eda.mdl module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../generated/scedar.eda.html#module-scedar.eda.mtype">scedar.eda.mtype module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../generated/scedar.eda.html#module-scedar.eda.plot">scedar.eda.plot module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../generated/scedar.eda.html#module-scedar.eda.sdm">scedar.eda.sdm module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../generated/scedar.eda.html#module-scedar.eda.sfm">scedar.eda.sfm module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../generated/scedar.eda.html#module-scedar.eda.slcs">scedar.eda.slcs module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../generated/scedar.eda.html#module-scedar.eda.stats">scedar.eda.stats module</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../generated/scedar.knn.html">scedar.knn module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../generated/scedar.knn.html#module-scedar.knn.detection">scedar.knn.detection module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../generated/scedar.knn.html#module-scedar.knn.imputation">scedar.knn.imputation module</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../generated/scedar.utils.html">scedar.utils module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">Changelog</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../changelog.html#jan-2-2019">[0.1.6] - Jan 2, 2019</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../changelog.html#added">Added</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../changelog.html#changed">Changed</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">scedar</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>scedar.eda.mdl</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for scedar.eda.mdl</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">scipy.stats</span> <span class="k">as</span> <span class="nn">spstats</span>
+<span class="kn">from</span> <span class="nn">abc</span> <span class="k">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
+
+
+<span class="c1"># TODO: implement histogram mdl with proper discretization.</span>
+
+<div class="viewcode-block" id="np_number_1d"><a class="viewcode-back" href="../../../generated/scedar.eda.html#scedar.eda.mdl.np_number_1d">[docs]</a><span class="k">def</span> <span class="nf">np_number_1d</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="s2">&quot;f8&quot;</span><span class="p">),</span> <span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Convert x to 1d np number array</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        x (1d sequence of values convertable to np.number)</span>
+<span class="sd">        dtype (np number type): default to 64-bit float</span>
+<span class="sd">        copy (bool): passed to np.array()</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        xarr (1d np.number array)</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: If x is not convertable to provided dtype or non-1d.</span>
+<span class="sd">            If dtype is not subdtype of np number.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="n">dtype</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">number</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;dtype must be a type of numpy number&quot;</span><span class="p">)</span>
+
+    <span class="n">xarr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="n">copy</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">xarr</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;x should be 1D array. &quot;</span>
+                         <span class="s2">&quot;x.shape: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">xarr</span><span class="o">.</span><span class="n">shape</span><span class="p">))</span></div>
+    <span class="k">return</span> <span class="n">xarr</span>
+
+
+<div class="viewcode-block" id="Mdl"><a class="viewcode-back" href="../../../generated/scedar.eda.html#scedar.eda.mdl.Mdl">[docs]</a><span class="k">class</span> <span class="nc">Mdl</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Minimum description length abstract base class</span>
+
+<span class="sd">    Interface of various mdl schemas. Subclasses must implement mdl property</span>
+<span class="sd">        and encode method.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        _x (1D np.number array): data used for fit mdl</span>
+<span class="sd">        _n (np.int): number of points in x</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="s2">&quot;f8&quot;</span><span class="p">),</span> <span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialize</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            x (1D np.number array): data used for fit mdl</span>
+<span class="sd">            dtype (np.dtype): default to 64-bit float</span>
+<span class="sd">            copy (bool): passed to np.array()</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_x</span> <span class="o">=</span> <span class="n">np_number_1d</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="n">copy</span><span class="p">)</span>
+        <span class="c1"># avoid divide by 0 exception</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_n</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">int_</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+<div class="viewcode-block" id="Mdl.encode"><a class="viewcode-back" href="../../../generated/scedar.eda.html#scedar.eda.mdl.Mdl.encode">[docs]</a>    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">encode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Encode another 1D number array with fitted code</span>
+<span class="sd">        Args:</span>
+<span class="sd">            x (1D np.number array): data to encode</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">x</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_x</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">mdl</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span></div>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+
+<div class="viewcode-block" id="MultinomialMdl"><a class="viewcode-back" href="../../../generated/scedar.eda.html#scedar.eda.mdl.MultinomialMdl">[docs]</a><span class="k">class</span> <span class="nc">MultinomialMdl</span><span class="p">(</span><span class="n">Mdl</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Encode discrete values using multinomial distribution</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        x (1D np.number array): data used for fit mdl</span>
+<span class="sd">        dtype (np.dtype): default to 64-bit float</span>
+<span class="sd">        copy (bool): passed to np.array()</span>
+
+<span class="sd">    Note:</span>
+<span class="sd">        When x only has 1 uniq value. Encode the the number of values only.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="s2">&quot;f8&quot;</span><span class="p">),</span> <span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="n">copy</span><span class="p">)</span>
+
+        <span class="n">uniq_vals</span><span class="p">,</span> <span class="n">uniq_val_cnts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">return_counts</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_n_uniq</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">uniq_vals</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_uniq_vals</span> <span class="o">=</span> <span class="n">uniq_vals</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_uniq_val_cnts</span> <span class="o">=</span> <span class="n">uniq_val_cnts</span>
+        <span class="c1"># make division by 0 valid.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_uniq_val_ps</span> <span class="o">=</span> <span class="n">uniq_val_cnts</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">_n</span>
+        <span class="c1"># create a lut for unique vals and ps</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_uniq_val_p_lut</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">uniq_vals</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_uniq_val_ps</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_uniq_vals</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">mdl</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_uniq_val_ps</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_uniq_val_cnts</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_uniq_vals</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">mdl</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_n</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># len(x) == 0</span>
+            <span class="n">mdl</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_mdl</span> <span class="o">=</span> <span class="n">mdl</span>
+        <span class="k">return</span>
+
+<div class="viewcode-block" id="MultinomialMdl.encode"><a class="viewcode-back" href="../../../generated/scedar.eda.html#scedar.eda.mdl.MultinomialMdl.encode">[docs]</a>    <span class="k">def</span> <span class="nf">encode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qx</span><span class="p">,</span> <span class="n">use_adjescent_when_absent</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Encode another 1D float array with fitted code</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            qx (1d float array): query data</span>
+<span class="sd">            use_adjescent_when_absent (bool): whether to use adjascent value</span>
+<span class="sd">                to compute query mdl. If not, uniform mdl is used. If</span>
+<span class="sd">                adjascent values have same distance to query value, choose the</span>
+<span class="sd">                one with smaller mdl.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            qmdl (float)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">qx</span> <span class="o">=</span> <span class="n">np_number_1d</span><span class="p">(</span><span class="n">qx</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">qx</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">0</span>
+
+        <span class="c1"># Encode with 32bit float</span>
+        <span class="n">unif_q_val_mdl</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">qx</span><span class="p">))</span><span class="o">*</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_n</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># uniform</span>
+            <span class="k">return</span> <span class="n">qx</span><span class="o">.</span><span class="n">size</span> <span class="o">*</span> <span class="n">unif_q_val_mdl</span>
+
+        <span class="n">q_uniq_vals</span><span class="p">,</span> <span class="n">q_uniq_val_cnts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">qx</span><span class="p">,</span> <span class="n">return_counts</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">q_mdl</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">uval</span><span class="p">,</span> <span class="n">ucnt</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">q_uniq_vals</span><span class="p">,</span> <span class="n">q_uniq_val_cnts</span><span class="p">):</span>
+            <span class="n">uval_p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_uniq_val_p_lut</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">uval</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">uval_p</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">use_adjescent_when_absent</span><span class="p">:</span>
+                    <span class="n">uind</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_uniq_vals</span><span class="p">,</span> <span class="n">uval</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">uind</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="c1"># uval lower than minimum</span>
+                        <span class="n">uval_p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_uniq_val_ps</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="k">elif</span> <span class="n">uind</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_n_uniq</span><span class="p">:</span>
+                        <span class="c1"># uval higher than maximum</span>
+                        <span class="n">uval_p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_uniq_val_ps</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="c1"># uval within range [1, _n_uniq-1]</span>
+                        <span class="c1"># abs diff between uval and left val</span>
+                        <span class="n">l_diff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_uniq_vals</span><span class="p">[</span><span class="n">uind</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">uval</span><span class="p">)</span>
+                        <span class="c1"># abs diff between uval and right avl</span>
+                        <span class="n">r_diff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_uniq_vals</span><span class="p">[</span><span class="n">uind</span><span class="p">]</span> <span class="o">-</span> <span class="n">uval</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">l_diff</span> <span class="o">&lt;</span> <span class="n">r_diff</span><span class="p">:</span>
+                            <span class="c1"># closer to left</span>
+                            <span class="n">uval_p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_uniq_val_ps</span><span class="p">[</span><span class="n">uind</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                        <span class="k">elif</span> <span class="n">l_diff</span> <span class="o">&gt;</span> <span class="n">r_diff</span><span class="p">:</span>
+                            <span class="c1"># closer to right</span>
+                            <span class="n">uval_p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_uniq_val_ps</span><span class="p">[</span><span class="n">uind</span><span class="p">]</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="c1"># same distance, choose max p</span>
+                            <span class="n">uval_p</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_uniq_val_ps</span><span class="p">[</span><span class="n">uind</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+                                         <span class="bp">self</span><span class="o">.</span><span class="n">_uniq_val_ps</span><span class="p">[</span><span class="n">uind</span><span class="p">])</span>
+                    <span class="n">uval_mdl</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">uval_p</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">uval_mdl</span> <span class="o">=</span> <span class="n">unif_q_val_mdl</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">uval_mdl</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">uval_p</span><span class="p">)</span>
+            <span class="n">q_mdl</span> <span class="o">+=</span> <span class="n">uval_mdl</span> <span class="o">*</span> <span class="n">ucnt</span></div>
+        <span class="k">return</span> <span class="n">q_mdl</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">mdl</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mdl</span>
+
+
+<div class="viewcode-block" id="ZeroIMdl"><a class="viewcode-back" href="../../../generated/scedar.eda.html#scedar.eda.mdl.ZeroIMdl">[docs]</a><span class="k">class</span> <span class="nc">ZeroIMdl</span><span class="p">(</span><span class="n">Mdl</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Encode an indicator vector of 0s and non-0s</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="s2">&quot;f8&quot;</span><span class="p">),</span> <span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="n">copy</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_x_equal_zero</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_x</span> <span class="o">==</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_mn_encoder</span> <span class="o">=</span> <span class="n">MultinomialMdl</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_x</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="s2">&quot;i1&quot;</span><span class="p">),</span>
+                                          <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="c1"># log(3) to encode 3 conditions:</span>
+        <span class="c1"># - empty</span>
+        <span class="c1"># - all non-0s or 0s</span>
+        <span class="c1"># - mixed non-0s and 0s</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_mdl</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mn_encoder</span><span class="o">.</span><span class="n">mdl</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ZeroIMdl.encode"><a class="viewcode-back" href="../../../generated/scedar.eda.html#scedar.eda.mdl.ZeroIMdl.encode">[docs]</a>    <span class="k">def</span> <span class="nf">encode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qx</span><span class="p">):</span>
+        <span class="n">qx</span> <span class="o">=</span> <span class="n">np_number_1d</span><span class="p">(</span><span class="n">qx</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mn_encoder</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">qx</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">mdl</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mdl</span>
+
+
+<div class="viewcode-block" id="ZeroIMultinomialMdl"><a class="viewcode-back" href="../../../generated/scedar.eda.html#scedar.eda.mdl.ZeroIMultinomialMdl">[docs]</a><span class="k">class</span> <span class="nc">ZeroIMultinomialMdl</span><span class="p">(</span><span class="n">Mdl</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="s2">&quot;f8&quot;</span><span class="p">),</span> <span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="n">copy</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_x_nonzero</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_x</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_x</span><span class="p">)]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_k</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_x_nonzero</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_zi_encoder</span> <span class="o">=</span> <span class="n">ZeroIMdl</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_x</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_zi_mdl</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_zi_encoder</span><span class="o">.</span><span class="n">mdl</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_mn_encoder</span> <span class="o">=</span> <span class="n">MultinomialMdl</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_x_nonzero</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span>
+                                          <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_mn_mdl</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mn_encoder</span><span class="o">.</span><span class="n">mdl</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_mdl</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_zi_mdl</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mn_mdl</span>
+
+<div class="viewcode-block" id="ZeroIMultinomialMdl.encode"><a class="viewcode-back" href="../../../generated/scedar.eda.html#scedar.eda.mdl.ZeroIMultinomialMdl.encode">[docs]</a>    <span class="k">def</span> <span class="nf">encode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qx</span><span class="p">,</span> <span class="n">use_adjescent_when_absent</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="n">qx</span> <span class="o">=</span> <span class="n">np_number_1d</span><span class="p">(</span><span class="n">qx</span><span class="p">)</span>
+        <span class="n">qx_nonzero</span> <span class="o">=</span> <span class="n">qx</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">qx</span><span class="p">)]</span>
+        <span class="n">qzi_mdl</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_zi_encoder</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">qx</span><span class="p">)</span>
+        <span class="n">qmn_mdl</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mn_encoder</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span>
+            <span class="n">qx_nonzero</span><span class="p">,</span> <span class="n">use_adjescent_when_absent</span><span class="o">=</span><span class="n">use_adjescent_when_absent</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">qzi_mdl</span> <span class="o">+</span> <span class="n">qmn_mdl</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">mdl</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mdl</span>
+
+
+<div class="viewcode-block" id="GKdeMdl"><a class="viewcode-back" href="../../../generated/scedar.eda.html#scedar.eda.mdl.GKdeMdl">[docs]</a><span class="k">class</span> <span class="nc">GKdeMdl</span><span class="p">(</span><span class="n">Mdl</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Use Gaussian kernel density estimation to compute mdl</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        x (1D np.number array): data used for fit mdl</span>
+<span class="sd">        bandwidth_method: string</span>
+<span class="sd">            KDE bandwidth estimation method bing passed to</span>
+<span class="sd">            `scipy.stats.gaussian_kde`.</span>
+<span class="sd">            Types:</span>
+<span class="sd">            * `&quot;scott&quot;`: Scott&#39;s rule of thumb.</span>
+<span class="sd">            * `&quot;silverman&quot;`: Silverman&quot;s rule of thumb.</span>
+<span class="sd">            * `constant`: constant will be timed by x.std(ddof=1) internally,</span>
+<span class="sd">            because scipy times bw_method value by std. &quot;Scipy weights its</span>
+<span class="sd">            bandwidth by the ovariance of the input data&quot; [3].</span>
+<span class="sd">            * `callable`: scipy calls the function on self</span>
+<span class="sd">        dtype (np.dtype): default to 64-bit float</span>
+<span class="sd">        copy (bool): passed to np.array()</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        _x (1d float array): data to fit</span>
+<span class="sd">        _n (int): number of elements in data</span>
+<span class="sd">        _bw_method (str): bandwidth method</span>
+<span class="sd">        _kde (:obj:`scipy kde`)</span>
+<span class="sd">        _logdens (1d float array): log density</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">kde_bw_method</span><span class="o">=</span><span class="s2">&quot;scott&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="s2">&quot;f8&quot;</span><span class="p">),</span>
+                 <span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="n">copy</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_bw_method</span> <span class="o">=</span> <span class="n">kde_bw_method</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_n</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">kde</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">logdens</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">bw_factor</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="c1"># no non-zery vals. Indicator encoded by zi mdl.</span>
+            <span class="n">kde_mdl</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">logdens</span><span class="p">,</span> <span class="n">kde</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gaussian_kde_logdens</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_x</span><span class="p">,</span> <span class="n">bandwidth_method</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_bw_method</span><span class="p">,</span>
+                    <span class="n">ret_kernel</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="c1"># log(2) to encode kde or not</span>
+                <span class="n">kde_mdl</span> <span class="o">=</span> <span class="o">-</span><span class="n">logdens</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+                <span class="n">bw_factor</span> <span class="o">=</span> <span class="n">kde</span><span class="o">.</span><span class="n">factor</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">kde</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="n">logdens</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="n">bw_factor</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="c1"># encode just single value or multiple values</span>
+                <span class="c1"># fall back on uniform encoding</span>
+                <span class="n">unif_sval_mdl</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_x</span><span class="p">))</span><span class="o">*</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+                <span class="n">kde_mdl</span> <span class="o">=</span> <span class="n">unif_sval_mdl</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_n</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_bw_factor</span> <span class="o">=</span> <span class="n">bw_factor</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_kde</span> <span class="o">=</span> <span class="n">kde</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logdens</span> <span class="o">=</span> <span class="n">logdens</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_mdl</span> <span class="o">=</span> <span class="n">kde_mdl</span>
+
+<div class="viewcode-block" id="GKdeMdl.encode"><a class="viewcode-back" href="../../../generated/scedar.eda.html#scedar.eda.mdl.GKdeMdl.encode">[docs]</a>    <span class="k">def</span> <span class="nf">encode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qx</span><span class="p">,</span> <span class="n">mdl_scale_factor</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Encode query data using fitted KDE code</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            qx (1d float array)</span>
+<span class="sd">            mdl_scale_factor (number): times mdl by this number</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            float: mdl</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">qx</span> <span class="o">=</span> <span class="n">np_number_1d</span><span class="p">(</span><span class="n">qx</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">qx</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">0</span>
+
+        <span class="n">unif_sval_mdl</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">qx</span><span class="p">))</span><span class="o">*</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_kde</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">unif_sval_mdl</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">qx</span><span class="p">)</span> <span class="o">*</span> <span class="n">mdl_scale_factor</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">logdens</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_kde</span><span class="o">.</span><span class="n">logpdf</span><span class="p">(</span><span class="n">qx</span><span class="p">)</span></div>
+            <span class="k">return</span> <span class="o">-</span><span class="n">logdens</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">*</span> <span class="n">mdl_scale_factor</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">bandwidth</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bw_factor</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bw_factor</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_x</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">ddof</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">mdl</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mdl</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">kde</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_kde</span>
+
+<div class="viewcode-block" id="GKdeMdl.gaussian_kde_logdens"><a class="viewcode-back" href="../../../generated/scedar.eda.html#scedar.eda.mdl.GKdeMdl.gaussian_kde_logdens">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">gaussian_kde_logdens</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">bandwidth_method</span><span class="o">=</span><span class="s2">&quot;scott&quot;</span><span class="p">,</span>
+                             <span class="n">ret_kernel</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Estimate Gaussian kernel density estimation bandwidth for input `x`.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        x: float array of shape `(n_samples)` or `(n_samples, n_features)`</span>
+<span class="sd">            Data points for KDE estimation.</span>
+<span class="sd">        bandwidth_method: string</span>
+<span class="sd">            KDE bandwidth estimation method bing passed to</span>
+<span class="sd">            `scipy.stats.gaussian_kde`.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># This package uses (n_samples, n_features) convention</span>
+        <span class="c1"># scipy uses (n_featues, n_samples) convention</span>
+        <span class="c1"># so it is necessary to reshape the data</span>
+        <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">x</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">T</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;x should be 1/2D array. &quot;</span>
+                             <span class="s2">&quot;x.shape: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">))</span>
+
+        <span class="n">kde</span> <span class="o">=</span> <span class="n">spstats</span><span class="o">.</span><span class="n">gaussian_kde</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">bw_method</span><span class="o">=</span><span class="n">bandwidth_method</span><span class="p">)</span>
+        <span class="n">logdens</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">kde</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">ret_kernel</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">logdens</span><span class="p">,</span> <span class="n">kde</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span></div></div>
+            <span class="k">return</span> <span class="n">logdens</span>
+
+
+<div class="viewcode-block" id="ZeroIGKdeMdl"><a class="viewcode-back" href="../../../generated/scedar.eda.html#scedar.eda.mdl.ZeroIGKdeMdl">[docs]</a><span class="k">class</span> <span class="nc">ZeroIGKdeMdl</span><span class="p">(</span><span class="n">Mdl</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Zero indicator Gaussian KDE MDL</span>
+
+<span class="sd">    Encode the 0s and non-0s using bernoulli distribution.</span>
+<span class="sd">    Then, encode non-0s using gaussian kde. Finally, one ternary val indicates</span>
+<span class="sd">    all 0s, all non-0s, or otherwise</span>
+
+
+<span class="sd">    Args:</span>
+<span class="sd">        x (1D np.number array): data used for fit mdl</span>
+<span class="sd">        bandwidth_method: string</span>
+<span class="sd">            KDE bandwidth estimation method bing passed to</span>
+<span class="sd">            `scipy.stats.gaussian_kde`.</span>
+<span class="sd">            Types:</span>
+<span class="sd">            * `&quot;scott&quot;`: Scott&#39;s rule of thumb.</span>
+<span class="sd">            * `&quot;silverman&quot;`: Silverman&quot;s rule of thumb.</span>
+<span class="sd">            * `constant`: constant will be timed by x.std(ddof=1) internally,</span>
+<span class="sd">            because scipy times bw_method value by std. &quot;Scipy weights its</span>
+<span class="sd">            bandwidth by the ovariance of the input data&quot; [3].</span>
+<span class="sd">            * `callable`: scipy calls the function on self</span>
+<span class="sd">        dtype (np.dtype): default to 64-bit float</span>
+<span class="sd">        copy (bool): passed to np.array()</span>
+
+<span class="sd">    References:</span>
+<span class="sd">        [1] https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.gaussian_kde.html</span>
+
+<span class="sd">        [2] https://en.wikipedia.org/wiki/Kernel_density_estimation</span>
+
+<span class="sd">        [3] https://jakevdp.github.io/blog/2013/12/01/kernel-density-estimation/</span>
+
+<span class="sd">        [4] https://github.com/scipy/scipy/blob/v1.0.0/scipy/stats/kde.py#L42-L564</span>
+<span class="sd">    &quot;&quot;&quot;</span>  <span class="c1"># noqa</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">kde_bw_method</span><span class="o">=</span><span class="s2">&quot;scott&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="s2">&quot;f8&quot;</span><span class="p">),</span>
+                 <span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="n">copy</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_x_nonzero</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_x</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_x</span><span class="p">)]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_k</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_x_nonzero</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_bw_method</span> <span class="o">=</span> <span class="n">kde_bw_method</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_zi_encoder</span> <span class="o">=</span> <span class="n">ZeroIMdl</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_x</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_zi_mdl</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_zi_encoder</span><span class="o">.</span><span class="n">mdl</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_kde_encoder</span> <span class="o">=</span> <span class="n">GKdeMdl</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_x_nonzero</span><span class="p">,</span> <span class="n">kde_bw_method</span><span class="p">,</span>
+                                    <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_kde_mdl</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_kde_encoder</span><span class="o">.</span><span class="n">mdl</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_mdl</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_zi_mdl</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_kde_mdl</span>
+
+<div class="viewcode-block" id="ZeroIGKdeMdl.encode"><a class="viewcode-back" href="../../../generated/scedar.eda.html#scedar.eda.mdl.ZeroIGKdeMdl.encode">[docs]</a>    <span class="k">def</span> <span class="nf">encode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qx</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Encode qx</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            qx (1d np number array)</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            mdl (float)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">qx</span> <span class="o">=</span> <span class="n">np_number_1d</span><span class="p">(</span><span class="n">qx</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">qx_nonzero</span> <span class="o">=</span> <span class="n">qx</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">qx</span><span class="p">)]</span>
+        <span class="n">qzi_mdl</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_zi_encoder</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">qx</span><span class="p">)</span>
+        <span class="n">qkde_mdl</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_kde_encoder</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">qx_nonzero</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">qzi_mdl</span> <span class="o">+</span> <span class="n">qkde_mdl</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">zi_mdl</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_zi_mdl</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">bandwidth</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_kde_encoder</span><span class="o">.</span><span class="n">bandwidth</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">kde</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_kde_encoder</span><span class="o">.</span><span class="n">kde</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">kde_mdl</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_kde_mdl</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">mdl</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mdl</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">x_nonzero</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_x_nonzero</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Scedar developers
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript">
+          var DOCUMENTATION_OPTIONS = {
+              URL_ROOT:'../../../',
+              VERSION:'0.1.6',
+              LANGUAGE:'None',
+              COLLAPSE_INDEX:false,
+              FILE_SUFFIX:'.html',
+              HAS_SOURCE:  true,
+              SOURCELINK_SUFFIX: '.txt'
+          };
+      </script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

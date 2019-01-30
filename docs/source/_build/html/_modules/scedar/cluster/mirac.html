@@ -1,0 +1,629 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>scedar.cluster.mirac &mdash; scedar 0.1.6 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> scedar
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../install.html">Install</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../generated/modules.html">API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../generated/scedar.html">scedar</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../generated/scedar.cluster.html">scedar.cluster module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../generated/scedar.cluster.html#module-scedar.cluster.mirac">scedar.cluster.mirac module</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../generated/scedar.eda.html">scedar.eda module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../generated/scedar.eda.html#module-scedar.eda.mdl">scedar.eda.mdl module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../generated/scedar.eda.html#module-scedar.eda.mtype">scedar.eda.mtype module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../generated/scedar.eda.html#module-scedar.eda.plot">scedar.eda.plot module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../generated/scedar.eda.html#module-scedar.eda.sdm">scedar.eda.sdm module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../generated/scedar.eda.html#module-scedar.eda.sfm">scedar.eda.sfm module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../generated/scedar.eda.html#module-scedar.eda.slcs">scedar.eda.slcs module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../generated/scedar.eda.html#module-scedar.eda.stats">scedar.eda.stats module</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../generated/scedar.knn.html">scedar.knn module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../generated/scedar.knn.html#module-scedar.knn.detection">scedar.knn.detection module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../generated/scedar.knn.html#module-scedar.knn.imputation">scedar.knn.imputation module</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../generated/scedar.utils.html">scedar.utils module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">Changelog</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../changelog.html#jan-2-2019">[0.1.6] - Jan 2, 2019</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../changelog.html#added">Added</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../changelog.html#changed">Changed</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">scedar</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>scedar.cluster.mirac</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for scedar.cluster.mirac</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">scedar</span> <span class="k">import</span> <span class="n">eda</span>
+<span class="kn">from</span> <span class="nn">scedar.eda.slcs</span> <span class="k">import</span> <span class="n">MDLSingleLabelClassifiedSamples</span> <span class="k">as</span> <span class="n">MDLSLCS</span>
+<span class="kn">from</span> <span class="nn">scedar.eda.slcs</span> <span class="k">import</span> <span class="n">SingleLabelClassifiedSamples</span> <span class="k">as</span> <span class="n">SLCS</span>
+<span class="kn">from</span> <span class="nn">scedar</span> <span class="k">import</span> <span class="n">utils</span>
+
+
+<div class="viewcode-block" id="MIRAC"><a class="viewcode-back" href="../../../generated/scedar.cluster.html#scedar.cluster.mirac.MIRAC">[docs]</a><span class="k">class</span> <span class="nc">MIRAC</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    MIRAC: MDL iteratively regularized agglomerative clustering.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        x (float array): Data matrix.</span>
+<span class="sd">        d (float array): Distance matrix.</span>
+<span class="sd">        metric (str): Type of distance metric.</span>
+<span class="sd">        sids (sid list): List of sample ids.</span>
+<span class="sd">        fids (fid list): List of feature ids.</span>
+<span class="sd">        hac_tree (HCTree): Hierarchical tree built by agglomerative clustering</span>
+<span class="sd">            to divide in MIRAC. If provided, distance matrix will not be used</span>
+<span class="sd">            for building another tree.</span>
+<span class="sd">        nprocs (int): Number of processes to run MIRAC parallely.</span>
+<span class="sd">        cl_mdl_scale_factor (float): Scale factor of cluster overhead mdl.</span>
+<span class="sd">        min_cl_n (int): Minimum # samples in a cluster.</span>
+<span class="sd">        encode_type (&quot;auto&quot;, &quot;data&quot;, or &quot;distance&quot;): Type of values to encode.</span>
+<span class="sd">            If &quot;auto&quot;, encode data when n_features &lt;= 100.</span>
+<span class="sd">        mdl_method (mdl.Mdl): If None, use ZeroIGKdeMdl for encoded values</span>
+<span class="sd">            with &gt;= 50% zeros, and use GKdeMdl otherwise.</span>
+<span class="sd">        linkage (str): Linkage type for generating the hierarchy.</span>
+<span class="sd">        verbose (bool): Print stats for each iteration.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        _sdm (SampleDistanceMatrix): Data and distance matrices.</span>
+<span class="sd">        _min_cl_n (int): Stored parameter.</span>
+<span class="sd">        _encode_type (str): Encode type. If &quot;auto&quot; provided, this attribute</span>
+<span class="sd">            will store the determined encode type.</span>
+<span class="sd">        _mdl_method (mdl.Mdl): Mdl method. If None is provided, this attribute</span>
+<span class="sd">            will store the determined mdl method.</span>
+<span class="sd">        labs (label list): Labels of clustered samples. 1-to-1 matching to</span>
+<span class="sd">            from first to last.</span>
+<span class="sd">        _hac_tree (eda.hct.HClustTree): Root node of the hierarchical</span>
+<span class="sd">            agglomerative clustering tree.</span>
+<span class="sd">        _run_log (str): String containing the log of the MIRAC run.</span>
+
+<span class="sd">    TODO:</span>
+<span class="sd">    * Dendrogram representation of the splitting process.</span>
+
+<span class="sd">    * Take HCTree as parameter. Computing it is non-trivial when n is large.</span>
+
+<span class="sd">    * Simplify splitting criteria.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">metric</span><span class="o">=</span><span class="s2">&quot;cosine&quot;</span><span class="p">,</span> <span class="n">sids</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fids</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">hac_tree</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">nprocs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">cl_mdl_scale_factor</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                 <span class="n">min_cl_n</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span> <span class="n">encode_type</span><span class="o">=</span><span class="s2">&quot;auto&quot;</span><span class="p">,</span> <span class="n">mdl_method</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">min_split_mdl_red_ratio</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span>
+                 <span class="n">soft_min_subtree_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                 <span class="n">linkage</span><span class="o">=</span><span class="s2">&quot;complete&quot;</span><span class="p">,</span> <span class="n">optimal_ordering</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                 <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="c1"># initialize simple attributes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_nprocs</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">nprocs</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_is_euc_dist</span> <span class="o">=</span> <span class="n">metric</span> <span class="o">==</span> <span class="s2">&quot;euclidean&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_verbose</span> <span class="o">=</span> <span class="n">verbose</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_linkage</span> <span class="o">=</span> <span class="n">linkage</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_optimal_ordering</span> <span class="o">=</span> <span class="n">optimal_ordering</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_min_split_mdl_red_ratio</span> <span class="o">=</span> <span class="n">min_split_mdl_red_ratio</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_soft_min_subtree_size</span> <span class="o">=</span> <span class="n">soft_min_subtree_size</span>
+        <span class="c1"># labels for computing MDL</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sdm</span> <span class="o">=</span> <span class="n">MDLSLCS</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">labs</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">d</span><span class="o">=</span><span class="n">d</span><span class="p">,</span> <span class="n">metric</span><span class="o">=</span><span class="n">metric</span><span class="p">,</span>
+                            <span class="n">sids</span><span class="o">=</span><span class="n">sids</span><span class="p">,</span> <span class="n">fids</span><span class="o">=</span><span class="n">fids</span><span class="p">,</span> <span class="n">encode_type</span><span class="o">=</span><span class="n">encode_type</span><span class="p">,</span>
+                            <span class="n">mdl_method</span><span class="o">=</span><span class="n">mdl_method</span><span class="p">,</span> <span class="n">nprocs</span><span class="o">=</span><span class="n">nprocs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_encode_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sdm</span><span class="o">.</span><span class="n">_encode_type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_mdl_method</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sdm</span><span class="o">.</span><span class="n">_mdl_method</span>
+        <span class="c1"># initialize hierarchical clustering tree</span>
+        <span class="k">if</span> <span class="n">hac_tree</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">n_leaf_nodes</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">hac_tree</span><span class="o">.</span><span class="n">leaf_ids</span><span class="p">())</span>
+            <span class="k">if</span> <span class="n">n_leaf_nodes</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sdm</span><span class="o">.</span><span class="n">_x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;hac_tree should have same number of &quot;</span>
+                                 <span class="s2">&quot;samples as x.&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">hac_tree</span> <span class="o">=</span> <span class="n">eda</span><span class="o">.</span><span class="n">HClustTree</span><span class="o">.</span><span class="n">hclust_tree</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_sdm</span><span class="o">.</span><span class="n">_d</span><span class="p">,</span> <span class="n">linkage</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_linkage</span><span class="p">,</span>
+                <span class="n">optimal_ordering</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_optimal_ordering</span><span class="p">,</span>
+                <span class="n">is_euc_dist</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_is_euc_dist</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_verbose</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_hac_tree</span> <span class="o">=</span> <span class="n">hac_tree</span>
+        <span class="c1"># initialize cluster mdl scale factor</span>
+        <span class="k">if</span> <span class="n">cl_mdl_scale_factor</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;cl_mdl_scale_factor should &gt;= 0&quot;</span>
+                             <span class="s2">&quot;cl_mdl_scale_factor: &quot;</span>
+                             <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cl_mdl_scale_factor</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cl_mdl_scale_factor</span> <span class="o">=</span> <span class="n">cl_mdl_scale_factor</span>
+        <span class="c1"># intialize min_cl_n</span>
+        <span class="c1"># assert min_cl_n &gt; 0</span>
+        <span class="n">min_cl_n</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">min_cl_n</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">min_cl_n</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;min_cl_n shoud &gt; 0. &quot;</span>
+                             <span class="s2">&quot;min_cl_n: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">min_cl_n</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_min_cl_n</span> <span class="o">=</span> <span class="n">min_cl_n</span>
+        <span class="c1"># run MIRAC with initialized parameters</span>
+        <span class="n">s_inds</span><span class="p">,</span> <span class="n">s_labs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mirac</span><span class="p">()</span>
+        <span class="c1"># initialize labels</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_labs</span> <span class="o">=</span> <span class="n">s_labs</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">s_inds</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;mergesort&quot;</span><span class="p">)]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+
+<div class="viewcode-block" id="MIRAC.dmat_heatmap"><a class="viewcode-back" href="../../../generated/scedar.cluster.html#scedar.cluster.mirac.MIRAC.dmat_heatmap">[docs]</a>    <span class="k">def</span> <span class="nf">dmat_heatmap</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">selected_labels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">col_labels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                     <span class="n">transform</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                     <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">xlab</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ylab</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span>
+                     <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="c1"># hierarchical clustering tree leaf sample inds ordered from</span>
+        <span class="c1"># left to right</span>
+        <span class="n">leaf_order</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hac_tree</span><span class="o">.</span><span class="n">leaf_ids</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">leaf_order</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="c1"># leaf labels from left to right</span>
+        <span class="n">leaf_ordered_labs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_labs</span><span class="p">)[</span><span class="n">leaf_order</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="c1"># check labels not interrupted in leaf order</span>
+        <span class="c1"># in other word, same labels should be adjacent to each other</span>
+        <span class="c1"># Examples:</span>
+        <span class="c1"># - good: [1] and [1, 1, 2, 2, 3]</span>
+        <span class="c1"># - bad: [1, 2, 1, 1, 3, 3]</span>
+        <span class="n">curr_lab</span> <span class="o">=</span> <span class="n">leaf_ordered_labs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">lab_set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="n">curr_lab</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">ilab</span> <span class="ow">in</span> <span class="n">leaf_ordered_labs</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">ilab</span> <span class="o">!=</span> <span class="n">curr_lab</span><span class="p">:</span>
+                <span class="c1"># reached the next group of labels</span>
+                <span class="k">if</span> <span class="n">ilab</span> <span class="ow">in</span> <span class="n">lab_set</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Same labels should be grouped &quot;</span>
+                                     <span class="s2">&quot;together.</span><span class="se">\n\t</span><span class="s2">&quot;</span>
+                                     <span class="s2">&quot;iterating lab: </span><span class="si">{}</span><span class="se">\n\t</span><span class="s2">&quot;</span>
+                                     <span class="s2">&quot;iterated lab set: </span><span class="si">{}</span><span class="se">\n\t</span><span class="s2">&quot;</span>
+                                     <span class="s2">&quot;leaf order: </span><span class="si">{}</span><span class="se">\n\t</span><span class="s2">&quot;</span>
+                                     <span class="s2">&quot;leaf ordered labs: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                                         <span class="n">ilab</span><span class="p">,</span> <span class="n">lab_set</span><span class="p">,</span> <span class="n">leaf_order</span><span class="p">,</span>
+                                         <span class="n">leaf_ordered_labs</span><span class="p">))</span>
+                <span class="n">lab_set</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">ilab</span><span class="p">)</span>
+                <span class="n">curr_lab</span> <span class="o">=</span> <span class="n">ilab</span>
+        <span class="c1"># generate heatmap</span>
+        <span class="c1"># select labels to plot</span>
+        <span class="n">s_lab_bool_inds</span> <span class="o">=</span> <span class="n">SLCS</span><span class="o">.</span><span class="n">select_labs_bool_inds</span><span class="p">(</span>
+            <span class="n">leaf_ordered_labs</span><span class="p">,</span> <span class="n">selected_labels</span><span class="p">)</span>
+        <span class="n">s_leaf_order</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">compress</span><span class="p">(</span><span class="n">leaf_order</span><span class="p">,</span> <span class="n">s_lab_bool_inds</span><span class="p">))</span>
+        <span class="n">s_leaf_ordered_labs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">compress</span><span class="p">(</span><span class="n">leaf_ordered_labs</span><span class="p">,</span>
+                                                      <span class="n">s_lab_bool_inds</span><span class="p">))</span>
+        <span class="n">s_d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sdm</span><span class="o">.</span><span class="n">_d</span><span class="p">[</span><span class="n">s_leaf_order</span><span class="p">][:,</span> <span class="n">s_leaf_order</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">eda</span><span class="o">.</span><span class="n">heatmap</span><span class="p">(</span><span class="n">s_d</span><span class="p">,</span> <span class="n">row_labels</span><span class="o">=</span><span class="n">s_leaf_ordered_labs</span><span class="p">,</span>
+                           <span class="n">col_labels</span><span class="o">=</span><span class="n">col_labels</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="n">transform</span><span class="p">,</span>
+                           <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">,</span> <span class="n">xlab</span><span class="o">=</span><span class="n">xlab</span><span class="p">,</span> <span class="n">ylab</span><span class="o">=</span><span class="n">ylab</span><span class="p">,</span></div>
+                           <span class="n">figsize</span><span class="o">=</span><span class="n">figsize</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">labs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_labs</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_mirac</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># iterative hierarchical agglomerative clustering</span>
+        <span class="c1"># Input:</span>
+        <span class="c1"># - cl_mdl_scale_factor: scale cluster overhead mdl</span>
+        <span class="c1"># - minimax_n: estimated minimum # samples in a cluster</span>
+        <span class="c1"># - maxmini_n: estimated max # samples in a cluster.</span>
+        <span class="c1">#   If none, 10 * minimax is used.</span>
+        <span class="n">leaf_order</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hac_tree</span><span class="o">.</span><span class="n">leaf_ids</span><span class="p">()</span>
+
+        <span class="n">n_samples</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sdm</span><span class="o">.</span><span class="n">_x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">n_features</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sdm</span><span class="o">.</span><span class="n">_x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_run_log</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+        <span class="c1"># split samples into sub-clusters with less than min_cl_n samples</span>
+        <span class="n">curr_trees</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_hac_tree</span><span class="p">]</span>
+        <span class="n">next_trees</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">split_s_inds</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">curr_trees</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># Split each of the hac tree in curr_trees</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">curr_trees</span><span class="p">)):</span>
+                <span class="c1"># lst, rst: left_sub_tree, right_sub_tree</span>
+                <span class="n">labs</span><span class="p">,</span> <span class="n">s_inds</span><span class="p">,</span> <span class="n">lst</span><span class="p">,</span> <span class="n">rst</span> <span class="o">=</span> <span class="n">curr_trees</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">bi_partition</span><span class="p">(</span>
+                    <span class="n">soft_min_subtree_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_soft_min_subtree_size</span><span class="p">,</span>
+                    <span class="n">return_subtrees</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="n">s_cnt</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">s_inds</span><span class="p">)</span>
+                <span class="n">subtrees</span> <span class="o">=</span> <span class="p">[</span><span class="n">lst</span><span class="p">,</span> <span class="n">rst</span><span class="p">]</span>
+                <span class="n">subtree_s_ind_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">t</span><span class="o">.</span><span class="n">leaf_ids</span><span class="p">()</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">subtrees</span><span class="p">]</span>
+                <span class="n">subtree_s_cnt_list</span> <span class="o">=</span> <span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">subtree_s_ind_list</span><span class="p">]</span>
+                <span class="n">n_subtrees</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">subtrees</span><span class="p">)</span>
+
+                <span class="n">subtree_split_list</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">for</span> <span class="n">st_ind</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_subtrees</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">subtree_s_cnt_list</span><span class="p">[</span><span class="n">st_ind</span><span class="p">]</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_min_cl_n</span><span class="p">:</span>
+                        <span class="n">subtree_split_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;min-cl-size&quot;</span><span class="p">)</span>
+                        <span class="n">split_s_inds</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">subtree_s_ind_list</span><span class="p">[</span><span class="n">st_ind</span><span class="p">])</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">subtree_split_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;split&quot;</span><span class="p">)</span>
+                        <span class="n">next_trees</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">subtrees</span><span class="p">[</span><span class="n">st_ind</span><span class="p">])</span>
+
+                <span class="n">curr_iter_run_log</span> <span class="o">=</span> <span class="nb">str</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="s2">&quot;subtree_n: </span><span class="si">{}</span><span class="s2">, &quot;</span>
+                    <span class="s2">&quot;subtree_n/n: </span><span class="si">{}</span><span class="s2">,&quot;</span>
+                    <span class="s2">&quot;split: </span><span class="si">{}</span><span class="s2">.</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="n">subtree_s_cnt_list</span><span class="p">,</span>
+                    <span class="p">[</span><span class="n">x</span> <span class="o">/</span> <span class="n">s_cnt</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">subtree_s_cnt_list</span><span class="p">],</span>
+                    <span class="n">subtree_split_list</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_run_log</span> <span class="o">+=</span> <span class="n">curr_iter_run_log</span>
+
+            <span class="n">curr_trees</span> <span class="o">=</span> <span class="n">next_trees</span>
+            <span class="n">next_trees</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c1"># sort individual splitted sample index list</span>
+        <span class="n">sub_cl_order</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">leaf_order</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+                                           <span class="n">split_s_inds</span><span class="p">)))</span>
+        <span class="n">split_s_inds</span> <span class="o">=</span> <span class="p">[</span><span class="n">split_s_inds</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">sub_cl_order</span><span class="p">]</span>
+        <span class="c1"># merge subclusters by mdl</span>
+        <span class="c1"># start with merging clusters at beginning to form a cluster with more</span>
+        <span class="c1"># than min_cl_n samples.</span>
+        <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">split_s_inds</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">split_s_inds</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_min_cl_n</span><span class="p">:</span>
+            <span class="c1"># pop first 2 sub-cluster indices</span>
+            <span class="c1"># concatenate</span>
+            <span class="c1"># insert concatenated cluster back at the beginning</span>
+            <span class="n">split_s_inds</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">split_s_inds</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="n">split_s_inds</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+        <span class="c1"># Then merge clusters at the end to form a cluster with more than</span>
+        <span class="c1"># min_cl_n samples</span>
+        <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">split_s_inds</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">split_s_inds</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_min_cl_n</span><span class="p">:</span>
+            <span class="c1"># pop last 2 sub-cluster indices</span>
+            <span class="c1"># concatenate</span>
+            <span class="c1"># append at the end</span>
+            <span class="n">split_s_inds</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">split_s_inds</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="n">split_s_inds</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+        <span class="c1"># merge other sub-clusters</span>
+        <span class="c1"># m_ind points to the left sub-cluster (scl_left) of the sub-cluster</span>
+        <span class="c1"># currently being inspected (scl_insp)</span>
+        <span class="n">m_ind</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">while</span> <span class="n">m_ind</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">split_s_inds</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">scl_left</span> <span class="o">=</span> <span class="n">split_s_inds</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">m_ind</span><span class="p">)</span>
+            <span class="n">scl_insp</span> <span class="o">=</span> <span class="n">split_s_inds</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">m_ind</span><span class="p">)</span>
+            <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">scl_insp</span><span class="p">)</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_min_cl_n</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">split_s_inds</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">m_ind</span><span class="p">:</span>
+                <span class="n">scl_right</span> <span class="o">=</span> <span class="n">split_s_inds</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">m_ind</span><span class="p">)</span>
+                <span class="c1"># rhs sub-cluster with &gt;= min_cl_n samples for mdl encoding</span>
+                <span class="n">scl_r_minimax</span> <span class="o">=</span> <span class="n">scl_right</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                <span class="c1"># concatenate sub-clasters after scl_r_minimax</span>
+                <span class="n">scl_r_enc_i</span> <span class="o">=</span> <span class="n">m_ind</span>
+                <span class="k">while</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">scl_r_minimax</span><span class="p">)</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_min_cl_n</span> <span class="ow">and</span>
+                       <span class="n">scl_r_enc_i</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">split_s_inds</span><span class="p">)):</span>
+                    <span class="c1"># += edits list in-place, so copy is necessary</span>
+                    <span class="n">scl_r_minimax</span> <span class="o">+=</span> <span class="n">split_s_inds</span><span class="p">[</span><span class="n">scl_r_enc_i</span><span class="p">]</span>
+                    <span class="n">scl_r_enc_i</span> <span class="o">+=</span> <span class="mi">1</span>
+
+                <span class="n">scl_ns</span> <span class="o">=</span> <span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">scl_left</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">scl_insp</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">scl_right</span><span class="p">),</span>
+                          <span class="nb">len</span><span class="p">(</span><span class="n">scl_r_minimax</span><span class="p">)]</span>
+
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_encode_type</span> <span class="o">==</span> <span class="s2">&quot;distance&quot;</span><span class="p">:</span>
+                    <span class="c1"># TODO: decide mdl by linkage</span>
+                    <span class="n">left_mdlslcs</span> <span class="o">=</span> <span class="n">MDLSLCS</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_sdm</span><span class="o">.</span><span class="n">_x</span><span class="p">[</span><span class="n">scl_left</span><span class="p">],</span> <span class="n">labs</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">scl_left</span><span class="p">),</span>
+                        <span class="n">d</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_sdm</span><span class="o">.</span><span class="n">_d</span><span class="p">[</span><span class="n">scl_left</span><span class="p">][:,</span> <span class="n">scl_left</span><span class="p">],</span>
+                        <span class="n">metric</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_sdm</span><span class="o">.</span><span class="n">_metric</span><span class="p">,</span>
+                        <span class="n">encode_type</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_encode_type</span><span class="p">,</span>
+                        <span class="n">mdl_method</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_mdl_method</span><span class="p">,</span> <span class="n">nprocs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_nprocs</span><span class="p">)</span>
+                    <span class="n">r_minimax_mdlslcs</span> <span class="o">=</span> <span class="n">MDLSLCS</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_sdm</span><span class="o">.</span><span class="n">_x</span><span class="p">[</span><span class="n">scl_r_minimax</span><span class="p">],</span>
+                        <span class="n">labs</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">scl_r_minimax</span><span class="p">),</span>
+                        <span class="n">d</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_sdm</span><span class="o">.</span><span class="n">_d</span><span class="p">[</span><span class="n">scl_r_minimax</span><span class="p">][:,</span> <span class="n">scl_r_minimax</span><span class="p">],</span>
+                        <span class="n">metric</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_sdm</span><span class="o">.</span><span class="n">_metric</span><span class="p">,</span>
+                        <span class="n">encode_type</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_encode_type</span><span class="p">,</span>
+                        <span class="n">mdl_method</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_mdl_method</span><span class="p">,</span> <span class="n">nprocs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_nprocs</span><span class="p">)</span>
+                    <span class="n">left_enc_insp_mdl</span> <span class="o">=</span> <span class="n">left_mdlslcs</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_sdm</span><span class="o">.</span><span class="n">_d</span><span class="p">[</span><span class="n">scl_insp</span><span class="p">][:,</span> <span class="n">scl_left</span><span class="p">],</span>
+                        <span class="n">col_summary_func</span><span class="o">=</span><span class="nb">max</span><span class="p">)</span>
+                    <span class="n">r_minimax_enc_insp_mdl</span> <span class="o">=</span> <span class="n">r_minimax_mdlslcs</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_sdm</span><span class="o">.</span><span class="n">_d</span><span class="p">[</span><span class="n">scl_insp</span><span class="p">][:,</span> <span class="n">scl_r_minimax</span><span class="p">],</span>
+                        <span class="n">col_summary_func</span><span class="o">=</span><span class="nb">max</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># data</span>
+                    <span class="c1"># d is not passed</span>
+                    <span class="n">left_mdlslcs</span> <span class="o">=</span> <span class="n">MDLSLCS</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_sdm</span><span class="o">.</span><span class="n">_x</span><span class="p">[</span><span class="n">scl_left</span><span class="p">],</span> <span class="n">labs</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">scl_left</span><span class="p">),</span>
+                        <span class="n">metric</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_sdm</span><span class="o">.</span><span class="n">_metric</span><span class="p">,</span>
+                        <span class="n">encode_type</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_encode_type</span><span class="p">,</span>
+                        <span class="n">mdl_method</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_mdl_method</span><span class="p">,</span> <span class="n">nprocs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_nprocs</span><span class="p">)</span>
+                    <span class="n">r_minimax_mdlslcs</span> <span class="o">=</span> <span class="n">MDLSLCS</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_sdm</span><span class="o">.</span><span class="n">_x</span><span class="p">[</span><span class="n">scl_r_minimax</span><span class="p">],</span>
+                        <span class="n">labs</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">scl_r_minimax</span><span class="p">),</span>
+                        <span class="n">metric</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_sdm</span><span class="o">.</span><span class="n">_metric</span><span class="p">,</span>
+                        <span class="n">encode_type</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_encode_type</span><span class="p">,</span>
+                        <span class="n">mdl_method</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_mdl_method</span><span class="p">,</span> <span class="n">nprocs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_nprocs</span><span class="p">)</span>
+                    <span class="n">left_enc_insp_mdl</span> <span class="o">=</span> <span class="n">left_mdlslcs</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_sdm</span><span class="o">.</span><span class="n">_x</span><span class="p">[</span><span class="n">scl_insp</span><span class="p">],</span> <span class="n">nprocs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_nprocs</span><span class="p">)</span>
+                    <span class="n">r_minimax_enc_insp_mdl</span> <span class="o">=</span> <span class="n">r_minimax_mdlslcs</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_sdm</span><span class="o">.</span><span class="n">_x</span><span class="p">[</span><span class="n">scl_insp</span><span class="p">],</span> <span class="n">nprocs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_nprocs</span><span class="p">)</span>
+                <span class="c1"># decide merging direction</span>
+                <span class="k">if</span> <span class="n">left_enc_insp_mdl</span> <span class="o">&lt;</span> <span class="n">r_minimax_enc_insp_mdl</span><span class="p">:</span>
+                    <span class="c1"># inspected more similar to left</span>
+                    <span class="n">scl_left</span> <span class="o">=</span> <span class="n">scl_left</span> <span class="o">+</span> <span class="n">scl_insp</span>
+                    <span class="n">scl_insp</span> <span class="o">=</span> <span class="n">scl_right</span>
+                    <span class="n">merge_type</span> <span class="o">=</span> <span class="s2">&quot;m left&quot;</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">scl_insp</span> <span class="o">=</span> <span class="n">scl_insp</span> <span class="o">+</span> <span class="n">scl_right</span>
+                    <span class="n">merge_type</span> <span class="o">=</span> <span class="s2">&quot;m right&quot;</span>
+
+                <span class="n">curr_iter_run_log</span> <span class="o">=</span> <span class="nb">str</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">, </span><span class="si">{}</span><span class="s2"> -- sub-cl sizes: </span><span class="si">{}</span><span class="s2">, &quot;</span>
+                    <span class="s2">&quot;eval mdl: </span><span class="si">{}</span><span class="s2">, </span><span class="si">{}</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="n">m_ind</span><span class="p">,</span> <span class="nb">sum</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">len</span><span class="p">,</span> <span class="n">split_s_inds</span><span class="p">[:</span><span class="n">m_ind</span><span class="p">])),</span> <span class="n">scl_ns</span><span class="p">,</span>
+                    <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">left_enc_insp_mdl</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">r_minimax_enc_insp_mdl</span><span class="p">),</span>
+                     <span class="nb">float</span><span class="p">(</span><span class="n">left_enc_insp_mdl</span> <span class="o">/</span> <span class="n">r_minimax_enc_insp_mdl</span><span class="p">)],</span>
+                    <span class="n">merge_type</span><span class="p">)</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">_run_log</span> <span class="o">+=</span> <span class="n">curr_iter_run_log</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_verbose</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="n">curr_iter_run_log</span><span class="p">)</span>
+            <span class="c1"># insp cluster has &gt;= min_cl_n samples, check whether merge with</span>
+            <span class="c1"># left or not</span>
+            <span class="c1"># In this scenario, rhs sub-clusters are non-informative, because</span>
+            <span class="c1"># we do not know their cluster belongings yet.</span>
+            <span class="c1"># If we still assume that rhs cluster is just above min_cl_n,</span>
+            <span class="c1"># we may underestimate the rhs true cluster size, thus causing</span>
+            <span class="c1"># undesired behavior.</span>
+            <span class="n">scl_left_n</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">int_</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">scl_left</span><span class="p">))</span>
+            <span class="n">scl_insp_n</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">int_</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">scl_insp</span><span class="p">))</span>
+            <span class="n">scl_left_ratio</span> <span class="o">=</span> <span class="n">scl_left_n</span> <span class="o">/</span> <span class="p">(</span><span class="n">scl_left_n</span> <span class="o">+</span> <span class="n">scl_insp_n</span><span class="p">)</span>
+            <span class="n">scl_insp_ratio</span> <span class="o">=</span> <span class="n">scl_insp_n</span> <span class="o">/</span> <span class="p">(</span><span class="n">scl_left_n</span> <span class="o">+</span> <span class="n">scl_insp_n</span><span class="p">)</span>
+            <span class="n">scl_left_insp</span> <span class="o">=</span> <span class="n">scl_left</span> <span class="o">+</span> <span class="n">scl_insp</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_encode_type</span> <span class="o">==</span> <span class="s2">&quot;distance&quot;</span><span class="p">:</span>
+                <span class="n">l_i_mdl_slcs</span> <span class="o">=</span> <span class="n">MDLSLCS</span><span class="p">(</span>
+                    <span class="n">x</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_sdm</span><span class="o">.</span><span class="n">_x</span><span class="p">[</span><span class="n">scl_left_insp</span><span class="p">],</span>
+                    <span class="n">labs</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">scl_left_n</span> <span class="o">+</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">scl_insp_n</span><span class="p">,</span>
+                    <span class="n">encode_type</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_encode_type</span><span class="p">,</span> <span class="n">mdl_method</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_mdl_method</span><span class="p">,</span>
+                    <span class="n">d</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_sdm</span><span class="o">.</span><span class="n">_d</span><span class="p">[</span><span class="n">scl_left_insp</span><span class="p">][:,</span> <span class="n">scl_left_insp</span><span class="p">],</span>
+                    <span class="n">metric</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_sdm</span><span class="o">.</span><span class="n">_metric</span><span class="p">,</span> <span class="n">nprocs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_nprocs</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># d is not passed</span>
+                <span class="n">l_i_mdl_slcs</span> <span class="o">=</span> <span class="n">MDLSLCS</span><span class="p">(</span>
+                    <span class="n">x</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_sdm</span><span class="o">.</span><span class="n">_x</span><span class="p">[</span><span class="n">scl_left_insp</span><span class="p">],</span>
+                    <span class="n">labs</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">scl_left_n</span> <span class="o">+</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">scl_insp_n</span><span class="p">,</span>
+                    <span class="n">encode_type</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_encode_type</span><span class="p">,</span> <span class="n">mdl_method</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_mdl_method</span><span class="p">,</span>
+                    <span class="n">metric</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_sdm</span><span class="o">.</span><span class="n">_metric</span><span class="p">,</span> <span class="n">nprocs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_nprocs</span><span class="p">)</span>
+            <span class="n">left_insp_no_lab_mdl</span> <span class="o">=</span> <span class="n">l_i_mdl_slcs</span><span class="o">.</span><span class="n">no_lab_mdl</span><span class="p">(</span>
+                <span class="n">nprocs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_nprocs</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_verbose</span><span class="p">)</span>
+
+            <span class="n">left_insp_lab_mdl_res</span> <span class="o">=</span> <span class="n">l_i_mdl_slcs</span><span class="o">.</span><span class="n">lab_mdl</span><span class="p">(</span>
+                <span class="n">cl_mdl_scale_factor</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_cl_mdl_scale_factor</span><span class="p">,</span>
+                <span class="n">nprocs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_nprocs</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_verbose</span><span class="p">)</span>
+            <span class="c1"># TODO: validate ulab_mdls order</span>
+            <span class="n">left_split_mdl</span> <span class="o">=</span> <span class="n">left_insp_lab_mdl_res</span><span class="o">.</span><span class="n">ulab_mdls</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">insp_split_mdl</span> <span class="o">=</span> <span class="n">left_insp_lab_mdl_res</span><span class="o">.</span><span class="n">ulab_mdls</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">cluster_mdl</span> <span class="o">=</span> <span class="n">left_insp_lab_mdl_res</span><span class="o">.</span><span class="n">cluster_mdl</span>
+            <span class="n">left_insp_lab_mdl</span> <span class="o">=</span> <span class="n">left_insp_lab_mdl_res</span><span class="o">.</span><span class="n">ulab_mdl_sum</span>
+
+            <span class="k">if</span> <span class="n">left_insp_no_lab_mdl</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">min_merge_mdl</span> <span class="o">=</span> <span class="p">((</span><span class="mi">1</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_min_split_mdl_red_ratio</span><span class="p">)</span> <span class="o">*</span>
+                                 <span class="n">left_insp_no_lab_mdl</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">min_merge_mdl</span> <span class="o">=</span> <span class="p">((</span><span class="mi">1</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_min_split_mdl_red_ratio</span><span class="p">)</span> <span class="o">*</span>
+                                 <span class="n">left_insp_no_lab_mdl</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">left_insp_lab_mdl</span> <span class="o">&gt;</span> <span class="n">min_merge_mdl</span><span class="p">:</span>
+                <span class="c1"># merge</span>
+                <span class="n">merge_type</span> <span class="o">=</span> <span class="s2">&quot;merge&quot;</span>
+                <span class="n">split_s_inds</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">m_ind</span><span class="p">,</span> <span class="n">scl_left</span> <span class="o">+</span> <span class="n">scl_insp</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># do not merge</span>
+                <span class="n">merge_type</span> <span class="o">=</span> <span class="s2">&quot;split&quot;</span>
+                <span class="n">split_s_inds</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">m_ind</span><span class="p">,</span> <span class="n">scl_insp</span><span class="p">)</span>
+                <span class="n">split_s_inds</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">m_ind</span><span class="p">,</span> <span class="n">scl_left</span><span class="p">)</span>
+                <span class="n">m_ind</span> <span class="o">+=</span> <span class="mi">1</span>
+
+            <span class="n">curr_iter_run_log</span> <span class="o">=</span> <span class="nb">str</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">, </span><span class="si">{}</span><span class="s2"> -- no lab mdl: </span><span class="si">{}</span><span class="s2">, [left, insp] mdl: </span><span class="si">{}</span><span class="s2">, &quot;</span>
+                <span class="s2">&quot;cluster_mdl: </span><span class="si">{}</span><span class="s2">, </span><span class="se">\n</span><span class="s2">[left, insp] n: </span><span class="si">{}</span><span class="s2">, &quot;</span>
+                <span class="s2">&quot;[left, insp] ratio: </span><span class="si">{}</span><span class="s2">, </span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="s2">&quot;lab mdl: </span><span class="si">{}</span><span class="s2">, split/merge: </span><span class="si">{}</span><span class="s2">, </span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">.</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="n">m_ind</span><span class="p">,</span>
+                <span class="nb">sum</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">len</span><span class="p">,</span> <span class="n">split_s_inds</span><span class="p">[:</span><span class="n">m_ind</span><span class="p">])),</span>
+                <span class="nb">float</span><span class="p">(</span><span class="n">left_insp_no_lab_mdl</span><span class="p">),</span>
+                <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">left_split_mdl</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">insp_split_mdl</span><span class="p">)],</span>
+                <span class="n">cluster_mdl</span><span class="p">,</span>
+                <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">scl_left_n</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">scl_insp_n</span><span class="p">)],</span>
+                <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">scl_left_ratio</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">scl_insp_ratio</span><span class="p">)],</span>
+                <span class="nb">float</span><span class="p">(</span><span class="n">left_insp_lab_mdl</span><span class="p">),</span>
+                <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">left_insp_lab_mdl</span> <span class="o">/</span> <span class="n">left_insp_no_lab_mdl</span><span class="p">),</span>
+                 <span class="nb">float</span><span class="p">((</span><span class="n">left_insp_lab_mdl</span> <span class="o">-</span> <span class="n">cluster_mdl</span><span class="p">)</span> <span class="o">/</span>
+                       <span class="n">left_insp_no_lab_mdl</span><span class="p">),</span>
+                 <span class="nb">float</span><span class="p">(</span><span class="n">left_split_mdl</span> <span class="o">/</span> <span class="n">left_insp_no_lab_mdl</span><span class="p">),</span>
+                 <span class="nb">float</span><span class="p">(</span><span class="n">insp_split_mdl</span> <span class="o">/</span> <span class="n">left_insp_no_lab_mdl</span><span class="p">)],</span>
+                <span class="n">merge_type</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_run_log</span> <span class="o">+=</span> <span class="n">curr_iter_run_log</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_verbose</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">curr_iter_run_log</span><span class="p">)</span>
+        <span class="n">labs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">split_s_inds</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+                               <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">split_s_inds</span><span class="p">))])</span>
+        <span class="n">s_inds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">split_s_inds</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">s_inds</span><span class="p">,</span> <span class="n">labs</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Scedar developers
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript">
+          var DOCUMENTATION_OPTIONS = {
+              URL_ROOT:'../../../',
+              VERSION:'0.1.6',
+              LANGUAGE:'None',
+              COLLAPSE_INDEX:false,
+              FILE_SUFFIX:'.html',
+              HAS_SOURCE:  true,
+              SOURCELINK_SUFFIX: '.txt'
+          };
+      </script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
