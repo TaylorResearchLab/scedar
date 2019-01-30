@@ -5,8 +5,8 @@
 SPHINXOPTS    =
 SPHINXBUILD   = sphinx-build
 SPHINXPROJ    = scedar
-SOURCEDIR     = source
-BUILDDIR      = source/_build
+SOURCEDIR     = 
+BUILDDIR      = _build
 
 # Put it first so that "make" without argument is like "make help".
 help:

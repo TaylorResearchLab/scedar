@@ -50,6 +50,8 @@ extensions = [
     'sphinx.ext.ifconfig',
     'sphinx.ext.viewcode',
     'sphinx.ext.githubpages',
+    'nbsphinx',
+    'sphinx.ext.mathjax',
 ]
 
 autodoc_default_flags = ['members']
@@ -78,7 +80,7 @@ language = None
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path .
-exclude_patterns = []
+exclude_patterns = ['_build', '**.ipynb_checkpoints', '.eggs']
 
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = 'sphinx'

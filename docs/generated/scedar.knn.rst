@@ -1,16 +1,16 @@
-scedar.knn module
-=================
+scedar.knn
+==========
 
-scedar.knn.detection module
----------------------------
+scedar.knn.detection
+--------------------
 
 .. automodule:: scedar.knn.detection
     :members:
     :undoc-members:
     :show-inheritance:
 
-scedar.knn.imputation module
-----------------------------
+scedar.knn.imputation
+---------------------
 
 .. automodule:: scedar.knn.imputation
     :members:

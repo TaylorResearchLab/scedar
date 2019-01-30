@@ -1,5 +1,5 @@
-scedar.utils module
-===================
+scedar.utils
+============
 
 .. automodule:: scedar.utils
     :members:

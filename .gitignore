@@ -1,3 +1,6 @@
+docs/_build
+docs/_static
+
 # Compiled python modules.
 *.pyc
 

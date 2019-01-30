@@ -9,16 +9,15 @@ large-scale single cell RNA-seq (scRNA-seq) datasets.
 Demo
 ----
 
-.. image:: ../images/demo.png
+.. image:: images/demo.png
    :alt: Demo
    :align: center
 
 Workflow of using ``scedar`` to analyze an scRNA-seq dataset with 3005 mouse
 brain cells and 19,972 genes generated using the STRT-Seq UMI protocol by
 Zeisel et al. (2015). Procedures and parameters that are not directly related
-to data analysis are omitted. The full version of the demo is available at
-`docs/notebooks/mb3k-demo.ipynb <https://github.com/logstar/scedar/blob/master/docs/notebooks/mb3k-demo.ipynb>`_
-.
+to data analysis are omitted. The full version of the demo is available at the
+:doc:`notebooks/mb3k-demo` section.
 
 Data sources:
 
@@ -41,9 +40,10 @@ Use PyPI:
     pip install scedar
 
 .. toctree::
-   :maxdepth: 3
+   :maxdepth: 1
    :hidden:
 
    install
+   notebooks/mb3k-demo
    generated/modules
    changelog
