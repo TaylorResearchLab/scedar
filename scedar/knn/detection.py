@@ -96,7 +96,7 @@ class RareSampleDetection(object):
         Returns
         -------
         res_list
-            Filtered SampleDistanceMatrix of each corresponding parameter
+            Indices of non-rare samples of each corresponding parameter
             tuple.
 
         Notes

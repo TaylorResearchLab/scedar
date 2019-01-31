@@ -360,7 +360,9 @@ class SingleLabelClassifiedSamples(SampleDistanceMatrix):
         Returns
         -------
         feature_importance_list: list of feature importance of each run
-            `[(feature_id, fscore), ...]`
+            [(feature_id, mean of fscore across all bootstrapping rounds,
+            standard deviation of fscore across all bootstrapping rounds,
+            number of times used all bootstrapping rounds), ...]
         bst_list: list of xgb Booster
             Fitted boost tree model
 
