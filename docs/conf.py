@@ -14,8 +14,8 @@
 #
 import os
 import sys
-print(os.path.abspath('../../'))
-sys.path.insert(0, os.path.abspath('../../'))
+# print(os.path.abspath('../../'))
+# sys.path.insert(0, os.path.abspath('../../'))
 
 
 # -- Project information -----------------------------------------------------
@@ -27,7 +27,7 @@ author = 'Scedar developers'
 # The short X.Y version
 version = ''
 # The full version, including alpha/beta/rc tags
-release = '0.1.6'
+release = '0.1.7'
 
 
 # -- General configuration ---------------------------------------------------

@@ -1,6 +1,15 @@
 Changelog
 =========
 
+[0.1.7] - Jul 2, 2019
+---------------------
+
+Changed
+~~~~~~~
+
+- Fixed ``sdm.SampleDistanceMatrix.umap``. Pass parameters to the ``UMAP``
+  function call.
+
 [0.1.6] - Jan 2, 2019
 ---------------------
 

@@ -5,7 +5,7 @@ with open("pypiREADME.md", "r") as fh:
 
 setup(
     name='scedar',
-    version='0.1.6',
+    version='0.1.7',
     url='http://github.com/logstar/scedar',
     author='Yuanchao Zhang',
     author_email='logstarx@gmail.com',
@@ -34,7 +34,7 @@ setup(
         'xgboost',
         'networkx',
         'fa2',
-        'umap-learn==0.3.0'
+        'umap-learn'
     ],
     setup_requires=[
         'coverage==4.5.1',
@@ -51,7 +51,7 @@ setup(
         'xgboost',
         'networkx',
         'fa2',
-        'umap-learn==0.3.0'
+        'umap-learn'
     ],
     tests_require=[
         'pytest'
