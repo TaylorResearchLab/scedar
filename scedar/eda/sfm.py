@@ -1,4 +1,9 @@
 import numpy as np
+
+import scipy.sparse as spsp
+
+from sklearn.preprocessing import StandardScaler
+
 from scedar import utils
 
 from scedar.eda.plot import regression_scatter
@@ -16,7 +21,7 @@ class SampleFeatureMatrix(object):
 
     Parameters
     ----------
-    x : ndarray or list
+    x : {array-like, sparse matrix}
         data matrix (n_samples, n_features)
     sids : homogenous list of int or string
         sample ids. Should not contain duplicated elements.
@@ -25,8 +30,10 @@ class SampleFeatureMatrix(object):
 
     Attributes
     ----------
-    _x : ndarray
+    _x : {array-like, sparse matrix}
         data matrix (n_samples, n_features)
+    _is_sparse: boolean
+        whether the data matrix is sparse matrix or not
     _sids : ndarray
         sample ids.
     _fids : ndarray
@@ -38,10 +45,13 @@ class SampleFeatureMatrix(object):
         if x is None:
             raise ValueError("x cannot be None")
         else:
-            try:
-                x = np.array(x, copy=False, dtype="float64")
-            except ValueError as e:
-                raise ValueError("Features must be float. {}".format(e))
+            if spsp.issparse(x):
+                x = spsp.csr_matrix(x, dtype="float64")
+            else:
+                try:
+                    x = np.array(x, copy=False, dtype="float64")
+                except ValueError as e:
+                    raise ValueError("Features must be float. {}".format(e))
 
             if x.ndim != 2:
                 raise ValueError("x has shape (n_samples, n_features)")
@@ -145,6 +155,9 @@ class SampleFeatureMatrix(object):
     def s_ind_x_pair(self, xs_ind, ys_ind, feature_filter=None):
         x = self._x[xs_ind, :]
         y = self._x[ys_ind, :]
+        if self._is_sparse:
+            x = x.todense().A1
+            y = y.todense().A1
         if callable(feature_filter):
             f_inds = self.filter_1d_inds(
                 lambda pair: feature_filter(pair[0], pair[1]), zip(x, y))
@@ -212,6 +225,9 @@ class SampleFeatureMatrix(object):
     def f_ind_x_pair(self, xf_ind, yf_ind, sample_filter=None):
         x = self._x[:, xf_ind]
         y = self._x[:, yf_ind]
+        if self._is_sparse:
+            x = x.todense().A1
+            y = y.todense().A1
         if callable(sample_filter):
             s_inds = self.filter_1d_inds(
                 lambda pair: sample_filter(pair[0], pair[1]), zip(x, y))
@@ -281,6 +297,8 @@ class SampleFeatureMatrix(object):
         Access a single vector of a sample.
         """
         x = self._x[s_ind, :]
+        if self._is_sparse:
+            x = x.todense().A1
         f_inds = self.filter_1d_inds(feature_filter, x)
         xf = x[f_inds]
         return xf
@@ -303,6 +321,8 @@ class SampleFeatureMatrix(object):
         Access a single vector of a sample.
         """
         x = self._x[:, f_ind]
+        if self._is_sparse:
+            x = x.todense().A1
         s_inds = self.filter_1d_inds(sample_filter, x)
         xf = x[s_inds]
         if transform is not None:
@@ -339,6 +359,8 @@ class SampleFeatureMatrix(object):
             (filtered_n_samples,)
         """
         rowsum = self._x.sum(axis=1)
+        if self._is_sparse:
+            rowsum = rowsum.A1
         s_inds = self.filter_1d_inds(f_sum_filter, rowsum)
         rowsumf = rowsum[s_inds]
         return rowsumf
@@ -362,6 +384,8 @@ class SampleFeatureMatrix(object):
             (filtered_n_features,)
         """
         colsum = self._x.sum(axis=0)
+        if self._is_sparse:
+            colsum = colsum.A1
         f_inds = self.filter_1d_inds(s_sum_filter, colsum)
         colsumf = colsum[f_inds]
         return colsumf
@@ -384,8 +408,12 @@ class SampleFeatureMatrix(object):
         xf: float array
             (filtered_n_samples,)
         """
-        rowsd = self._x.std(axis=1, ddof=1)
-        rowmean = self._x.mean(axis=1)
+        if self._x.shape[1] == 0:
+            return np.repeat(np.nan, self._x.shape[0])
+        ss = StandardScaler(with_mean=False).fit(self._x.T)
+        n_fts = self._x.shape[1]
+        rowsd = np.sqrt(ss.var_ * (n_fts / (n_fts - 1)))
+        rowmean = ss.mean_
         rowcv = rowsd / rowmean
         s_inds = self.filter_1d_inds(f_cv_filter, rowcv)
         rowcvf = rowcv[s_inds]
@@ -409,8 +437,12 @@ class SampleFeatureMatrix(object):
         xf: float array
             (n_features,)
         """
-        colsd = self._x.std(axis=0, ddof=1)
-        colmean = self._x.mean(axis=0)
+        if self._x.shape[1] == 0:
+            return np.array([])
+        ss = StandardScaler(with_mean=False).fit(self._x)
+        n_sps = self._x.shape[0]
+        colsd = np.sqrt(ss.var_ * (n_sps / (n_sps - 1)))
+        colmean = ss.mean_
         colcv = colsd / colmean
         f_inds = self.filter_1d_inds(s_cv_filter, colcv)
         colcvf = colcv[f_inds]
@@ -432,6 +464,8 @@ class SampleFeatureMatrix(object):
         threshold.
         """
         row_ath_sum = (self._x >= closed_threshold).sum(axis=1)
+        if self._is_sparse:
+            row_ath_sum = row_ath_sum.A1
         return row_ath_sum
 
     def f_n_above_threshold_dist(self, closed_threshold, xlab=None, ylab=None,
@@ -451,6 +485,8 @@ class SampleFeatureMatrix(object):
         threshold.
         """
         col_ath_sum = (self._x >= closed_threshold).sum(axis=0)
+        if self._is_sparse:
+            col_ath_sum = col_ath_sum.A1
         return col_ath_sum
 
     def s_n_above_threshold_dist(self, closed_threshold, xlab=None, ylab=None,
@@ -473,7 +509,14 @@ class SampleFeatureMatrix(object):
         xf: float array
             (filtered_n_samples,)
         """
-        rowgc = np.apply_along_axis(stats.gc1d, 1, self._x)
+        rowgc = []
+        for i in range(self._x.shape[0]):
+            if self._is_sparse:
+                i_x = self._x[i, :].todense().A1
+            else:
+                i_x = self._x[i, :]
+            rowgc.append(stats.gc1d(i_x))
+        rowgc = np.array(rowgc)
         s_inds = self.filter_1d_inds(f_gc_filter, rowgc)
         rowgcf = rowgc[s_inds]
         return rowgcf
@@ -497,7 +540,14 @@ class SampleFeatureMatrix(object):
         xf: float array
             (n_features,)
         """
-        colgc = np.apply_along_axis(stats.gc1d, 0, self._x)
+        colgc = []
+        for i in range(self._x.shape[1]):
+            if self._is_sparse:
+                i_x = self._x[:, i].todense().A1
+            else:
+                i_x = self._x[:, i]
+            colgc.append(stats.gc1d(i_x))
+        colgc = np.array(colgc)
         f_inds = self.filter_1d_inds(s_gc_filter, colgc)
         colgcf = colgc[f_inds]
         return colgcf
@@ -523,3 +573,7 @@ class SampleFeatureMatrix(object):
     @property
     def x(self):
         return self._x.tolist()
+
+    @property
+    def _is_sparse(self):
+        return spsp.issparse(self._x)
