@@ -47,12 +47,13 @@ class SingleLabelClassifiedSamples(SampleDistanceMatrix):
     # sid, lab, fid, x
 
     def __init__(self, x, labs, sids=None, fids=None, d=None,
-                 metric="correlation", nprocs=None):
+                 metric="correlation", use_pdist=True, nprocs=None):
         # sids: sample IDs. String or int.
         # labs: sample classified labels. String or int.
         # x: (n_samples, n_features)
         super(SingleLabelClassifiedSamples, self).__init__(
-            x=x, d=d, metric=metric, sids=sids, fids=fids, nprocs=nprocs)
+            x=x, d=d, metric=metric, use_pdist=use_pdist,
+            sids=sids, fids=fids, nprocs=nprocs)
 
         mtype.check_is_valid_labs(labs)
         labs = np.array(labs)

@@ -2,6 +2,7 @@ import numpy as np
 
 import scipy.cluster.hierarchy as sch
 import scipy.spatial as spspatial
+import scipy.sparse as spsparse
 
 import sklearn as skl
 import sklearn.metrics
@@ -9,6 +10,7 @@ import sklearn.manifold
 from sklearn.neighbors import kneighbors_graph
 import sklearn.preprocessing
 from sklearn.decomposition import PCA
+from sklearn.decomposition import TruncatedSVD
 
 import warnings
 
@@ -43,6 +45,10 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
         If is None, d will be computed with x, metric, and nprocs.
     metric : string
         distance metric
+    use_pdist : boolean
+        to use the pairwise distance matrix or not. The pairwise distance
+        matrix may be too large to save for datasets with a large number of
+        cells.
     sids : homogenous list of int or string
         sample ids. Should not contain duplicated elements.
     fids : homogenous list of int or string
@@ -72,11 +78,14 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
         {(k, aff_scale): knn_graph}
     """
 
-    def __init__(self, x, d=None, metric="correlation",
+    def __init__(self, x, d=None, metric="cosine", use_pdist=True,
                  sids=None, fids=None, nprocs=None):
         super(SampleDistanceMatrix, self).__init__(x=x, sids=sids, fids=fids)
 
         if d is not None:
+            if not use_pdist:
+                raise ValueError("pdist cannot be provided when "
+                                 "use pdist = False")
             try:
                 d = np.array(d, copy=False, dtype="float64")
             except ValueError as e:
@@ -93,6 +102,7 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
             if metric == "precomputed":
                 raise ValueError("metric cannot be precomputed when "
                                  "d is None.")
+
         if nprocs is None:
             self._nprocs = 1
         else:
@@ -102,12 +112,18 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
         self._tsne_lut = {}
         self._lazy_load_last_tsne = None
         self._metric = metric
+        self._use_pdist = use_pdist
         # Sorted distance matrix. Each column ascending from top to bottom.
         self._lazy_load_col_sorted_d = None
         self._lazy_load_col_argsorted_d = None
         self._knn_ng_lut = {}
         # sklearn.decomposition.PCA instance
-        self._pca_n_components = min(200, self._x.shape[0], self._x.shape[1])
+        # use truncated svd for sparse
+        if self._is_sparse:
+            self._pca_n_components = min(100, self._x.shape[1] - 1)
+        else:
+            self._pca_n_components = min(
+                100, self._x.shape[0], self._x.shape[1])
         self._lazy_load_skd_pca = None
         self._lazy_load_pca_x = None
         # umap
@@ -124,7 +140,8 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
         """
         slcs = scedar.eda.SingleLabelClassifiedSamples(
             self._x, labels, sids=self.sids, fids=self.fids, d=None,
-            metric=self._metric, nprocs=self._nprocs)
+            metric=self._metric, use_pdist=self._use_pdist,
+            nprocs=self._nprocs)
         # pairwise distance matrix
         slcs._lazy_load_d = self._lazy_load_d
         # tsne
@@ -240,13 +257,30 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
         # TODO: make parameter keys consistent such that same set of
         # parameters but different order will sill be the same.
         # check input args
-        if ("metric" in kwargs and
-                kwargs["metric"] not in ("precomputed", self._metric)):
-            raise ValueError("If you want to calculate t-SNE of a different "
-                             "metric than the instance metric, create another "
-                             "instance of the desired metric.")
+        if self._use_pdist:
+            if ("metric" in kwargs and
+                    kwargs["metric"] not in ("precomputed", self._metric)):
+                raise ValueError("If you want to calculate t-SNE of a "
+                                 "different "
+                                 "metric than the instance metric, create "
+                                 "another "
+                                 "instance of the desired metric.")
+            else:
+                kwargs["metric"] = "precomputed"
         else:
-            kwargs["metric"] = "precomputed"
+            if "metric" in kwargs:
+                if kwargs["metric"] == "precomputed":
+                    raise ValueError("Metric cannot be precomputed when "
+                                     "use_pdist is False")
+                elif kwargs["metric"] != self._metric:
+                    raise ValueError("If you want to calculate t-SNE of a "
+                                    "different "
+                                    "metric than the instance metric, create "
+                                    "another "
+                                    "instance of the desired metric.")
+            else:
+                kwargs["metric"] = self._metric
+
         str_params = str(kwargs)
         tsne_kv = self.get_tsne_kv(str_params)
         if tsne_kv is None:
@@ -255,7 +289,14 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
             elif self._x.shape[0] == 1:
                 tsne_res = np.zeros((1, 2))
             else:
-                tsne_res = tsne(self._d, **kwargs)
+                if self._use_pdist:
+                    tsne_res = tsne(self._d, **kwargs)
+                else:
+                    if self._is_sparse:
+                        tsne_res = tsne(self._x.toarray(), **kwargs)
+                    else:
+                        tsne_res = tsne(self._x, **kwargs)
+
         else:
             tsne_res = tsne_kv[1]
         if store_res:
@@ -454,7 +495,7 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
                                alpha=alpha, s=s, random_state=random_state,
                                **kwargs)
 
-    def umap(self, n_neighbors=5, n_components=2, n_epochs=None,
+    def umap(self, use_pca=True, n_neighbors=5, n_components=2, n_epochs=None,
              learning_rate=1.0, init='spectral', min_dist=0.1, spread=1.0,
              set_op_mix_ratio=1.0, local_connectivity=1.0,
              repulsion_strength=1.0, negative_sample_rate=5,
@@ -462,21 +503,41 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
              metric_kwds=None, angular_rp_forest=False, target_n_neighbors=-1,
              target_metric='categorical', target_metric_kwds=None,
              target_weight=0.5, transform_seed=42, verbose=False):
-        umap_x = UMAP(
-            n_neighbors=n_neighbors, n_components=n_components,
-            metric='precomputed', n_epochs=n_epochs,
-            learning_rate=learning_rate, init=init, min_dist=min_dist,
-            spread=spread, set_op_mix_ratio=set_op_mix_ratio,
-            local_connectivity=local_connectivity,
-            repulsion_strength=repulsion_strength,
-            negative_sample_rate=negative_sample_rate,
-            transform_queue_size=transform_queue_size, a=a, b=b,
-            random_state=random_state, metric_kwds=metric_kwds,
-            angular_rp_forest=angular_rp_forest,
-            target_n_neighbors=target_n_neighbors,
-            target_metric=target_metric, target_metric_kwds=target_metric_kwds,
-            target_weight=target_weight, transform_seed=transform_seed,
-            verbose=verbose).fit_transform(self._d)
+        if self._use_pdist:
+            umap_x = UMAP(
+                n_neighbors=n_neighbors, n_components=n_components,
+                metric='precomputed', n_epochs=n_epochs,
+                learning_rate=learning_rate, init=init, min_dist=min_dist,
+                spread=spread, set_op_mix_ratio=set_op_mix_ratio,
+                local_connectivity=local_connectivity,
+                repulsion_strength=repulsion_strength,
+                negative_sample_rate=negative_sample_rate,
+                transform_queue_size=transform_queue_size, a=a, b=b,
+                random_state=random_state, metric_kwds=metric_kwds,
+                angular_rp_forest=angular_rp_forest,
+                target_n_neighbors=target_n_neighbors,
+                target_metric=target_metric,
+                target_metric_kwds=target_metric_kwds,
+                target_weight=target_weight, transform_seed=transform_seed,
+                verbose=verbose).fit_transform(self._d)
+        else:
+            umap_x = UMAP(
+                n_neighbors=n_neighbors, n_components=n_components,
+                metric=self._metric, n_epochs=n_epochs,
+                learning_rate=learning_rate, init=init, min_dist=min_dist,
+                spread=spread, set_op_mix_ratio=set_op_mix_ratio,
+                local_connectivity=local_connectivity,
+                repulsion_strength=repulsion_strength,
+                negative_sample_rate=negative_sample_rate,
+                transform_queue_size=transform_queue_size, a=a, b=b,
+                random_state=random_state, metric_kwds=metric_kwds,
+                angular_rp_forest=angular_rp_forest,
+                target_n_neighbors=target_n_neighbors,
+                target_metric=target_metric,
+                target_metric_kwds=target_metric_kwds,
+                target_weight=target_weight, transform_seed=transform_seed,
+                verbose=verbose).fit_transform(self._x)
+
         self._lazy_load_umap_x = umap_x
         return umap_x
 
@@ -584,13 +645,24 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
         if selected_f_inds is None:
             selected_f_inds = slice(None, None)
 
-        return SampleDistanceMatrix(
-            x=self._x[selected_s_inds, :][:, selected_f_inds].copy(),
-            d=self._d[selected_s_inds, :][:, selected_s_inds].copy(),
-            metric=self._metric,
-            sids=self._sids[selected_s_inds].tolist(),
-            fids=self._fids[selected_f_inds].tolist(),
-            nprocs=self._nprocs)
+        if self._use_pdist:
+            return SampleDistanceMatrix(
+                x=self._x[selected_s_inds, :][:, selected_f_inds].copy(),
+                d=self._d[selected_s_inds, :][:, selected_s_inds].copy(),
+                metric=self._metric,
+                use_pdist=self._use_pdist,
+                sids=self._sids[selected_s_inds].tolist(),
+                fids=self._fids[selected_f_inds].tolist(),
+                nprocs=self._nprocs)
+        else:
+            return SampleDistanceMatrix(
+                x=self._x[selected_s_inds, :][:, selected_f_inds].copy(),
+                d=None,
+                metric=self._metric,
+                use_pdist=self._use_pdist,
+                sids=self._sids[selected_s_inds].tolist(),
+                fids=self._fids[selected_f_inds].tolist(),
+                nprocs=self._nprocs)
 
     def id_x(self, selected_sids=None, selected_fids=None):
         """
@@ -654,6 +726,7 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
         return hist_dens_plot(x, title=title, xlab=xlab, ylab=ylab,
                               figsize=figsize, ax=ax, **kwargs)
 
+    # TODO: support hnsw
     def s_knn_connectivity_matrix(self, k):
         """
         Computes the connectivity matrix of KNN of samples. If an entry
@@ -670,9 +743,15 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
         knn_conn_mat: float array
             (n_samples, n_samles)
         """
-        knn_conn_mat = kneighbors_graph(self._d, k, mode="distance",
-                                        metric="precomputed",
-                                        include_self=False).toarray()
+        if self._use_pdist:
+            knn_conn_mat = kneighbors_graph(self._d, k, mode="distance",
+                                            metric="precomputed",
+                                            include_self=False).toarray()
+        else:
+            knn_conn_mat = kneighbors_graph(self._x, k, mode="distance",
+                                            metric=self._metric,
+                                            include_self=False).toarray()
+
         return knn_conn_mat
 
     def s_knn_graph(self, k, gradient=None, labels=None,
@@ -778,19 +857,32 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
 
     @property
     def _d(self):
-        if self._lazy_load_d is None:
-            if self._x.size == 0:
-                self._lazy_load_d = np.zeros((self._x.shape[0],
-                                              self._x.shape[0]))
-            else:
-                if self._metric == "cosine":
-                    pdmat = self.cosine_pdist(self._x)
-                elif self._metric == "correlation":
-                    pdmat = self.correlation_pdist(self._x)
+        if self._use_pdist:
+            if self._is_sparse:
+                sparse_compatible_metrics = ["cityblock", "cosine", 
+                                             "euclidean",
+                                             "l1", "l2", "manhattan"]
+                if self._metric not in sparse_compatible_metrics:
+                    raise ValueError("Only the following metrics are "
+                                     "supportted "
+                                     "for sparse matrices, {}".format(
+                                        sparse_compatible_metrics))
+
+            if self._lazy_load_d is None:
+                if self._x.size == 0:
+                    self._lazy_load_d = np.zeros((self._x.shape[0],
+                                                self._x.shape[0]))
                 else:
-                    pdmat = skl.metrics.pairwise.pairwise_distances(
-                        self._x, metric=self._metric, n_jobs=self._nprocs)
-                self._lazy_load_d = self.num_correct_dist_mat(pdmat)
+                    if self._metric == "cosine":
+                        pdmat = self.cosine_pdist(self._x)
+                    elif self._metric == "correlation":
+                        pdmat = self.correlation_pdist(self._x)
+                    else:
+                        pdmat = skl.metrics.pairwise.pairwise_distances(
+                            self._x, metric=self._metric, n_jobs=self._nprocs)
+                    self._lazy_load_d = self.num_correct_dist_mat(pdmat)
+        else:
+            raise ValueError("This SDM instance does not use pdist.")
         return self._lazy_load_d
 
     @staticmethod
@@ -814,7 +906,10 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
             Pairwise distance matrix, (n_samples, n_samples).
         """
         # pairwise dot product matrix
-        pdot_prod = np.dot(x, x.T)
+        if spsparse.issparse(x):
+            pdot_prod = np.dot(x, x.T).toarray()
+        else:
+            pdot_prod = np.dot(x, x.T)
         # diagonal values are self dot product, i.e. squared and sum.
         squared_sum = np.diag(pdot_prod)
         # inverse squared sum
@@ -883,9 +978,18 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
     @property
     def _skd_pca(self):
         if self._lazy_load_skd_pca is None:
-            self._lazy_load_skd_pca = PCA(n_components=self._pca_n_components,
-                                          svd_solver="full")
-            self._lazy_load_skd_pca.fit(self._x)
+            if self._is_sparse:
+                # use TruncatedSVD for sparse matrix
+                self._lazy_load_skd_pca = TruncatedSVD(
+                    n_components=self._pca_n_components, random_state=17)
+                self._lazy_load_skd_pca.fit(self._x)
+            else:
+                # use standard PCA for dense matrix
+                self._lazy_load_skd_pca = PCA(
+                    n_components=self._pca_n_components,
+                    svd_solver="auto", random_state=17)
+                self._lazy_load_skd_pca.fit(self._x)
+
         return self._lazy_load_skd_pca
 
     @property
