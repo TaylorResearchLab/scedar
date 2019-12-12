@@ -103,7 +103,7 @@ class TestNoPdistSampleDistanceMatrix(object):
             x, metric='euclidean', use_pdist=False)
         sdm2 = eda.SampleDistanceMatrix(
             x, metric='euclidean', use_pdist=False)
-        sdm2.sort_features(fdist_metric='euclidean')
+        sdm2.sort_features(fdist_metric='euclidean', optimal_ordering=True)
         assert sdm2.fids == [2, 3, 1, 0]
 
     def test_get_tsne_kv(self):

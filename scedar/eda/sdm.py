@@ -158,11 +158,12 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
         slcs._lazy_load_pca_x = self._lazy_load_pca_x
         return slcs
 
-    def sort_features(self, fdist_metric="correlation"):
-        optimal_f_inds = HClustTree.sort_x_by_d(self._x.T, metric=fdist_metric,
-                                                nprocs=self._nprocs)
-        self._x = self._x[:, optimal_f_inds]
-        self._fids = self._fids[optimal_f_inds]
+    def sort_features(self, fdist_metric="cosine", optimal_ordering=False):
+        sorted_f_inds = HClustTree.sort_x_by_d(
+            self._x.T, metric=fdist_metric, optimal_ordering=optimal_ordering,
+            nprocs=self._nprocs)
+        self._x = self._x[:, sorted_f_inds]
+        self._fids = self._fids[sorted_f_inds]
         return
 
     # numerically correct dmat
@@ -754,6 +755,7 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
 
         return knn_conn_mat
 
+    # TODO: support hnsw
     def s_knn_graph(self, k, gradient=None, labels=None,
                     different_label_markers=True, aff_scale=1,
                     iterations=2000, figsize=(20, 20), node_size=30,
@@ -1332,11 +1334,12 @@ class HClustTree(object):
         return HClustTree(sch.to_tree(hac_z))
 
     @staticmethod
-    def sort_x_by_d(x, dmat=None, metric="correlation", linkage="auto",
-                    n_eval_rounds=None, nprocs=None, verbose=False):
+    def sort_x_by_d(x, dmat=None, metric="cosine", linkage="auto",
+                    n_eval_rounds=None, optimal_ordering=False,
+                    nprocs=None, verbose=False):
         dmat = SampleDistanceMatrix(x, d=dmat, metric=metric,
                                     nprocs=nprocs)._d
         xhct = HClustTree.hclust_tree(dmat, linkage="auto",
                                       is_euc_dist=(metric == "euclidean"),
-                                      optimal_ordering=True)
+                                      optimal_ordering=optimal_ordering)
         return xhct.leaf_ids()

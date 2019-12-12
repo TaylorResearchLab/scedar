@@ -175,7 +175,7 @@ class TestSampleDistanceMatrix(object):
                       [2, 5, 30, 9]])
         x2 = x1.copy()
         opt_inds = eda.HClustTree.sort_x_by_d(
-            x=x2.T, metric='euclidean')
+            x=x2.T, metric='euclidean', optimal_ordering=True)
         assert opt_inds == [2, 3, 1, 0]
         np.testing.assert_equal(x1, x2)
 
@@ -186,7 +186,7 @@ class TestSampleDistanceMatrix(object):
                       [2, 5, 30, 9]])
         x4 = x3.copy()
         opt_inds = eda.HClustTree.sort_x_by_d(
-            x=x4.T, metric='euclidean')
+            x=x4.T, metric='euclidean', optimal_ordering=True)
         assert opt_inds == [2, 3, 1, 0]
         np.testing.assert_equal(x3, x4)
 
@@ -200,7 +200,7 @@ class TestSampleDistanceMatrix(object):
             x, metric='euclidean')
         sdm2 = eda.SampleDistanceMatrix(
             x, metric='euclidean')
-        sdm2.sort_features(fdist_metric='euclidean')
+        sdm2.sort_features(fdist_metric='euclidean', optimal_ordering=True)
         assert sdm2.fids == [2, 3, 1, 0]
 
     def test_get_tsne_kv(self):

@@ -169,7 +169,7 @@ class TestSparseSampleDistanceMatrix(object):
         x1 = spsp.csr_matrix(x1)
         x2 = x1.copy()
         opt_inds = eda.HClustTree.sort_x_by_d(
-            x=x2.T, metric='euclidean')
+            x=x2.T, metric='euclidean', optimal_ordering=True)
         assert opt_inds == [2, 3, 1, 0]
 
         x3 = np.array([[0, 0, 30, 10],
@@ -180,7 +180,7 @@ class TestSparseSampleDistanceMatrix(object):
         x3 = spsp.csr_matrix(x2)
         x4 = x3.copy()
         opt_inds = eda.HClustTree.sort_x_by_d(
-            x=x4.T, metric='euclidean')
+            x=x4.T, metric='euclidean', optimal_ordering=True)
         assert opt_inds == [2, 3, 1, 0]
 
     def test_sort_features(self):
@@ -194,7 +194,7 @@ class TestSparseSampleDistanceMatrix(object):
             x, metric='euclidean')
         sdm2 = eda.SampleDistanceMatrix(
             x, metric='euclidean')
-        sdm2.sort_features(fdist_metric='euclidean')
+        sdm2.sort_features(fdist_metric='euclidean', optimal_ordering=True)
         assert sdm2.fids == [2, 3, 1, 0]
 
     def test_get_tsne_kv(self):
