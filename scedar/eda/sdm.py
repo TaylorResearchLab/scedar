@@ -21,6 +21,8 @@ from fa2 import ForceAtlas2
 
 from umap import UMAP
 
+import nmslib
+
 import scedar
 from scedar.eda.plot import cluster_scatter
 from scedar.eda.plot import heatmap
@@ -74,6 +76,8 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
     _last_tsne: float array
         The last *stored* tsne results. In no tsne performed before, a run
         with default parameters will be performed.
+    _last_hnsw: nmslib.dist.FloatIndex
+        The last hnsw index.
     _knn_ng_lut: dict
         {(k, aff_scale): knn_graph}
     """
@@ -128,6 +132,7 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
         self._lazy_load_pca_x = None
         # umap
         self._lazy_load_umap_x = None
+        self._last_hnsw = None
 
     def to_classified(self, labels):
         """Convert to SingleLabelClassifiedSamples
@@ -156,6 +161,7 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
         slcs._pca_n_components = self._pca_n_components
         slcs._lazy_load_skd_pca = self._lazy_load_skd_pca
         slcs._lazy_load_pca_x = self._lazy_load_pca_x
+        slcs._last_hnsw = self._last_hnsw
         return slcs
 
     def sort_features(self, fdist_metric="cosine", optimal_ordering=False):
@@ -728,7 +734,11 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
                               figsize=figsize, ax=ax, **kwargs)
 
     # TODO: support hnsw
-    def s_knn_connectivity_matrix(self, k):
+    # TODO: record as attribute
+    def s_knn_connectivity_matrix(self, k, metric=None, use_pca=False,
+                                  use_hnsw=False,
+                                  index_params=None, query_params=None,
+                                  verbose=False):
         """
         Computes the connectivity matrix of KNN of samples. If an entry
         `(i, j)` has value 0, node `i` is not in node `j`'s KNN. If an entry
@@ -738,24 +748,174 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
         Parameters
         ----------
         k: int
+            The number of nearest neighbors.
+        metric: {'cosine', 'euclidean', None}
+            If none, self._metric is used.
+        use_pca: bool
+            Use PCA for nearest neighbors or not.
+        use_hnsw: bool
+            Use Hierarchical Navigable Small World graph to compute
+            approximate nearest neighbor.
+        index_params: dict
+            Parameters used by HNSW in indexing.
+            efConstruction: int
+                Default 100. Higher value improves the quality of a constructed graph and
+                leads to higher accuracy of search. However this also leads to
+                longer indexing times. The reasonable range of values is
+                100-2000.
+            M: int
+                Default 5. Higher value leads to better recall and shorter retrieval
+                times, at the expense of longer indexing time. The reasonable
+                range of values is 5-100.
+            delaunay_type: {0, 1, 2, 3}
+                Default 2. Pruning heuristic, which affects the trade-off
+                between retrieval performance and indexing time. The default
+                is usually quite good.
+            post: {0, 1, 2}
+                Default 0. The amount and type of postprocessing applied to the
+                constructed graph. 0 means no processing. 2 means more
+                processing.
+            indexThreadQty: int
+                Default self._nprocs. The number of threads used.
+            
+        query_params: dict
+            Parameters used by HNSW in querying.
+            efSearch: int
+                Default 100. Higher value improves recall at the expense of
+                longer retrieval time. The reasonable range of values is
+                100-2000.
 
         Returns
         -------
         knn_conn_mat: float array
             (n_samples, n_samles)
         """
-        if self._use_pdist:
-            knn_conn_mat = kneighbors_graph(self._d, k, mode="distance",
-                                            metric="precomputed",
-                                            include_self=False).toarray()
-        else:
-            knn_conn_mat = kneighbors_graph(self._x, k, mode="distance",
-                                            metric=self._metric,
-                                            include_self=False).toarray()
+        if k < 1:
+            raise ValueError("k should >= 1")
 
+        if use_hnsw:
+            knn_conn_mat = self._s_knn_conn_mat_hnsw(
+                k=k, metric=metric, use_pca=use_pca,
+                index_params=index_params,
+                query_params=query_params,
+                verbose=verbose)
+        else:
+            if index_params is not None:
+                raise ValueError("index_params are not used with "
+                                 "use_hnsw=False.")
+            if query_params is not None:
+                raise ValueError("query_params are not used with "
+                                 "use_hnsw=False.")
+
+            knn_conn_mat = self._s_knn_conn_mat_skl(
+                k, metric=metric, use_pca=use_pca, verbose=verbose)
+        return knn_conn_mat
+    
+    def _s_knn_conn_mat_hnsw(self, k, metric=None, use_pca=False,
+                             index_params=None, query_params=None,
+                             verbose=False):
+        if metric is None:
+            metric = self._metric
+
+
+        if use_pca:
+            data_x = self._pca_x
+            is_sparse = False
+            if metric == "euclidean":
+                metric = "l2"
+            elif metric == "cosine":
+                metric = "cosinesimil"
+            else:
+                raise ValueError(
+                    "HNSW only supports cosine and euclidean distance")
+        else:
+            data_x = self._x
+            is_sparse = self._is_sparse
+            if metric == "euclidean":
+                if is_sparse:
+                    metric = "l2_sparse"
+                else:
+                    metric = "l2"
+            elif metric == "cosine":
+                if is_sparse:
+                    metric = "cosinesimil_sparse_fast"
+                else:
+                    metric = "cosinesimil"
+            else:
+                raise ValueError(
+                    "HNSW only supports cosine and euclidean distance")
+
+        if is_sparse:
+            data_type = nmslib.DataType.SPARSE_VECTOR
+        else:
+            data_type = nmslib.DataType.DENSE_VECTOR
+            
+        if index_params is None:
+            index_params = {
+                "efConstruction": 100,
+                "M": 5,
+                "delaunay_type": 2,
+                "post": 0,
+                "indexThreadQty": self._nprocs
+            }
+        
+        if query_params is None:
+            query_params = {
+                "efSearch": 100
+            }
+
+        # create index
+        hnsw = nmslib.init(method="hnsw", space=metric, data_type=data_type)
+        hnsw.addDataPointBatch(data_x)
+        hnsw.createIndex(index_params, print_progress=verbose)
+        self._last_hnsw = hnsw
+        # query KNN
+        hnsw.setQueryTimeParams(query_params)
+        # k nearest neighbors
+        # hnsw query includes self.
+        k = k + 1
+        knns = hnsw.knnQueryBatch(data_x, k=k, num_threads=self._nprocs)
+        # construct knn conn mat.
+        knn_weights = np.concatenate([x[1][1:] for x in knns], axis=0)
+        knn_sources = np.concatenate(
+            [np.repeat(x, k - 1) for x in range(len(knns))])
+        knn_targets = np.concatenate([x[0][1:] for x in knns], axis=0)
+        knn_con_mat = spsparse.coo_matrix(
+            (knn_weights, (knn_sources, knn_targets)),
+            shape=(data_x.shape[0], data_x.shape[0]))
+        return knn_con_mat
+
+    def _s_knn_conn_mat_skl(self, k, metric=None, use_pca=False,
+                            verbose=False):
+        """
+        Runner for exact KNN using sklearn.
+        """
+        if metric is None:
+            metric = self._metric
+
+        if use_pca:
+            if verbose:
+                print("Construct {} distance KNN graph on PCs.".format(
+                    metric))
+            knn_conn_mat = kneighbors_graph(self._pca_x, k, mode="distance",
+                                            metric=metric,
+                                            include_self=False)
+        else:
+            if verbose:
+                print("Construct {} distance KNN graph on raw data.".format(
+                    metric))
+            if self._use_pdist:
+                knn_conn_mat = kneighbors_graph(self._d, k, mode="distance",
+                                                metric="precomputed",
+                                                include_self=False)
+            else:
+                # TODO: better error message.
+                # some metrics are not supported here.
+                knn_conn_mat = kneighbors_graph(self._x, k, mode="distance",
+                                                metric=metric,
+                                                include_self=False)
         return knn_conn_mat
 
-    # TODO: support hnsw
     def s_knn_graph(self, k, gradient=None, labels=None,
                     different_label_markers=True, aff_scale=1,
                     iterations=2000, figsize=(20, 20), node_size=30,
@@ -800,7 +960,8 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
         if knn_ng_param_key in self._knn_ng_lut:
             ng = self._knn_ng_lut[knn_ng_param_key]
         else:
-            knn_d_arr = self.s_knn_connectivity_matrix(k)
+            # TODO: support sparse matrix
+            knn_d_arr = self.s_knn_connectivity_matrix(k).toarray()
             # Undirected graph
             ng = nx.Graph()
             # affinity shoud negatively correlate to distance

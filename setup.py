@@ -34,7 +34,10 @@ setup(
         'xgboost',
         'networkx',
         'fa2',
-        'umap-learn'
+        'umap-learn',
+        'python-igraph',
+        'nmslib',
+        'leidenalg'
     ],
     setup_requires=[
         'coverage==4.5.1',
@@ -51,7 +54,10 @@ setup(
         'xgboost',
         'networkx',
         'fa2',
-        'umap-learn'
+        'umap-learn',
+        'python-igraph',
+        'nmslib',
+        'leidenalg'
     ],
     tests_require=[
         'pytest'

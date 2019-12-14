@@ -883,12 +883,86 @@ class TestNoPdistSampleDistanceMatrix(object):
         assert sdm._umap_x.shape == (20, 2)
 
     def test_s_knn_connectivity_matrix(self):
-        nn_sdm = eda.SampleDistanceMatrix([[0], [1], [5]],
-                                          metric='euclidean', use_pdist=False)
-        np.testing.assert_allclose([[0, 1, 0],
-                                    [1, 0, 0],
-                                    [0, 4, 0]],
-                                   nn_sdm.s_knn_connectivity_matrix(1))
+        nn_sdm = eda.SampleDistanceMatrix(
+            [[0], [1], [5]], metric='euclidean', use_pdist=False)
+        np.testing.assert_allclose(
+            [[0, 1, 0], [1, 0, 0], [0, 4, 0]],
+            nn_sdm.s_knn_connectivity_matrix(1).toarray())
+
+        assert nn_sdm.s_knn_connectivity_matrix(
+            1, use_hnsw=False, use_pca=False).shape == (3, 3)
+        
+        with pytest.raises(ValueError):
+            assert nn_sdm.s_knn_connectivity_matrix(
+                1, use_hnsw=False, use_pca=False,
+                index_params={})
+
+        with pytest.raises(ValueError):
+            assert nn_sdm.s_knn_connectivity_matrix(0)
+
+        with pytest.raises(ValueError):
+            assert nn_sdm.s_knn_connectivity_matrix(
+                1, use_hnsw=False, use_pca=False,
+                index_params=None, query_params={}).shape == (3, 3)
+
+        assert nn_sdm.s_knn_connectivity_matrix(
+            1, use_hnsw=True, use_pca=False).shape == (3, 3)
+        # hnsw can only handle vectors with more than one non-0 elements.
+        nn_sdm = eda.SampleDistanceMatrix(
+            [[1, 2, 3], [2, 0, 0], [6, 0, 0]],
+             metric='cosine', use_pdist=False)
+        assert nn_sdm.s_knn_connectivity_matrix(
+            1, use_hnsw=True, use_pca=True).shape == (3, 3)
+        assert nn_sdm.s_knn_connectivity_matrix(
+            1, use_hnsw=True, use_pca=False).shape == (3, 3)
+        assert nn_sdm.s_knn_connectivity_matrix(
+            1, use_hnsw=False, use_pca=True).shape == (3, 3)
+        assert nn_sdm.s_knn_connectivity_matrix(
+            1, use_hnsw=True, use_pca=True, index_params={},
+            query_params={}, verbose=True).shape == (3, 3)
+
+        nn_sdm = eda.SampleDistanceMatrix(
+            [[1, 2, 3], [2, 0, 0], [6, 0, 0]],
+             metric='euclidean', use_pdist=False)
+        assert nn_sdm.s_knn_connectivity_matrix(
+            1, use_hnsw=True, use_pca=True).shape == (3, 3)
+        assert nn_sdm.s_knn_connectivity_matrix(
+            1, use_hnsw=True, use_pca=False).shape == (3, 3)
+        assert nn_sdm.s_knn_connectivity_matrix(
+            1, use_hnsw=False, use_pca=True).shape == (3, 3)
+        assert nn_sdm.s_knn_connectivity_matrix(
+            1, use_hnsw=True, use_pca=True, index_params={},
+            query_params={}, verbose=True).shape == (3, 3)
+
+        nn_sdm = eda.SampleDistanceMatrix(
+            [[1, 2, 3], [2, 0, 0], [6, 0, 0]],
+             metric='euclidean', use_pdist=False)
+        assert nn_sdm.s_knn_connectivity_matrix(
+            1, metric='cosine', use_hnsw=True, use_pca=True).shape == (3, 3)
+        assert nn_sdm.s_knn_connectivity_matrix(
+            1, use_hnsw=True, use_pca=False).shape == (3, 3)
+        assert nn_sdm.s_knn_connectivity_matrix(
+            1, metric='cosine', use_hnsw=False, use_pca=True).shape == (3, 3)
+        assert nn_sdm.s_knn_connectivity_matrix(
+            1, metric='cosine', use_hnsw=True, use_pca=True, index_params={},
+            query_params={}, verbose=True).shape == (3, 3)
+
+        with pytest.raises(ValueError):
+            assert nn_sdm.s_knn_connectivity_matrix(
+                1, metric='correlation', use_hnsw=True, use_pca=False,
+                index_params={}, query_params={},
+                verbose=True).shape == (3, 3)
+
+        with pytest.raises(ValueError):
+            assert nn_sdm.s_knn_connectivity_matrix(
+                1, metric='correlation', use_hnsw=True, use_pca=True,
+                index_params={}, query_params={},
+                verbose=True).shape == (3, 3)
+
+        assert nn_sdm.s_knn_connectivity_matrix(
+            1, metric='cosine', use_hnsw=False, use_pca=True, verbose=True).shape == (3, 3)
+        assert nn_sdm.s_knn_connectivity_matrix(
+            1, metric='cosine', use_hnsw=False, use_pca=False, verbose=True).shape == (3, 3)
 
     @pytest.mark.mpl_image_compare
     def test_s_knn_graph_grad_lab(self):
