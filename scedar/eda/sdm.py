@@ -733,7 +733,6 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
         return hist_dens_plot(x, title=title, xlab=xlab, ylab=ylab,
                               figsize=figsize, ax=ax, **kwargs)
 
-    # TODO: support hnsw
     # TODO: record as attribute
     def s_knn_connectivity_matrix(self, k, metric=None, use_pca=False,
                                   use_hnsw=False,
@@ -961,19 +960,15 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
             ng = self._knn_ng_lut[knn_ng_param_key]
         else:
             # TODO: support sparse matrix
-            knn_d_arr = self.s_knn_connectivity_matrix(k).toarray()
+            knn_d_csr = self.s_knn_connectivity_matrix(k)
+            # affinity shoud negatively correlate to distance
+            knn_d_csr.data = (knn_d_csr.max() - knn_d_csr.data) * aff_scale
             # Undirected graph
             ng = nx.Graph()
-            # affinity shoud negatively correlate to distance
-            aff_mat = (knn_d_arr.max() - knn_d_arr) * aff_scale
-            # Add graph edges
-            # Nodes are in the same order with their indices
-            # knn graph is not symmetric
-            for i in range(knn_d_arr.shape[0]):
-                for j in range(knn_d_arr.shape[0]):
-                    if knn_d_arr[i, j] > 0:
-                        ng.add_edge(i, j, weight=aff_mat[i, j])
-            self._knn_ng_lut[knn_ng_param_key] = ng.copy()
+            ng = nx.from_scipy_sparse_matrix(
+                knn_d_csr, parallel_edges=False, create_using=ng,
+                edge_attribute="weight")
+            self._knn_ng_lut[knn_ng_param_key] = ng
 
         if fa2_kwargs is None:
             fa2_kwargs = {}
