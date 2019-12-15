@@ -120,7 +120,7 @@ class TestSampleDistanceMatrix(object):
             eda.SampleDistanceMatrix(self.x_3x2, d_2x2)
 
         with pytest.raises(Exception) as excinfo:
-            eda.SampleDistanceMatrix(self.x_3x2, d_2x3)
+            eda.SampleDistanceMatrix(self.x_3x2, d_3x2)
 
         with pytest.raises(Exception) as excinfo:
             eda.SampleDistanceMatrix(self.x_3x2, d_3x2)

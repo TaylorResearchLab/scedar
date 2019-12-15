@@ -16,6 +16,8 @@ import warnings
 
 import random
 
+from collections import defaultdict
+
 import networkx as nx
 from fa2 import ForceAtlas2
 
@@ -132,7 +134,10 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
         self._lazy_load_pca_x = None
         # umap
         self._lazy_load_umap_x = None
+        # knn conn mat related
         self._last_hnsw = None
+        self._last_k = None
+        self._last_knn_conn_mat = None
 
     def to_classified(self, labels):
         """Convert to SingleLabelClassifiedSamples
@@ -710,20 +715,6 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
         """
         return self._col_argsorted_d[i, :]
 
-    def s_knn_ind_lut(self, k):
-        """
-        Computes the lookup table for sample i and its KNN indices, i.e.
-        `{i : [1st_NN_ind, 2nd_NN_ind, ..., nth_NN_ind], ...}`
-        """
-        # each column is its KNN index from 1 to k
-        if k < 0 or k > self._col_argsorted_d.shape[0] - 1:
-            raise ValueError("k ({}) should >= 0 and <= n_samples-1".format(k))
-        k = int(k)
-        knn_ind_arr = self._col_argsorted_d[1:k+1, :].copy()
-        knn_order_ind_lut = dict(zip(range(knn_ind_arr.shape[1]),
-                                     knn_ind_arr.T.tolist()))
-        return knn_order_ind_lut
-
     def s_ith_nn_d_dist(self, i, xlab=None, ylab=None, title=None,
                         figsize=(5, 5), ax=None, **kwargs):
         """
@@ -732,6 +723,42 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
         x = self.s_ith_nn_d(i)
         return hist_dens_plot(x, title=title, xlab=xlab, ylab=ylab,
                               figsize=figsize, ax=ax, **kwargs)
+
+    def s_knn_ind_lut(self, k):
+        """
+        Computes the lookup table for sample i and its KNN indices, i.e.
+        `{i : [1st_NN_ind, 2nd_NN_ind, ..., nth_NN_ind], ...}`
+        """
+        if k < 0 or k > self._x.shape[0] - 1:
+            raise ValueError("k ({}) should >= 0 and <= n_samples-1".format(k))
+        k = int(k)
+        if self._use_pdist:
+            # each column is its KNN index from 1 to k
+            knn_ind_arr = self._col_argsorted_d[1:k+1, :].copy()
+            knn_order_ind_lut = dict(zip(range(knn_ind_arr.shape[1]),
+                                            knn_ind_arr.T.tolist()))
+            return knn_order_ind_lut
+        else:
+            if self._last_k is None or self._last_k < k:
+                if k < 10:
+                    compute_k = min(10, max(self._x.shape[0] - 1, 0))
+                else:
+                    compute_k = k
+                knn_con_mat = self.s_knn_connectivity_matrix(compute_k)
+            else:
+                knn_con_mat = self._last_knn_conn_mat
+            row_inds, col_inds = knn_con_mat.nonzero()
+            distances = knn_con_mat[row_inds, col_inds].A1
+            print(row_inds, col_inds, distances)
+            knn_ind_dist_lut = defaultdict(list)
+            for i in range(len(row_inds)):
+                knn_ind_dist_lut[row_inds[i]].append(
+                    (col_inds[i], distances[i]))
+            knn_order_ind_lut = {}
+            for ikey, ival in knn_ind_dist_lut.items():
+                d_sorted_v = sorted(ival, key=lambda t: t[1])
+                knn_order_ind_lut[ikey] = [t[0] for t in d_sorted_v[0:k]]
+            return knn_order_ind_lut
 
     # TODO: record as attribute
     def s_knn_connectivity_matrix(self, k, metric=None, use_pca=False,
@@ -808,6 +835,9 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
 
             knn_conn_mat = self._s_knn_conn_mat_skl(
                 k, metric=metric, use_pca=use_pca, verbose=verbose)
+
+        self._last_k = k
+        self._last_knn_conn_mat = knn_conn_mat
         return knn_conn_mat
     
     def _s_knn_conn_mat_hnsw(self, k, metric=None, use_pca=False,

@@ -1071,3 +1071,51 @@ class TestNoPdistSampleDistanceMatrix(object):
         return sdm.s_knn_graph(5, labels=labs, figsize=(5, 5),
                                different_label_markers=False,
                                alpha=0.8, random_state=123)
+
+    def test_knn_ind_lut(self):
+        nn_sdm = eda.SampleDistanceMatrix([[0, 0, 0], [1, 1, 1], [5, 5, 5],
+                                           [6, 6, 6], [10, 10, 10],
+                                           [20, 20, 20]],
+                                          metric='euclidean', use_pdist=False)
+        assert nn_sdm.s_knn_ind_lut(0) == dict(zip(range(6), [[]]*6))
+        assert (nn_sdm.s_knn_ind_lut(1) ==
+                dict(zip(range(6), [[1], [0], [3], [2], [3], [4]])))
+        assert (nn_sdm.s_knn_ind_lut(2) ==
+                dict(zip(range(6), [[1, 2], [0, 2], [3, 1],
+                                    [2, 4], [3, 2], [4, 3]])))
+        assert (nn_sdm.s_knn_ind_lut(3) ==
+                dict(zip(range(6), [[1, 2, 3], [0, 2, 3], [3, 1, 0],
+                                    [2, 4, 1], [3, 2, 1], [4, 3, 2]])))
+        nn_sdm.s_knn_ind_lut(5)
+
+        nn_sdm_npd = eda.SampleDistanceMatrix([[x] for x in range(20)],
+                                              metric='euclidean',
+                                              use_pdist=False)
+        nn_sdm_pd = eda.SampleDistanceMatrix([[x] for x in range(20)],
+                                             metric='euclidean',
+                                             use_pdist=False)
+        assert nn_sdm_npd.s_knn_ind_lut(0) == dict(zip(range(20), [[]]*20))
+        assert (nn_sdm_npd.s_knn_ind_lut(10) == nn_sdm_pd.s_knn_ind_lut(10))
+
+    def test_knn_ind_lut_wrong_args(self):
+        nn_sdm = eda.SampleDistanceMatrix([[0, 0, 0], [1, 1, 1], [5, 5, 5],
+                                           [6, 6, 6], [10, 10, 10],
+                                           [20, 20, 20]],
+                                          metric='euclidean', use_pdist=False)
+        with pytest.raises(ValueError) as excinfo:
+            nn_sdm.s_knn_ind_lut(-1)
+
+        with pytest.raises(ValueError) as excinfo:
+            nn_sdm.s_knn_ind_lut(-0.5)
+
+        with pytest.raises(ValueError) as excinfo:
+            nn_sdm.s_knn_ind_lut(6)
+
+        with pytest.raises(ValueError) as excinfo:
+            nn_sdm.s_knn_ind_lut(6.5)
+
+        with pytest.raises(ValueError) as excinfo:
+            nn_sdm.s_knn_ind_lut(7)
+
+        with pytest.raises(ValueError) as excinfo:
+            nn_sdm.s_knn_ind_lut(7)
