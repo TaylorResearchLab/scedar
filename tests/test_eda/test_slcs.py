@@ -801,6 +801,16 @@ class TestMDLSingleLabelClassifiedSamples(object):
     x50x5 = np.vstack((np.zeros((30, 5)), np.random.ranf((20, 5))))
     labs50 = [0]*10 + [1]*35 + [2]*5
 
+    # for some how parallel computation will exceed certain limit when running
+    # in pytest. downgrading matplotlib to 3.1.0 prevents such problem from
+    # happening.
+    # def test_pytest(self):
+    #     mdl_slcs = eda.MDLSingleLabelClassifiedSamples(
+    #         self.x50x5, labs=self.labs50, encode_type="distance",
+    #         mdl_method=eda.mdl.GKdeMdl, metric="euclidean")
+    #     for i in range(10):
+    #         data_no_lab_mdl = mdl_slcs.no_lab_mdl(nprocs=3)
+
     def test_mdl_computation(self):
         mdl_slcs = eda.MDLSingleLabelClassifiedSamples(
             self.x50x5, labs=self.labs50, metric="euclidean")
@@ -844,13 +854,13 @@ class TestMDLSingleLabelClassifiedSamples(object):
                 ci_mdl.no_lab_mdl(nprocs=5),
                 ulab_mdl_l[i] - cluster_mdl * ulab_cnt_l[i] / 50)
 
-    def test_distance_mdl_computation_mp(self):
+    def test_distance_mdl_computation(self):
         mdl_slcs = eda.MDLSingleLabelClassifiedSamples(
             self.x50x5, labs=self.labs50, encode_type="distance",
             mdl_method=eda.mdl.GKdeMdl, metric="euclidean")
-        no_lab_mdl = mdl_slcs.no_lab_mdl(nprocs=2)
+        no_lab_mdl = mdl_slcs.no_lab_mdl(nprocs=1)
         (ulab_mdl_sum, ulab_s_ind_l, ulab_cnt_l,
-         ulab_mdl_l, cluster_mdl) = mdl_slcs.lab_mdl(nprocs=2)
+         ulab_mdl_l, cluster_mdl) = mdl_slcs.lab_mdl(nprocs=1)
         assert ulab_s_ind_l == [list(range(10)), list(range(10, 45)),
                                 list(range(45, 50))]
         assert ulab_mdl_sum == np.sum(ulab_mdl_l)
@@ -865,7 +875,37 @@ class TestMDLSingleLabelClassifiedSamples(object):
                 mdl_method=mdl_slcs._mdl_method)
 
             np.testing.assert_allclose(
-                ci_mdl.no_lab_mdl(nprocs=5),
+                ci_mdl.no_lab_mdl(nprocs=1),
+                ulab_mdl_l[i] - cluster_mdl * ulab_cnt_l[i] / 50)
+
+    def test_distance_mdl_computation_mp(self):
+        mdl_slcs = eda.MDLSingleLabelClassifiedSamples(
+            self.x50x5, labs=self.labs50, encode_type="data",
+            mdl_method=eda.mdl.GKdeMdl, metric="euclidean")
+        data_no_lab_mdl = mdl_slcs.no_lab_mdl(nprocs=2)
+
+        mdl_slcs = eda.MDLSingleLabelClassifiedSamples(
+            self.x50x5, labs=self.labs50, encode_type="distance",
+            mdl_method=eda.mdl.GKdeMdl, metric="euclidean")
+        no_lab_mdl = mdl_slcs.no_lab_mdl(nprocs=2)
+        (ulab_mdl_sum, ulab_s_ind_l, ulab_cnt_l,
+         ulab_mdl_l, cluster_mdl) = mdl_slcs.lab_mdl(nprocs=2)
+        assert ulab_s_ind_l == [list(range(10)), list(range(10, 45)),
+                                list(range(45, 50))]
+        assert ulab_mdl_sum == np.sum(ulab_mdl_l)
+
+        ulab_cnt_l = [10, 35, 5]
+
+        for i in range(3):
+            ci_mdl = eda.MDLSingleLabelClassifiedSamples(
+                mdl_slcs._x[ulab_s_ind_l[i]].copy(),
+                labs=[self.labs50[ii] for ii in ulab_s_ind_l[i]],
+                metric="euclidean", encode_type="distance",
+                mdl_method=eda.mdl.GKdeMdl)
+
+            ci_mdl_no_lab_res = ci_mdl.no_lab_mdl(nprocs=2)
+            np.testing.assert_allclose(
+                ci_mdl_no_lab_res,
                 ulab_mdl_l[i] - cluster_mdl * ulab_cnt_l[i] / 50)
 
     def test_mdl_method(self):

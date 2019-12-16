@@ -849,14 +849,14 @@ class MDLSingleLabelClassifiedSamples(SingleLabelClassifiedSamples):
         elif encode_type == "distance":
             # distance
             s_inds = list(range(x.shape[0]))
+            xs_for_map = [x[s_inds[i], s_inds[:i] + s_inds[i+1:]]
+                          for i in s_inds]
 
-            def single_s_mdl_encoder(i):
+            def single_s_mdl_encoder(x1d):
                 # copy indices for parallel processing
-                i_s_ind = s_inds[i]
-                non_i_s_inds = s_inds[:i] + s_inds[i+1:]
-                return mdl_method(x[i_s_ind, non_i_s_inds])
-
-            col_encoders = utils.parmap(single_s_mdl_encoder, s_inds, nprocs)
+                return mdl_method(x1d)
+            col_encoders = utils.parmap(
+                single_s_mdl_encoder, xs_for_map, nprocs)
         else:
             raise NotImplementedError("unknown encode_type: "
                                       "{}".format(encode_type))
