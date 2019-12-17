@@ -28,3 +28,5 @@ docs/_static
 testdir
 
 .vscode
+
+tests/baseline_images/*.png
