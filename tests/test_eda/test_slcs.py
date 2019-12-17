@@ -1037,7 +1037,7 @@ class TestMDLSingleLabelClassifiedSamples(object):
         emdl = mdl_slcs.encode(np.arange(100).reshape(-1, 5))
         emdl2 = mdl_slcs.encode(np.arange(100).reshape(-1, 5), nprocs=2)
 
-        assert emdl == emdl2
+        np.testing.assert_approx_equal(emdl, emdl2)
 
         emdl3 = eda.MDLSingleLabelClassifiedSamples(
             self.x50x5, mdl_method=eda.mdl.GKdeMdl, labs=self.labs50,

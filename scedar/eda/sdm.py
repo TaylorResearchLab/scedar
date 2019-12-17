@@ -19,7 +19,10 @@ import random
 from collections import defaultdict
 
 import networkx as nx
+
 from fa2 import ForceAtlas2
+
+import igraph as ig
 
 from umap import UMAP
 
@@ -760,7 +763,6 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
                 knn_order_ind_lut[ikey] = [t[0] for t in d_sorted_v[0:k]]
             return knn_order_ind_lut
 
-    # TODO: record as attribute
     def s_knn_connectivity_matrix(self, k, metric=None, use_pca=False,
                                   use_hnsw=False,
                                   index_params=None, query_params=None,
@@ -785,14 +787,14 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
         index_params: dict
             Parameters used by HNSW in indexing.
             efConstruction: int
-                Default 100. Higher value improves the quality of a constructed graph and
-                leads to higher accuracy of search. However this also leads to
-                longer indexing times. The reasonable range of values is
-                100-2000.
+                Default 100. Higher value improves the quality of a constructed
+                graph and leads to higher accuracy of search. However this also
+                leads to longer indexing times. The reasonable range of values
+                is 100-2000.
             M: int
-                Default 5. Higher value leads to better recall and shorter retrieval
-                times, at the expense of longer indexing time. The reasonable
-                range of values is 5-100.
+                Default 5. Higher value leads to better recall and shorter 
+                retrieval times, at the expense of longer indexing time. The
+                reasonable range of values is 5-100.
             delaunay_type: {0, 1, 2, 3}
                 Default 2. Pruning heuristic, which affects the trade-off
                 between retrieval performance and indexing time. The default
@@ -845,7 +847,6 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
                              verbose=False):
         if metric is None:
             metric = self._metric
-
 
         if use_pca:
             data_x = self._pca_x
@@ -912,7 +913,8 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
         knn_con_mat = spsparse.coo_matrix(
             (knn_weights, (knn_sources, knn_targets)),
             shape=(data_x.shape[0], data_x.shape[0]))
-        return knn_con_mat
+        knn_con_csr = knn_con_mat.tocsr()
+        return knn_con_csr
 
     def _s_knn_conn_mat_skl(self, k, metric=None, use_pca=False,
                             verbose=False):
@@ -944,6 +946,16 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
                                                 metric=metric,
                                                 include_self=False)
         return knn_conn_mat
+    
+    @staticmethod
+    def knn_conn_mat_to_aff_graph(knn_conn_mat, aff_scale=1):
+        sources, targets = knn_conn_mat.nonzero()
+        weights = knn_conn_mat[sources, targets].A1
+        weights = (weights.max() - weights) * aff_scale
+        graph = ig.Graph(edges=list(zip(sources, targets)),
+                         directed=False, edge_attrs={"weight": weights})
+        return graph
+
 
     def s_knn_graph(self, k, gradient=None, labels=None,
                     different_label_markers=True, aff_scale=1,
@@ -989,7 +1001,6 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
         if knn_ng_param_key in self._knn_ng_lut:
             ng = self._knn_ng_lut[knn_ng_param_key]
         else:
-            # TODO: support sparse matrix
             knn_d_csr = self.s_knn_connectivity_matrix(k)
             # affinity shoud negatively correlate to distance
             knn_d_csr.data = (knn_d_csr.max() - knn_d_csr.data) * aff_scale
