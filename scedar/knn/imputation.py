@@ -1,5 +1,7 @@
 import numpy as np
 
+import scipy.sparse as spsp
+
 from scedar import eda
 from scedar import utils
 
@@ -33,6 +35,7 @@ class FeatureImputation(object):
         self._sdm = sdm
         self._res_lut = {}
 
+    # TODO: clean up np.array and scipy.sparse distinctions.
     @staticmethod
     def _impute_features_runner(gz_pb_x, knn_ordered_ind_dict, k, n_do,
                                 min_present_val, n_iter,
@@ -42,17 +45,20 @@ class FeatureImputation(object):
         """
         start_time = time.time()
         curr_x_arr = pickle.loads(gzip.decompress(gz_pb_x))
+        if spsp.issparse(curr_x_arr):
+            if not spsp.isspmatrix_lil(curr_x_arr):
+                curr_x_arr = curr_x_arr.tolil()
         n_samples, n_features = curr_x_arr.shape
         # knn_ordered_ind_dict = {sample_ind : [1st_NN_ind(neq sample_ind),
         #                                       2nd_NN_ind, ..., nth_NN_ind],
         #                         ...}
         # curr_x_arr is only accessed but not edited
-        next_x_arr = np.copy(curr_x_arr)
+        next_x_arr = curr_x_arr.copy()
         curr_x_present_arr = curr_x_arr >= min_present_val
-        curr_x_absent_arr = np.logical_not(curr_x_present_arr)
+        # curr_x_absent_arr = np.logical_not(curr_x_present_arr)
         # next_x_arr is edited
         # Indicator matrix of whether an entry is imputed.
-        impute_idc_arr = np.zeros(curr_x_arr.shape, dtype=int)
+        impute_idc_arr = spsp.lil_matrix(curr_x_arr.shape, dtype=int)
 
         stats = "Preparation: {:.2f}s\n".format(time.time() - start_time)
 
@@ -63,11 +69,21 @@ class FeatureImputation(object):
             n_do_i = n_do + int(np.ceil((n_iter - i) / n_iter * (k - n_do)))
             for s_ind in range(n_samples):
                 # below threshold feature indices
-                f_absent_inds = np.where(curr_x_absent_arr[s_ind, :])[0]
+                if spsp.issparse(curr_x_present_arr):
+                    f_present_inds = curr_x_present_arr[s_ind, :].nonzero()[1]
+                else:
+                    f_present_inds = np.where(curr_x_present_arr[s_ind, :])[0]
+                # can be optimized
+                f_absent_inds = [t for t in range(n_features)
+                                 if t not in f_present_inds]
                 knn_ordered_inds = knn_ordered_ind_dict[s_ind]
                 # (n_features,) number of KNNs have feature present
-                f_n_knn_present_arr = np.sum(
-                    curr_x_present_arr[knn_ordered_inds, :], axis=0)
+                if spsp.issparse(curr_x_present_arr):
+                    f_n_knn_present_arr = np.sum(
+                        curr_x_present_arr[knn_ordered_inds, :], axis=0).A1
+                else:
+                    f_n_knn_present_arr = np.sum(
+                        curr_x_present_arr[knn_ordered_inds, :], axis=0)
 
                 for fai in f_absent_inds:
                     # feature fai present in >= n_do_i NNs
@@ -76,20 +92,22 @@ class FeatureImputation(object):
                         impute_idc_arr[s_ind, fai] = i
                         # Replace val in (s_ind, fai) with summ stat of knn
                         knn_x_arr = curr_x_arr[knn_ordered_inds, fai]
+                        if spsp.issparse(curr_x_arr):
+                            knn_x_arr = knn_x_arr.todense().A1
                         knn_x_present_ss = statistic_fun(
                             knn_x_arr[knn_x_arr >= min_present_val])
                         next_x_arr[s_ind, fai] = knn_x_present_ss
 
             curr_x_arr = next_x_arr
-            next_x_arr = np.copy(curr_x_arr)
+            next_x_arr = curr_x_arr.copy()
             curr_x_present_arr = curr_x_arr >= min_present_val
-            curr_x_absent_arr = np.logical_not(curr_x_present_arr)
+            # curr_x_absent_arr = np.logical_not(curr_x_present_arr)
 
-            n_pu_features_per_s = np.sum(impute_idc_arr, axis=1)
+            n_pu_features_per_s = np.sum(impute_idc_arr > 0, axis=1).A1
             n_pu_entries = np.sum(n_pu_features_per_s)
             # number of samples with feature being picked up.
             n_samples_wfpu = np.sum(n_pu_features_per_s > 0)
-            n_pu_entries_ratio = n_pu_entries / impute_idc_arr.size
+            n_pu_entries_ratio = n_pu_entries / (n_samples * n_features)
 
             iter_time = time.time() - iter_start_time
             stats += str.format("Iteration {} ({:.2f}s): picked up {} total "
@@ -242,8 +260,10 @@ class FeatureImputation(object):
         run_param_setup_tups = []
         for ptup in run_param_tups:
             # assumes that the first element of the ptup is k
+            s_knn_ind_lut = self._sdm.s_knn_ind_lut(ptup[0])
+            print(s_knn_ind_lut)
             run_param_setup_tups.append(
-                (gz_pb_x, self._sdm.s_knn_ind_lut(ptup[0])) + ptup)
+                (gz_pb_x, s_knn_ind_lut) + ptup)
 
         nprocs = int(nprocs)
         nprocs = min(nprocs, n_param_tups)

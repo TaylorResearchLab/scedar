@@ -7,7 +7,7 @@ import scipy.sparse as spsparse
 import sklearn as skl
 import sklearn.metrics
 import sklearn.manifold
-from sklearn.neighbors import kneighbors_graph
+from sklearn.neighbors import NearestNeighbors
 import sklearn.preprocessing
 from sklearn.decomposition import PCA
 from sklearn.decomposition import TruncatedSVD
@@ -747,16 +747,17 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
                     compute_k = min(10, max(self._x.shape[0] - 1, 0))
                 else:
                     compute_k = k
-                knn_con_mat = self.s_knn_connectivity_matrix(compute_k)
+                knn_conn_mat = self.s_knn_connectivity_matrix(compute_k)
             else:
-                knn_con_mat = self._last_knn_conn_mat
-            row_inds, col_inds = knn_con_mat.nonzero()
-            distances = knn_con_mat[row_inds, col_inds].A1
-            print(row_inds, col_inds, distances)
+                # if two samples are identical, their distance is 0
+                knn_conn_mat = self._last_knn_conn_mat
+            row_inds, col_inds = knn_conn_mat.nonzero()
+            distances = knn_conn_mat[row_inds, col_inds].A1
             knn_ind_dist_lut = defaultdict(list)
             for i in range(len(row_inds)):
                 knn_ind_dist_lut[row_inds[i]].append(
                     (col_inds[i], distances[i]))
+
             knn_order_ind_lut = {}
             for ikey, ival in knn_ind_dist_lut.items():
                 d_sorted_v = sorted(ival, key=lambda t: t[1])
@@ -845,6 +846,9 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
     def _s_knn_conn_mat_hnsw(self, k, metric=None, use_pca=False,
                              index_params=None, query_params=None,
                              verbose=False):
+        if k < 1:
+            raise ValueError("k should >= 1.")
+
         if metric is None:
             metric = self._metric
 
@@ -902,19 +906,44 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
         # query KNN
         hnsw.setQueryTimeParams(query_params)
         # k nearest neighbors
-        # hnsw query includes self.
-        k = k + 1
-        knns = hnsw.knnQueryBatch(data_x, k=k, num_threads=self._nprocs)
+        # hnsw query may include self.
+        compute_k = k + 1
+        knns = hnsw.knnQueryBatch(
+            data_x, k=compute_k, num_threads=self._nprocs)
+        # print(knns)
         # construct knn conn mat.
-        knn_weights = np.concatenate([x[1][1:] for x in knns], axis=0)
         knn_sources = np.concatenate(
-            [np.repeat(x, k - 1) for x in range(len(knns))])
-        knn_targets = np.concatenate([x[0][1:] for x in knns], axis=0)
-        knn_con_mat = spsparse.coo_matrix(
+            [np.repeat(x, k) for x in range(len(knns))])
+        knn_targets_sep_l = []
+        knn_weights_sep_l = []
+        # need benchmark
+        for i in range(len(knns)):
+            i_targets = knns[i][0]
+            i_weights = knns[i][1]
+            print(i_targets)
+            print(i_weights)
+            i_weights[i_weights == 0] = -np.inf
+            # Note that the query result mey have < compute_k neighbors.
+            for j in range(len(i_weights)):
+                if i_targets[j] == i:
+                    i_targets = np.delete(i_targets, j)
+                    i_weights = np.delete(i_weights, j)
+                    break
+            else:
+                # there is no self in the knn list
+                i_targets = np.delete(i_targets, -1)
+                i_weights = np.delete(i_weights, -1)
+
+            knn_targets_sep_l.append(i_targets)
+            knn_weights_sep_l.append(i_weights)
+        knn_targets = np.concatenate(knn_targets_sep_l, axis=0)
+        knn_weights = np.concatenate(knn_weights_sep_l, axis=0)
+
+        knn_conn_mat = spsparse.coo_matrix(
             (knn_weights, (knn_sources, knn_targets)),
             shape=(data_x.shape[0], data_x.shape[0]))
-        knn_con_csr = knn_con_mat.tocsr()
-        return knn_con_csr
+        knn_conn_csr = knn_conn_mat.tocsr()
+        return knn_conn_csr
 
     def _s_knn_conn_mat_skl(self, k, metric=None, use_pca=False,
                             verbose=False):
@@ -928,24 +957,34 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
             if verbose:
                 print("Construct {} distance KNN graph on PCs.".format(
                     metric))
-            knn_conn_mat = kneighbors_graph(self._pca_x, k, mode="distance",
-                                            metric=metric,
-                                            include_self=False)
+            nn_ins = NearestNeighbors(
+                n_neighbors=k, metric=metric).fit(self._pca_x)
         else:
             if verbose:
                 print("Construct {} distance KNN graph on raw data.".format(
                     metric))
             if self._use_pdist:
-                knn_conn_mat = kneighbors_graph(self._d, k, mode="distance",
-                                                metric="precomputed",
-                                                include_self=False)
+                nn_ins = NearestNeighbors(
+                    n_neighbors=k, metric="precomputed").fit(self._d)
             else:
                 # TODO: better error message.
                 # some metrics are not supported here.
-                knn_conn_mat = kneighbors_graph(self._x, k, mode="distance",
-                                                metric=metric,
-                                                include_self=False)
-        return knn_conn_mat
+                nn_ins = NearestNeighbors(
+                    n_neighbors=k, metric=metric).fit(self._x)
+        distances, targets = nn_ins.kneighbors(
+            None, n_neighbors=k, return_distance=True)
+        sources = np.concatenate(
+            [np.repeat(x, k) for x in range(targets.shape[0])])
+        
+        distances = distances.ravel("C")
+        distances[distances == 0] = -np.inf
+        
+        targets = targets.ravel("C")
+        knn_conn_mat = spsparse.coo_matrix(
+            (distances, (sources, targets)),
+            shape=(self._x.shape[0], self._x.shape[0]))
+        knn_conn_csr = knn_conn_mat.tocsr()
+        return knn_conn_csr
     
     @staticmethod
     def knn_conn_mat_to_aff_graph(knn_conn_mat, aff_scale=1):

@@ -572,7 +572,10 @@ class SampleFeatureMatrix(object):
 
     @property
     def x(self):
-        return self._x.tolist()
+        if self._is_sparse:
+            return self._x.copy()
+        else:
+            return self._x.tolist()
 
     @property
     def _is_sparse(self):

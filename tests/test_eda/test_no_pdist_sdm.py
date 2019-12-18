@@ -898,6 +898,10 @@ class TestNoPdistSampleDistanceMatrix(object):
                 index_params={})
 
         with pytest.raises(ValueError):
+            nn_sdm._s_knn_conn_mat_hnsw(
+                0, use_pca=False, index_params={})
+
+        with pytest.raises(ValueError):
             assert nn_sdm.s_knn_connectivity_matrix(0)
 
         with pytest.raises(ValueError):
@@ -960,10 +964,29 @@ class TestNoPdistSampleDistanceMatrix(object):
                 verbose=True).shape == (3, 3)
 
         assert nn_sdm.s_knn_connectivity_matrix(
-            1, metric='cosine', use_hnsw=False, use_pca=True, verbose=True).shape == (3, 3)
+            1, metric='cosine', use_hnsw=False, use_pca=True, 
+            verbose=True).shape == (3, 3)
         assert nn_sdm.s_knn_connectivity_matrix(
-            1, metric='cosine', use_hnsw=False, use_pca=False, verbose=True).shape == (3, 3)
+            1, metric='cosine', use_hnsw=False, use_pca=False, 
+            verbose=True).shape == (3, 3)
 
+        np.random.seed(123)
+        x5k = spsp.csr_matrix(np.random.normal(size=5000))
+        nn_sdm = eda.SampleDistanceMatrix(x5k.reshape(1000, 5), use_pdist=False)
+        index_params = {
+                "efConstruction": 5,
+                "M": 5,
+                "delaunay_type": 2,
+                "post": 0,
+                "indexThreadQty": 1
+        }
+        query_params = {
+                "efSearch": 5
+        }
+        nn_sdm._s_knn_conn_mat_hnsw(1, metric='cosine',
+                                    index_params=index_params,
+                                    query_params=query_params)
+ 
     @pytest.mark.mpl_image_compare
     def test_s_knn_graph_grad_lab(self):
         np.random.seed(123)
