@@ -817,7 +817,9 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
         Returns
         -------
         knn_conn_mat: float array
-            (n_samples, n_samles)
+            (n_samples, n_samles) Non-zero entries are nearest neighbors (NNs).
+            The values are distances. If two NNs have distance euqal to 0, 0
+            will be replaced by -np.inf.
         """
         if k < 1:
             raise ValueError("k should >= 1")
@@ -919,9 +921,10 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
         # need benchmark
         for i in range(len(knns)):
             i_targets = knns[i][0]
+            # TODO: warn if query result length is different from compute_k
+            # TODO: add arg. If true, raise error when length is wrong,
+            #       otherwise warn.
             i_weights = knns[i][1]
-            print(i_targets)
-            print(i_weights)
             i_weights[i_weights == 0] = -np.inf
             # Note that the query result mey have < compute_k neighbors.
             for j in range(len(i_weights)):

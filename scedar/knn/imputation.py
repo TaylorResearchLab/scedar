@@ -261,7 +261,6 @@ class FeatureImputation(object):
         for ptup in run_param_tups:
             # assumes that the first element of the ptup is k
             s_knn_ind_lut = self._sdm.s_knn_ind_lut(ptup[0])
-            print(s_knn_ind_lut)
             run_param_setup_tups.append(
                 (gz_pb_x, s_knn_ind_lut) + ptup)
 
