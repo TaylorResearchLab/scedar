@@ -11,56 +11,58 @@ class MIRAC(object):
     """
     MIRAC: MDL iteratively regularized agglomerative clustering.
 
-    Args:
-        x : float array
-            Data matrix.
-        d : float array
-            Distance matrix.
-        metric : str
-            Type of distance metric.
-        sids : sid list
-            List of sample ids.
-        fids : fid list
-            List of feature ids.
-        hac_tree : HCTree
-            Hierarchical tree built by agglomerative clustering
-            to divide in MIRAC. If provided, distance matrix will not be used
-            for building another tree.
-        nprocs : int
-            Number of processes to run MIRAC parallely.
-        cl_mdl_scale_factor : float
-            Scale factor of cluster overhead mdl.
-        min_cl_n : int
-            Minimum # samples in a cluster.
-        encode_type : {"auto", "data", or "distance"}
-            Type of values to encode. If "auto", encode data when
-            n_features <= 100.
-        mdl_method : mdl.Mdl
-            If None, use ZeroIGKdeMdl for encoded values
-            with >= 50% zeros, and use GKdeMdl otherwise.
-        linkage : str
-            Linkage type for generating the hierarchy.
-        verbose : bool
-            Print stats for each iteration.
+    Args
+    ----
+    x : float array
+        Data matrix.
+    d : float array
+        Distance matrix.
+    metric : str
+        Type of distance metric.
+    sids : sid list
+        List of sample ids.
+    fids : fid list
+        List of feature ids.
+    hac_tree : HCTree
+        Hierarchical tree built by agglomerative clustering
+        to divide in MIRAC. If provided, distance matrix will not be used
+        for building another tree.
+    nprocs : int
+        Number of processes to run MIRAC parallely.
+    cl_mdl_scale_factor : float
+        Scale factor of cluster overhead mdl.
+    min_cl_n : int
+        Minimum # samples in a cluster.
+    encode_type : {"auto", "data", or "distance"}
+        Type of values to encode. If "auto", encode data when
+        n_features <= 100.
+    mdl_method : mdl.Mdl
+        If None, use ZeroIGKdeMdl for encoded values
+        with >= 50% zeros, and use GKdeMdl otherwise.
+    linkage : str
+        Linkage type for generating the hierarchy.
+    verbose : bool
+        Print stats for each iteration.
 
-    Attributes:
-        _sdm : SampleDistanceMatrix
-            Data and distance matrices.
-        _min_cl_n : int
-            Stored parameter.
-        _encode_type : str
-            Encode type. If "auto" provided, this attribute
-            will store the determined encode type.
-        _mdl_method : mdl.Mdl
-            Mdl method. If None is provided, this attribute
-            will store the determined mdl method.
-        labs : label list
-            Labels of clustered samples. 1-to-1 matching to
-            from first to last.
-        _hac_tree : eda.hct.HClustTree
-            Root node of the hierarchical agglomerative clustering tree.
-        _run_log : str
-            String containing the log of the MIRAC run.
+    Attributes
+    ----------
+    _sdm : SampleDistanceMatrix
+        Data and distance matrices.
+    _min_cl_n : int
+        Stored parameter.
+    _encode_type : str
+        Encode type. If "auto" provided, this attribute
+        will store the determined encode type.
+    _mdl_method : mdl.Mdl
+        Mdl method. If None is provided, this attribute
+        will store the determined mdl method.
+    labs : label list
+        Labels of clustered samples. 1-to-1 matching to
+        from first to last.
+    _hac_tree : eda.hct.HClustTree
+        Root node of the hierarchical agglomerative clustering tree.
+    _run_log : str
+        String containing the log of the MIRAC run.
 
     TODO:
     * Dendrogram representation of the splitting process.
@@ -75,7 +77,7 @@ class MIRAC(object):
                  min_cl_n=25, encode_type="auto", mdl_method=None,
                  min_split_mdl_red_ratio=0.2,
                  soft_min_subtree_size=1,
-                 linkage="complete", optimal_ordering=True,
+                 linkage="complete", optimal_ordering=False,
                  verbose=False):
         super().__init__()
         # initialize simple attributes

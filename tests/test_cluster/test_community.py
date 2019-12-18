@@ -2,9 +2,6 @@ import pytest
 
 import numpy as np
 
-import sklearn.datasets as skdset
-from sklearn import metrics
-
 import scedar.cluster as cluster
 import scedar.eda as eda
 
