@@ -898,10 +898,6 @@ class TestNoPdistSampleDistanceMatrix(object):
                 index_params={})
 
         with pytest.raises(ValueError):
-            nn_sdm._s_knn_conn_mat_hnsw(
-                0, use_pca=False, index_params={})
-
-        with pytest.raises(ValueError):
             assert nn_sdm.s_knn_connectivity_matrix(0)
 
         with pytest.raises(ValueError):
@@ -983,9 +979,14 @@ class TestNoPdistSampleDistanceMatrix(object):
         query_params = {
                 "efSearch": 5
         }
-        nn_sdm._s_knn_conn_mat_hnsw(1, metric='cosine',
+        nn_sdm._s_knns_hnsw(1, metric='cosine',
                                     index_params=index_params,
                                     query_params=query_params)
+
+        with pytest.raises(ValueError):
+            nn_sdm._s_knns_hnsw(
+                0, use_pca=False, index_params={})
+
  
     @pytest.mark.mpl_image_compare
     def test_s_knn_graph_grad_lab(self):

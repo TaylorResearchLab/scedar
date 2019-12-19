@@ -825,7 +825,7 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
             raise ValueError("k should >= 1")
 
         if use_hnsw:
-            knn_conn_mat = self._s_knn_conn_mat_hnsw(
+            sources, targets, distances = self._s_knns_hnsw(
                 k=k, metric=metric, use_pca=use_pca,
                 index_params=index_params,
                 query_params=query_params,
@@ -838,16 +838,20 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
                 raise ValueError("query_params are not used with "
                                  "use_hnsw=False.")
 
-            knn_conn_mat = self._s_knn_conn_mat_skl(
+            sources, targets, distances = self._s_knns_skl(
                 k, metric=metric, use_pca=use_pca, verbose=verbose)
+
+        knn_conn_mat = spsparse.coo_matrix(
+            (distances, (sources, targets)),
+            shape=(self._x.shape[0], self._x.shape[0])).tocsr()
 
         self._last_k = k
         self._last_knn_conn_mat = knn_conn_mat
         return knn_conn_mat
     
-    def _s_knn_conn_mat_hnsw(self, k, metric=None, use_pca=False,
-                             index_params=None, query_params=None,
-                             verbose=False):
+    def _s_knns_hnsw(self, k, metric=None, use_pca=False,
+                     index_params=None, query_params=None,
+                     verbose=False):
         if k < 1:
             raise ValueError("k should >= 1.")
 
@@ -942,14 +946,9 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
         knn_targets = np.concatenate(knn_targets_sep_l, axis=0)
         knn_weights = np.concatenate(knn_weights_sep_l, axis=0)
 
-        knn_conn_mat = spsparse.coo_matrix(
-            (knn_weights, (knn_sources, knn_targets)),
-            shape=(data_x.shape[0], data_x.shape[0]))
-        knn_conn_csr = knn_conn_mat.tocsr()
-        return knn_conn_csr
+        return knn_sources, knn_targets, knn_weights
 
-    def _s_knn_conn_mat_skl(self, k, metric=None, use_pca=False,
-                            verbose=False):
+    def _s_knns_skl(self, k, metric=None, use_pca=False, verbose=False):
         """
         Runner for exact KNN using sklearn.
         """
@@ -983,11 +982,7 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
         distances[distances == 0] = -np.inf
         
         targets = targets.ravel("C")
-        knn_conn_mat = spsparse.coo_matrix(
-            (distances, (sources, targets)),
-            shape=(self._x.shape[0], self._x.shape[0]))
-        knn_conn_csr = knn_conn_mat.tocsr()
-        return knn_conn_csr
+        return sources, targets, distances
     
     @staticmethod
     def knn_conn_mat_to_aff_graph(knn_conn_mat, aff_scale=1):
