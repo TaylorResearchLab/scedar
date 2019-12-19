@@ -1166,7 +1166,7 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
             if self._lazy_load_d is None:
                 if self._x.size == 0:
                     self._lazy_load_d = np.zeros((self._x.shape[0],
-                                                self._x.shape[0]))
+                                                  self._x.shape[0]))
                 else:
                     if self._metric == "cosine":
                         pdmat = self.cosine_pdist(self._x)
