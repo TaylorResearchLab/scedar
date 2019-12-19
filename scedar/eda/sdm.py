@@ -768,36 +768,8 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
                use_hnsw=False,
                index_params=None, query_params=None,
                verbose=False):
-        if k < 1:
-            raise ValueError("k should >= 1")
-
-        if use_hnsw:
-            sources, targets, distances = self._s_knns_hnsw(
-                k=k, metric=metric, use_pca=use_pca,
-                index_params=index_params,
-                query_params=query_params,
-                verbose=verbose)
-        else:
-            if index_params is not None:
-                raise ValueError("index_params are not used with "
-                                 "use_hnsw=False.")
-            if query_params is not None:
-                raise ValueError("query_params are not used with "
-                                 "use_hnsw=False.")
-
-            sources, targets, distances = self._s_knns_skl(
-                k, metric=metric, use_pca=use_pca, verbose=verbose)
-        return sources, targets, distances
-
-    def s_knn_connectivity_matrix(self, k, metric=None, use_pca=False,
-                                  use_hnsw=False,
-                                  index_params=None, query_params=None,
-                                  verbose=False):
         """
-        Computes the connectivity matrix of KNN of samples. If an entry
-        `(i, j)` has value 0, node `i` is not in node `j`'s KNN. If an entry
-        `(i, j)` has value > 0, node `i` is in `j`'s KNN, and their distance
-        is the entry value.
+        Computes the k-nearest neighbors (KNNs) of samples.
 
         Parameters
         ----------
@@ -818,7 +790,7 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
                 leads to longer indexing times. The reasonable range of values
                 is 100-2000.
             M: int
-                Default 5. Higher value leads to better recall and shorter 
+                Default 5. Higher value leads to better recall and shorter
                 retrieval times, at the expense of longer indexing time. The
                 reasonable range of values is 5-100.
             delaunay_type: {0, 1, 2, 3}
@@ -831,7 +803,86 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
                 processing.
             indexThreadQty: int
                 Default self._nprocs. The number of threads used.
-            
+        query_params: dict
+            Parameters used by HNSW in querying.
+            efSearch: int
+                Default 100. Higher value improves recall at the expense of
+                longer retrieval time. The reasonable range of values is
+                100-2000.
+        verbose: bool
+
+        Returns
+        -------
+        knn_indices: list of numpy arrays
+            The i-th array is the KNN indices of the i-th sample.
+        knn_distances: list of numpy arrays
+            The i-th array is the KNN distances of the i-th sample.
+        """
+        if k < 1:
+            raise ValueError("k should >= 1")
+
+        if use_hnsw:
+            targets, distances = self._s_knns_hnsw(
+                k=k, metric=metric, use_pca=use_pca,
+                index_params=index_params,
+                query_params=query_params,
+                verbose=verbose)
+        else:
+            if index_params is not None:
+                raise ValueError("index_params are not used with "
+                                 "use_hnsw=False.")
+            if query_params is not None:
+                raise ValueError("query_params are not used with "
+                                 "use_hnsw=False.")
+
+            targets, distances = self._s_knns_skl(
+                k, metric=metric, use_pca=use_pca, verbose=verbose)
+        return targets, distances
+
+    def s_knn_connectivity_matrix(self, k, metric=None, use_pca=False,
+                                  use_hnsw=False,
+                                  index_params=None, query_params=None,
+                                  verbose=False):
+        """
+        Computes the connectivity matrix of KNN of samples. If an entry
+        `(i, j)` has value 0, node `i` is not in node `j`'s KNN. If an entry
+        `(i, j)` has value != 0, node `i` is in `j`'s KNN, and their distance
+        is the entry value. If two NNs have distance euqal to 0, 0 will be
+        replaced by -np.inf.
+
+        Parameters
+        ----------
+        k: int
+            The number of nearest neighbors.
+        metric: {'cosine', 'euclidean', None}
+            If none, self._metric is used.
+        use_pca: bool
+            Use PCA for nearest neighbors or not.
+        use_hnsw: bool
+            Use Hierarchical Navigable Small World graph to compute
+            approximate nearest neighbor.
+        index_params: dict
+            Parameters used by HNSW in indexing.
+            efConstruction: int
+                Default 100. Higher value improves the quality of a constructed
+                graph and leads to higher accuracy of search. However this also
+                leads to longer indexing times. The reasonable range of values
+                is 100-2000.
+            M: int
+                Default 5. Higher value leads to better recall and shorter
+                retrieval times, at the expense of longer indexing time. The
+                reasonable range of values is 5-100.
+            delaunay_type: {0, 1, 2, 3}
+                Default 2. Pruning heuristic, which affects the trade-off
+                between retrieval performance and indexing time. The default
+                is usually quite good.
+            post: {0, 1, 2}
+                Default 0. The amount and type of postprocessing applied to the
+                constructed graph. 0 means no processing. 2 means more
+                processing.
+            indexThreadQty: int
+                Default self._nprocs. The number of threads used.
+
         query_params: dict
             Parameters used by HNSW in querying.
             efSearch: int
@@ -846,18 +897,26 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
             The values are distances. If two NNs have distance euqal to 0, 0
             will be replaced by -np.inf.
         """
-        sources, targets, distances = self.s_knns(
+        targets, distances = self.s_knns(
             k=k, metric=metric, use_pca=use_pca, use_hnsw=use_hnsw,
             index_params=index_params, query_params=query_params,
             verbose=verbose)
+
+        sources = [np.repeat(i, len(targets[i])) for i in range(len(targets))]
+
+        sources_1d = np.concatenate(sources, axis=0)
+        targets_1d = np.concatenate(targets, axis=0)
+        distances_1d = np.concatenate(distances, axis=0)
+
+        distances_1d[distances_1d == 0] = -np.inf
         knn_conn_mat = spsparse.coo_matrix(
-            (distances, (sources, targets)),
+            (distances_1d, (sources_1d, targets_1d)),
             shape=(self._x.shape[0], self._x.shape[0])).tocsr()
 
         self._last_k = k
         self._last_knn_conn_mat = knn_conn_mat
         return knn_conn_mat
-    
+
     def _s_knns_hnsw(self, k, metric=None, use_pca=False,
                      index_params=None, query_params=None,
                      verbose=False):
@@ -898,7 +957,7 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
             data_type = nmslib.DataType.SPARSE_VECTOR
         else:
             data_type = nmslib.DataType.DENSE_VECTOR
-            
+
         if index_params is None:
             index_params = {
                 "efConstruction": 100,
@@ -907,7 +966,7 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
                 "post": 0,
                 "indexThreadQty": self._nprocs
             }
-        
+
         if query_params is None:
             query_params = {
                 "efSearch": 100
@@ -927,8 +986,6 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
             data_x, k=compute_k, num_threads=self._nprocs)
         # print(knns)
         # construct knn conn mat.
-        knn_sources = np.concatenate(
-            [np.repeat(x, len(knns[x][0]) - 1) for x in range(len(knns))])
         knn_targets_sep_l = []
         knn_weights_sep_l = []
         # need benchmark
@@ -938,7 +995,6 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
             # TODO: add arg. If true, raise error when length is wrong,
             #       otherwise warn.
             i_weights = knns[i][1]
-            i_weights[i_weights == 0] = -np.inf
             # Note that the query result mey have < compute_k neighbors.
             for j in range(len(i_weights)):
                 if i_targets[j] == i:
@@ -952,10 +1008,8 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
 
             knn_targets_sep_l.append(i_targets)
             knn_weights_sep_l.append(i_weights)
-        knn_targets = np.concatenate(knn_targets_sep_l, axis=0)
-        knn_weights = np.concatenate(knn_weights_sep_l, axis=0)
 
-        return knn_sources, knn_targets, knn_weights
+        return knn_targets_sep_l, knn_weights_sep_l
 
     def _s_knns_skl(self, k, metric=None, use_pca=False, verbose=False):
         """
@@ -984,15 +1038,11 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
                     n_neighbors=k, metric=metric).fit(self._x)
         distances, targets = nn_ins.kneighbors(
             None, n_neighbors=k, return_distance=True)
-        sources = np.concatenate(
-            [np.repeat(x, k) for x in range(targets.shape[0])])
-        
-        distances = distances.ravel("C")
-        distances[distances == 0] = -np.inf
-        
-        targets = targets.ravel("C")
-        return sources, targets, distances
-    
+
+        targets = list(targets)
+        distances = list(distances)
+        return targets, distances
+
     @staticmethod
     def knn_conn_mat_to_aff_graph(knn_conn_mat, aff_scale=1):
         sources, targets = knn_conn_mat.nonzero()
@@ -1104,7 +1154,7 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
     def _d(self):
         if self._use_pdist:
             if self._is_sparse:
-                sparse_compatible_metrics = ["cityblock", "cosine", 
+                sparse_compatible_metrics = ["cityblock", "cosine",
                                              "euclidean",
                                              "l1", "l2", "manhattan"]
                 if self._metric not in sparse_compatible_metrics:
