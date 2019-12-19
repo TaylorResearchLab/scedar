@@ -764,6 +764,31 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
                 knn_order_ind_lut[ikey] = [t[0] for t in d_sorted_v[0:k]]
             return knn_order_ind_lut
 
+    def s_knns(self, k, metric=None, use_pca=False,
+               use_hnsw=False,
+               index_params=None, query_params=None,
+               verbose=False):
+        if k < 1:
+            raise ValueError("k should >= 1")
+
+        if use_hnsw:
+            sources, targets, distances = self._s_knns_hnsw(
+                k=k, metric=metric, use_pca=use_pca,
+                index_params=index_params,
+                query_params=query_params,
+                verbose=verbose)
+        else:
+            if index_params is not None:
+                raise ValueError("index_params are not used with "
+                                 "use_hnsw=False.")
+            if query_params is not None:
+                raise ValueError("query_params are not used with "
+                                 "use_hnsw=False.")
+
+            sources, targets, distances = self._s_knns_skl(
+                k, metric=metric, use_pca=use_pca, verbose=verbose)
+        return sources, targets, distances
+
     def s_knn_connectivity_matrix(self, k, metric=None, use_pca=False,
                                   use_hnsw=False,
                                   index_params=None, query_params=None,
@@ -821,26 +846,10 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
             The values are distances. If two NNs have distance euqal to 0, 0
             will be replaced by -np.inf.
         """
-        if k < 1:
-            raise ValueError("k should >= 1")
-
-        if use_hnsw:
-            sources, targets, distances = self._s_knns_hnsw(
-                k=k, metric=metric, use_pca=use_pca,
-                index_params=index_params,
-                query_params=query_params,
-                verbose=verbose)
-        else:
-            if index_params is not None:
-                raise ValueError("index_params are not used with "
-                                 "use_hnsw=False.")
-            if query_params is not None:
-                raise ValueError("query_params are not used with "
-                                 "use_hnsw=False.")
-
-            sources, targets, distances = self._s_knns_skl(
-                k, metric=metric, use_pca=use_pca, verbose=verbose)
-
+        sources, targets, distances = self.s_knns(
+            k=k, metric=metric, use_pca=use_pca, use_hnsw=use_hnsw,
+            index_params=index_params, query_params=query_params,
+            verbose=verbose)
         knn_conn_mat = spsparse.coo_matrix(
             (distances, (sources, targets)),
             shape=(self._x.shape[0], self._x.shape[0])).tocsr()
@@ -919,7 +928,7 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
         # print(knns)
         # construct knn conn mat.
         knn_sources = np.concatenate(
-            [np.repeat(x, k) for x in range(len(knns))])
+            [np.repeat(x, len(knns[x][0]) - 1) for x in range(len(knns))])
         knn_targets_sep_l = []
         knn_weights_sep_l = []
         # need benchmark
