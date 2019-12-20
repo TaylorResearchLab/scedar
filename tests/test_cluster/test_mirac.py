@@ -32,6 +32,9 @@ class TestMIRAC(object):
         with pytest.raises(ValueError) as excinfo:
             cluster.MIRAC(x, metric='euclidean', encode_type=1)
 
+        with pytest.raises(ValueError) as excinfo:
+            cluster.MIRAC(x, metric='euclidean', dim_reduct_method='NONN')
+
         # hac tree n_leaves different from n_samples
         z = sch.linkage([[0], [5], [6], [8], [9], [12]],
                         method='single', optimal_ordering=True)
@@ -82,6 +85,50 @@ class TestMIRAC(object):
         sdm = eda.SampleDistanceMatrix([[], []], metric='euclidean')
         m = cluster.MIRAC(sdm._x, sdm._d, metric='euclidean', linkage='ward',
                           min_cl_n=35, cl_mdl_scale_factor=1, verbose=True)
+
+
+    def test_mirac_dim_reduction(self):
+        tx, tlab = skdset.make_blobs(n_samples=100, n_features=2,
+                                     centers=10, random_state=8927)
+        tx = tx - tx.min()
+        sdm = eda.SampleDistanceMatrix(tx, metric='euclidean')
+        m = cluster.MIRAC(sdm._x, sdm._d, metric='euclidean', linkage='ward',
+                          min_cl_n=35, cl_mdl_scale_factor=1, 
+                          dim_reduct_method='PCA', verbose=True)
+        assert len(m.labs) == 100
+        hct = eda.HClustTree.hclust_tree(sdm._d, linkage='ward',
+                                         optimal_ordering=True)
+        m2 = cluster.MIRAC(sdm._x, hac_tree=hct, min_cl_n=35,
+                           cl_mdl_scale_factor=1, encode_type='data',
+                           mdl_method=eda.mdl.ZeroIGKdeMdl, 
+                           dim_reduct_method='t-SNE', verbose=False)
+        assert m.labs == m2.labs
+        assert m2._sdm._lazy_load_d is None
+
+        tx2, tlab2 = skdset.make_blobs(n_samples=500, n_features=50,
+                                       centers=5, cluster_std=15,
+                                       random_state=8927)
+        tx2 = tx2 - tx2.min()
+        cluster.MIRAC(tx2, metric='euclidean', min_cl_n=15,
+                      optimal_ordering=False, cl_mdl_scale_factor=0,
+                      dim_reduct_method='UMAP', verbose=True)
+        # auto to encode distance
+        tx3, tlab3 = skdset.make_blobs(n_samples=100, n_features=101,
+                                       cluster_std=0.01, centers=5,
+                                       random_state=8927)
+        tx3 = tx3 - tx3.min()
+        sdm = eda.SampleDistanceMatrix(tx3, metric='euclidean')
+        m = cluster.MIRAC(sdm._x, sdm._d, metric='euclidean', linkage='ward',
+                          min_cl_n=5, cl_mdl_scale_factor=1,
+                          dim_reduct_method='t-SNE', verbose=True)
+        # empty
+        sdm = eda.SampleDistanceMatrix([[], []], metric='euclidean')
+        
+        with pytest.raises(Exception) as excinfo:
+            m = cluster.MIRAC(sdm._x, sdm._d, metric='euclidean',
+                              linkage='ward',
+                              min_cl_n=35, cl_mdl_scale_factor=1, 
+                              dim_reduct_method='PCA', verbose=True)
 
     @pytest.mark.mpl_image_compare
     def test_mirac_dmat_heatmap(self):

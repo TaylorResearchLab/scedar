@@ -93,9 +93,9 @@ class CommunityMIRAC(object):
 
     def run_mirac(self, metric="cosine", hac_tree=None, cl_mdl_scale_factor=1,
                   min_cl_n=25, encode_type="auto", mdl_method=None,
-                  min_split_mdl_red_ratio=0.2,
-                  soft_min_subtree_size=1,
-                  linkage="complete", optimal_ordering=False):
+                  min_split_mdl_red_ratio=0.2, soft_min_subtree_size=1,
+                  linkage="complete", optimal_ordering=False,
+                  dim_reduct_method=None):
         if self._cm_clp_x is None:
             raise ValueError("Need to run community clustering first.")
         
@@ -109,6 +109,7 @@ class CommunityMIRAC(object):
             min_split_mdl_red_ratio=min_split_mdl_red_ratio,
             soft_min_subtree_size=soft_min_subtree_size,
             linkage=linkage, optimal_ordering=optimal_ordering,
+            dim_reduct_method=dim_reduct_method,
             verbose=self._verbose)
         
         l1_cm_labs = self._cm_res.labs

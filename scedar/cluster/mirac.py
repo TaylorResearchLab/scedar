@@ -41,6 +41,8 @@ class MIRAC(object):
         with >= 50% zeros, and use GKdeMdl otherwise.
     linkage : str
         Linkage type for generating the hierarchy.
+    dim_reduct_method : {"PCA", "t-SNE", "UMAP", None}
+        If None, no dimensionality reduction before clustering.
     verbose : bool
         Print stats for each iteration.
 
@@ -72,12 +74,14 @@ class MIRAC(object):
     * Simplify splitting criteria.
     """
 
+    # TODO: use PCA/tsne/umap
     def __init__(self, x, d=None, metric="cosine", sids=None, fids=None,
                  hac_tree=None, nprocs=1, cl_mdl_scale_factor=1,
                  min_cl_n=25, encode_type="auto", mdl_method=None,
                  min_split_mdl_red_ratio=0.2,
                  soft_min_subtree_size=1,
                  linkage="complete", optimal_ordering=False,
+                 dim_reduct_method=None,
                  verbose=False):
         super().__init__()
         # initialize simple attributes
@@ -88,8 +92,26 @@ class MIRAC(object):
         self._optimal_ordering = optimal_ordering
         self._min_split_mdl_red_ratio = min_split_mdl_red_ratio
         self._soft_min_subtree_size = soft_min_subtree_size
+        self._dim_reduct_method = dim_reduct_method
+        # check dimensionality reduction method
+        if dim_reduct_method is not None:
+            # TODO: use pdist if provided
+            dim_red_sdm = eda.SampleDistanceMatrix(
+                x=x, metric=metric, use_pdist=False, nprocs=nprocs)
+            if dim_reduct_method == "PCA":
+                data_x = dim_red_sdm._pca_x
+            elif dim_reduct_method == "t-SNE":
+                data_x = dim_red_sdm._last_tsne
+            elif dim_reduct_method == "UMAP":
+                data_x = dim_red_sdm._umap_x
+            else:
+                raise ValueError("Not supported dimensionality reduction "
+                                 "method: {}".format(dim_reduct_method))
+        else:
+            data_x = x
         # labels for computing MDL
-        self._sdm = MDLSLCS(x=x, labs=[0]*len(x), d=d, metric=metric,
+        self._sdm = MDLSLCS(x=data_x, labs=[0]*data_x.shape[0],
+                            d=d, metric=metric,
                             sids=sids, fids=fids, encode_type=encode_type,
                             mdl_method=mdl_method, nprocs=nprocs)
         self._encode_type = self._sdm._encode_type
