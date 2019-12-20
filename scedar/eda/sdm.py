@@ -141,6 +141,7 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
         self._last_hnsw = None
         self._last_k = None
         self._last_knn_conn_mat = None
+        self._hnsw_index_lut = {}
 
     def to_classified(self, labels):
         """Convert to SingleLabelClassifiedSamples
@@ -170,6 +171,7 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
         slcs._lazy_load_skd_pca = self._lazy_load_skd_pca
         slcs._lazy_load_pca_x = self._lazy_load_pca_x
         slcs._last_hnsw = self._last_hnsw
+        slcs._hnsw_index_lut = self._hnsw_index_lut.copy()
         return slcs
 
     def sort_features(self, fdist_metric="cosine", optimal_ordering=False):
@@ -296,7 +298,7 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
             else:
                 kwargs["metric"] = self._metric
 
-        str_params = str(kwargs)
+        str_params = str(sorted(kwargs.items()))
         tsne_kv = self.get_tsne_kv(str_params)
         if tsne_kv is None:
             if self._x.shape[0] == 0:
@@ -973,10 +975,21 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
             }
 
         # create index
-        hnsw = nmslib.init(method="hnsw", space=metric, data_type=data_type)
-        hnsw.addDataPointBatch(data_x)
-        hnsw.createIndex(index_params, print_progress=verbose)
-        self._last_hnsw = hnsw
+        ind_pm_key = sorted([(k, v) for k, v in index_params.items()
+                              if k in ["efConstruction", "M",
+                                       "delaunay_type", "post"]])
+        ind_pm_key.append(("metric", metric))
+        ind_pm_key.append(("use_pca", use_pca))
+        str_ind_pm_key = str(ind_pm_key)
+        if str_ind_pm_key in self._hnsw_index_lut:
+            hnsw = self._hnsw_index_lut[str_ind_pm_key]
+        else:
+            hnsw = nmslib.init(method="hnsw", space=metric,
+                               data_type=data_type)
+            hnsw.addDataPointBatch(data_x)
+            hnsw.createIndex(index_params, print_progress=verbose)
+            self._last_hnsw = hnsw
+            self._hnsw_index_lut[str_ind_pm_key] = hnsw
         # query KNN
         hnsw.setQueryTimeParams(query_params)
         # k nearest neighbors
