@@ -16,12 +16,28 @@ class TestCommunityMIRAC(object):
         cm_mirac = cluster.CommunityMIRAC(self.x_20x5)
         cm_mirac.run()
         cm_mirac.labs
+        labs1 = cm_mirac._labs
+        assert labs1 is cm_mirac._labs
+        cm_mirac.tune_mirac(0.1, 5, 0.01, 1)
+        assert cm_mirac._mirac_res._cl_mdl_scale_factor == 0.1
+        assert cm_mirac._mirac_res._min_cl_n == 5
+        assert cm_mirac._mirac_res._min_split_mdl_red_ratio == 0.01
+        # should be updated
+        assert labs1 is not cm_mirac._labs
         cluster.CommunityMIRAC(self.x_20x5, verbose=True).run()
 
     def test_csr_run(self):
         cm_mirac = cluster.CommunityMIRAC(spsp.csr_matrix(self.x_20x5))
         cm_mirac.run()
         cm_mirac.labs
+        labs1 = cm_mirac._labs
+        assert labs1 is cm_mirac._labs
+        cm_mirac.tune_mirac(0.1, 5, 0.01, 1)
+        assert cm_mirac._mirac_res._cl_mdl_scale_factor == 0.1
+        assert cm_mirac._mirac_res._min_cl_n == 5
+        assert cm_mirac._mirac_res._min_split_mdl_red_ratio == 0.01
+        # should be updated
+        assert labs1 is not cm_mirac._labs
         cluster.CommunityMIRAC(
             spsp.csr_matrix(self.x_20x5), verbose=True).run()
 

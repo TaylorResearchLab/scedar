@@ -112,9 +112,24 @@ class CommunityMIRAC(object):
             dim_reduct_method=dim_reduct_method,
             verbose=self._verbose)
 
+        self._merge_labels()
+
+    def _merge_labels(self):
         l1_cm_labs = self._cm_res.labs
         l2_mirac_labs = self._mirac_res.labs
         self._labs = [l2_mirac_labs[i] for i in l1_cm_labs]
+
+    def tune_mirac(self, cl_mdl_scale_factor=1, min_cl_n=25,
+                   min_split_mdl_red_ratio=0.2,
+                   soft_min_subtree_size=1, verbose=False):
+        if self._mirac_res is None:
+            raise ValueError("Need to run MIRAC first.")
+
+        self._mirac_res.tune_parameters(cl_mdl_scale_factor, min_cl_n,
+                                        min_split_mdl_red_ratio,
+                                        soft_min_subtree_size, verbose)
+
+        self._merge_labels()
 
 
     def run(self, graph=None, metric="cosine",

@@ -153,7 +153,8 @@ class MIRAC(object):
 
     def tune_parameters(self, cl_mdl_scale_factor=1, min_cl_n=25,
                         min_split_mdl_red_ratio=0.2,
-                        soft_min_subtree_size=1):
+                        soft_min_subtree_size=1, verbose=False):
+        self._verbose = verbose
         self._set_parameters(cl_mdl_scale_factor, min_cl_n,
                              min_split_mdl_red_ratio,
                              soft_min_subtree_size)
