@@ -9,7 +9,7 @@ from scedar.cluster import Community
 class CommunityMIRAC(object):
     """
     CommunityMIRAC: Community + MIRAC clustering
-    
+
     Run community clustering with high resolution to get a large number of
     clusters. Then, run MIRAC on the community clusters.
 
@@ -98,7 +98,7 @@ class CommunityMIRAC(object):
                   dim_reduct_method=None):
         if self._cm_clp_x is None:
             raise ValueError("Need to run community clustering first.")
-        
+
         self._mirac_res = MIRAC(
             self._cm_clp_x, metric=metric,
             sids=self._sids, fids=self._fids,
@@ -111,7 +111,7 @@ class CommunityMIRAC(object):
             linkage=linkage, optimal_ordering=optimal_ordering,
             dim_reduct_method=dim_reduct_method,
             verbose=self._verbose)
-        
+
         l1_cm_labs = self._cm_res.labs
         l2_mirac_labs = self._mirac_res.labs
         self._labs = [l2_mirac_labs[i] for i in l1_cm_labs]
@@ -134,7 +134,7 @@ class CommunityMIRAC(object):
             aff_scale=aff_scale,
             partition_method=partition_method,
             resolution=resolution, random_state=random_state, n_iter=n_iter)
-        
+
         self.run_mirac(
             metric=metric, hac_tree=hac_tree,
             cl_mdl_scale_factor=cl_mdl_scale_factor,
@@ -155,7 +155,7 @@ class CommunityMIRAC(object):
         cl_lab_sinds_lut = defaultdict(list)
         for s_ind, s_lab in enumerate(cluster_labs):
             cl_lab_sinds_lut[s_lab].append(s_ind)
-        
+
         cl_stat_vecs = []
         # need to be sorted
         for lab in uniq_labs:

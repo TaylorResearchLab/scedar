@@ -93,14 +93,14 @@ class TestMIRAC(object):
         tx = tx - tx.min()
         sdm = eda.SampleDistanceMatrix(tx, metric='euclidean')
         m = cluster.MIRAC(sdm._x, sdm._d, metric='euclidean', linkage='ward',
-                          min_cl_n=35, cl_mdl_scale_factor=1, 
+                          min_cl_n=35, cl_mdl_scale_factor=1,
                           dim_reduct_method='PCA', verbose=True)
         assert len(m.labs) == 100
         hct = eda.HClustTree.hclust_tree(sdm._d, linkage='ward',
                                          optimal_ordering=True)
         m2 = cluster.MIRAC(sdm._x, hac_tree=hct, min_cl_n=35,
                            cl_mdl_scale_factor=1, encode_type='data',
-                           mdl_method=eda.mdl.ZeroIGKdeMdl, 
+                           mdl_method=eda.mdl.ZeroIGKdeMdl,
                            dim_reduct_method='t-SNE', verbose=False)
         assert m.labs == m2.labs
         assert m2._sdm._lazy_load_d is None
@@ -123,12 +123,24 @@ class TestMIRAC(object):
                           dim_reduct_method='t-SNE', verbose=True)
         # empty
         sdm = eda.SampleDistanceMatrix([[], []], metric='euclidean')
-        
+
         with pytest.raises(Exception) as excinfo:
             m = cluster.MIRAC(sdm._x, sdm._d, metric='euclidean',
                               linkage='ward',
-                              min_cl_n=35, cl_mdl_scale_factor=1, 
+                              min_cl_n=35, cl_mdl_scale_factor=1,
                               dim_reduct_method='PCA', verbose=True)
+
+    def test_mirac_rerun(self):
+        tx, tlab = skdset.make_blobs(n_samples=100, n_features=2,
+                                     centers=10, random_state=8927)
+        tx = tx - tx.min()
+        m = cluster.MIRAC(tx, min_cl_n=35,
+                           cl_mdl_scale_factor=1, encode_type='data',
+                           mdl_method=eda.mdl.ZeroIGKdeMdl,
+                           dim_reduct_method='t-SNE', verbose=False)
+        m_tsne = m._sdm._x
+        m.tune_parameters(0, 5, 0.1, 1)
+        assert m_tsne is m._sdm._x
 
     @pytest.mark.mpl_image_compare
     def test_mirac_dmat_heatmap(self):

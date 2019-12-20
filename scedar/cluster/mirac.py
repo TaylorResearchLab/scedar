@@ -90,8 +90,6 @@ class MIRAC(object):
         self._verbose = verbose
         self._linkage = linkage
         self._optimal_ordering = optimal_ordering
-        self._min_split_mdl_red_ratio = min_split_mdl_red_ratio
-        self._soft_min_subtree_size = soft_min_subtree_size
         self._dim_reduct_method = dim_reduct_method
         # check dimensionality reduction method
         if dim_reduct_method is not None:
@@ -128,6 +126,14 @@ class MIRAC(object):
                 optimal_ordering=self._optimal_ordering,
                 is_euc_dist=self._is_euc_dist, verbose=self._verbose)
         self._hac_tree = hac_tree
+        # set parameters
+        self.tune_parameters(cl_mdl_scale_factor, min_cl_n,
+                             min_split_mdl_red_ratio,
+                             soft_min_subtree_size)
+
+    def _set_parameters(self, cl_mdl_scale_factor=1, min_cl_n=25,
+                        min_split_mdl_red_ratio=0.2,
+                        soft_min_subtree_size=1):
         # initialize cluster mdl scale factor
         if cl_mdl_scale_factor < 0:
             raise ValueError("cl_mdl_scale_factor should >= 0"
@@ -141,10 +147,21 @@ class MIRAC(object):
             raise ValueError("min_cl_n shoud > 0. "
                              "min_cl_n: {}".format(min_cl_n))
         self._min_cl_n = min_cl_n
+        self._min_split_mdl_red_ratio = min_split_mdl_red_ratio
+        self._soft_min_subtree_size = soft_min_subtree_size
+        return
+
+    def tune_parameters(self, cl_mdl_scale_factor=1, min_cl_n=25,
+                        min_split_mdl_red_ratio=0.2,
+                        soft_min_subtree_size=1):
+        self._set_parameters(cl_mdl_scale_factor, min_cl_n,
+                             min_split_mdl_red_ratio,
+                             soft_min_subtree_size)
         # run MIRAC with initialized parameters
         s_inds, s_labs = self._mirac()
         # initialize labels
         self._labs = s_labs[np.argsort(s_inds, kind="mergesort")].tolist()
+        return
 
     def dmat_heatmap(self, selected_labels=None, col_labels=None,
                      transform=None,
