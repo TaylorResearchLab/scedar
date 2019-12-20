@@ -1047,6 +1047,7 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
     def knn_conn_mat_to_aff_graph(knn_conn_mat, aff_scale=1):
         sources, targets = knn_conn_mat.nonzero()
         weights = knn_conn_mat[sources, targets].A1
+        weights[weights == -np.inf] = 0
         weights = (weights.max() - weights) * aff_scale
         graph = ig.Graph(edges=list(zip(sources, targets)),
                          directed=False, edge_attrs={"weight": weights})
