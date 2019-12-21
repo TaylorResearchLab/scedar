@@ -99,7 +99,8 @@ class MIRAC(object):
             if dim_reduct_method == "PCA":
                 data_x = dim_red_sdm._pca_x
             elif dim_reduct_method == "t-SNE":
-                data_x = dim_red_sdm._last_tsne
+                data_x = dim_red_sdm.tsne(
+                    n_iter=3000, random_state=17, verbose=verbose)
             elif dim_reduct_method == "UMAP":
                 data_x = dim_red_sdm._umap_x
             else:
