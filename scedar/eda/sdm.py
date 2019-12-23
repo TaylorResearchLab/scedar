@@ -1525,6 +1525,7 @@ class HClustTree(object):
             else:
                 lst = max_st
                 rst = min_st
+            # instance is modified.
             self._left = lst._node
             self._right = rst._node
         labs, sids = self.cluster_id_to_lab_list(
@@ -1600,8 +1601,9 @@ class HClustTree(object):
         return lab_list, sid_list
 
     @staticmethod
-    def hclust_tree(dmat, linkage="complete", n_eval_rounds=None,
-                    is_euc_dist=False, optimal_ordering=False, verbose=False):
+    def hclust_linkage(dmat, linkage="complete", n_eval_rounds=None,
+                       is_euc_dist=False, optimal_ordering=False,
+                       verbose=False):
         dmat = np.array(dmat, dtype="float")
         dmat = SampleDistanceMatrix.num_correct_dist_mat(dmat)
 
@@ -1638,6 +1640,19 @@ class HClustTree(object):
         dmat_sf = spspatial.distance.squareform(dmat)
         hac_z = sch.linkage(dmat_sf, method=linkage,
                             optimal_ordering=optimal_ordering)
+        return hac_z
+
+    @staticmethod
+    def hclust_tree(dmat, linkage="complete", n_eval_rounds=None,
+                    is_euc_dist=False, optimal_ordering=False, verbose=False):
+        hac_z = HClustTree.hclust_linkage(
+            dmat=dmat, linkage=linkage, n_eval_rounds=n_eval_rounds,
+            is_euc_dist=is_euc_dist, optimal_ordering=optimal_ordering,
+            verbose=verbose)
+        return HClustTree.hct_from_lkg(hac_z)
+
+    @staticmethod
+    def hct_from_lkg(hac_z):
         return HClustTree(sch.to_tree(hac_z))
 
     @staticmethod

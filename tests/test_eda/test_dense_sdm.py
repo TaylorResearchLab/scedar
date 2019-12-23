@@ -1263,6 +1263,16 @@ class TestHClustTree(object):
         eda.HClustTree.hclust_tree(self.sdm_5x2.d, linkage="auto",
                                    n_eval_rounds=-1, is_euc_dist=True,
                                    verbose=True)
+    def test_hct_from_lkg(self):
+        lkg = eda.HClustTree.hclust_linkage(
+            self.sdm_5x2.d, linkage="auto",
+            n_eval_rounds=-1, is_euc_dist=True,
+            verbose=True)
+        tree1 = eda.HClustTree.hct_from_lkg(lkg)
+        tree2 = eda.HClustTree.hct_from_lkg(lkg)
+        assert tree1 is not tree2
+        assert tree1._left is not tree2._left
+        assert tree1._right is not tree2._right
 
     def test_hclust_tree(self):
         assert self.hct.prev is None
