@@ -127,10 +127,10 @@ class MIRAC(object):
                 optimal_ordering=self._optimal_ordering,
                 is_euc_dist=self._is_euc_dist, verbose=self._verbose)
         self._hac_tree = hac_tree
-        # set parameters
+        # run
         self.tune_parameters(cl_mdl_scale_factor, min_cl_n,
                              min_split_mdl_red_ratio,
-                             soft_min_subtree_size)
+                             soft_min_subtree_size, self._verbose)
 
     def _set_parameters(self, cl_mdl_scale_factor=1, min_cl_n=25,
                         min_split_mdl_red_ratio=0.2,

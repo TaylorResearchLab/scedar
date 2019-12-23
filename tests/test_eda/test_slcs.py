@@ -1,3 +1,4 @@
+import scipy.sparse as spsp
 import numpy as np
 import seaborn as sns
 import scedar.eda as eda
@@ -461,6 +462,106 @@ class TestSingleLabelClassifiedSamples(object):
         x = np.vstack((c1x, c2x, c3x))
         labs = [0] * 50 + [1] * 20 + [2] * 30
         slcs = eda.SingleLabelClassifiedSamples(x, labs=labs)
+        # bootstrapping
+        f_importance_list, bst = slcs.feature_importance_across_labs(
+            [0, 1], random_state=123, shuffle_features=True,
+            num_bootstrap_round=10)
+        f_importance_list2, bst2 = slcs.feature_importance_across_labs(
+            [0, 1], random_state=123, shuffle_features=True,
+            num_bootstrap_round=10)
+        assert f_importance_list == f_importance_list2
+        assert f_importance_list2[0][0] == 3
+        # no feature shuffling
+        f_importance_list3, bst3 = slcs.feature_importance_across_labs(
+            [0, 1], random_state=123, shuffle_features=False,
+            num_bootstrap_round=10)
+        # provide resampling size
+        f_importance_list4, bst4 = slcs.feature_importance_across_labs(
+            [0, 1], random_state=123, shuffle_features=False,
+            bootstrap_size=30, num_bootstrap_round=10)
+        f_importance_list4, bst4 = slcs.feature_importance_across_labs(
+            [0, 1], random_state=123, shuffle_features=True,
+            bootstrap_size=30, num_bootstrap_round=10)
+
+    def test_feature_importance_across_labs_bootstrap_npd(self):
+        # Generate simple dataset with gaussian noise
+        x_centers = np.array([[0, 0,   1,  1, 5, 50, 10, 37],
+                              [0, 0, 1.5,  5, 5, 50, 10, 35],
+                              [0, 0,  10, 10, 5, 50, 10, 33]])
+        np.random.seed(1920)
+        c1x = np.array(x_centers[0]) + np.random.normal(size=(50, 8))
+        c2x = np.array(x_centers[1]) + np.random.normal(size=(20, 8))
+        c3x = np.array(x_centers[2]) + np.random.normal(size=(30, 8))
+        x = np.vstack((c1x, c2x, c3x))
+        labs = [0] * 50 + [1] * 20 + [2] * 30
+        slcs = eda.SingleLabelClassifiedSamples(x, labs=labs, use_pdist=False)
+        # bootstrapping
+        f_importance_list, bst = slcs.feature_importance_across_labs(
+            [0, 1], random_state=123, shuffle_features=True,
+            num_bootstrap_round=10)
+        f_importance_list2, bst2 = slcs.feature_importance_across_labs(
+            [0, 1], random_state=123, shuffle_features=True,
+            num_bootstrap_round=10)
+        assert f_importance_list == f_importance_list2
+        assert f_importance_list2[0][0] == 3
+        # no feature shuffling
+        f_importance_list3, bst3 = slcs.feature_importance_across_labs(
+            [0, 1], random_state=123, shuffle_features=False,
+            num_bootstrap_round=10)
+        # provide resampling size
+        f_importance_list4, bst4 = slcs.feature_importance_across_labs(
+            [0, 1], random_state=123, shuffle_features=False,
+            bootstrap_size=30, num_bootstrap_round=10)
+        f_importance_list4, bst4 = slcs.feature_importance_across_labs(
+            [0, 1], random_state=123, shuffle_features=True,
+            bootstrap_size=30, num_bootstrap_round=10)
+
+    def test_feature_importance_across_labs_bootstrap_sparse(self):
+        # Generate simple dataset with gaussian noise
+        x_centers = np.array([[0, 0,   1,  1, 5, 50, 10, 37],
+                              [0, 0, 1.5,  5, 5, 50, 10, 35],
+                              [0, 0,  10, 10, 5, 50, 10, 33]])
+        np.random.seed(1920)
+        c1x = np.array(x_centers[0]) + np.random.normal(size=(50, 8))
+        c2x = np.array(x_centers[1]) + np.random.normal(size=(20, 8))
+        c3x = np.array(x_centers[2]) + np.random.normal(size=(30, 8))
+        x = spsp.csr_matrix(np.vstack((c1x, c2x, c3x)))
+        labs = [0] * 50 + [1] * 20 + [2] * 30
+        slcs = eda.SingleLabelClassifiedSamples(x, labs=labs, metric='cosine')
+        # bootstrapping
+        f_importance_list, bst = slcs.feature_importance_across_labs(
+            [0, 1], random_state=123, shuffle_features=True,
+            num_bootstrap_round=10)
+        f_importance_list2, bst2 = slcs.feature_importance_across_labs(
+            [0, 1], random_state=123, shuffle_features=True,
+            num_bootstrap_round=10)
+        assert f_importance_list == f_importance_list2
+        assert f_importance_list2[0][0] == 3
+        # no feature shuffling
+        f_importance_list3, bst3 = slcs.feature_importance_across_labs(
+            [0, 1], random_state=123, shuffle_features=False,
+            num_bootstrap_round=10)
+        # provide resampling size
+        f_importance_list4, bst4 = slcs.feature_importance_across_labs(
+            [0, 1], random_state=123, shuffle_features=False,
+            bootstrap_size=30, num_bootstrap_round=10)
+        f_importance_list4, bst4 = slcs.feature_importance_across_labs(
+            [0, 1], random_state=123, shuffle_features=True,
+            bootstrap_size=30, num_bootstrap_round=10)
+
+    def test_feature_importance_across_labs_bootstrap_sparse_npd(self):
+        # Generate simple dataset with gaussian noise
+        x_centers = np.array([[0, 0,   1,  1, 5, 50, 10, 37],
+                              [0, 0, 1.5,  5, 5, 50, 10, 35],
+                              [0, 0,  10, 10, 5, 50, 10, 33]])
+        np.random.seed(1920)
+        c1x = np.array(x_centers[0]) + np.random.normal(size=(50, 8))
+        c2x = np.array(x_centers[1]) + np.random.normal(size=(20, 8))
+        c3x = np.array(x_centers[2]) + np.random.normal(size=(30, 8))
+        x = spsp.csr_matrix(np.vstack((c1x, c2x, c3x)))
+        labs = [0] * 50 + [1] * 20 + [2] * 30
+        slcs = eda.SingleLabelClassifiedSamples(x, labs=labs, metric='cosine',
+                                                use_pdist=False)
         # bootstrapping
         f_importance_list, bst = slcs.feature_importance_across_labs(
             [0, 1], random_state=123, shuffle_features=True,

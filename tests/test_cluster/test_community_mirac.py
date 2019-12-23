@@ -68,3 +68,7 @@ class TestCommunityMIRAC(object):
     def test_collapse_clusters_wrong_exec_order(self):
         with pytest.raises(ValueError):
             cluster.CommunityMIRAC(self.x_20x5).run_mirac()
+        cm_mirac = cluster.CommunityMIRAC(spsp.csr_matrix(self.x_20x5))
+        cm_mirac.run_community()
+        with pytest.raises(ValueError):
+            cm_mirac.tune_mirac()

@@ -47,7 +47,7 @@ class SingleLabelClassifiedSamples(SampleDistanceMatrix):
     # sid, lab, fid, x
 
     def __init__(self, x, labs, sids=None, fids=None, d=None,
-                 metric="correlation", use_pdist=True, nprocs=None):
+                 metric="cosine", use_pdist=True, nprocs=None):
         # sids: sample IDs. String or int.
         # labs: sample classified labels. String or int.
         # x: (n_samples, n_features)
@@ -152,13 +152,26 @@ class SingleLabelClassifiedSamples(SampleDistanceMatrix):
         if selected_f_inds is None:
             selected_f_inds = slice(None, None)
 
-        return SingleLabelClassifiedSamples(
-                   x=self._x[selected_s_inds, :][:, selected_f_inds].copy(),
-                   labs=self._labs[selected_s_inds].tolist(),
-                   d=self._d[selected_s_inds, :][:, selected_s_inds].copy(),
-                   sids=self._sids[selected_s_inds].tolist(),
-                   fids=self._fids[selected_f_inds].tolist(),
-                   metric=self._metric, nprocs=self._nprocs)
+        if self._use_pdist:
+            return SingleLabelClassifiedSamples(
+                x=self._x[selected_s_inds, :][:, selected_f_inds].copy(),
+                d=self._d[selected_s_inds, :][:, selected_s_inds].copy(),
+                labs=self._labs[selected_s_inds].tolist(),
+                metric=self._metric,
+                use_pdist=self._use_pdist,
+                sids=self._sids[selected_s_inds].tolist(),
+                fids=self._fids[selected_f_inds].tolist(),
+                nprocs=self._nprocs)
+        else:
+            return SingleLabelClassifiedSamples(
+                x=self._x[selected_s_inds, :][:, selected_f_inds].copy(),
+                d=None,
+                labs=self._labs[selected_s_inds].tolist(),
+                metric=self._metric,
+                use_pdist=self._use_pdist,
+                sids=self._sids[selected_s_inds].tolist(),
+                fids=self._fids[selected_f_inds].tolist(),
+                nprocs=self._nprocs)
 
     def merge_labels(self, orig_labs_to_merge, new_lab):
         """Merge selected labels into a new label
