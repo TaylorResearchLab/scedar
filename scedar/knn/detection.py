@@ -52,8 +52,8 @@ class RareSampleDetection(object):
         for i in range(1, n_iter+1):
             i_d_cutoff = (d_cutoff +
                           (n_iter - i) / n_iter * max(0, d_max - d_cutoff))
-            print(i_d_cutoff)
-            print(curr_knn_distances)
+            # print(i_d_cutoff)
+            # print(curr_knn_distances)
             # i_k = min(curr_dist_mat.shape[0]-1, k)
             kept_curr_s_inds = []
             # each column is sorted. Not in-place.
@@ -271,5 +271,5 @@ class RareSampleDetection(object):
             param_key = param_tups[i][:3]
             if param_key not in self._res_lut:
                 self._res_lut[param_key] = res_list[i]
-        print(res_list)
+        # print(res_list)
         return [res[0] for res in res_list]
