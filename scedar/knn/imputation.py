@@ -54,7 +54,10 @@ class FeatureImputation(object):
         #                         ...}
         # curr_x_arr is only accessed but not edited
         next_x_arr = curr_x_arr.copy()
-        curr_x_present_arr = curr_x_arr >= min_present_val
+        if spsp.issparse(curr_x_arr):
+            curr_x_present_arr = (curr_x_arr >= min_present_val).tocsr()
+        else:
+            curr_x_present_arr = curr_x_arr >= min_present_val
         # curr_x_absent_arr = np.logical_not(curr_x_present_arr)
         # next_x_arr is edited
         # Indicator matrix of whether an entry is imputed.
@@ -100,7 +103,11 @@ class FeatureImputation(object):
 
             curr_x_arr = next_x_arr
             next_x_arr = curr_x_arr.copy()
-            curr_x_present_arr = curr_x_arr >= min_present_val
+            if spsp.issparse(curr_x_arr):
+                curr_x_present_arr = (curr_x_arr >= min_present_val).tocsr()
+            else:
+                curr_x_present_arr = curr_x_arr >= min_present_val
+
             # curr_x_absent_arr = np.logical_not(curr_x_present_arr)
 
             n_pu_features_per_s = np.sum(impute_idc_arr > 0, axis=1).A1
