@@ -81,8 +81,11 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
     _last_tsne: float array
         The last *stored* tsne results. In no tsne performed before, a run
         with default parameters will be performed.
-    _last_hnsw: nmslib.dist.FloatIndex
-        The last hnsw index.
+    _hnsw_index_lut: {string_index_parameters: hnsw_index}
+    _last_k: int
+        The last *k* used for s_knns computation.
+    _last_knns: (knn_indices, knn_distances)
+        The last computed s_knns.
     _knn_ng_lut: dict
         {(k, aff_scale): knn_graph}
     """
@@ -138,9 +141,8 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
         # umap
         self._lazy_load_umap_x = None
         # knn conn mat related
-        self._last_hnsw = None
         self._last_k = None
-        self._last_knn_conn_mat = None
+        self._last_knns = None
         self._hnsw_index_lut = {}
 
     def to_classified(self, labels):
@@ -170,7 +172,6 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
         slcs._pca_n_components = self._pca_n_components
         slcs._lazy_load_skd_pca = self._lazy_load_skd_pca
         slcs._lazy_load_pca_x = self._lazy_load_pca_x
-        slcs._last_hnsw = self._last_hnsw
         slcs._hnsw_index_lut = self._hnsw_index_lut.copy()
         return slcs
 
@@ -749,21 +750,18 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
                     compute_k = min(10, max(self._x.shape[0] - 1, 0))
                 else:
                     compute_k = k
-                knn_conn_mat = self.s_knn_connectivity_matrix(compute_k)
+                targets, distances = self.s_knns(compute_k)
             else:
                 # if two samples are identical, their distance is 0
-                knn_conn_mat = self._last_knn_conn_mat
-            row_inds, col_inds = knn_conn_mat.nonzero()
-            distances = knn_conn_mat[row_inds, col_inds].A1
-            knn_ind_dist_lut = defaultdict(list)
-            for i in range(len(row_inds)):
-                knn_ind_dist_lut[row_inds[i]].append(
-                    (col_inds[i], distances[i]))
+                targets, distances = self._last_knns
 
-            knn_order_ind_lut = {}
-            for ikey, ival in knn_ind_dist_lut.items():
-                d_sorted_v = sorted(ival, key=lambda t: t[1])
-                knn_order_ind_lut[ikey] = [t[0] for t in d_sorted_v[0:k]]
+            knn_order_ind_lut = defaultdict(list)
+            for i in range(len(targets)):
+                # create a key val pair
+                knn_order_ind_lut[i]
+                for j in range(k):
+                    knn_order_ind_lut[i].append(targets[i][j])
+
             return knn_order_ind_lut
 
     def s_knns(self, k, metric=None, use_pca=False,
@@ -839,6 +837,9 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
 
             targets, distances = self._s_knns_skl(
                 k, metric=metric, use_pca=use_pca, verbose=verbose)
+
+        self._last_k = k
+        self._last_knns = (targets, distances)
         return targets, distances
 
     def s_knn_connectivity_matrix(self, k, metric=None, use_pca=False,
@@ -914,9 +915,6 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
         knn_conn_mat = spsparse.coo_matrix(
             (distances_1d, (sources_1d, targets_1d)),
             shape=(self._x.shape[0], self._x.shape[0])).tocsr()
-
-        self._last_k = k
-        self._last_knn_conn_mat = knn_conn_mat
         return knn_conn_mat
 
     def _s_knns_hnsw(self, k, metric=None, use_pca=False,
@@ -988,7 +986,6 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
                                data_type=data_type)
             hnsw.addDataPointBatch(data_x)
             hnsw.createIndex(index_params, print_progress=verbose)
-            self._last_hnsw = hnsw
             self._hnsw_index_lut[str_ind_pm_key] = hnsw
         # query KNN
         hnsw.setQueryTimeParams(query_params)
