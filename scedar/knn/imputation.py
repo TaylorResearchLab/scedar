@@ -48,18 +48,8 @@ class FeatureImputation(object):
         if spsp.issparse(curr_x_arr):
             if not spsp.isspmatrix_lil(curr_x_arr):
                 curr_x_arr = curr_x_arr.tolil()
-        n_samples, n_features = curr_x_arr.shape
-        # knn_ordered_ind_dict = {sample_ind : [1st_NN_ind(neq sample_ind),
-        #                                       2nd_NN_ind, ..., nth_NN_ind],
-        #                         ...}
         # curr_x_arr is only accessed but not edited
-        next_x_arr = curr_x_arr.copy()
-        if spsp.issparse(curr_x_arr):
-            curr_x_present_arr = (curr_x_arr >= min_present_val).tocsr()
-        else:
-            curr_x_present_arr = curr_x_arr >= min_present_val
-        # curr_x_absent_arr = np.logical_not(curr_x_present_arr)
-        # next_x_arr is edited
+        n_samples, n_features = curr_x_arr.shape
         # Indicator matrix of whether an entry is imputed.
         impute_idc_arr = spsp.lil_matrix(curr_x_arr.shape, dtype=int)
 
@@ -67,6 +57,12 @@ class FeatureImputation(object):
 
         for i in range(1, n_iter + 1):
             iter_start_time = time.time()
+            # next_x_arr is edited
+            next_x_arr = curr_x_arr.copy()
+            if spsp.issparse(curr_x_arr):
+                curr_x_present_arr = (curr_x_arr >= min_present_val).tocsr()
+            else:
+                curr_x_present_arr = curr_x_arr >= min_present_val
             # iteratively decreases n_do_i from k to n_do
             # Pick-up easy ones first
             n_do_i = n_do + int(np.ceil((n_iter - i) / n_iter * (k - n_do)))
@@ -102,13 +98,6 @@ class FeatureImputation(object):
                         next_x_arr[s_ind, fai] = knn_x_present_ss
 
             curr_x_arr = next_x_arr
-            next_x_arr = curr_x_arr.copy()
-            if spsp.issparse(curr_x_arr):
-                curr_x_present_arr = (curr_x_arr >= min_present_val).tocsr()
-            else:
-                curr_x_present_arr = curr_x_arr >= min_present_val
-
-            # curr_x_absent_arr = np.logical_not(curr_x_present_arr)
 
             n_pu_features_per_s = np.sum(impute_idc_arr > 0, axis=1).A1
             n_pu_entries = np.sum(n_pu_features_per_s)
