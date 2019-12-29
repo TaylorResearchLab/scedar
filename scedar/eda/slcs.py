@@ -1,5 +1,7 @@
 import itertools
 
+from multiprocessing import Pool
+
 from collections import namedtuple
 
 import numpy as np
@@ -855,19 +857,24 @@ class MDLSingleLabelClassifiedSamples(SingleLabelClassifiedSamples):
 
         nprocs = max(int(nprocs), 1)
         if encode_type == "data":
-            col_encoders = utils.parmap(
-                lambda x1d: mdl_method(x1d), x.T, nprocs)
+            if nprocs == 1:
+                col_encoders = list(map(mdl_method, x.T))
+            else:
+                with Pool(nprocs) as mpp:
+                    col_encoders = mpp.map(mdl_method, x.T)
         elif encode_type == "distance":
             # distance
             s_inds = list(range(x.shape[0]))
-            xs_for_map = [x[s_inds[i], s_inds[:i] + s_inds[i+1:]]
-                          for i in s_inds]
+            # ith row
+            # all columns except ith row.
+            xs_for_map = [np.delete(x[i, :], i, axis=0)
+                          for i in range(x.shape[0])]
 
-            def single_s_mdl_encoder(x1d):
-                # copy indices for parallel processing
-                return mdl_method(x1d)
-            col_encoders = utils.parmap(
-                single_s_mdl_encoder, xs_for_map, nprocs)
+            if nprocs == 1:
+                col_encoders = list(map(mdl_method, xs_for_map))
+            else:
+                with Pool(nprocs) as mpp:
+                    col_encoders = mpp.map(mdl_method, xs_for_map)
         else:
             raise NotImplementedError("unknown encode_type: "
                                       "{}".format(encode_type))
