@@ -729,7 +729,7 @@ class TestNoPdistSampleDistanceMatrix(object):
         assert sdm._skd_pca.explained_variance_ratio_.shape == (20,)
 
     @pytest.mark.mpl_image_compare
-    def test_sdm_nopdist_umap_feature_gradient_plot(self):
+    def test_sdm_nopdist_umap_feature_gradient_plot_npd(self):
         sids = list(range(8))
         fids = [str(i) for i in range(10)]
         np.random.seed(123)
@@ -745,7 +745,7 @@ class TestNoPdistSampleDistanceMatrix(object):
         return fig
 
     @pytest.mark.mpl_image_compare
-    def test_sdm_nopdist_umap_feature_gradient_plus10_plot(self):
+    def test_sdm_nopdist_umap_feature_gradient_plus10_plot_npd(self):
         sids = list(range(8))
         fids = [str(i) for i in range(10)]
         np.random.seed(123)
@@ -761,7 +761,7 @@ class TestNoPdistSampleDistanceMatrix(object):
         return fig
 
     @pytest.mark.mpl_image_compare
-    def test_sdm_nopdist_umap_feature_gradient_plot_sslabs(self):
+    def test_sdm_nopdist_umap_feature_gradient_plot_npd_sslabs(self):
         sids = list(range(8))
         fids = [str(i) for i in range(10)]
         np.random.seed(123)
@@ -782,7 +782,7 @@ class TestNoPdistSampleDistanceMatrix(object):
         return fig
 
     @pytest.mark.mpl_image_compare
-    def test_sdm_nopdist_umap_feature_gradient_plot_sslabs_empty(self):
+    def test_sdm_nopdist_umap_feature_gradient_plot_npd_sslabs_empty(self):
         sids = list(range(8))
         fids = [str(i) for i in range(10)]
         np.random.seed(123)
@@ -798,7 +798,7 @@ class TestNoPdistSampleDistanceMatrix(object):
         np.testing.assert_equal(sdm._fids, fids)
         return fig
 
-    def test_sdm_umap_feature_gradient_plot_sslabs_wrong_args(self):
+    def test_sdm_umap_feature_gradient_plot_npd_sslabs_wrong_args(self):
         sids = list(range(8))
         fids = [str(i) for i in range(10)]
         np.random.seed(123)
@@ -821,7 +821,7 @@ class TestNoPdistSampleDistanceMatrix(object):
             sdm.umap_feature_gradient_plot(
                 '5', selected_labels=[11], figsize=(10, 10), s=50)
 
-    def test_sdm_umap_feature_gradient_plot_wrong_args(self):
+    def test_sdm_umap_feature_gradient_plot_npd_wrong_args(self):
         sids = list(range(8))
         fids = [str(i) for i in range(10)]
         np.random.seed(123)
@@ -865,7 +865,7 @@ class TestNoPdistSampleDistanceMatrix(object):
             sdm.umap_feature_gradient_plot('123')
 
     @pytest.mark.mpl_image_compare
-    def test_sdm_nopdist_umap_plot(self):
+    def test_sdm_nopdist_umap_plot_npd(self):
         sids = list(range(8))
         fids = [str(i) for i in range(10)]
         np.random.seed(123)

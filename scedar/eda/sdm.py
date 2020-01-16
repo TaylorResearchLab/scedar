@@ -521,24 +521,7 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
              metric_kwds=None, angular_rp_forest=False, target_n_neighbors=-1,
              target_metric='categorical', target_metric_kwds=None,
              target_weight=0.5, transform_seed=42, verbose=False):
-        if self._use_pdist:
-            umap_x = UMAP(
-                n_neighbors=n_neighbors, n_components=n_components,
-                metric='precomputed', n_epochs=n_epochs,
-                learning_rate=learning_rate, init=init, min_dist=min_dist,
-                spread=spread, set_op_mix_ratio=set_op_mix_ratio,
-                local_connectivity=local_connectivity,
-                repulsion_strength=repulsion_strength,
-                negative_sample_rate=negative_sample_rate,
-                transform_queue_size=transform_queue_size, a=a, b=b,
-                random_state=random_state, metric_kwds=metric_kwds,
-                angular_rp_forest=angular_rp_forest,
-                target_n_neighbors=target_n_neighbors,
-                target_metric=target_metric,
-                target_metric_kwds=target_metric_kwds,
-                target_weight=target_weight, transform_seed=transform_seed,
-                verbose=verbose).fit_transform(self._d)
-        else:
+        if use_pca:
             umap_x = UMAP(
                 n_neighbors=n_neighbors, n_components=n_components,
                 metric=self._metric, n_epochs=n_epochs,
@@ -554,7 +537,42 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
                 target_metric=target_metric,
                 target_metric_kwds=target_metric_kwds,
                 target_weight=target_weight, transform_seed=transform_seed,
-                verbose=verbose).fit_transform(self._x)
+                verbose=verbose).fit_transform(self._pca_x)
+        else:
+            if self._use_pdist:
+                umap_x = UMAP(
+                    n_neighbors=n_neighbors, n_components=n_components,
+                    metric='precomputed', n_epochs=n_epochs,
+                    learning_rate=learning_rate, init=init, min_dist=min_dist,
+                    spread=spread, set_op_mix_ratio=set_op_mix_ratio,
+                    local_connectivity=local_connectivity,
+                    repulsion_strength=repulsion_strength,
+                    negative_sample_rate=negative_sample_rate,
+                    transform_queue_size=transform_queue_size, a=a, b=b,
+                    random_state=random_state, metric_kwds=metric_kwds,
+                    angular_rp_forest=angular_rp_forest,
+                    target_n_neighbors=target_n_neighbors,
+                    target_metric=target_metric,
+                    target_metric_kwds=target_metric_kwds,
+                    target_weight=target_weight, transform_seed=transform_seed,
+                    verbose=verbose).fit_transform(self._d)
+            else:
+                umap_x = UMAP(
+                    n_neighbors=n_neighbors, n_components=n_components,
+                    metric=self._metric, n_epochs=n_epochs,
+                    learning_rate=learning_rate, init=init, min_dist=min_dist,
+                    spread=spread, set_op_mix_ratio=set_op_mix_ratio,
+                    local_connectivity=local_connectivity,
+                    repulsion_strength=repulsion_strength,
+                    negative_sample_rate=negative_sample_rate,
+                    transform_queue_size=transform_queue_size, a=a, b=b,
+                    random_state=random_state, metric_kwds=metric_kwds,
+                    angular_rp_forest=angular_rp_forest,
+                    target_n_neighbors=target_n_neighbors,
+                    target_metric=target_metric,
+                    target_metric_kwds=target_metric_kwds,
+                    target_weight=target_weight, transform_seed=transform_seed,
+                    verbose=verbose).fit_transform(self._x)
 
         self._lazy_load_umap_x = umap_x
         return umap_x
@@ -1307,7 +1325,7 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
     @property
     def _umap_x(self):
         if self._lazy_load_umap_x is None:
-            self._lazy_load_umap_x = self.umap()
+            self._lazy_load_umap_x = self.umap(random_state=17)
         return self._lazy_load_umap_x
 
     @property

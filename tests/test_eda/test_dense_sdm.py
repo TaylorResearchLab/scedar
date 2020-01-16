@@ -879,7 +879,7 @@ class TestSampleDistanceMatrix(object):
         assert sdm._skd_pca.explained_variance_ratio_.shape == (20,)
 
     @pytest.mark.mpl_image_compare
-    def test_sdm_umap_feature_gradient_plot(self):
+    def test_sdm_umap_feature_gradient_plot_dense(self):
         sids = list(range(8))
         fids = [str(i) for i in range(10)]
         np.random.seed(123)
@@ -895,7 +895,7 @@ class TestSampleDistanceMatrix(object):
         return fig
 
     @pytest.mark.mpl_image_compare
-    def test_sdm_umap_feature_gradient_plus10_plot(self):
+    def test_sdm_umap_feature_gradient_plus10_plot_dense(self):
         sids = list(range(8))
         fids = [str(i) for i in range(10)]
         np.random.seed(123)
@@ -911,7 +911,7 @@ class TestSampleDistanceMatrix(object):
         return fig
 
     @pytest.mark.mpl_image_compare
-    def test_sdm_umap_feature_gradient_plot_sslabs(self):
+    def test_sdm_umap_feature_gradient_plot_dense_sslabs(self):
         sids = list(range(8))
         fids = [str(i) for i in range(10)]
         np.random.seed(123)
@@ -932,7 +932,7 @@ class TestSampleDistanceMatrix(object):
         return fig
 
     @pytest.mark.mpl_image_compare
-    def test_sdm_umap_feature_gradient_plot_sslabs_empty(self):
+    def test_sdm_umap_feature_gradient_plot_dense_sslabs_empty(self):
         sids = list(range(8))
         fids = [str(i) for i in range(10)]
         np.random.seed(123)
@@ -948,7 +948,7 @@ class TestSampleDistanceMatrix(object):
         np.testing.assert_equal(sdm._fids, fids)
         return fig
 
-    def test_sdm_umap_feature_gradient_plot_sslabs_wrong_args(self):
+    def test_sdm_umap_feature_gradient_plot_dense_sslabs_wrong_args(self):
         sids = list(range(8))
         fids = [str(i) for i in range(10)]
         np.random.seed(123)
@@ -971,7 +971,7 @@ class TestSampleDistanceMatrix(object):
             sdm.umap_feature_gradient_plot(
                 '5', selected_labels=[11], figsize=(10, 10), s=50)
 
-    def test_sdm_umap_feature_gradient_plot_wrong_args(self):
+    def test_sdm_umap_feature_gradient_plot_dense_wrong_args(self):
         sids = list(range(8))
         fids = [str(i) for i in range(10)]
         np.random.seed(123)
@@ -1014,7 +1014,7 @@ class TestSampleDistanceMatrix(object):
             sdm.umap_feature_gradient_plot('123')
 
     @pytest.mark.mpl_image_compare
-    def test_sdm_umap_plot(self):
+    def test_sdm_umap_plot_dense(self):
         sids = list(range(8))
         fids = [str(i) for i in range(10)]
         np.random.seed(123)
@@ -1029,6 +1029,14 @@ class TestSampleDistanceMatrix(object):
         x5k = np.random.normal(size=5000)
         sdm = eda.SampleDistanceMatrix(x5k.reshape(20, -1))
         assert sdm._umap_x.shape == (20, 2)
+
+    def test_umap_modes(self):
+        np.random.seed(123)
+        x5k = np.random.normal(size=5000)
+        sdm = eda.SampleDistanceMatrix(x5k.reshape(20, -1))
+        assert sdm.umap(use_pca=False).shape == (20, 2)
+        sdm = eda.SampleDistanceMatrix(x5k.reshape(20, -1), use_pdist=False)
+        assert sdm.umap(use_pca=False).shape == (20, 2)
 
     def test_s_knn_connectivity_matrix(self):
         nn_sdm = eda.SampleDistanceMatrix([[1], [2], [6]],
