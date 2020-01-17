@@ -102,7 +102,7 @@ class TestFeatureImputationSparseNoPdist(object):
         res_sdml = fmp.impute_features([8], [3], [0.5], [10])
 
         fmp2 = knn.FeatureImputation(tsdm)
-        res_sdml2 = fmp2.impute_features(8, 3, 0.5, 10)
+        res_sdml2 = fmp2.impute_features(8, 3, 0.5, 10, verbose=True)
         np.testing.assert_equal(res_sdml2[0]._x.A, res_sdml[0]._x.A)
 
     def test_impute_features_runner_single_run(self):
@@ -112,7 +112,7 @@ class TestFeatureImputationSparseNoPdist(object):
         
         knn.FeatureImputation._impute_features_runner(
             tsdm._x, tsdm.s_knn_ind_lut(8),
-            8, 3, 0.5, 10)
+            8, 3, 0.5, 10, verbose=True)
 
         knn.FeatureImputation._impute_features_runner(
             tsdm._x.tolil(), tsdm.s_knn_ind_lut(8),

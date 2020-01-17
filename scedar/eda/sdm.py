@@ -748,7 +748,10 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
         return hist_dens_plot(x, title=title, xlab=xlab, ylab=ylab,
                               figsize=figsize, ax=ax, **kwargs)
 
-    def s_knn_ind_lut(self, k):
+    def s_knn_ind_lut(self, k, metric=None, use_pca=False,
+                      use_hnsw=False,
+                      index_params=None, query_params=None,
+                      verbose=False):
         """
         Computes the lookup table for sample i and its KNN indices, i.e.
         `{i : [1st_NN_ind, 2nd_NN_ind, ..., nth_NN_ind], ...}`
@@ -768,7 +771,11 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
                     compute_k = min(10, max(self._x.shape[0] - 1, 0))
                 else:
                     compute_k = k
-                targets, distances = self.s_knns(compute_k)
+                targets, distances = self.s_knns(
+                    compute_k, metric=metric, use_pca=use_pca,
+                    use_hnsw=use_hnsw,
+                    index_params=index_params, query_params=query_params,
+                    verbose=verbose)
             else:
                 # if two samples are identical, their distance is 0
                 targets, distances = self._last_knns

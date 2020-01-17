@@ -37,7 +37,7 @@ class FeatureImputation(object):
     @staticmethod
     def _impute_features_runner(pb_x, knn_ordered_ind_dict, k, n_do,
                                 min_present_val, n_iter,
-                                statistic_fun=np.median):
+                                statistic_fun=np.median, verbose=False):
         """
         Runs KNN dropout imputation on single parameter set in one process.
         """
@@ -50,8 +50,9 @@ class FeatureImputation(object):
         n_samples, n_features = curr_x_arr.shape
         # Indicator matrix of whether an entry is imputed.
         impute_idc_arr = spsp.lil_matrix(curr_x_arr.shape, dtype=int)
-
         stats = "Preparation: {:.2f}s\n".format(time.time() - start_time)
+        if verbose:
+            print(stats)
 
         for i in range(1, n_iter + 1):
             iter_start_time = time.time()
@@ -104,19 +105,29 @@ class FeatureImputation(object):
             n_pu_entries_ratio = n_pu_entries / (n_samples * n_features)
 
             iter_time = time.time() - iter_start_time
-            stats += str.format("Iteration {} ({:.2f}s): picked up {} total "
-                                "features in {} ({:.1%}) cells. {:.1%} among "
-                                "samples * features.\n", i, iter_time,
-                                n_pu_entries, n_samples_wfpu,
-                                n_samples_wfpu / n_samples,
-                                n_pu_entries_ratio)
+            stats_update = str.format(
+                "Iteration {} ({:.2f}s): picked up {} total "
+                "features in {} ({:.1%}) cells. {:.1%} among "
+                "samples * features.\n", i, iter_time,
+                n_pu_entries, n_samples_wfpu,
+                n_samples_wfpu / n_samples,
+                n_pu_entries_ratio)
+            stats += stats_update
+            if verbose:
+                print(stats_update)
         curr_x_pb = curr_x_arr
         impute_idc_pb = impute_idc_arr
-        stats += "Complete in {:.2f}s\n".format(time.time() - start_time)
+        stats_update += "Complete in {:.2f}s\n".format(
+            time.time() - start_time)
+        if verbose:
+            print(stats_update)
+        stats += stats_update
         return curr_x_pb, impute_idc_pb, stats
 
     def impute_features(self, k, n_do, min_present_val, n_iter, nprocs=1,
-                        statistic_fun=np.median):
+                        statistic_fun=np.median, metric=None, use_pca=False,
+                        use_hnsw=False, index_params=None, query_params=None,
+                        verbose=False):
         """
         Runs KNN imputation on multiple parameter sets parallely.
 
@@ -251,14 +262,18 @@ class FeatureImputation(object):
         run_param_setup_tups = []
         for ptup in run_param_tups:
             # assumes that the first element of the ptup is k
-            s_knn_ind_lut = self._sdm.s_knn_ind_lut(ptup[0])
+            s_knn_ind_lut = self._sdm.s_knn_ind_lut(
+                ptup[0], metric=metric, use_pca=use_pca,
+                use_hnsw=use_hnsw,
+                index_params=index_params, query_params=query_params,
+                verbose=verbose)
             run_param_setup_tups.append(
                 (self._sdm._x, s_knn_ind_lut) + ptup)
 
         nprocs = int(nprocs)
         nprocs = min(nprocs, n_param_tups)
         run_res_list = utils.parmap(
-            lambda ptup: self._impute_features_runner(*ptup),
+            lambda ptup: self._impute_features_runner(*ptup, verbose=verbose),
             run_param_setup_tups, nprocs)
 
         for i, param_tup in enumerate(run_param_tups):
