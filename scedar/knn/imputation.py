@@ -117,7 +117,7 @@ class FeatureImputation(object):
                 print(stats_update)
         curr_x_pb = curr_x_arr
         impute_idc_pb = impute_idc_arr
-        stats_update += "Complete in {:.2f}s\n".format(
+        stats_update = "Complete in {:.2f}s\n".format(
             time.time() - start_time)
         if verbose:
             print(stats_update)
@@ -177,6 +177,7 @@ class FeatureImputation(object):
 
         n_do, min_present_val, n_iter
         """
+        start_time = time.time()
         try:
             # make sure that the function runs on list of numbers
             if not np.isscalar(np.isreal(statistic_fun([0, 1, 2]))):
@@ -269,6 +270,10 @@ class FeatureImputation(object):
                 verbose=verbose)
             run_param_setup_tups.append(
                 (self._sdm._x, s_knn_ind_lut) + ptup)
+
+        stats = "Compute KNNs: {:.2f}s\n".format(time.time() - start_time)
+        if verbose:
+            print(stats)
 
         nprocs = int(nprocs)
         nprocs = min(nprocs, n_param_tups)
