@@ -7,8 +7,6 @@ from scedar import utils
 
 import time
 
-import gzip
-
 import pickle
 
 # TODO: use multiprocessing.Manager to share data between processes
@@ -37,14 +35,14 @@ class FeatureImputation(object):
 
     # TODO: clean up np.array and scipy.sparse distinctions.
     @staticmethod
-    def _impute_features_runner(gz_pb_x, knn_ordered_ind_dict, k, n_do,
+    def _impute_features_runner(pb_x, knn_ordered_ind_dict, k, n_do,
                                 min_present_val, n_iter,
                                 statistic_fun=np.median):
         """
         Runs KNN dropout imputation on single parameter set in one process.
         """
         start_time = time.time()
-        curr_x_arr = pickle.loads(gzip.decompress(gz_pb_x))
+        curr_x_arr = pb_x
         if spsp.issparse(curr_x_arr):
             if not spsp.isspmatrix_lil(curr_x_arr):
                 curr_x_arr = curr_x_arr.tolil()
@@ -112,10 +110,10 @@ class FeatureImputation(object):
                                 n_pu_entries, n_samples_wfpu,
                                 n_samples_wfpu / n_samples,
                                 n_pu_entries_ratio)
-        curr_x_gz_pb = gzip.compress(pickle.dumps(curr_x_arr))
-        impute_idc_gz_pb = gzip.compress(pickle.dumps(impute_idc_arr))
+        curr_x_pb = curr_x_arr
+        impute_idc_pb = impute_idc_arr
         stats += "Complete in {:.2f}s\n".format(time.time() - start_time)
-        return curr_x_gz_pb, impute_idc_gz_pb, stats
+        return curr_x_pb, impute_idc_pb, stats
 
     def impute_features(self, k, n_do, min_present_val, n_iter, nprocs=1,
                         statistic_fun=np.median):
@@ -250,15 +248,12 @@ class FeatureImputation(object):
                 res_list.append(None)
                 res_list_run_inds.append(i)
         # set up parameters for running
-        # use gzipped pickle bytecode to save space, because python
-        # multiprocessing has a limit of sharing memory through pipe
-        gz_pb_x = gzip.compress(pickle.dumps(self._sdm._x))
         run_param_setup_tups = []
         for ptup in run_param_tups:
             # assumes that the first element of the ptup is k
             s_knn_ind_lut = self._sdm.s_knn_ind_lut(ptup[0])
             run_param_setup_tups.append(
-                (gz_pb_x, s_knn_ind_lut) + ptup)
+                (self._sdm._x, s_knn_ind_lut) + ptup)
 
         nprocs = int(nprocs)
         nprocs = min(nprocs, n_param_tups)
@@ -270,8 +265,8 @@ class FeatureImputation(object):
             # cache results
             if param_tup in self._res_lut:
                 raise NotImplementedError("Unexpected scenario encountered")
-            res_x = pickle.loads(gzip.decompress(run_res_list[i][0]))
-            res_idc = pickle.loads(gzip.decompress(run_res_list[i][1]))
+            res_x = run_res_list[i][0]
+            res_idc = run_res_list[i][1]
             res_tup = (res_x, res_idc, run_res_list[i][2])
             self._res_lut[param_tup] = res_tup
             # fill res_list

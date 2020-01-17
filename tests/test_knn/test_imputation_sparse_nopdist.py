@@ -111,11 +111,11 @@ class TestFeatureImputationSparseNoPdist(object):
         tsdm.s_knn_connectivity_matrix(5, use_hnsw=False)
         
         knn.FeatureImputation._impute_features_runner(
-            gzip.compress(pickle.dumps(tsdm._x)), tsdm.s_knn_ind_lut(8),
+            tsdm._x, tsdm.s_knn_ind_lut(8),
             8, 3, 0.5, 10)
 
         knn.FeatureImputation._impute_features_runner(
-            gzip.compress(pickle.dumps(tsdm._x.tolil())), tsdm.s_knn_ind_lut(8),
+            tsdm._x.tolil(), tsdm.s_knn_ind_lut(8),
             8, 3, 0.5, 10)
 
     def test_impute_features_stat_fun(self):
