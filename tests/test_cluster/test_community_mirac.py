@@ -13,6 +13,8 @@ class TestCommunityMIRAC(object):
     x_20x5 = np.random.uniform(size=(20, 5))
 
     def test_array_run(self):
+        cm_mirac = cluster.CommunityMIRAC(spsp.csr_matrix(self.x_20x5))
+        cm_mirac.run(nprocs=1)
         cm_mirac = cluster.CommunityMIRAC(self.x_20x5)
         cm_mirac.run()
         cm_mirac.labs
@@ -27,6 +29,8 @@ class TestCommunityMIRAC(object):
         cluster.CommunityMIRAC(self.x_20x5, verbose=True).run()
 
     def test_csr_run(self):
+        cm_mirac = cluster.CommunityMIRAC(spsp.csr_matrix(self.x_20x5))
+        cm_mirac.run(nprocs=1)
         cm_mirac = cluster.CommunityMIRAC(spsp.csr_matrix(self.x_20x5))
         cm_mirac.run()
         cm_mirac.labs

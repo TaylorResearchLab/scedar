@@ -71,7 +71,10 @@ class CommunityMIRAC(object):
                       use_pdist=False,  k=15, use_pca=True, use_hnsw=True,
                       index_params=None, query_params=None, aff_scale=1,
                       partition_method="RBConfigurationVertexPartition",
-                      resolution=100, random_state=None, n_iter=2):
+                      resolution=100, random_state=None, n_iter=2,
+                      nprocs=None):
+        if nprocs is None:
+            nprocs = self._nprocs
         self._cm_res = Community(x=self._x, d=self._d, graph=graph,
                                  metric=metric, sids=self._sids,
                                  fids=self._fids,
@@ -82,7 +85,7 @@ class CommunityMIRAC(object):
                                  partition_method=partition_method,
                                  resolution=resolution,
                                  random_state=random_state,
-                                 n_iter=n_iter, nprocs=self._nprocs,
+                                 n_iter=n_iter, nprocs=nprocs,
                                  verbose=self._verbose)
         if self._verbose:
             print("Community cluster: {}".format(
@@ -95,14 +98,17 @@ class CommunityMIRAC(object):
                   min_cl_n=25, encode_type="auto", mdl_method=None,
                   min_split_mdl_red_ratio=0.2, soft_min_subtree_size=1,
                   linkage="complete", optimal_ordering=False,
-                  dim_reduct_method=None):
+                  dim_reduct_method=None, nprocs=None):
         if self._cm_clp_x is None:
             raise ValueError("Need to run community clustering first.")
+
+        if nprocs is None:
+            nprocs = self._nprocs
 
         self._mirac_res = MIRAC(
             self._cm_clp_x, metric=metric,
             sids=self._sids, fids=self._fids,
-            hac_tree=hac_tree, nprocs=self._nprocs,
+            hac_tree=hac_tree, nprocs=nprocs,
             cl_mdl_scale_factor=cl_mdl_scale_factor,
             min_cl_n=min_cl_n, encode_type=encode_type,
             mdl_method=mdl_method,
@@ -141,13 +147,16 @@ class CommunityMIRAC(object):
             min_cl_n=25, encode_type="auto", mdl_method=None,
             min_split_mdl_red_ratio=0.2,
             soft_min_subtree_size=1,
-            linkage="complete", optimal_ordering=False):
+            linkage="complete", optimal_ordering=False, nprocs=None):
+        if nprocs is None:
+            nprocs = self._nprocs
+
         self.run_community(
             graph=graph, metric=metric,
             use_pdist=use_pdist,  k=k, use_pca=use_pca, use_hnsw=use_hnsw,
             index_params=index_params, query_params=query_params,
             aff_scale=aff_scale,
-            partition_method=partition_method,
+            partition_method=partition_method, nprocs=nprocs,
             resolution=resolution, random_state=random_state, n_iter=n_iter)
 
         self.run_mirac(
@@ -156,7 +165,7 @@ class CommunityMIRAC(object):
             min_cl_n=min_cl_n, encode_type=encode_type,
             mdl_method=mdl_method,
             min_split_mdl_red_ratio=min_split_mdl_red_ratio,
-            soft_min_subtree_size=soft_min_subtree_size,
+            soft_min_subtree_size=soft_min_subtree_size, nprocs=nprocs,
             linkage=linkage, optimal_ordering=optimal_ordering)
 
 
