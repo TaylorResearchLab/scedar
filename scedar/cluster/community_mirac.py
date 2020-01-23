@@ -148,8 +148,6 @@ class CommunityMIRAC(object):
             min_split_mdl_red_ratio=0.2,
             soft_min_subtree_size=1,
             linkage="complete", optimal_ordering=False, nprocs=None):
-        if nprocs is None:
-            nprocs = self._nprocs
 
         self.run_community(
             graph=graph, metric=metric,

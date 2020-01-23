@@ -34,12 +34,15 @@ class TestFeatureImputationSparseNoPdist(object):
                              [0, 100], [0, 100], [0, 101], [10, 100]])
         np.testing.assert_equal(res_sdml[0]._x.A, ref_res0)
 
-        ref_res1 = np.array([[2, np.median([2, 3])],
-                             [np.median([2]), np.median([2, 3])],
-                             [np.median([2]), 2], [2, 3],
-                             [2, 5], [10, 100], [10, 100], [10, 101],
+        ref_res1 = np.array([[np.median([1, 1, 2]), np.median([1, 2, 3])],
+                             [np.median([1, 1, 2]), np.median([1, 2, 3])],
+                             [np.median([1, 1, 2]), 2],
+                             [2, 3],
+                             [2, 5],
+                             [np.median([0, 0, 10]), 100],
+                             [np.median([0, 0, 10]), 100],
+                             [np.median([0, 0, 10]), 101],
                              [10, 100]])
-        print((res_sdml[1]._x.A, ref_res1))
         np.testing.assert_equal(res_sdml[1]._x.A, ref_res1)
 
         assert res_sdml[2]._x.A[0, 0] > 0
@@ -109,7 +112,7 @@ class TestFeatureImputationSparseNoPdist(object):
         tsdm = eda.SampleDistanceMatrix(
             spsp.csr_matrix(self.tx), metric="euclidean", use_pdist=False)
         tsdm.s_knn_connectivity_matrix(5, use_hnsw=False)
-        
+
         knn.FeatureImputation._impute_features_runner(
             tsdm._x, tsdm.s_knn_ind_lut(8),
             8, 3, 0.5, 10, verbose=True)
@@ -129,13 +132,13 @@ class TestFeatureImputationSparseNoPdist(object):
         np.testing.assert_equal(res_sdml2[0]._x.A, res_sdml[0]._x.A)
         assert len(fmp._res_lut) == 1
 
-        res_sdml3 = fmp.impute_features(8, 3, 0.5, 10, 1,
-                                        lambda x: np.median(x))
+        res_sdml3 = fmp.impute_features(
+            8, 3, 0.5, 10, 1, lambda x, axis=0: np.median(x, axis=axis))
         np.testing.assert_equal(res_sdml3[0]._x.A, res_sdml[0]._x.A)
         assert len(fmp._res_lut) == 2
 
-        res_sdml4 = fmp.impute_features(8, 3, 0.5, 10, 1,
-                                        lambda x: np.median(x))
+        res_sdml4 = fmp.impute_features(
+            8, 3, 0.5, 10, 1, lambda x, axis=0: np.median(x, axis=axis))
         np.testing.assert_equal(res_sdml4[0]._x.A, res_sdml[0]._x.A)
         assert len(fmp._res_lut) == 3
 
@@ -144,7 +147,7 @@ class TestFeatureImputationSparseNoPdist(object):
         assert len(fmp._res_lut) == 4
 
         res_sdml6 = fmp.impute_features(
-            8, 3, 0.5, 10, 1, lambda x: np.min(x))
+            8, 3, 0.5, 10, 1, lambda x, axis=0: np.min(x, axis=axis))
         np.testing.assert_equal(res_sdml5[0]._x.A, res_sdml6[0]._x.A)
         assert len(fmp._res_lut) == 5
 

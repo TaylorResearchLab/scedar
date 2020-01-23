@@ -9,8 +9,6 @@ import time
 
 import pickle
 
-# TODO: use multiprocessing.Manager to share data between processes
-
 
 class FeatureImputation(object):
     """
@@ -44,8 +42,8 @@ class FeatureImputation(object):
         start_time = time.time()
         curr_x_arr = pb_x
         if spsp.issparse(curr_x_arr):
-            if not spsp.isspmatrix_lil(curr_x_arr):
-                curr_x_arr = curr_x_arr.tolil()
+            if not spsp.isspmatrix_csr(curr_x_arr):
+                curr_x_arr = curr_x_arr.tocsr()
         # curr_x_arr is only accessed but not edited
         n_samples, n_features = curr_x_arr.shape
         # Indicator matrix of whether an entry is imputed.
@@ -54,49 +52,61 @@ class FeatureImputation(object):
         if verbose:
             print(stats)
 
+
         for i in range(1, n_iter + 1):
+
             iter_start_time = time.time()
             # next_x_arr is edited
-            next_x_arr = curr_x_arr.copy()
             if spsp.issparse(curr_x_arr):
-                curr_x_present_arr = (curr_x_arr >= min_present_val).tocsr()
+                next_x_arr = curr_x_arr.tolil(copy=True)
             else:
-                curr_x_present_arr = curr_x_arr >= min_present_val
+                next_x_arr = curr_x_arr.copy()
+            curr_x_present_arr = curr_x_arr >= min_present_val
             # iteratively decreases n_do_i from k to n_do
             # Pick-up easy ones first
             n_do_i = n_do + int(np.ceil((n_iter - i) / n_iter * (k - n_do)))
+            # print('------', n_do_i)
+
+            ipt_s_inds = np.array([], dtype=int)
+            ipt_fais = np.array([], dtype=int)
+            ipt_vals = np.array([], dtype=int)
             for s_ind in range(n_samples):
-                # below threshold feature indices
-                if spsp.issparse(curr_x_present_arr):
-                    f_present_inds = curr_x_present_arr[s_ind, :].nonzero()[1]
-                else:
-                    f_present_inds = np.where(curr_x_present_arr[s_ind, :])[0]
-                # can be optimized
-                f_absent_inds = [t for t in range(n_features)
-                                 if t not in f_present_inds]
+                # print(s_ind)
                 knn_ordered_inds = knn_ordered_ind_dict[s_ind]
-                # (n_features,) number of KNNs have feature present
-                if spsp.issparse(curr_x_present_arr):
-                    f_n_knn_present_arr = np.sum(
-                        curr_x_present_arr[knn_ordered_inds, :], axis=0).A1
+                s_parr = curr_x_present_arr[s_ind, :]
+                knn_parr = curr_x_present_arr[knn_ordered_inds, :]
+                if spsp.issparse(knn_parr):
+                    # above threshold
+                    knn_at_mask = (knn_parr.sum(axis=0) >= n_do_i).A1
+                    # absent
+                    s_f_a_mask = s_parr.todense().A1 == 0
                 else:
-                    f_n_knn_present_arr = np.sum(
-                        curr_x_present_arr[knn_ordered_inds, :], axis=0)
+                    knn_at_mask = knn_parr.sum(axis=0) >= n_do_i
+                    s_f_a_mask = s_parr == 0
+                # print(knn_at_mask, s_f_a_mask)
+                ipt_f_mask = np.logical_and(knn_at_mask, s_f_a_mask)
 
-                for fai in f_absent_inds:
-                    # feature fai present in >= n_do_i NNs
-                    if f_n_knn_present_arr[fai] >= n_do_i:
-                        # Mark (s_ind, fai) as picked up
-                        impute_idc_arr[s_ind, fai] = i
-                        # Replace val in (s_ind, fai) with summ stat of knn
-                        knn_x_arr = curr_x_arr[knn_ordered_inds, fai]
-                        if spsp.issparse(curr_x_arr):
-                            knn_x_arr = knn_x_arr.todense().A1
-                        knn_x_present_ss = statistic_fun(
-                            knn_x_arr[knn_x_arr >= min_present_val])
-                        next_x_arr[s_ind, fai] = knn_x_present_ss
+                if spsp.issparse(curr_x_arr):
+                    # summary stat array
+                    f_n_knn_ss_arr = statistic_fun(
+                        curr_x_arr[knn_ordered_inds, :].tocsc()[:, ipt_f_mask].A, axis=0)
+                else:
+                    f_n_knn_ss_arr = statistic_fun(
+                        curr_x_arr[knn_ordered_inds, :][:, ipt_f_mask], axis=0)
+                s_ipt_f_inds = np.where(ipt_f_mask)[0]
 
-            curr_x_arr = next_x_arr
+                ipt_fais = np.concatenate((ipt_fais, s_ipt_f_inds))
+                ipt_s_inds = np.concatenate(
+                    (ipt_s_inds, np.repeat(s_ind, len(s_ipt_f_inds))))
+                ipt_vals = np.concatenate((ipt_vals, f_n_knn_ss_arr))
+
+            next_x_arr[ipt_s_inds, ipt_fais] = ipt_vals
+
+            impute_idc_arr[ipt_s_inds, ipt_fais] = i
+            if spsp.issparse(next_x_arr):
+                curr_x_arr = next_x_arr.tocsr()
+            else:
+                curr_x_arr = next_x_arr
 
             n_pu_features_per_s = np.sum(impute_idc_arr > 0, axis=1).A1
             n_pu_entries = np.sum(n_pu_features_per_s)

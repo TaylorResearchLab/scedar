@@ -31,10 +31,14 @@ class TestFeatureImputation(object):
                              [0, 100], [0, 100], [0, 101], [10, 100]])
         np.testing.assert_equal(res_sdml[0]._x, ref_res0)
 
-        ref_res1 = np.array([[2, np.median([2, 3])],
-                             [np.median([2]), np.median([2, 3])],
-                             [np.median([2]), 2], [2, 3],
-                             [2, 5], [10, 100], [10, 100], [10, 101],
+        ref_res1 = np.array([[np.median([1, 1, 2]), np.median([1, 2, 3])],
+                             [np.median([1, 1, 2]), np.median([1, 2, 3])],
+                             [np.median([1, 1, 2]), 2],
+                             [2, 3],
+                             [2, 5],
+                             [np.median([0, 0, 10]), 100],
+                             [np.median([0, 0, 10]), 100],
+                             [np.median([0, 0, 10]), 101],
                              [10, 100]])
         np.testing.assert_equal(res_sdml[1]._x, ref_res1)
 
@@ -99,13 +103,13 @@ class TestFeatureImputation(object):
         np.testing.assert_equal(res_sdml2[0]._x, res_sdml[0]._x)
         assert len(fmp._res_lut) == 1
 
-        res_sdml3 = fmp.impute_features(8, 3, 0.5, 10, 1,
-                                        lambda x: np.median(x))
+        res_sdml3 = fmp.impute_features(
+            8, 3, 0.5, 10, 1, lambda x, axis=0: np.median(x, axis=axis))
         np.testing.assert_equal(res_sdml3[0]._x, res_sdml[0]._x)
         assert len(fmp._res_lut) == 2
 
-        res_sdml4 = fmp.impute_features(8, 3, 0.5, 10, 1,
-                                        lambda x: np.median(x))
+        res_sdml4 = fmp.impute_features(
+            8, 3, 0.5, 10, 1, lambda x, axis=0: np.median(x, axis=axis))
         np.testing.assert_equal(res_sdml4[0]._x, res_sdml[0]._x)
         assert len(fmp._res_lut) == 3
 
@@ -114,7 +118,7 @@ class TestFeatureImputation(object):
         assert len(fmp._res_lut) == 4
 
         res_sdml6 = fmp.impute_features(
-            8, 3, 0.5, 10, 1, lambda x: np.min(x))
+            8, 3, 0.5, 10, 1, lambda x, axis=0: np.min(x, axis=axis))
         np.testing.assert_equal(res_sdml5[0]._x, res_sdml6[0]._x)
         assert len(fmp._res_lut) == 5
 
