@@ -20,7 +20,9 @@ from collections import OrderedDict
 sns.set(style="ticks")
 
 
-def labs_to_cmap(labels, return_lut=False):
+def labs_to_cmap(labels, return_lut=False, shuffle_colors=False,
+                 random_state=None):
+    np.random.seed(random_state)
     # Each label has its own index and color
     mtype.check_is_valid_labs(labels)
 
@@ -30,6 +32,9 @@ def labs_to_cmap(labels, return_lut=False):
     uniq_lab_inds = list(range(num_uniq_labs))
 
     lab_col_list = list(sns.hls_palette(num_uniq_labs))
+    if shuffle_colors:
+        np.random.shuffle(lab_col_list)
+
     lab_cmap = mpl.colors.ListedColormap(lab_col_list)
     # Need to keep track the order of unique labels, so that a labeled
     # legend can be generated.
@@ -428,7 +433,8 @@ def swarm(x, labels=None, selected_labels=None,
 
 def heatmap(x, row_labels=None, col_labels=None,
             title=None, xlab=None, ylab=None, figsize=(20, 20),
-            transform=None, **kwargs):
+            transform=None, shuffle_row_colors=False,
+            shuffle_col_colors=False, random_state=None, **kwargs):
     x = np.array(x, dtype="float")
     if x.ndim != 2:
         raise ValueError("x should be 2D array. {}".format(x))
@@ -526,13 +532,19 @@ def heatmap(x, row_labels=None, col_labels=None,
     cr_labs = (col_labels, row_labels)
     for i in range(2):
         if cr_labs[i] is not None:
-            cmap, norm, lab_inds, ulab_col_lut, ulab_lut = labs_to_cmap(
-                cr_labs[i], return_lut=True)
             if i == 0:
                 # col color labels
+                cmap, norm, lab_inds, ulab_col_lut, ulab_lut = labs_to_cmap(
+                    cr_labs[i], return_lut=True,
+                    shuffle_colors=shuffle_col_colors,
+                    random_state=random_state)
                 ind_mat = lab_inds.reshape(1, -1)
             else:
                 # row color labels
+                cmap, norm, lab_inds, ulab_col_lut, ulab_lut = labs_to_cmap(
+                    cr_labs[i], return_lut=True,
+                    shuffle_colors=shuffle_row_colors,
+                    random_state=random_state)
                 ind_mat = lab_inds.reshape(-1, 1)
             col_axs[i].imshow(ind_mat, cmap=cmap, norm=norm,
                               aspect="auto", interpolation="nearest")
