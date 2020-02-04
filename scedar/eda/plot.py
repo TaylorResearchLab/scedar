@@ -434,7 +434,8 @@ def swarm(x, labels=None, selected_labels=None,
 def heatmap(x, row_labels=None, col_labels=None,
             title=None, xlab=None, ylab=None, figsize=(20, 20),
             transform=None, shuffle_row_colors=False,
-            shuffle_col_colors=False, random_state=None, **kwargs):
+            shuffle_col_colors=False, random_state=None,
+            row_label_order=None, col_label_order=None, **kwargs):
     x = np.array(x, dtype="float")
     if x.ndim != 2:
         raise ValueError("x should be 2D array. {}".format(x))
@@ -539,6 +540,14 @@ def heatmap(x, row_labels=None, col_labels=None,
                     shuffle_colors=shuffle_col_colors,
                     random_state=random_state)
                 ind_mat = lab_inds.reshape(1, -1)
+                if col_label_order is None:
+                    lgd_patches = [mpl.patches.Patch(color=ulab_col_lut[ulab],
+                                                     label=ulab)
+                                   for ulab in sorted(ulab_lut.values())]
+                else:
+                    lgd_patches = [mpl.patches.Patch(color=ulab_col_lut[ulab],
+                                                     label=ulab)
+                                   for ulab in col_label_order]
             else:
                 # row color labels
                 cmap, norm, lab_inds, ulab_col_lut, ulab_lut = labs_to_cmap(
@@ -546,12 +555,17 @@ def heatmap(x, row_labels=None, col_labels=None,
                     shuffle_colors=shuffle_row_colors,
                     random_state=random_state)
                 ind_mat = lab_inds.reshape(-1, 1)
+                if row_label_order is None:
+                    lgd_patches = [mpl.patches.Patch(color=ulab_col_lut[ulab],
+                                                     label=ulab)
+                                   for ulab in sorted(ulab_lut.values())]
+                else:
+                    lgd_patches = [mpl.patches.Patch(color=ulab_col_lut[ulab],
+                                                     label=ulab)
+                                   for ulab in row_label_order]
+
             col_axs[i].imshow(ind_mat, cmap=cmap, norm=norm,
                               aspect="auto", interpolation="nearest")
-
-            lgd_patches = [mpl.patches.Patch(color=ulab_col_lut[ulab],
-                                             label=ulab)
-                           for ulab in sorted(ulab_lut.values())]
 
             if i == 0:
                 # col color legend

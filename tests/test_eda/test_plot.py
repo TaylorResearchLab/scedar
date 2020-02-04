@@ -514,6 +514,28 @@ class TestHeatmap(object):
         return fig
 
     @pytest.mark.mpl_image_compare
+    def test_heatmap_crlabs_cl_ord(self):
+        fig = eda.heatmap(self.x_10x5,
+                          [2]*1 + [1]*3 + [5]*6,
+                          [0] + [1]*2 + [2] + [3],
+                          title='test heatmap',
+                          xlab='col label', ylab='row label',
+                          figsize=(10, 10),
+                          col_label_order=[2, 1, 3, 0])
+        return fig
+
+    @pytest.mark.mpl_image_compare
+    def test_heatmap_crlabs_rl_ord(self):
+        fig = eda.heatmap(self.x_10x5,
+                          [2]*1 + [1]*3 + [5]*6,
+                          [0] + [1]*2 + [2] + [3],
+                          title='test heatmap',
+                          xlab='col label', ylab='row label',
+                          figsize=(10, 10),
+                          row_label_order=[1, 5, 2])
+        return fig
+
+    @pytest.mark.mpl_image_compare
     def test_heatmap_transform(self):
         # not callable transform
         with pytest.raises(ValueError) as excinfo:
