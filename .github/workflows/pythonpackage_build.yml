@@ -17,7 +17,7 @@ jobs:
     strategy:
       matrix:
         python-version: [3.5, 3.6, 3.7]
-        os: [ubuntu-latest, windows-latest, macOS-latest]
+        os: [ubuntu-latest, macOS-latest]
 
     steps:
     - name: Set up Python ${{ matrix.python-version }}
@@ -34,6 +34,6 @@ jobs:
         pip install python-coveralls
       shell: bash
       
-    - name: Run Test  
+    - name: Run Test Scripts
       run: ./scripts/gen_baseline_images.sh && ./scripts/pytest_all.sh
       shell: bash
