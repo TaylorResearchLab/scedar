@@ -66,16 +66,42 @@ def parmap(f, X, nprocs=1):
 
 
 def save_obj(obj, path):
+    """
+    Save python object with pickle.dump
+    
+    Parameters
+    ----------
+    obj: object
+        The python object to be saved.
+    path: str
+        The path to save the python object.
+    """
     with open(path, "wb") as f:
         pickle.dump(obj, f, pickle.HIGHEST_PROTOCOL)
 
 
 def load_obj(path):
+    """
+    Load python object with pickle.load
+    
+    Parameters
+    ----------
+    path: str
+        The path to the python object to be loaded.
+    """
     with open(path, "rb") as f:
         return pickle.load(f)
 
 
 def load_gz_obj(path):
+    """
+    Load gzipped python object with pickle.load
+    
+    Parameters
+    ----------
+    path: str
+        The path to the gzipped python object to be loaded.
+    """
     with gzip.open(path, "rb") as f:
         return pickle.load(f)
 
