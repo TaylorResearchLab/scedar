@@ -1,8 +1,14 @@
 language: python
+
+os:
+  - linux
+  - osx
+
 python:
   - "3.5"
   - "3.6"
   - "3.7"
+
 # command to install dependencies
 install:
   - pip install --upgrade pip setuptools wheel
@@ -10,8 +16,10 @@ install:
   - "pip install --no-binary :all: nmslib"
   - pip install .
   - pip install python-coveralls
+
 # command to run tests
 script:
   - bash ./scripts/gen_baseline_images.sh && bash ./scripts/pytest_all.sh
+
 after_success:
   - coveralls
