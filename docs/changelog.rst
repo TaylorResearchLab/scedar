@@ -1,6 +1,37 @@
 Changelog
 =========
 
+[0.2.0] - Feb 11, 2020
+----------------------
+
+Changed
+~~~~~~~
+
+- The default value of ``optimal_ordering`` is changed to ``False`` in
+  ``cluster.MIRAC``.
+
+Added
+~~~~~
+
+- Support to sparse matrix in core data structures, including
+  ``eda.SampleDistanceMatrix``, ``eda.SampleFeatureMatrix``,
+  ``eda.SingleLabelClassifiedSamples``, and
+  ``eda.MDLSingleLabelClassifiedSamples``.
+
+- Option to avoid pairwise distance computation in ``eda.SampleDistanceMatrix``
+  constructor by specifying ``use_pdist=False``.
+
+- Community clustering, ``cluster.Community``.
+
+- Community detection extended MIRAC clustering, ``cluster.CommunityMIRAC``.
+
+- Option to build k nearest neighbor graph with approximate nearest neighbor
+  (ANN) search using Hierarchical Navigable Small World (HNSW) graph, in
+  ``eda.SampleDistanceMatrix.s_knn_graph``.
+
+- Support to Python 3.7.
+
+
 [0.1.7] - Jul 2, 2019
 ---------------------
 

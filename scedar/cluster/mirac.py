@@ -41,6 +41,9 @@ class MIRAC(object):
         with >= 50% zeros, and use GKdeMdl otherwise.
     linkage : str
         Linkage type for generating the hierarchy.
+    optimal_ordering : bool
+        To require hierarchical clustering tree with optimal ordering. Default
+        value is False.
     dim_reduct_method : {"PCA", "t-SNE", "UMAP", None}
         If None, no dimensionality reduction before clustering.
     verbose : bool

@@ -809,6 +809,7 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
             approximate nearest neighbor.
         index_params: dict
             Parameters used by HNSW in indexing.
+
             efConstruction: int
                 Default 100. Higher value improves the quality of a constructed
                 graph and leads to higher accuracy of search. However this also
@@ -830,6 +831,7 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
                 Default self._nprocs. The number of threads used.
         query_params: dict
             Parameters used by HNSW in querying.
+
             efSearch: int
                 Default 100. Higher value improves recall at the expense of
                 longer retrieval time. The reasonable range of values is
@@ -891,6 +893,7 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
             approximate nearest neighbor.
         index_params: dict
             Parameters used by HNSW in indexing.
+
             efConstruction: int
                 Default 100. Higher value improves the quality of a constructed
                 graph and leads to higher accuracy of search. However this also
@@ -913,6 +916,7 @@ class SampleDistanceMatrix(SampleFeatureMatrix):
 
         query_params: dict
             Parameters used by HNSW in querying.
+
             efSearch: int
                 Default 100. Higher value improves recall at the expense of
                 longer retrieval time. The reasonable range of values is

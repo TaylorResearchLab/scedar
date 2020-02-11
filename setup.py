@@ -5,7 +5,7 @@ with open("pypiREADME.md", "r") as fh:
 
 setup(
     name='scedar',
-    version='0.1.7',
+    version='0.2.0',
     url='http://github.com/logstar/scedar',
     author='Yuanchao Zhang',
     author_email='logstarx@gmail.com',
@@ -21,6 +21,7 @@ setup(
         'Development Status :: 3 - Alpha',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
     ],
     packages=find_packages(exclude=['contrib', 'docs', 'tests*']),
     python_requires='>=3.5, <3.8',

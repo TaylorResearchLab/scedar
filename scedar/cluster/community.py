@@ -27,7 +27,7 @@ class Community(object):
     fids : fid list
         List of feature ids.
     use_pdist : boolean
-        to use the pairwise distance matrix or not. The pairwise distance
+        To use the pairwise distance matrix or not. The pairwise distance
         matrix may be too large to save for datasets with a large number of
         cells.
     k : int
@@ -39,13 +39,14 @@ class Community(object):
         approximate nearest neighbor.
     index_params : dict
         Parameters used by HNSW in indexing.
+
         efConstruction : int
             Default 100. Higher value improves the quality of a constructed
             graph and leads to higher accuracy of search. However this also
             leads to longer indexing times. The reasonable range of values
             is 100-2000.
         M : int
-            Default 5. Higher value leads to better recall and shorter 
+            Default 5. Higher value leads to better recall and shorter
             retrieval times, at the expense of longer indexing time. The
             reasonable range of values is 5-100.
         delaunay_type : {0, 1, 2, 3}
@@ -58,17 +59,21 @@ class Community(object):
             processing.
         indexThreadQty : int
             Default self._nprocs. The number of threads used.
+
     query_params : dict
         Parameters used by HNSW in querying.
+
         efSearch : int
             Default 100. Higher value improves recall at the expense of
             longer retrieval time. The reasonable range of values is
             100-2000.
+
     aff_scale : float > 0
         Scaling factor used for converting distance to affinity.
         Affinity = (max(distance) - distance) * aff_scale.
     partition_method : str
         Following methods are implemented in leidenalg package:
+
         - RBConfigurationVertexPartition: only well-defined for positive edge
           weights.
         - RBERVertexPartition: well-defined only for positive edge weights.
@@ -117,7 +122,7 @@ class Community(object):
         super().__init__()
         if aff_scale <= 0:
             raise ValueError("Affinity scaling (aff_scale) shoud > 0.")
-        
+
         if metric not in ("cosine", "euclidean"):
             raise ValueError("Metric only supports cosine and euclidean.")
 
