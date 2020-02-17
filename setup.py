@@ -6,7 +6,7 @@ with open("pypiREADME.md", "r") as fh:
 setup(
     name='scedar',
     version='0.2.0',
-    url='http://github.com/logstar/scedar',
+    url='https://github.com/TaylorResearchLab/scedar',
     author='Yuanchao Zhang',
     author_email='logstarx@gmail.com',
     description='Single-cell exploratory data analysis for RNA-Seq',
