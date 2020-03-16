@@ -42,7 +42,6 @@ setup(
     ],
     setup_requires=[
         'coverage',
-        'pytest-runner',
         'pytest-cov',
         'pytest-mpl',
         'numpy',
