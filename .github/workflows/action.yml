@@ -21,12 +21,12 @@ jobs:
     - name: Install Dependencies
       run: |
           pip install --upgrade pip setuptools wheel
-          "pip install --no-binary :all: nmslib"
           pip install .
           pip install python-coveralls
           pip install coverage
           pip install pytest-cov
           pip install pytest-mpl
+    #"pip install --no-binary :all: nmslib"
     #===============================================#
     - name: Run Tests
       run: ./scripts/gen_baseline_images.sh && ./scripts/pytest_all.sh
