@@ -1,0 +1,39 @@
+---
+name: scedar_ci
+on: 
+  push: 
+jobs:
+  biopypir_testing:
+    runs-on: ${{ matrix.os }} # ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.5,3.6,3.7] 
+        os: [ubuntu-latest] 
+    steps:
+    - name: Check Out Repo 
+      uses: actions/checkout@v2     
+    #===============================================#
+    - name: Set Up ${{matrix.os}}-py${{matrix.python-version}}
+      uses: actions/setup-python@v1
+      with:
+        python-version: ${{ matrix.python-version }}   
+    #===============================================#
+    - name: Install Dependencies
+      run: |
+          pip install --upgrade pip setuptools wheel
+          "pip install --no-binary :all: nmslib"
+          pip install .
+          pip install python-coveralls
+          pip install coverage
+          pip install pytest-cov
+          pip install pytest-mpl
+    #===============================================#
+    - name: Run Tests
+      run: ./scripts/gen_baseline_images.sh && ./scripts/pytest_all.sh
+   #===============================================#
+    - name: Coveralls
+      uses: coverallsapp/github-action@master
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+    #===============================================#
+
