@@ -38,7 +38,8 @@ setup(
         'umap-learn',
         'python-igraph',
         'nmslib',
-        'leidenalg'
+        'leidenalg', 
+        'h5py'
     ],
     setup_requires=[
         'coverage',
@@ -56,7 +57,8 @@ setup(
         'umap-learn',
         'python-igraph',
         'nmslib',
-        'leidenalg'
+        'leidenalg',
+        'h5py'
     ],
     tests_require=[
         'pytest'
