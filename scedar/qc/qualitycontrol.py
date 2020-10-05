@@ -11,31 +11,6 @@ import h5py
 import collections
 
 class QualityControl(object):
-    """
-    Single Cell Quality Control
-    
-    Args
-    ----
-    
-    mtx_df : Pandas DataFrame or Scipy sparse matrix
-        Single cell count matrix with samples as rows and features as columns.
-    genes : list
-        Genes corresponding to count matrix
-    barcodes : list
-        Barcode IDs corresponding to count matrix
-        
-    
-    Attributes
-    ----------
-    
-    _mtx_df : Scipy CSC matrix
-        Single cell count matrix with samples as rows and features as columns.
-    _genes : list
-        Genes corresponding to count matrix
-    _barcodes : list
-        Barcode IDs corresponding to count matrix   
-        
-    """
     
     def __init__(self, mtx_df=None,genes=None, barcodes=None): # ,nprocs=1,verbose=False):
         super().__init__()
@@ -54,34 +29,13 @@ class QualityControl(object):
                     self._mtx_df = self.mat_to_csc(self._mtx_df)
         else: 
             raise ValueError("No count matrix entered") 
-                #if not (len(self._barcodes) == self._mtx_df.shape[0]): 
-                #    raise ValueError('Barcodes do not match length of matrix on axis 0 (columns). Make sure your matrix is in the form "features X barcodes".')
-                #if not (len(self._genes) == self._mtx_df.shape[1]):  
-                #    raise ValueError('Features do not match length of matrix on axis 1 (rows). Make sure your matrix is in the form "features X barcodes".')
-        
-        #print(f'Shape of count matrix is {self._mtx_df.shape}')
-
         if not self._mtx_df.shape[0]: raise ValueError('Empty matrix found!')
         if not len(self._genes): raise ValueError('Empty gene list found!')
         if not len(self._barcodes): raise ValueError('Empty barcode list found!')
-            
-        #if self._mtx_df is not None and self._genes is None and self._barcodes is None:
-        #    self._genes =  self._mtx_df.columns.to_list()
-        #    self._barcodes = self._mtx_df.index.to_list()
-        
+
     def QC_metrics(self,qc_filter=False,remove_cell_cycle=False,report=False,UMI_thresh  = 0,Features_thresh = 0,
                    log10FeaturesPerUMI_thresh = 0.0,FeaturesPerUMI_thresh = 0.0,mtRatio_thresh = 1.0, verbose=False):
-        """
-        Calculate quality control metrics, and optionally filter count matrix and
-        generate a quality control report.
-        
-        Args
-        ----
-        
-        qc_filter : bool
-        If True, a filtered count matrix will be returned 
-        
-        """
+
         if qc_filter and not np.any([remove_cell_cycle,report,UMI_thresh,Features_thresh,
                    log10FeaturesPerUMI_thresh,FeaturesPerUMI_thresh])  and mtRatio_thresh is not 1.0:
             raise ValueError("""Must pass at least one threshold arguement when qc_filter = True. If you don't want
@@ -98,31 +52,6 @@ class QualityControl(object):
         QC_metaobj['log10FeaturesPerUMI'] = np.divide(np.log10(QC_metaobj['nFeatures']), np.log10(QC_metaobj['nUMI']))
         QC_metaobj['mtUMI'] = self._mtx_df[:,idx].sum(axis=1).astype(int)
         QC_metaobj['mitoRatio'] = QC_metaobj['mtUMI']/QC_metaobj['nUMI']       
-
-        '''if report:  
-            gene_exp=  pd.DataFrame(self._mtx_df.sum(axis=0).T,index=self._genes)/ self._mtx_df.sum()
-            sdict  = {'Total Cells' : self._mtx_df.shape[0],
-                  'Total Features'  : self._mtx_df.shape[1],
-                  'Total UMIs'  : int(self._mtx_df.sum()),
-                  'Unique Features' : int(self._mtx_df.astype(bool).sum(axis=0).astype(bool).sum()),
-                  'Median Features per cell' : int(QC_metaobj['nFeatures'].median()),
-                  'Median UMIs per cell' : int(QC_metaobj['nUMI'].median()),
-                  'Median MT Ratio':round(QC_metaobj['mitoRatio'].median(),6), # rounds to nearest  even num, but close enough for 6 decimals out, to use f-strings, do  {num:.2f}
-                  'MT genes detected' : len(idx)} 
-            
-               #'Sparsity':  self._mtx_df.getnnz() / np.prod(self._mtx_df.shape)}
-            fdict = {'UMI Cutoff' : UMI_thresh,
-                  'Feature cutoff' : Features_thresh,
-                  'Features per UMI cutoff' : FeaturesPerUMI_thresh,
-                  'MT Ratio cutoff' : mtRatio_thresh,
-                  #  get filtered_data
-                    'Samples Removed': 44,
-                   'Percent Samples Removed': .22}
-            #if qc_filter: 
-            #     filtered_data[]
-            #    generate_report(sdict+fdict,QC_metaobj,gene_exp) 
-            #else: generate_report(sdict,QC_metaobj,gene_exp)
-            self.generate_report(sdict,QC_metaobj,gene_exp)'''
             
         if qc_filter:  
             filtered_data, barcodes, genes  = self.QC_filter(QC_metaobj=QC_metaobj,
@@ -132,43 +61,14 @@ class QualityControl(object):
                                             log10FeaturesPerUMI_thresh=log10FeaturesPerUMI_thresh,
                                             FeaturesPerUMI_thresh=FeaturesPerUMI_thresh,
                                             mtRatio_thresh=mtRatio_thresh,verbose=verbose)
-            
+          
             return  filtered_data, barcodes, genes, QC_metaobj   #  CHANGE ORDER ? 
         else: 
             return QC_metaobj
-        
-    #def foo(*,arg0="default0", arg1="default1", arg2="default2"):
-    #    pass
-    
-    
+
     def QC_filter(self,QC_metaobj=None,remove_cell_cycle=False,UMI_thresh  = 0,Features_thresh = 0,
                    log10FeaturesPerUMI_thresh = 0.0,FeaturesPerUMI_thresh = 0.0,mtRatio_thresh = 1.0,verbose=False):
-        """
-        Function for filtering count matrix.
-        
-        Args
-        ----
-        
-        QC_metaobj: qc metaobject DataFrame.
-        
-        Default is None. If no qc meta object is passed, the function will generate qc metrics and then filter.
-                
-            Whether or not a QC metaobj is being passed. QC metaobj is generated 
-            with the QC_metrics() function.
-        remove_cell_cycle: bool
-            Whether or not to remove cell cycle genes.
-        UMI_thresh: int
-            Threshold to filter count matrix based on UMI count per cell.
-        Features_thresh: int
-            Threshold to filter count matrix based on number of unique features detected per cell.
-        log10FeaturesPerUMI_thresh: float
-            Same as Features_thresh but in log10 space.
-        FeaturesPerUMI_thresh: float
-            Threshold to filter count matrix based on number of features per UMI detected per cell.
-        mtRatio_thresh: float
-            Threshold to filter count matrix based on percentage of mitochondrial UMI per cell.        
-        """
-
+    
         if QC_metaobj is not None:   
             if UMI_thresh and not sum(QC_metaobj['nUMI'] > UMI_thresh): raise ValueError("UMI threshold too high, all samples would be removed.")
             if Features_thresh and not sum(QC_metaobj['nFeatures'] > Features_thresh): raise ValueError("Feature threshold too high, all samples would be removed.")
@@ -190,19 +90,6 @@ class QualityControl(object):
                 #self._genes = list(set(genes) - set(mt_genes))  #  self._genes[to_keep] see if this is faster
                 self._genes =   [self._genes[i] for i in to_keep]
 
-            '''
-            umi_sum = sum(QC_metaobj['nUMI'] > UMI_thresh)
-            ftr_sum = sum(QC_metaobj['nFeatures'] > Features_thresh)
-            ftr_per_umi_sum = sum(QC_metaobj['FeaturesPerUMI'] > FeaturesPerUMI_thresh)
-            log10_ftr_per_umi_sum = sum(QC_metaobj['log10FeaturesPerUMI']  >  log10FeaturesPerUMI_thresh)
-            mt_sum = sum(QC_metaobj['mitoRatio'] < mtRatio_thresh)
-            
-            print(f'UMI_thresh: {self._init_samples-umi_sum} ')
-            print(f'ftr_thresh: {self._init_samples-ftr_sum} ')
-            print(f'ftr_per_umi_thresh: {self._init_samples-ftr_per_umi_sum} ')
-            print(f'log10_ftr_per_umi_thresh: {self._init_samples-log10_ftr_per_umi_sum} ')
-            print(f'mt: {self._init_samples-mt_sum} ')
-            '''
             print(f'Total Samples removed: { self._init_samples-sum(mask_all)} ')
             
             self._mtx_df =  self._mtx_df[mask_all]
@@ -270,18 +157,7 @@ class QualityControl(object):
                 if verbose: print(f'{init_genes  - self._mtx_df.shape[1]} cell cycle genes found and removed')
             
             if verbose: print(f'{init_samples - self._mtx_df.shape[0]} samples and {init_genes - self._mtx_df.shape[1]} dropped ({np.round(1 - (self._mtx_df.shape[0]+self._mtx_df.shape[1])/(init_genes+init_samples),3)*100}% of matrix).')
-            '''umi_sum = sum(mask_umi)
-            ftr_sum = sum(mask_ftr)
-            ftr_per_umi_sum = sum(ftr_per_umi_mask)
-            log10_ftr_per_umi_sum = sum(log10_ftr_per_umi_mask)
-            mt_sum = sum(mt_mask)
-            
-            print(f'UMI_thresh: {self._init_samples-umi_sum} ')
-            print(f'ftr_thresh: {self._init_samples-ftr_sum} ')
-            print(f'ftr_per_umi_thresh: {self._init_samples-ftr_per_umi_sum} ')
-            print(f'log10_ftr_per_umi_thresh: {self._init_samples-log10_ftr_per_umi_sum} ')
-            print(f'mt: {self._init_samples-mt_sum} ')
-            '''
+
             mask_all = mask_umi & mask_ftr & ftr_per_umi_mask & log10_ftr_per_umi_mask  & mt_mask
             self._mtx_df =  self._mtx_df[mask_all]
             self._barcodes = self._barcodes[mask_all]
@@ -358,37 +234,3 @@ class QualityControl(object):
             for i in cc_genes:
                 if  i in genes: idx.append(genes.index(i))
             return idx
-'''
-# Define getters        
-    @property
-    def genes(self):
-        return self._genes.copy()
-    
-    @property
-    def matrix(self):
-        return self._mtx_df.copy()
-    
-    @property
-    def barcodes(self):
-        return self._barcodes.copy()
-
-    @property
-    def qc_metaObj(self):
-        return self._qc_metaObj.copy()
-    
-# Define setters 
-
-    # @property
-    # incorporate these  into other main  functions?
-    def set_genes(self,genes):
-        # if isinstance()....
-        self._genes = genes
-        
-    def set_barcodes(self,barcodes):
-        # if isinstance()....
-        self._barcodes = barcodes
-        
-    def set_matrix(self,matrix):
-        # if isinstance()....        
-        self._mtx_df = matrix     
-'''
