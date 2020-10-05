@@ -1,12 +1,11 @@
-import pytest
 import numpy as np
 import matplotlib as mpl
 #mpl.use("agg", warn=False)  
 import matplotlib.pyplot as plt
 import seaborn as sns
 import scipy.sparse as spsp
+import pytest
 #from QualityControl import QC_metrics, QC_filter
-from scedar.qc import QualityControl
 
 def mat_to_csc(mat, verbose=0):
         if isinstance(mat,pd.core.frame.DataFrame):
@@ -265,63 +264,46 @@ class TestQCFunctions(object):
         with pytest.raises(ValueError,match=r"""Must pass at least one threshold arguement when qc_filter = True. If you don't want
                             any filtering done, set qc_filter = False."""):
             fdata,fbc,fgenes,QC_metaobj_50x40 = qc.QC_metrics(qc_filter=True)
-        
+            
+##### test threshold value error #######            
+    def test_QC_filter_umi_threshold_error(self):
+        qc=QualityControl(self.mtx_df_50x40,self.genes,self.barcodes)
+        with pytest.raises(ValueError,match=r"UMI threshold too high, all samples would be removed."):
+            fdata,fbc,fgenes = qc.QC_filter(UMI_thresh=3000)
+            
+    def test_QC_filter_features_threshold_error(self):
+        qc=QualityControl(self.mtx_df_50x40,self.genes,self.barcodes)
+        with pytest.raises(ValueError,match=r"Feature threshold too high, all samples would be removed."):
+            fdata,fbc,fgenes = qc.QC_filter(Features_thresh=50)  
+                
+    def test_QC_filter_featuresPerUMI_threshold_error(self):
+        qc=QualityControl(self.mtx_df_50x40,self.genes,self.barcodes)
+        with pytest.raises(ValueError,match=r"Features per UMI threshold too high, all samples would be removed."):
+            fdata,fbc,fgenes = qc.QC_filter(FeaturesPerUMI_thresh=.2)
+
+    def test_QC_filter_log10featuresPerUMI_threshold_error(self):
+        qc=QualityControl(self.mtx_df_50x40,self.genes,self.barcodes)
+        with pytest.raises(ValueError,match=r"log10 Feature per UMI threshold too high, all samples would be removed."):
+            fdata,fbc,fgenes = qc.QC_filter(log10FeaturesPerUMI_thresh=.9)
+
+    def test_QC_filter_mtRatio_threshold_error(self):   
+        qc=QualityControl(self.mtx_df_50x40,self.genes,self.barcodes)
+        with pytest.raises(ValueError,match=r"MT ratio threshold too low, all samples would be removed."):
+            fdata,fbc,fgenes = qc.QC_filter(mtRatio_thresh=.000001)
+
+            
 ###### test helper functions ##########
-    """
-    def test_get_mt_idx():
+    
+    def test_get_mt_idx(self):
         qc=QualityControl(self.mtx_df_50x40,self.genes,self.barcodes)
         mt_idx = qc.get_mt_idx(self.genes)
         mt_idx_assarray = qc.get_mt_idx(np.array(self.genes))
-        #assert isinstance(mt_idx,list) ==
+        assert isinstance(mt_idx,list)
+        assert mt_idx_assarray == [30, 31, 33]
         
-    def test_get_cc_idx():
+    def test_get_cc_idx(self):
         qc=QualityControl(self.mtx_df_50x40,self.genes,self.barcodes)
         cc_idx = qc.get_cc_idx(self.genes)
         cc_idx_assarray = qc.get_cc_idx(np.array(self.genes))
-
-
-###########################################
-######## Matplotlib Tests #################
-###########################################
-
-    @pytest.mark.mpl_image_compare(tolerance=20) # https://stackoverflow.com/questions/27948126/how-can-i-write-unit-tests-against-code-that-uses-matplotlib
-    def test_fig123(self):
-        '''call QC_metrics() with report=True'''
-        qc=QualityControl(self.mtx_df_50x40,self.genes,self.barcodes)
-        QC_metaobj_50x40  = qc.QC_metrics(UMI_thresh  = 1500,Features_thresh = 39,log10FeaturesPerUMI_thresh = 0.002,
-                                                        FeaturesPerUMI_thresh = 0.0001,mtRatio_thresh = 0.5, qc_filter=False,report=True)
-        return qc.plot_fig123(QC_metaobj_50x40)
-
-    @pytest.mark.mpl_image_compare(tolerance=20) 
-    def test_fig4(self):
-        '''call QC_metrics() with report=True'''
-        qc=QualityControl(self.mtx_df_50x40,self.genes,self.barcodes)
-        QC_metaobj_50x40  = qc.QC_metrics(UMI_thresh  = 1500,Features_thresh = 39,log10FeaturesPerUMI_thresh = 0.002,
-                                                        FeaturesPerUMI_thresh = 0.0001,mtRatio_thresh = 0.5, qc_filter=False,report=True)
-        return qc.plot_fig4(QC_metaobj_50x40)
-    
-    @pytest.mark.mpl_image_compare(tolerance=20)    
-    def test_fig5(self):
-        '''call QC_metrics() with report=True'''
-        qc=QualityControl(self.mtx_df_50x40,self.genes,self.barcodes)
-        QC_metaobj_50x40  = qc.QC_metrics(UMI_thresh  = 1500,Features_thresh = 39,log10FeaturesPerUMI_thresh = 0.002,
-                                                        FeaturesPerUMI_thresh = 0.0001,mtRatio_thresh = 0.5, qc_filter=False,report=True)
-        return qc.plot_fig5(QC_metaobj_50x40)
-
-    @pytest.mark.mpl_image_compare(tolerance=20)
-    def test_fig6(self):
-        '''call QC_metrics() with report=True'''
-        qc=QualityControl(self.mtx_df_50x40,self.genes,self.barcodes)
-        QC_metaobj_50x40  = qc.QC_metrics(UMI_thresh  = 1500,Features_thresh = 39,log10FeaturesPerUMI_thresh = 0.002,
-                                                        FeaturesPerUMI_thresh = 0.0001,mtRatio_thresh = 0.5, qc_filter=False,report=True)
-        return qc.plot_fig6(QC_metaobj_50x40)
-
-    @pytest.mark.mpl_image_compare(tolerance=20) 
-    def test_fig7(self):
-        '''call QC_metrics() with report=True'''
-        qc=QualityControl(self.mtx_df_50x40,self.genes,self.barcodes)
-        QC_metaobj_50x40  = qc.QC_metrics(UMI_thresh  = 1500,Features_thresh = 39,log10FeaturesPerUMI_thresh = 0.002,
-                                                        FeaturesPerUMI_thresh = 0.0001,mtRatio_thresh = 0.5, qc_filter=False,report=True)
-        return qc.plot_fig7(QC_metaobj_50x40)
-
-    """
+        assert isinstance(cc_idx_assarray,list)
+        assert cc_idx_assarray == [21, 22]
