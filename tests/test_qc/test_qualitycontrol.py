@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import scipy.sparse as spsp
 import pytest
+import pandas as pd
 #from QualityControl import QC_metrics, QC_filter
 
 def mat_to_csc(mat, verbose=0):
