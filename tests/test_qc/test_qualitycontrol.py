@@ -1,14 +1,8 @@
 import numpy as np
-#import matplotlib as mpl
-#import matplotlib.pyplot as plt
-#import seaborn as sns
 import scipy.sparse as spsp
 import pytest
 import pandas as pd
-
-#import scedar.cluster as cluster
 from scedar.qc import QualityControl
-
 
 def mat_to_csc(mat, verbose=0):
         if isinstance(mat,pd.core.frame.DataFrame):
@@ -20,7 +14,6 @@ def mat_to_csc(mat, verbose=0):
         elif isinstance(mat,spsp.coo.coo_matrix):
             if verbose: print('COO matrix converted to CSC matrix.')
             return spsp.csc_matrix(mat) #mat.tocsc()
-        
 
 def get_test_genes():    
     return  ['ENSG00000243485','ENSG00000237613','ENSG00000186092','ENSG00000238009','ENSG00000239945','ENSG00000237683',
@@ -54,7 +47,7 @@ def get_test_barcodes():
 
 
         
-class TestQCFunctions(object):
+class TestQCFunctions(object):    #   arg order is mat,genes,  bc  must return order is  mat,bc,genes !!!!!!
     """  Test functions for the Quality Control module of Scedar"""
     
     np.random.seed(123)
@@ -63,12 +56,13 @@ class TestQCFunctions(object):
     mtx_df_zeros  =  pd.DataFrame(np.zeros((50,40)))
     mtx_df_empty = pd.DataFrame()
     
-    csc_50x40 = mat_to_csc(mtx_df_50x40) # self. ?
+    csc_50x40 = mat_to_csc(mtx_df_50x40)
     csr_50x40 = spsp.csr.csr_matrix(mtx_df_50x40)
     
     genes = get_test_genes()
     barcodes = get_test_barcodes()
-        
+
+    
     def test_null_inputs(self):
         with pytest.raises(ValueError,match=r"Empty matrix found!"):
             qc=QualityControl(self.mtx_df_empty,self.genes,self.barcodes)  # change input to  []
@@ -103,8 +97,8 @@ class TestQCFunctions(object):
         assert np.any(QC_metaobj_50x40.isna()) == False 
         assert sum(sum(QC_metaobj_50x40.values)) ==  107641.1346368048
         np.testing.assert_approx_equal(sum(sum(QC_metaobj_50x40.values)), 107641.13463,significant=4, err_msg='QC_metrics sum incorrect')  
+        
 
-    
     def test_QC_metrics_no_filter_CSC(self):
 
         qc=QualityControl(self.csc_50x40,self.genes,self.barcodes)
@@ -441,7 +435,7 @@ class TestQCFunctions(object):
 
     def test_QC_filter_log10featuresPerUMI_threshold_error(self):
         qc=QualityControl(self.mtx_df_50x40,self.genes,self.barcodes)
-        with pytest.raises(ValueError,match=r"log10 Feature per UMI threshold too high, all samples would be removed."):
+        with pytest.raises(ValueError,match=r"log10 Features per UMI threshold too high, all samples would be removed."):
             fdata,fbc,fgenes = qc.QC_filter(log10FeaturesPerUMI_thresh=.9)
 
     def test_QC_filter_mtRatio_threshold_error(self):   
@@ -449,7 +443,6 @@ class TestQCFunctions(object):
         with pytest.raises(ValueError,match=r"MT ratio threshold too low, all samples would be removed."):
             fdata,fbc,fgenes = qc.QC_filter(mtRatio_thresh=.000001)
 
-            
             
             
             
@@ -473,18 +466,18 @@ class TestQCFunctions(object):
         qc=QualityControl(self.mtx_df_50x40,self.genes,self.barcodes)
         
         mat = qc.mat_to_csc(self.mtx_df_50x40)
-        assert isinstance(mat,scipy.sparse.csc.csc_matrix)
+        assert isinstance(mat,spsp.csc.csc_matrix)
         assert mat.shape == (50, 40)
         
         mat = qc.mat_to_csc(self.csr_50x40)
-        assert isinstance(mat,scipy.sparse.csc.csc_matrix)
+        assert isinstance(mat,spsp.csc.csc_matrix)
         assert mat.shape == (50, 40)
         
         mat = qc.mat_to_csc(spsp.coo.coo_matrix(self.mtx_df_50x40))
-        assert isinstance(mat,scipy.sparse.csc.csc_matrix)
+        assert isinstance(mat,spsp.csc.csc_matrix)
         assert mat.shape == (50, 40)
             
-    def test_get_mito_genes_human(self): 
+    def test_get_mito_genes_human(self): #   test genes???????
         qc=QualityControl(self.mtx_df_50x40,self.genes,self.barcodes)
         mt_genes =  qc.get_mito_genes('human')
         
@@ -493,7 +486,7 @@ class TestQCFunctions(object):
         assert mt_genes[0] == 'ENSG00000210049'
         assert mt_genes[-1] ==  'ENSG00000210196'
         
-    def test_get_mito_genes_mouse(self): 
+    def test_get_mito_genes_mouse(self): #   test genes???????
         qc=QualityControl(self.mtx_df_50x40,self.genes,self.barcodes)
         mt_genes =  qc.get_mito_genes('mouse')
         
@@ -503,7 +496,7 @@ class TestQCFunctions(object):
         assert mt_genes[-1] ==  'ENSMUSG00000064372'
 
 
-    def test_get_cell_cycle_genes_human(self): 
+    def test_get_cell_cycle_genes_human(self): #   test genes???????
         qc=QualityControl(self.mtx_df_50x40,self.genes,self.barcodes)
         cc_genes =  qc.get_cell_cycle_genes('human')
         assert isinstance(cc_genes,list)
@@ -512,11 +505,57 @@ class TestQCFunctions(object):
         assert cc_genes[-1] ==  'ENSG00000116809'
 
 
-    def test_get_cell_cycle_genes_mouse(self):   
+    def test_get_cell_cycle_genes_mouse(self):   #   test genes???????
         qc=QualityControl(self.mtx_df_50x40,self.genes,self.barcodes)
         cc_genes =  qc.get_cell_cycle_genes('mouse')
         assert isinstance(cc_genes,list)
         assert np.shape(cc_genes) == (125,)
         assert cc_genes[0] == 'ENSMUSG00000026842'
         assert cc_genes[-1] ==  'ENSMUSG00000006215'
+        
+"""
+###########################################
+######## Matplotlib Tests #################
+###########################################
 
+    @pytest.mark.mpl_image_compare(tolerance=20) # https://stackoverflow.com/questions/27948126/how-can-i-write-unit-tests-against-code-that-uses-matplotlib
+    def test_fig123(self):
+        '''call QC_metrics() with report=True'''
+        qc=QualityControl(self.mtx_df_50x40,self.genes,self.barcodes)
+        QC_metaobj_50x40  = qc.QC_metrics(UMI_thresh  = 1500,Features_thresh = 39,log10FeaturesPerUMI_thresh = 0.002,
+                                                        FeaturesPerUMI_thresh = 0.0001,mtRatio_thresh = 0.5, qc_filter=False,report=True)
+        return qc.plot_fig123(QC_metaobj_50x40)
+
+    @pytest.mark.mpl_image_compare(tolerance=20) 
+    def test_fig4(self):
+        '''call QC_metrics() with report=True'''
+        qc=QualityControl(self.mtx_df_50x40,self.genes,self.barcodes)
+        QC_metaobj_50x40  = qc.QC_metrics(UMI_thresh  = 1500,Features_thresh = 39,log10FeaturesPerUMI_thresh = 0.002,
+                                                        FeaturesPerUMI_thresh = 0.0001,mtRatio_thresh = 0.5, qc_filter=False,report=True)
+        return qc.plot_fig4(QC_metaobj_50x40)
+    
+    @pytest.mark.mpl_image_compare(tolerance=20)    
+    def test_fig5(self):
+        '''call QC_metrics() with report=True'''
+        qc=QualityControl(self.mtx_df_50x40,self.genes,self.barcodes)
+        QC_metaobj_50x40  = qc.QC_metrics(UMI_thresh  = 1500,Features_thresh = 39,log10FeaturesPerUMI_thresh = 0.002,
+                                                        FeaturesPerUMI_thresh = 0.0001,mtRatio_thresh = 0.5, qc_filter=False,report=True)
+        return qc.plot_fig5(QC_metaobj_50x40)
+
+    @pytest.mark.mpl_image_compare(tolerance=20)
+    def test_fig6(self):
+        '''call QC_metrics() with report=True'''
+        qc=QualityControl(self.mtx_df_50x40,self.genes,self.barcodes)
+        QC_metaobj_50x40  = qc.QC_metrics(UMI_thresh  = 1500,Features_thresh = 39,log10FeaturesPerUMI_thresh = 0.002,
+                                                        FeaturesPerUMI_thresh = 0.0001,mtRatio_thresh = 0.5, qc_filter=False,report=True)
+        return qc.plot_fig6(QC_metaobj_50x40)
+
+    @pytest.mark.mpl_image_compare(tolerance=20) 
+    def test_fig7(self):
+        '''call QC_metrics() with report=True'''
+        qc=QualityControl(self.mtx_df_50x40,self.genes,self.barcodes)
+        QC_metaobj_50x40  = qc.QC_metrics(UMI_thresh  = 1500,Features_thresh = 39,log10FeaturesPerUMI_thresh = 0.002,
+                                                        FeaturesPerUMI_thresh = 0.0001,mtRatio_thresh = 0.5, qc_filter=False,report=True)
+        return qc.plot_fig7(QC_metaobj_50x40)
+
+    """
