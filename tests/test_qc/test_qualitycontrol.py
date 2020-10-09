@@ -4,7 +4,7 @@ import numpy as np
 #import seaborn as sns
 import scipy.sparse as spsp
 import pytest
-#import pandas as pd
+import pandas as pd
 
 #import scedar.cluster as cluster
 from scedar.qc import QualityControl
