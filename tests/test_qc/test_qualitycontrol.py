@@ -435,7 +435,7 @@ class TestQCFunctions(object):    #   arg order is mat,genes,  bc  must return o
 
     def test_QC_filter_log10featuresPerUMI_threshold_error(self):
         qc=QualityControl(self.mtx_df_50x40,self.genes,self.barcodes)
-        with pytest.raises(ValueError,match=r"log10 Features per UMI threshold too high, all samples would be removed."):
+        with pytest.raises(ValueError,match=r"log10 Feature per UMI threshold too high, all samples would be removed."):
             fdata,fbc,fgenes = qc.QC_filter(log10FeaturesPerUMI_thresh=.9)
 
     def test_QC_filter_mtRatio_threshold_error(self):   
