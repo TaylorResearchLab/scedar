@@ -1,12 +1,14 @@
 import numpy as np
-import matplotlib as mpl
-#mpl.use("agg", warn=False)  
-import matplotlib.pyplot as plt
-import seaborn as sns
+#import matplotlib as mpl
+#import matplotlib.pyplot as plt
+#import seaborn as sns
 import scipy.sparse as spsp
 import pytest
-import pandas as pd
-#from QualityControl import QC_metrics, QC_filter
+#import pandas as pd
+
+#import scedar.cluster as cluster
+from scedar.qc import QualityControl
+
 
 def mat_to_csc(mat, verbose=0):
         if isinstance(mat,pd.core.frame.DataFrame):
