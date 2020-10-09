@@ -72,7 +72,8 @@ class TestQCFunctions(object):    #   arg order is mat,genes,  bc  must return o
             qc=QualityControl(self.mtx_df_50x40,self.genes,[]) 
             
     def test_wrong_matrix_type(self):
-        with pytest.raises(TypeError):
+        with pytest.raises(TypeError,match=r"""Input Matrix must be of Type 'Pandas.core.frame.DataFrame',
+                    'scipy.sparse.coo.coo_matrix' or 'scipy.sparse.csc.csc_matrix' but was Type: <class 'numpy.ndarray'>"""):
             qc=QualityControl(np.asarray(self.mtx_df_50x40),self.genes,self.barcodes)
     
     def test_wrong_gene_length(self):
