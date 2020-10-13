@@ -2,6 +2,7 @@
 name: scedar_ci
 on: 
   push: 
+  
 jobs:
   biopypir_testing:
     runs-on: ${{ matrix.os }} # ubuntu-latest
