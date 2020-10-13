@@ -28,6 +28,7 @@ jobs:
           pip install pytest-mpl
     #"pip install --no-binary :all: nmslib"
     #===============================================#
+    
     - name: Run Tests
       run: ./scripts/gen_baseline_images.sh && ./scripts/pytest_all.sh
    #===============================================#
