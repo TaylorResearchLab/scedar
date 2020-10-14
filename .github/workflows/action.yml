@@ -26,6 +26,7 @@ jobs:
           pip install coverage
           pip install pytest-cov
           pip install pytest-mpl
+          pip install nmslib
     #"pip install --no-binary :all: nmslib"
     #===============================================#
     - name: Run Tests
