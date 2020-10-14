@@ -31,7 +31,15 @@ jobs:
     #===============================================#
     - run: pwd
     - name: Run Tests
-      run: ./scripts/gen_baseline_images.sh #&& ./scripts/pytest_all.sh
+      run: |
+        pytest --mpl-generate-path=tests/baseline_images \
+          --color=yes --cov-config .coveragerc --maxfail=5  \
+          --cov-branch --cov=scedar \
+          --ignore=tests/test_cluster/test_mirac_large_data.py \
+          tests
+        
+      
+      #./scripts/gen_baseline_images.sh #&& ./scripts/pytest_all.sh
     - run: pwd
    #===============================================#
     - name: Coveralls
