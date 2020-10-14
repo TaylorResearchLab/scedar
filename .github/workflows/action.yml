@@ -29,8 +29,10 @@ jobs:
           pip install nmslib
     #"pip install --no-binary :all: nmslib"
     #===============================================#
+    - run: pwd
     - name: Run Tests
-      run: ./scripts/gen_baseline_images.sh && ./scripts/pytest_all.sh
+      run: ./scripts/gen_baseline_images.sh #&& ./scripts/pytest_all.sh
+    - run: pwd
    #===============================================#
     - name: Coveralls
       uses: coverallsapp/github-action@master
