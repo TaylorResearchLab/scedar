@@ -29,18 +29,13 @@ jobs:
           pip install nmslib
     #"pip install --no-binary :all: nmslib"
     #===============================================#
-    - run: pwd
+    - run: ls
     - name: Run Tests
-      run: |
-        pytest --mpl-generate-path=tests/baseline_images \
-          --color=yes --cov-config .coveragerc --maxfail=5  \
-          --cov-branch --cov=scedar \
-          --ignore=tests/test_cluster/test_mirac_large_data.py \
-          tests
+      run:  ./scripts/gen_baseline_images.sh && ./scripts/pytest_all.sh
         
       
       #./scripts/gen_baseline_images.sh #&& ./scripts/pytest_all.sh
-    - run: pwd
+    - run: ls
    #===============================================#
     - name: Coveralls
       uses: coverallsapp/github-action@master
