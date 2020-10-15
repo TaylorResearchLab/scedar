@@ -27,19 +27,20 @@ jobs:
           pip install pytest-cov
           pip install pytest-mpl
           pip install nmslib
+          pip install https://github.com/bboe/coveralls-python/archive/github_actions.zip
     #"pip install --no-binary :all: nmslib"
     #===============================================#
-    - run: ls
     - name: Run Tests
       run:  ./scripts/gen_baseline_images.sh && ./scripts/pytest_all.sh
         
-      
-      #./scripts/gen_baseline_images.sh #&& ./scripts/pytest_all.sh
-    - run: ls
+    - name: Upload Coverage
+      run: coveralls
+      env:
+       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}   
    #===============================================#
-    - name: Coveralls
-      uses: coverallsapp/github-action@master
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-    #===============================================#
+   # - name: Coveralls
+   #   uses: coverallsapp/github-action@master
+   #   with:
+   #     github-token: ${{ secrets.GITHUB_TOKEN }}
+   #===============================================#
 
