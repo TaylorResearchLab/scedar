@@ -29,7 +29,6 @@ jobs:
           pip install nmslib
           pip install https://github.com/bboe/coveralls-python/archive/github_actions.zip
     #"pip install --no-binary :all: nmslib"
-    
     #===============================================#
     - name: Run Tests
       run:  ./scripts/gen_baseline_images.sh && ./scripts/pytest_all.sh
