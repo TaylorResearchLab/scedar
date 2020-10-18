@@ -31,7 +31,12 @@ jobs:
     #"pip install --no-binary :all: nmslib"
     #===============================================#
     - name: Run Tests
-      run:  ./scripts/gen_baseline_images.sh && ./scripts/pytest_all.sh
+      run:  | 
+        coverage --mpl --mpl-baseline-path=tests/baseline_images \
+        --color=yes --cov-config .coveragerc --cov-branch --cov=scedar \
+        tests
+    
+      #./scripts/gen_baseline_images.sh && ./scripts/pytest_all.sh
         
     - name: Upload Coverage
       run: coveralls -v
