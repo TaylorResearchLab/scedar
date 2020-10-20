@@ -23,6 +23,7 @@ jobs:
           pip install --upgrade pip setuptools wheel
           pip install .
           pip install coverage
+          pip install coveralls
           pip install pytest-cov
           pip install pytest-mpl
           pip install nmslib
