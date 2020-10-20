@@ -34,6 +34,7 @@ jobs:
     - name: Run Tests
       run:  | 
          coverage run --source=scedar -m pytest tests/
+         
      # pytest --mpl --mpl-baseline-path=tests/baseline_images \
      #   --color=yes --cov-branch --cov=scedar \
      #   tests
