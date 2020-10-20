@@ -27,7 +27,7 @@ jobs:
           pip install pytest-cov
           pip install pytest-mpl
           pip install nmslib
-          pip install https://github.com/bboe/coveralls-python/archive/github_actions.zip
+    #pip install https://github.com/bboe/coveralls-python/archive/github_actions.zip
     #"pip install --no-binary :all: nmslib"
     #===============================================#
     - name: Run Tests
