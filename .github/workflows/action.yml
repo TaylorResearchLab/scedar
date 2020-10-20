@@ -32,11 +32,11 @@ jobs:
     #===============================================#
     - name: Run Tests
       run:  | 
-        coverage run tests
-
-      #--mpl --mpl-baseline-path=tests/baseline_images \
-      #--color=yes --cov-config .coveragerc --cov-branch --cov=scedar \
-      #tests
+        pytest --mpl --mpl-baseline-path=tests/baseline_images \
+          --color=yes --cov-branch --cov=scedar \
+          tests
+        
+      # --cov-config .coveragerc 
 
       #./scripts/gen_baseline_images.sh && ./scripts/pytest_all.sh
         
