@@ -32,10 +32,12 @@ jobs:
     #===============================================#
     - name: Run Tests
       run:  | 
-        coverage run -m scedar --mpl --mpl-baseline-path=tests/baseline_images \
-        --color=yes --cov-config .coveragerc --cov-branch --cov=scedar \
-        tests
-    
+        coverage run tests
+
+      #--mpl --mpl-baseline-path=tests/baseline_images \
+      #--color=yes --cov-config .coveragerc --cov-branch --cov=scedar \
+      #tests
+
       #./scripts/gen_baseline_images.sh && ./scripts/pytest_all.sh
         
     - name: Upload Coverage
