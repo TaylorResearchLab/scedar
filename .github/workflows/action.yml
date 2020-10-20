@@ -22,12 +22,12 @@ jobs:
       run: |
           pip install --upgrade pip setuptools wheel
           pip install .
-          pip install python-coveralls
           pip install coverage
           pip install pytest-cov
           pip install pytest-mpl
           pip install nmslib
     #pip install https://github.com/bboe/coveralls-python/archive/github_actions.zip
+    # pip install python-coveralls
     #"pip install --no-binary :all: nmslib"
     #===============================================#
     - name: Run Tests
