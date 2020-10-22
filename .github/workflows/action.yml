@@ -1,5 +1,5 @@
 ---
-name: scedar_ci
+name: Github Actions
 on: 
   push: 
 jobs:
