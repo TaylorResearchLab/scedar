@@ -1,5 +1,5 @@
 ---
-name: Github Actions
+name: Github Actions CI
 on: 
   push: 
 jobs:
