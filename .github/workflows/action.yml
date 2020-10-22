@@ -33,16 +33,19 @@ jobs:
     #===============================================#
     - name: Run Tests
       run:  | 
-         coverage run --source=scedar -m pytest tests/
+         coverage run --source=scedar -m \
+         pytest --mpl-generate-path=tests/baseline_images \
+          --color=yes --cov-config .coveragerc \
+          --cov-branch --cov=scedar \
+          --ignore=tests/test_cluster/test_mirac_large_data.py tests
          
      # pytest --mpl --mpl-baseline-path=tests/baseline_images \
-     #   --color=yes --cov-branch --cov=scedar \
-     #   tests
-        
+     #   --color=yes --cov-branch --cov=scedar tests
       # --cov-config .coveragerc 
-
       #./scripts/gen_baseline_images.sh && ./scripts/pytest_all.sh
         
+    #coverage run --source=scedar -m pytest tests/
+
     - name: Upload Coverage
       run: coveralls -v
       env:
