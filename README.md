@@ -7,6 +7,8 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Documentation Status](https://readthedocs.org/projects/scedar/badge/?version=latest)](https://scedar.readthedocs.io/en/latest/?badge=latest)
 
+[![Actions Status](https://xxx.execute-api.us-west-2.amazonaws.com/production/badge/{owner}/{repo})](https://xxx.execute-api.us-west-2.amazonaws.com/production/results/{owner}/{repo})
+
 `Scedar` (Single-cell exploratory data analysis for RNA-Seq) is a reliable and easy-to-use Python package for efficient *visualization*, *imputation of gene dropouts*, *detection of rare transcriptomic profiles*, and *clustering* of large-scale single cell RNA-seq (scRNA-seq) datasets.
 
 ## Install
