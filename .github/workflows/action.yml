@@ -32,16 +32,15 @@ jobs:
     #"pip install --no-binary :all: nmslib"
     #===============================================#
     - name: Run Tests
-      run:  | 
-         coverage run --source=scedar -m pytest --mpl-generate-path=tests/baseline_images \
-          --color=yes --ignore=tests/test_cluster/test_mirac_large_data.py tests
-    
-    - name: Run Tests 2
-      run:  | 
-         coverage run --source=scedar -m pytest --mpl \
-          --mpl-baseline-path=tests/baseline_images --color=yes tests
+      run:  pwd; ./gen_baseline_images.sh &&  ./pytest_all.sh
+        
+#       coverage run --source=scedar -m pytest --mpl-generate-path=tests/baseline_images \
+#        --color=yes --ignore=tests/test_cluster/test_mirac_large_data.py tests
+ #   - name: Run Tests 2
+ #     run:  | 
+ #        coverage run --source=scedar -m pytest --mpl \
+ #         --mpl-baseline-path=tests/baseline_images --color=yes tests
             
-    #coverage run --source=scedar -m pytest tests/
 
     - name: Upload Coverage
       run: coveralls -v
