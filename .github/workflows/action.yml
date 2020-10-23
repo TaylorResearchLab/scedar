@@ -27,12 +27,9 @@ jobs:
           pip install pytest-cov
           pip install pytest-mpl
           pip install nmslib
-    #pip install https://github.com/bboe/coveralls-python/archive/github_actions.zip
-    # pip install python-coveralls
-    #"pip install --no-binary :all: nmslib"
     #===============================================#
     - name: Run Tests
-      run:  pwd; ./gen_baseline_images.sh &&  ./pytest_all.sh
+      run:  ./scripts/gen_baseline_images.sh &&  ./scripts/pytest_all.sh
         
 #       coverage run --source=scedar -m pytest --mpl-generate-path=tests/baseline_images \
 #        --color=yes --ignore=tests/test_cluster/test_mirac_large_data.py tests
