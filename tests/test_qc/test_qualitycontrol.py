@@ -36,6 +36,8 @@ def get_test_barcodes():
                        'AAACATTCAACCAC-1', 'AAACATTGATCTAC-1', 'AAACATTGATCCGC-1','AAACAGTGCTTCCG-1', 'CAACCGTGTATGCG-1', 'ATACGCACTGGTAC-1',
                        'AAACGCTGATCAGT-1', 'AAACGCGGGTTCTT-1', 'AAAAGCTGTAGCCA-1','AAACTCTGTTTCTG-1']
 
+  
+
         
 class TestQCFunctions(object):    #   arg order is mat,genes,  bc  must return order is  mat,bc,genes !!!!!!
     """  Test functions for the Quality Control module of Scedar"""
@@ -62,18 +64,26 @@ class TestQCFunctions(object):    #   arg order is mat,genes,  bc  must return o
             qc=QualityControl(self.mtx_df_50x40,self.genes,[]) 
             
         with pytest.raises(TypeError,match=r"""Input Matrix must be of Type 'Pandas.core.frame.DataFrame',
-                    'scipy.sparse.coo.coo_matrix' or 'scipy.sparse.csc.csc_matrix' but was Type: <class 'list'>"""):    
+                                    'scipy.sparse.coo.coo_matrix' or 'scipy.sparse.csc.csc_matrix' 
+                                    but was Type: <class 'list'>"""):   
             qc=QualityControl([],self.genes,self.barcodes) 
             
     def test_wrong_matrix_type(self):
         with pytest.raises(TypeError,match=r"""Input Matrix must be of Type 'Pandas.core.frame.DataFrame',
-                    'scipy.sparse.coo.coo_matrix' or 'scipy.sparse.csc.csc_matrix' but was Type: <class 'numpy.ndarray'>"""):
+                                    'scipy.sparse.coo.coo_matrix' or 'scipy.sparse.csc.csc_matrix' 
+                                    but was Type: <class 'numpy.ndarray'>"""):   
             qc=QualityControl(np.asarray(self.mtx_df_50x40),self.genes,self.barcodes)
     
     def test_wrong_gene_length(self):
-        #with pytest.raises(ValueError,match=r"Incorrect gene list found!"):
-        #    qc=QualityControl(self.mtx_df_50x40,self.genes[:-5],self.barcodes) 
-        pass
+        with pytest.raises(ValueError,match=r'''Features do not match length of matrix on axis 1 (rows).
+                                     Make sure you are passing parameters in the correct order (matrix,genes,barcodes)
+                                     and that your matrix is in the form "features X barcodes".'''):
+            qc=QualityControl(self.mtx_df_50x40,self.genes[:-5],self.barcodes) 
+    
+        with pytest.raises(ValueError,match=r'''Barcodes do not match length of matrix on axis 0 (columns).
+                                     Make sure you are passing parameters in the correct order (matrix,genes,barcodes)
+                                     and that your matrix is in the form "features X barcodes".'''):    
+            qc=QualityControl(self.mtx_df_50x40,self.genes,self.barcodes[:-5]) 
     
     def test_wrong_barcode_length(self):
         pass
@@ -87,6 +97,9 @@ class TestQCFunctions(object):    #   arg order is mat,genes,  bc  must return o
         QC_metaobj_50x40  = qc.metrics(UMI_thresh = 1500,Features_thresh = 39,log10FeaturesPerUMI_thresh = 0.002,
                                             FeaturesPerUMI_thresh = 0.0001,mtRatio_thresh = 0.5,filter_count_matrix=False)
 
+        #assert isinstance(QC_metaobj_50x40,spsp.csc.csc_matrix)
+        #QC_metaobj_50x40 = pd.DataFrame(QC_metaobj_50x40.toarray())
+        
         assert  QC_metaobj_50x40.shape == (len(self.mtx_df_50x40),6)
         assert  np.all(QC_metaobj_50x40.columns == ['nUMI', 'nFeatures', 'FeaturesPerUMI','log10FeaturesPerUMI', 'mtUMI','mitoRatio'])
         assert np.any(QC_metaobj_50x40.isna()) == False 
@@ -99,6 +112,9 @@ class TestQCFunctions(object):    #   arg order is mat,genes,  bc  must return o
         qc=QualityControl(self.csc_50x40,self.genes,self.barcodes)
         QC_metaobj_50x40_csc  = qc.metrics(filter_count_matrix=False) # UMI_thresh = 1500,Features_thresh = 39,log10FeaturesPerUMI_thresh = 0.002,FeaturesPerUMI_thresh = 0.0001,mtRatio_thresh = 0.5,
         
+        #assert isinstance(QC_metaobj_50x40,spsp.csc.csc_matrix)
+        #QC_metaobj_50x40 = pd.DataFrame(QC_metaobj_50x40.toarray())
+                
         assert  QC_metaobj_50x40_csc.shape == (self.csc_50x40.shape[0],6)
         assert  np.all(QC_metaobj_50x40_csc.columns == ['nUMI', 'nFeatures', 'FeaturesPerUMI','log10FeaturesPerUMI', 'mtUMI','mitoRatio'])
         assert np.any(QC_metaobj_50x40_csc.isna()) == False 
@@ -229,7 +245,6 @@ class TestQCFunctions(object):    #   arg order is mat,genes,  bc  must return o
 ######## Individual Filtering Tests #######
 ###########################################  barcodes are now returned...
 
-
     def test_filter_umi(self):
             qc=QualityControl(self.mtx_df_50x40,self.genes,self.barcodes)
             fdata,fgenes,fbc = qc.filter_count_matrix(UMI_thresh=1700)
@@ -261,24 +276,6 @@ class TestQCFunctions(object):    #   arg order is mat,genes,  bc  must return o
                                           log10FeaturesPerUMI_thresh=.48,mtRatio_thresh=.1)
             assert fdata.shape == (14, 40)
             
-    def test_filter_allFilters_compare(self):
-            qc=QualityControl(self.mtx_df_50x40,self.genes,self.barcodes)
-            
-            d0,b,a = qc.filter_count_matrix(UMI_thresh=1700)            
-            d1,b,a = qc.filter_count_matrix(Features_thresh=39)
-            d2,b,a = qc.filter_count_matrix(FeaturesPerUMI_thresh=.02)
-            d3,b,a = qc.filter_count_matrix(log10FeaturesPerUMI_thresh=.48)
-            d4,fgenes4,fbc4 = qc.filter_count_matrix(mtRatio_thresh=.1)
-            
-            qc=QualityControl(self.mtx_df_50x40,self.genes,self.barcodes)
-            d_all,fgenes_all,fbc_all = qc.filter_count_matrix(UMI_thresh=1700,Features_thresh=39,FeaturesPerUMI_thresh=.02,
-                                          log10FeaturesPerUMI_thresh=.48,mtRatio_thresh=.1)
-
-            assert (d0.shape[0],d1.shape[0],d2.shape[0],d3.shape[0],d4.shape[0],d_all.shape[0]) == (45, 30, 17, 17, 14, 14)
-            assert np.all(fgenes4 == fgenes_all)
-            assert np.all(fbc4 == fbc_all)
-            assert np.sum(d4) ==  np.sum(d_all)
-            
     def test_log10FeaturesPerUMI_thresh(self):
         qc=QualityControl(self.mtx_df_50x40,self.genes,self.barcodes)
         fdata1,fgenes1,fbc1 = qc.filter_count_matrix(log10FeaturesPerUMI_thresh=.48)
@@ -290,8 +287,7 @@ class TestQCFunctions(object):    #   arg order is mat,genes,  bc  must return o
 
     def test_metrics_filter_no_args(self):
         qc=QualityControl(self.mtx_df_50x40,self.genes,self.barcodes)
-        with pytest.raises(ValueError,match=r"""Must pass at least one threshold arguement when filter_count_matrix = True. If you don't want
-                            any filtering done, set filter_count_matrix = False."""):
+        with pytest.raises(ValueError):
             fdata,fgenes,fbc,QC_metaobj_50x40 = qc.metrics(filter_count_matrix=True)
             
 ##### test threshold value error #######  
@@ -365,51 +361,6 @@ class TestQCFunctions(object):    #   arg order is mat,genes,  bc  must return o
         qc=QualityControl(self.mtx_df_50x40,self.genes,self.barcodes)
         with pytest.raises(ValueError,match=r"MT ratio threshold too low, all samples would be removed."):
             fdata,fgenes, fbc = qc.filter_count_matrix(mtRatio_thresh=.000001)
-            
-            
-###  test threshold warning WITHOUT qc_metaobj (with filter_count_matrix)
-    '''
-    def test_filter_umi_threshold_error(self):
-        qc=QualityControl(self.mtx_df_50x40,self.genes,self.barcodes)
-        with pytest.raises(ValueError,match=r"UMI threshold too high, all samples would be removed."):
-            fdata,fbc,fgenes= qc.filter_count_matrix(remove_cell_cycle=True,
-                                                           UMI_thresh = 3000,Features_thresh = 39,
-                                                           log10FeaturesPerUMI_thresh = 0.002,
-                                                           FeaturesPerUMI_thresh = 0.0001,mtRatio_thresh = 0.5)
-    def test_filter_features_threshold_error(self):
-        qc=QualityControl(self.mtx_df_50x40,self.genes,self.barcodes)
-        with pytest.raises(ValueError,match=r"Feature threshold too high, all samples would be removed."):
-            fdata,fbc,fgenes= qc.filter_count_matrix(remove_cell_cycle=True,
-                                                           UMI_thresh = 1500,Features_thresh = 50,
-                                                           log10FeaturesPerUMI_thresh = 0.002,
-                                                           FeaturesPerUMI_thresh = 0.0001,mtRatio_thresh = 0.5)
-        
-    def test_filter_featuresPerUMI_threshold_error(self):
-        qc=QualityControl(self.mtx_df_50x40,self.genes,self.barcodes)
-        with pytest.raises(ValueError,match=r"Features per UMI threshold too high, all samples would be removed."):
-            fdata,fbc,fgenes= qc.metrics(remove_cell_cycle=True,
-                                                           UMI_thresh = 1500,Features_thresh = 39,
-                                                           log10FeaturesPerUMI_thresh = 0.002,
-                                                           FeaturesPerUMI_thresh = 50,mtRatio_thresh = 0.5)
-        
-    def test_filter_1og10featuresPerUMI_threshold_error(self):
-        qc=QualityControl(self.mtx_df_50x40,self.genes,self.barcodes)
-        with pytest.raises(ValueError,match=r"log10 Feature per UMI threshold too high, all samples would be removed."):
-            fdata,fbc,fgenes = qc.filter_count_matrix(remove_cell_cycle=True,
-                                                           UMI_thresh = 1500,Features_thresh = 39,
-                                                           log10FeaturesPerUMI_thresh = 0.9,
-                                                           FeaturesPerUMI_thresh = 0.0001,mtRatio_thresh = 0.5)
-        
-    def test_filter_mtRatio_threshold_error(self):
-        qc=QualityControl(self.mtx_df_50x40,self.genes,self.barcodes)
-        with pytest.raises(ValueError,match=r"MT ratio threshold too low, all samples would be removed."):
-            fdata,fbc,fgenes = qc.filter_count_matrix(remove_cell_cycle=True,
-                                                           UMI_thresh = 1500,Features_thresh = .9,
-                                                           log10FeaturesPerUMI_thresh = 0.002,
-                                                           FeaturesPerUMI_thresh = 0.0001,mtRatio_thresh = .000001)
-    '''
-        
-        
         
     def test_filter_umi_threshold_error(self):
         qc=QualityControl(self.mtx_df_50x40,self.genes,self.barcodes)
