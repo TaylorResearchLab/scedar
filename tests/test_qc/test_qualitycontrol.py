@@ -67,7 +67,7 @@ class TestQCFunctions(object):    #   arg order is mat,genes,  bc  must return o
             qc=QualityControl([],self.genes,self.barcodes) 
             
     def test_wrong_matrix_type(self):
-        with pytest.raises(TypeError)   
+        with pytest.raises(TypeError): 
             qc=QualityControl(np.asarray(self.mtx_df_50x40),self.genes,self.barcodes)
     
     def test_wrong_gene_length(self):
@@ -76,10 +76,7 @@ class TestQCFunctions(object):    #   arg order is mat,genes,  bc  must return o
     
         with pytest.raises(ValueError):    
             qc=QualityControl(self.mtx_df_50x40,self.genes,self.barcodes[:-5]) 
-    
-    def test_wrong_barcode_length(self):
-        pass
-    
+
     
 ####### TEST metrics ########
 ################################
