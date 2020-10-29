@@ -1,17 +1,10 @@
 import numpy as np 
 import pandas as pd
-import os  
-import sys
-import warnings
-import scipy
 import scipy.sparse as spsp
-#import collections
-
-# check/remove genes/barcodes if only matrix is passed
 
 class QualityControl(object):
     """
-    Single Cell Quality Control
+    Single Cell Quality Control module
     
     Args
     ----
@@ -23,7 +16,7 @@ class QualityControl(object):
     barcodes : list
         Barcode IDs corresponding to count matrix
         
-    
+        
     Attributes
     ----------
     
@@ -47,32 +40,32 @@ class QualityControl(object):
                 if not isinstance(self._mtx_df,(pd.core.frame.DataFrame,spsp.coo.coo_matrix
                                                  ,spsp.csr.csr_matrix,spsp.csc.csc_matrix)):           
                     raise TypeError(f"""Input Matrix must be of Type 'Pandas.core.frame.DataFrame',
-                    'scipy.sparse.coo.coo_matrix' or 'scipy.sparse.csc.csc_matrix' but was Type: {type(self._mtx_df)}""")
-                    
+                                    'scipy.sparse.coo.coo_matrix' or 'scipy.sparse.csc.csc_matrix' 
+                                    but was Type: {type(self._mtx_df)}""")
+
                 elif not isinstance(self._mtx_df,spsp.csc.csc_matrix):
                     self._mtx_df = self.mat_to_csc(self._mtx_df)
-        #else: 
-        #    raise ValueError("No count matrix entered") 
-                #if not (len(self._barcodes) == self._mtx_df.shape[0]): 
-                #    raise ValueError('Barcodes do not match length of matrix on axis 0 (columns). Make sure your matrix is in the form "features X barcodes".')
-                #if not (len(self._genes) == self._mtx_df.shape[1]):  
-                #    raise ValueError('Features do not match length of matrix on axis 1 (rows). Make sure your matrix is in the form "features X barcodes".')
-        
-        #print(f'Shape of count matrix is {self._mtx_df.shape}')
 
-        if not self._mtx_df.shape[0]: raise ValueError('Empty matrix found!')
-        if not len(self._genes): raise ValueError('Empty gene list found!')
-        if not len(self._barcodes): raise ValueError('Empty barcode list found!')
-        
-
+        if not self._mtx_df.shape[0]: 
+            raise ValueError('Empty matrix found!')
+        if not len(self._genes): 
+            raise ValueError('Empty gene list found!')
+        if not len(self._barcodes): 
+            raise ValueError('Empty barcode list found!')
+            
+        if not (len(self._barcodes) == self._mtx_df.shape[0]): 
+                    raise ValueError('''Barcodes do not match length of matrix on axis 0 (columns).
+                                     Make sure you are passing parameters in the correct order (matrix,genes,barcodes)
+                                     and that your matrix is in the form "features X barcodes".''')
+        if not (len(self._genes) == self._mtx_df.shape[1]):  
+                    raise ValueError('''Features do not match length of matrix on axis 1 (rows).
+                                        Make sure you are passing parameters in the correct order (matrix,genes,barcodes)
+                                        and that your matrix is in the form "features X barcodes".''')
+                
         self._init_samples = self._mtx_df.shape[0]
-        
-        #if self._mtx_df is not None and self._genes is None and self._barcodes is None:
-        #    self._genes =  self._mtx_df.columns.to_list()
-        #    self._barcodes = self._mtx_df.index.to_list()
-        
+
     def metrics(self,filter_count_matrix=False,remove_cell_cycle=False,report=False,UMI_thresh  = 0,Features_thresh = 0,
-                   log10FeaturesPerUMI_thresh = 0.0,FeaturesPerUMI_thresh = 0.0,mtRatio_thresh = 1.0, verbose=False):
+                   log10FeaturesPerUMI_thresh = 0.0,FeaturesPerUMI_thresh = 0.0,mtRatio_thresh = 1.0, df_out=False,verbose=False):
         """
         Calculate quality control metrics, and optionally filter count matrix and
         generate a quality control report.
@@ -81,52 +74,45 @@ class QualityControl(object):
         ----
         
         filter_count_matrix : bool
-        If True, a filtered count matrix will be returned 
-        
+            If True, a filtered count matrix will be returned (filtered based on the following parameters)
+        remove_cell_cycle: bool
+            Whether or not to remove cell cycle genes.
+        UMI_thresh: int or float
+            Threshold to filter count matrix based on UMI count per cell.
+        Features_thresh: int or float
+            Threshold to filter count matrix based on number of unique features detected per cell.
+        log10FeaturesPerUMI_thresh: int or float
+            Same as Features_thresh but in log10 space.
+        FeaturesPerUMI_thresh: int or float
+            Threshold to filter count matrix based on number of features per UMI detected per cell.
+        mtRatio_thresh: float between 0 and 1
+            Threshold to filter count matrix based on percentage of mitochondrial UMI per cell.      
+        df_out: bool
+            If True, the filtered count matrix will be returned as a Pandas DataFrame and not a scipy CSC matrix
+            
+        Returns: 
+                QC metaobject (Pandas DataFrame) and if filter_count_matrix=True,
+                 a filtered count matrix (Scipy.sparse.csc_matrix or Pandas.DataFrame), a filtered 
+                 gene list (list) and a filtered barcode list (list).
         """
         if filter_count_matrix and not np.any([remove_cell_cycle,report,UMI_thresh,Features_thresh,
-                   log10FeaturesPerUMI_thresh,FeaturesPerUMI_thresh])  and mtRatio_thresh is not 1.0:
-            raise ValueError("""Must pass at least one threshold arguement when filter_count_matrix = True. If you don't want
-                            any filtering done, set filter_count_matrix = False.""")
-            
+                   log10FeaturesPerUMI_thresh,FeaturesPerUMI_thresh]) and mtRatio_thresh is not 1.0:
+            raise ValueError("""Must pass at least one threshold arguement when 
+                                filter_count_matrix = True. If you don't want
+                                any filtering done, set filter_count_matrix = False.""")
         
         idx = self.get_mt_idx(self._genes)
             
         QC_metaobj =  pd.DataFrame(index=self._barcodes).rename_axis(index="Barcodes")
-        
+            
         QC_metaobj['nUMI'] = self._mtx_df.sum(axis=1).astype(int)
         QC_metaobj['nFeatures'] = self._mtx_df.astype(bool).sum(axis=1).astype(int)
         QC_metaobj['FeaturesPerUMI'] = np.divide(QC_metaobj['nFeatures'], QC_metaobj['nUMI'])
         QC_metaobj['log10FeaturesPerUMI'] = np.divide(np.log10(QC_metaobj['nFeatures']), np.log10(QC_metaobj['nUMI']))
         QC_metaobj['mtUMI'] = self._mtx_df[:,idx].sum(axis=1).astype(int)
         QC_metaobj['mitoRatio'] = QC_metaobj['mtUMI']/QC_metaobj['nUMI']       
-
-        '''if report:  
-            gene_exp=  pd.DataFrame(self._mtx_df.sum(axis=0).T,index=self._genes)/ self._mtx_df.sum()
-            sdict  = {'Total Cells' : self._mtx_df.shape[0],
-                  'Total Features'  : self._mtx_df.shape[1],
-                  'Total UMIs'  : int(self._mtx_df.sum()),
-                  'Unique Features' : int(self._mtx_df.astype(bool).sum(axis=0).astype(bool).sum()),
-                  'Median Features per cell' : int(QC_metaobj['nFeatures'].median()),
-                  'Median UMIs per cell' : int(QC_metaobj['nUMI'].median()),
-                  'Median MT Ratio':round(QC_metaobj['mitoRatio'].median(),6), # rounds to nearest  even num, but close enough for 6 decimals out, to use f-strings, do  {num:.2f}
-                  'MT genes detected' : len(idx)} 
-            
-               #'Sparsity':  self._mtx_df.getnnz() / np.prod(self._mtx_df.shape)}
-            fdict = {'UMI Cutoff' : UMI_thresh,
-                  'Feature cutoff' : Features_thresh,
-                  'Features per UMI cutoff' : FeaturesPerUMI_thresh,
-                  'MT Ratio cutoff' : mtRatio_thresh,
-                  #  get filtered_data
-                    'Samples Removed': 44,
-                   'Percent Samples Removed': .22}
-            #if filter_count_matrix: 
-            #     filtered_data[]
-            #    generate_report(sdict+fdict,QC_metaobj,gene_exp) 
-            #else: generate_report(sdict,QC_metaobj,gene_exp)
-            self.generate_report(sdict,QC_metaobj,gene_exp)'''
-            
-        if filter_count_matrix:   
+        
+        if filter_count_matrix:  
             filtered_data, genes, barcodes  = self.filter_count_matrix(QC_metaobj=QC_metaobj,
                                             remove_cell_cycle=remove_cell_cycle,
                                             UMI_thresh=UMI_thresh, 
@@ -135,10 +121,12 @@ class QualityControl(object):
                                             FeaturesPerUMI_thresh=FeaturesPerUMI_thresh,
                                             mtRatio_thresh=mtRatio_thresh,verbose=verbose)
             
-            return  filtered_data, genes, barcodes, QC_metaobj   #### ADD self.
+            if df_out: 
+                return pd.DataFrame(filtered_data.toarray()), genes, barcodes, QC_metaobj
+            else:      
+                return  filtered_data, genes, barcodes, QC_metaobj  
         else: 
             return QC_metaobj
-        
 
     def filter_count_matrix(self,QC_metaobj=None,remove_cell_cycle=False,UMI_thresh  = 0,Features_thresh = 0,
                    log10FeaturesPerUMI_thresh = 0.0,FeaturesPerUMI_thresh = 0.0,mtRatio_thresh = 1.0,verbose=False):
@@ -148,159 +136,203 @@ class QualityControl(object):
         Args
         ----
         
-        QC_metaobj: qc metaobject DataFrame.
-        
-        Default is None. If no qc meta object is passed, the function will generate qc metrics and then filter.
-                
+        QC_metaobj: QC metaobject DataFrame (generated from the metrics() function).
             Whether or not a QC metaobj is being passed. QC metaobj is generated 
-            with the metrics() function.
+            with the metrics() function. If QC metaobject is passed, filter_count_matrix()
+            will use the metrics to filter. If no QC meta object is passed, 
+            filter_count_matrix() will calculate the neccessary metrics and then filter.
+                
         remove_cell_cycle: bool
             Whether or not to remove cell cycle genes.
-        UMI_thresh: int
+        UMI_thresh: int or float
             Threshold to filter count matrix based on UMI count per cell.
-        Features_thresh: int
+        Features_thresh: int or float
             Threshold to filter count matrix based on number of unique features detected per cell.
-        log10FeaturesPerUMI_thresh: float
+        log10FeaturesPerUMI_thresh: int or float
             Same as Features_thresh but in log10 space.
-        FeaturesPerUMI_thresh: float
+        FeaturesPerUMI_thresh: int or float
             Threshold to filter count matrix based on number of features per UMI detected per cell.
-        mtRatio_thresh: float
-            Threshold to filter count matrix based on percentage of mitochondrial UMI per cell.        
-        """
+        mtRatio_thresh: float between 0 and 1
+            Threshold to filter count matrix based on percentage of mitochondrial UMI per cell.      
 
+        Returns: 
+                 A filtered count matrix (Scipy.sparse.csc_matrix or Pandas.DataFrame), a filtered 
+                 gene list (list) and a filtered barcode list (list).
+        """
+        TEMP_mtx_df = self._mtx_df
+        TEMP_genes = self._genes
+        TEMP_barcodes = self._barcodes
+        
         if QC_metaobj is not None:   
-            if UMI_thresh and not sum(QC_metaobj['nUMI'] > UMI_thresh): raise ValueError("UMI threshold too high, all samples would be removed.")
-            if Features_thresh and not sum(QC_metaobj['nFeatures'] > Features_thresh): raise ValueError("Feature threshold too high, all samples would be removed.")
-            if FeaturesPerUMI_thresh and not sum(QC_metaobj['FeaturesPerUMI'] > FeaturesPerUMI_thresh): raise ValueError("Features per UMI threshold too high, all samples would be removed.")
-            if log10FeaturesPerUMI_thresh and not sum(QC_metaobj['log10FeaturesPerUMI'] > log10FeaturesPerUMI_thresh): raise ValueError("log10 Features per UMI threshold too high, all samples would be removed.") 
-            if mtRatio_thresh and not sum(QC_metaobj['mitoRatio'] < mtRatio_thresh): raise ValueError("MT ratio threshold too low, all samples would be removed.")            
+            if UMI_thresh and not sum(QC_metaobj['nUMI'] > UMI_thresh): 
+                raise ValueError("UMI threshold too high, all samples would be removed.")
+                
+            if Features_thresh and not sum(QC_metaobj['nFeatures'] > Features_thresh): 
+                raise ValueError("Feature threshold too high, all samples would be removed.")
+                
+            if FeaturesPerUMI_thresh and not sum(QC_metaobj['FeaturesPerUMI'] > FeaturesPerUMI_thresh): 
+                raise ValueError("Features per UMI threshold too high, all samples would be removed.")
+                
+            if log10FeaturesPerUMI_thresh and not sum(QC_metaobj['log10FeaturesPerUMI'] > log10FeaturesPerUMI_thresh): 
+                raise ValueError("log10 Features per UMI threshold too high, all samples would be removed.") 
+                
+            if mtRatio_thresh and not sum(QC_metaobj['mitoRatio'] < mtRatio_thresh): 
+                raise ValueError("MT ratio threshold too low, all samples would be removed.")            
             
             mask_all =(QC_metaobj['nUMI'] > UMI_thresh).values & \
                            (QC_metaobj['nFeatures'] > Features_thresh).values & \
                            (QC_metaobj['FeaturesPerUMI'] > FeaturesPerUMI_thresh).values &  \
-                              (QC_metaobj['log10FeaturesPerUMI']  >  log10FeaturesPerUMI_thresh).values & \
+                            (QC_metaobj['log10FeaturesPerUMI']  >  log10FeaturesPerUMI_thresh).values & \
                            (QC_metaobj['mitoRatio'] < mtRatio_thresh).values
             
             
             if remove_cell_cycle:
-                idx_cc = self.get_cc_idx(self._genes)
-                to_keep = list(set(range(self._mtx_df.shape[1]))-set(idx_cc))    
-                self._mtx_df = self._mtx_df[:,to_keep]
-                #self._genes = list(set(genes) - set(mt_genes))  #  self._genes[to_keep] see if this is faster
-                self._genes =   [self._genes[i] for i in to_keep]
+                idx_cc = self.get_cc_idx(TEMP_genes)
+                to_keep = list(set(range(TEMP_mtx_df.shape[1]))-set(idx_cc)) 
+                
+                TEMP_mtx_df = TEMP_mtx_df[:,to_keep] 
+                TEMP_genes =   [TEMP_genes[i] for i in to_keep]  
+                        
+            TEMP_mtx_df =  TEMP_mtx_df[mask_all]
+            TEMP_barcodes = list(np.array(TEMP_barcodes)[mask_all])
 
-            '''umi_sum = sum(QC_metaobj['nUMI'] > UMI_thresh)
-            ftr_sum = sum(QC_metaobj['nFeatures'] > Features_thresh)
-            ftr_per_umi_sum = sum(QC_metaobj['FeaturesPerUMI'] > FeaturesPerUMI_thresh)
-            log10_ftr_per_umi_sum = sum(QC_metaobj['log10FeaturesPerUMI']  >  log10FeaturesPerUMI_thresh)
-            mt_sum = sum(QC_metaobj['mitoRatio'] < mtRatio_thresh)
-            
-            print(f'UMI_thresh: {self._init_samples-umi_sum} ')
-            print(f'ftr_thresh: {self._init_samples-ftr_sum} ')
-            print(f'ftr_per_umi_thresh: {self._init_samples-ftr_per_umi_sum} ')
-            print(f'log10_ftr_per_umi_thresh: {self._init_samples-log10_ftr_per_umi_sum} ')
-            print(f'mt: {self._init_samples-mt_sum} ')'''
-            
-            #print(f'Total Samples removed: { self._init_samples-sum(mask_all)} ')
-            
-            self._mtx_df =  self._mtx_df[mask_all]
-            self._barcodes = list(np.array(self._barcodes)[mask_all])
+            return TEMP_mtx_df, TEMP_genes, TEMP_barcodes
 
-            return self._mtx_df, self._genes, self._barcodes
-
-        else: # compute QC_metaobj stats and filter by cutoffs now
-            init_samples, init_genes = self._mtx_df.shape
-            self._barcodes = np.array(self._barcodes)
+        else: # compute QC_metaobj stats and filter by cutoffs now if QC_metaobj isnt passed
+            
+            init_samples, init_genes = TEMP_mtx_df.shape
+            TEMP_barcodes = np.array(TEMP_barcodes)
             
             if UMI_thresh:  
                 
-                if not isinstance(UMI_thresh,int): raise ValueError("UMI threshold must be an integer.")
-                mask_umi = np.ravel((self._mtx_df.sum(axis=1) > UMI_thresh).tolist())
-                if not sum(mask_umi): raise ValueError("UMI threshold too high, all samples would be removed.")
-                #self._mtx_df = self._mtx_df[mask_umi,:]
-                #self._barcodes = self._barcodes[mask_umi]
-                if verbose: print(f'{init_samples  - self._mtx_df.shape[0]} samples removed after applying UMI_thresh of {UMI_thresh}')
+                if not isinstance(UMI_thresh,(int,float)): 
+                    raise ValueError("UMI threshold must be an integer or float.")
+                    
+                mask_umi = np.ravel((TEMP_mtx_df.sum(axis=1) > UMI_thresh).tolist())
+                
+                if not sum(mask_umi): 
+                    raise ValueError("UMI threshold too high, all samples would be removed.")
+
             else: mask_umi = np.ones(init_samples).astype(bool)
 
+            
             if Features_thresh:
-                #print(self._mtx_df.astype(bool).sum(axis=1))
-                if not isinstance(Features_thresh,int): raise ValueError("Feature threshold must be an integer.") 
-                current_shape = self._mtx_df.shape[0]
-                mask_ftr= np.ravel((self._mtx_df.astype(bool).sum(axis=1)  > Features_thresh).tolist())
-                if not sum(mask_ftr): raise ValueError("Feature threshold too high, all samples would be removed.")
-                if verbose: print(f'{current_shape  - self._mtx_df.shape[0]} samples removed after applying Features_thresh of {Features_thresh}')
+                if not isinstance(Features_thresh,(int,float)): 
+                    raise ValueError("Feature threshold must be an integer or float.") 
+                
+                mask_ftr= np.ravel((TEMP_mtx_df.astype(bool).sum(axis=1)  > Features_thresh).tolist())
+               
+                if not sum(mask_ftr): 
+                    raise ValueError("Feature threshold too high, all samples would be removed.")
+            
             else: mask_ftr = np.ones(init_samples).astype(bool)
             
+            
             if FeaturesPerUMI_thresh:
-                if not isinstance(FeaturesPerUMI_thresh,(int,float)):raise ValueError("FeaturePerUMI threshold must be an integer or float."); #sys.exit(1)
-                current_shape = self._mtx_df.shape[0]
-                ftr_per_umi_mask =  np.ravel((np.divide(self._mtx_df.astype(bool).sum(axis=1).astype(int) ,self._mtx_df.sum(axis=1)) > FeaturesPerUMI_thresh).tolist())                
-                if not sum(ftr_per_umi_mask): raise ValueError("Features per UMI threshold too high, all samples would be removed.")
-                if verbose: print(f'{current_shape  - self._mtx_df.shape[0]} samples removed after applying featurePerUMI_thresh of {FeaturesPerUMI_thresh}')
+                if not isinstance(FeaturesPerUMI_thresh,(int,float)):
+                    raise ValueError("FeaturePerUMI threshold must be an integer or float."); 
+                
+                ftr_per_umi_mask =  np.ravel((np.divide(TEMP_mtx_df.astype(bool).sum(axis=1).astype(int) ,TEMP_mtx_df.sum(axis=1)) > FeaturesPerUMI_thresh).tolist())                
+                
+                if not sum(ftr_per_umi_mask): 
+                    raise ValueError("Features per UMI threshold too high, all samples would be removed.")
+            
             else: ftr_per_umi_mask = np.ones(init_samples).astype(bool)
             
+            
             if log10FeaturesPerUMI_thresh:
-                if not isinstance(log10FeaturesPerUMI_thresh,(int,float)): raise ValueError("log10featurePerUMI threshold must be an integer or float."); #sys.exit(1)
-                current_shape = self._mtx_df.shape[0]
-                # calculate division first then log10, if theres a difference.
-                log10_ftr_per_umi_mask =  np.ravel((np.log10(self._mtx_df.astype(bool).sum(axis=1)) / np.log10(self._mtx_df.sum(axis=1).astype(int)) > log10FeaturesPerUMI_thresh).tolist())
-                if not sum(log10_ftr_per_umi_mask): raise ValueError("log10 Feature per UMI threshold too high, all samples would be removed.")
-                if verbose: print(f'{current_shape  - self._mtx_df.shape[0]} samples removed after applying log10featurePerUMI_thresh of {log10FeaturesPerUMI_thresh}')
+                if not isinstance(log10FeaturesPerUMI_thresh,(int,float)): 
+                    raise ValueError("log10featurePerUMI threshold must be an integer or float."); 
+                    
+                log10_ftr_per_umi_mask =  np.ravel((np.log10(TEMP_mtx_df.astype(bool).sum(axis=1)) / np.log10(TEMP_mtx_df.sum(axis=1).astype(int)) > log10FeaturesPerUMI_thresh).tolist())
+                
+                if not sum(log10_ftr_per_umi_mask): 
+                    raise ValueError("log10 Feature per UMI threshold too high, all samples would be removed.")
+            
             else: log10_ftr_per_umi_mask = np.ones(init_samples).astype(bool)
                 
+                
             if not (mtRatio_thresh == 1.0):
-                if not isinstance(mtRatio_thresh,float) or (mtRatio_thresh) < 0 or (mtRatio_thresh > 1): raise ValueError("mtRatio threshold must be a float between 0 and 1."); #sys.exit(1)
-                current_shape = self._mtx_df.shape[0]
-                mt_idx =  self.get_mt_idx(self._genes)
-                mt_mask = np.ravel((self._mtx_df[:,mt_idx].sum(axis=1).astype(int) /  self._mtx_df.sum(axis=1).astype(int) < mtRatio_thresh).tolist())
-                if not sum(mt_mask): raise ValueError("MT ratio threshold too low, all samples would be removed.")
-                if verbose: print(f'{current_shape  - self._mtx_df.shape[0]} samples removed after applying mtRatio_thresh of {mtRatio_thresh}')
+                if not isinstance(mtRatio_thresh,float) or (mtRatio_thresh) < 0 or (mtRatio_thresh > 1): 
+                    raise ValueError("mtRatio threshold must be a float between 0 and 1."); 
+                
+                mt_idx =  self.get_mt_idx(TEMP_genes)
+                mt_mask = np.ravel((TEMP_mtx_df[:,mt_idx].sum(axis=1).astype(int) /  TEMP_mtx_df.sum(axis=1).astype(int) < mtRatio_thresh).tolist())
+                
+                if not sum(mt_mask): 
+                    raise ValueError("MT ratio threshold too low, all samples would be removed.")
+
             else: mt_mask = np.ones(init_samples).astype(bool)
             
             if remove_cell_cycle:
-                idx_cc = self.get_cc_idx(self._genes)
-                to_keep = list(set(range(self._mtx_df.shape[1]))-set(idx_cc))    
-                self._mtx_df = self._mtx_df[:,to_keep]  #self._genes = list(set(genes) - set(mt_genes))  #  self._genes[to_keep]
-                self._genes =   [self._genes[i] for i in to_keep]
-                if verbose: print(f'{init_genes  - self._mtx_df.shape[1]} cell cycle genes found and removed')
-            
-            if verbose: print(f'{init_samples - self._mtx_df.shape[0]} samples and {init_genes - self._mtx_df.shape[1]} dropped ({np.round(1 - (self._mtx_df.shape[0]+self._mtx_df.shape[1])/(init_genes+init_samples),3)*100}% of matrix).')
-            '''umi_sum = sum(mask_umi)
-            ftr_sum = sum(mask_ftr)
-            ftr_per_umi_sum = sum(ftr_per_umi_mask)
-            log10_ftr_per_umi_sum = sum(log10_ftr_per_umi_mask)
-            mt_sum = sum(mt_mask)
-            
-            print(f'UMI_thresh: {self._init_samples-umi_sum} ')
-            print(f'ftr_thresh: {self._init_samples-ftr_sum} ')
-            print(f'ftr_per_umi_thresh: {self._init_samples-ftr_per_umi_sum} ')
-            print(f'log10_ftr_per_umi_thresh: {self._init_samples-log10_ftr_per_umi_sum} ')
-            print(f'mt: {self._init_samples-mt_sum} ')
-            '''
+                idx_cc = self.get_cc_idx(TEMP_genes)
+                to_keep = list(set(range(TEMP_mtx_df.shape[1]))-set(idx_cc))    
+                
+                TEMP_mtx_df  = TEMP_mtx_df[:,to_keep] 
+                TEMP_genes = [TEMP_genes[i] for i in to_keep]
+
+            if verbose: 
+                print(f'''{init_samples - TEMP_mtx_df.shape[0]} samples and {init_genes - TEMP_mtx_df.shape[1]} features
+                      dropped ({np.round(1 - (TEMP_mtx_df.shape[0]+TEMP_mtx_df.shape[1])/(init_genes+init_samples),3)*100}% of matrix).''')
+
             mask_all = mask_umi & mask_ftr & ftr_per_umi_mask & log10_ftr_per_umi_mask  & mt_mask
-            self._mtx_df =  self._mtx_df[mask_all]
-            self._barcodes = self._barcodes[mask_all]
+            TEMP_mtx_df = TEMP_mtx_df[mask_all]   
+            TEMP_barcodes = TEMP_barcodes[mask_all]
             
-            #print(f'Total Samples removed: {self._init_samples-self._mtx_df.shape[0]}')
-        
-            return self._mtx_df, self._genes, list(self._barcodes)
+            return TEMP_mtx_df, TEMP_genes, list(TEMP_barcodes)
 
         
     def mat_to_csc(self, mat, verbose=0):
-        #if mtx_df.shape[0] > mtx_df.shape[1]: return sparse.csr_matrix(df.values) # more cells than genes, convert to csr
-        #else: return sparse.csc_matrix(df.values) # more genes than cells, convert to csc  
-        if isinstance(mat,pd.core.frame.DataFrame):
-            if verbose: print('DataFrame converted to CSC matrix.')
-            return spsp.csc_matrix(mat.values)
-        elif  isinstance(mat,spsp.csr.csr_matrix):
-            if verbose: print('CSR matrix converted to CSC matrix.')
-            return spsp.csc_matrix(mat)
-        elif isinstance(mat,spsp.coo.coo_matrix):
-            if verbose: print('COO matrix converted to CSC matrix.')
-            return spsp.csc_matrix(mat) #mat.tocsc()
+        """
+        Helper Function for converting Pandas DataFrame or Scipy COO/CSR 
+        matrix into Scipy CSC matrix.
+        
+        Args
+        ----
+        mat: Pandas DataFrame or Scipy COO/CSR
+           single cell count matrix
+        
+        verbose: bool
+            Verbosity level
 
-    #@staticmethod
+        Returns:
+               single cell count matrix of Type CSC matrix
+        """
+  
+        if isinstance(mat,pd.core.frame.DataFrame):
+            if verbose: 
+                print('DataFrame converted to CSC matrix.')
+                
+            return spsp.csc_matrix(mat.values)
+        
+        elif  isinstance(mat,spsp.csr.csr_matrix):
+            if verbose: 
+                print('CSR matrix converted to CSC matrix.')
+                
+            return spsp.csc_matrix(mat)
+        
+        elif isinstance(mat,spsp.coo.coo_matrix):
+            if verbose: 
+                print('COO matrix converted to CSC matrix.')
+                
+            return spsp.csc_matrix(mat) 
+
+        
+        
     def get_mito_genes(self,organism='human'):
+        """
+        Helper Function for getting mitochondrial gene ensembl IDs.
+        
+        Args
+        ----
+        
+        organism: str ('human' or 'mouse')
+            Which organisms genes to return
+           
+        Returns:
+              A list of mitochondrial genes
+        """
+  
         if organism=='human':
             mt_genes =  ['ENSG00000210049','ENSG00000211459','ENSG00000210077','ENSG00000210082',
                              'ENSG00000209082','ENSG00000198888', 'ENSG00000210100', 'ENSG00000210107', 'ENSG00000210112',
@@ -318,12 +350,25 @@ class QualityControl(object):
                        'ENSMUSG00000064357', 'ENSMUSG00000064358', 'ENSMUSG00000064359','ENSMUSG00000064360', 'ENSMUSG00000064361', 'ENSMUSG00000065947',
                        'ENSMUSG00000064363', 'ENSMUSG00000064364', 'ENSMUSG00000064365','ENSMUSG00000064366', 'ENSMUSG00000064367', 'ENSMUSG00000064368',
                        'ENSMUSG00000064369', 'ENSMUSG00000064370', 'ENSMUSG00000064371','ENSMUSG00000064372']
+        
         return mt_genes
 
-    #@staticmethod
+    
+    
     def get_cell_cycle_genes(self,organism='human'):
-        #cell_cycle_genes = pd.read_csv('human_cell_cycle_genes.csv',sep=',')
-        #return cell_cycle_genes['geneID'].values
+        """
+        Helper Function for getting cell cycle gene ensembl IDs.
+        
+        Args
+        ----
+        
+        organism: str ('human' or 'mouse')
+            Which organisms cell cycle genes to return
+           
+        Returns:
+              A list of cell cycle genes
+        """
+  
         if organism=='human':
             cc_genes = ['ENSG00000097007','ENSG00000256211','ENSG00000153107','ENSG00000164162','ENSG00000141552', 'ENSG00000129055','ENSG00000176248',
              'ENSG00000053900', 'ENSG00000089053', 'ENSG00000196510', 'ENSG00000149311', 'ENSG00000175054', 'ENSG00000169679',
@@ -346,6 +391,7 @@ class QualityControl(object):
              'ENSG00000114126','ENSG00000105329','ENSG00000092969','ENSG00000119699','ENSG00000141510', 'ENSG00000112742',
              'ENSG00000166483', 'ENSG00000214102','ENSG00000166913','ENSG00000108953', 'ENSG00000170027','ENSG00000128245',
              'ENSG00000134308','ENSG00000164924','ENSG00000116809']
+        
         elif organism =='mouse':
             cc_genes =     ['ENSMUSG00000026842', 'ENSMUSG00000014355', 'ENSMUSG00000036977','ENSMUSG00000025135', 'ENSMUSG00000035048', 'ENSMUSG00000026965',
                'ENSMUSG00000029176', 'ENSMUSG00000029472', 'ENSMUSG00000029466','ENSMUSG00000034218', 'ENSMUSG00000032409', 'ENSMUSG00000027379','ENSMUSG00000040084', 'ENSMUSG00000066979', 'ENSMUSG00000027793',
@@ -368,20 +414,62 @@ class QualityControl(object):
                'ENSMUSG00000002603', 'ENSMUSG00000039239', 'ENSMUSG00000021253','ENSMUSG00000059552', 'ENSMUSG00000038379', 'ENSMUSG00000031016',
                'ENSMUSG00000037159', 'ENSMUSG00000018326', 'ENSMUSG00000020849','ENSMUSG00000051391', 'ENSMUSG00000018965', 'ENSMUSG00000076432',
                'ENSMUSG00000022285', 'ENSMUSG00000006215']
+        
         return cc_genes
 
-    # encapsulate
+    
     def get_mt_idx(self,genes):
-            if not isinstance(genes,list): genes = list(genes)
-            mt_genes = self.get_mito_genes(); idx  = []
-            for i in mt_genes:
-                if  i in genes: idx.append(genes.index(i))
-            return idx
+        """
+        Helper Function for locating mitochondrial genes in a users gene list 
+        so that mitochondrial UMI percentage can be calculated.
         
-    #  encapsulate
+        Args
+        ----
+        
+        genes: list 
+            gene list to search
+           
+        Returns:
+              A list of mitochondrial gene locations
+        """
+  
+        if not isinstance(genes,list): 
+            genes = list(genes)
+            
+        mt_genes = self.get_mito_genes()
+        idx  = []
+        
+        for i in mt_genes:
+            if  i in genes: 
+                idx.append(genes.index(i))
+                
+        return idx
+
+
     def get_cc_idx(self,genes):
-            if not isinstance(genes,list): genes = list(genes)
-            cc_genes = self.get_cell_cycle_genes(); idx=[]
-            for i in cc_genes:
-                if  i in genes: idx.append(genes.index(i))
-            return idx
+        """
+        Helper Function for locating cell cycle genes in a users gene list 
+        so that they can be (optionally) dropped.
+        
+        Args
+        ----
+        
+        genes: list 
+            gene list to search
+           
+        Returns:
+              A list of cell cycle gene locations
+        """
+        
+        if not isinstance(genes,list): 
+            genes = list(genes)
+
+        cc_genes = self.get_cell_cycle_genes()
+        idx=[]
+
+        for i in cc_genes:
+            if  i in genes: 
+                idx.append(genes.index(i))
+                
+        return idx
+   
