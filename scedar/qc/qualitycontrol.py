@@ -1,6 +1,17 @@
+'''  
+Author: Ben Stear
+Email: stearb@email.chop.edu
+Date: 11/5/20
+Github: https://github.com/benstear  
+'''
+
+
 import numpy as np 
 import pandas as pd
 import scipy.sparse as spsp
+
+
+
 
 class QualityControl(object):
     """
@@ -45,6 +56,7 @@ class QualityControl(object):
 
                 elif not isinstance(self._mtx_df,spsp.csc.csc_matrix):
                     self._mtx_df = self.mat_to_csc(self._mtx_df)
+                    
 
         if not self._mtx_df.shape[0]: 
             raise ValueError('Empty matrix found!')
@@ -62,9 +74,11 @@ class QualityControl(object):
                                         Make sure you are passing parameters in the correct order (matrix,genes,barcodes)
                                         and that your matrix is in the form "features X barcodes".''')
                 
-        self._init_samples = self._mtx_df.shape[0]
 
-    def metrics(self,filter_count_matrix=False,remove_cell_cycle=False,report=False,UMI_thresh  = 0,Features_thresh = 0,
+        self._init_samples = self._mtx_df.shape[0]
+        
+        
+    def metrics(self,filter_count_matrix=False,remove_cell_cycle=False,UMI_thresh  = 0,Features_thresh = 0,
                    log10FeaturesPerUMI_thresh = 0.0,FeaturesPerUMI_thresh = 0.0,mtRatio_thresh = 1.0, df_out=False,verbose=False):
         """
         Calculate quality control metrics, and optionally filter count matrix and
@@ -88,15 +102,17 @@ class QualityControl(object):
         mtRatio_thresh: float between 0 and 1
             Threshold to filter count matrix based on percentage of mitochondrial UMI per cell.      
         df_out: bool
-            If True, the filtered count matrix will be returned as a Pandas DataFrame and not a scipy CSC matrix
+            If True, the filtered count matrix will be returned as a Pandas DataFrame and not a scipy CSC matrix.
             
         Returns: 
                 QC metaobject (Pandas DataFrame) and if filter_count_matrix=True,
-                 a filtered count matrix (Scipy.sparse.csc_matrix or Pandas.DataFrame), a filtered 
+                 a filtered count matrix (Scipy.sparse.csc_matrix), a filtered 
                  gene list (list) and a filtered barcode list (list).
         """
-        if filter_count_matrix and not np.any([remove_cell_cycle,report,UMI_thresh,Features_thresh,
-                   log10FeaturesPerUMI_thresh,FeaturesPerUMI_thresh]) and mtRatio_thresh is not 1.0:
+
+        
+        if filter_count_matrix and (not np.any([remove_cell_cycle,UMI_thresh,Features_thresh,
+                   log10FeaturesPerUMI_thresh,FeaturesPerUMI_thresh])) and mtRatio_thresh == 1.0:
             raise ValueError("""Must pass at least one threshold arguement when 
                                 filter_count_matrix = True. If you don't want
                                 any filtering done, set filter_count_matrix = False.""")
@@ -112,6 +128,7 @@ class QualityControl(object):
         QC_metaobj['mtUMI'] = self._mtx_df[:,idx].sum(axis=1).astype(int)
         QC_metaobj['mitoRatio'] = QC_metaobj['mtUMI']/QC_metaobj['nUMI']       
         
+
         if filter_count_matrix:  
             filtered_data, genes, barcodes  = self.filter_count_matrix(QC_metaobj=QC_metaobj,
                                             remove_cell_cycle=remove_cell_cycle,
@@ -121,11 +138,10 @@ class QualityControl(object):
                                             FeaturesPerUMI_thresh=FeaturesPerUMI_thresh,
                                             mtRatio_thresh=mtRatio_thresh,verbose=verbose)
             
-            if df_out: 
-                return pd.DataFrame(filtered_data.toarray()), genes, barcodes, QC_metaobj
-            else:      
-                return  filtered_data, genes, barcodes, QC_metaobj  
+            if df_out: return pd.DataFrame(filtered_data.toarray()), genes, barcodes, QC_metaobj
+            else:      return  filtered_data, genes, barcodes, QC_metaobj  
         else: 
+            #if not df_out: return mat_to_csc(QC_metaobj) else: return QC_metaobj
             return QC_metaobj
 
     def filter_count_matrix(self,QC_metaobj=None,remove_cell_cycle=False,UMI_thresh  = 0,Features_thresh = 0,
@@ -156,7 +172,7 @@ class QualityControl(object):
             Threshold to filter count matrix based on percentage of mitochondrial UMI per cell.      
 
         Returns: 
-                 A filtered count matrix (Scipy.sparse.csc_matrix or Pandas.DataFrame), a filtered 
+                 A filtered count matrix (Scipy.sparse.csc_matrix), a filtered 
                  gene list (list) and a filtered barcode list (list).
         """
         TEMP_mtx_df = self._mtx_df
@@ -188,17 +204,17 @@ class QualityControl(object):
             
             if remove_cell_cycle:
                 idx_cc = self.get_cc_idx(TEMP_genes)
-                to_keep = list(set(range(TEMP_mtx_df.shape[1]))-set(idx_cc)) 
+                to_keep = list(set(range(TEMP_mtx_df.shape[1]))-set(idx_cc)) # if sum(to_keep)==0, no cc genes found.   
                 
-                TEMP_mtx_df = TEMP_mtx_df[:,to_keep] 
-                TEMP_genes =   [TEMP_genes[i] for i in to_keep]  
-                        
+                TEMP_mtx_df = TEMP_mtx_df[:,to_keep] # remove self
+                TEMP_genes =   [TEMP_genes[i] for i in to_keep]  # remove self
+                
             TEMP_mtx_df =  TEMP_mtx_df[mask_all]
             TEMP_barcodes = list(np.array(TEMP_barcodes)[mask_all])
 
             return TEMP_mtx_df, TEMP_genes, TEMP_barcodes
 
-        else: # compute QC_metaobj stats and filter by cutoffs now if QC_metaobj isnt passed
+        else: # compute QC_metaobj stats and filter by cutoffs now (because QC_metaobj wasnt passed)
             
             init_samples, init_genes = TEMP_mtx_df.shape
             TEMP_barcodes = np.array(TEMP_barcodes)
@@ -212,9 +228,8 @@ class QualityControl(object):
                 
                 if not sum(mask_umi): 
                     raise ValueError("UMI threshold too high, all samples would be removed.")
-
             else: mask_umi = np.ones(init_samples).astype(bool)
-
+            
             
             if Features_thresh:
                 if not isinstance(Features_thresh,(int,float)): 
@@ -224,7 +239,6 @@ class QualityControl(object):
                
                 if not sum(mask_ftr): 
                     raise ValueError("Feature threshold too high, all samples would be removed.")
-            
             else: mask_ftr = np.ones(init_samples).astype(bool)
             
             
@@ -236,7 +250,6 @@ class QualityControl(object):
                 
                 if not sum(ftr_per_umi_mask): 
                     raise ValueError("Features per UMI threshold too high, all samples would be removed.")
-            
             else: ftr_per_umi_mask = np.ones(init_samples).astype(bool)
             
             
@@ -248,7 +261,6 @@ class QualityControl(object):
                 
                 if not sum(log10_ftr_per_umi_mask): 
                     raise ValueError("log10 Feature per UMI threshold too high, all samples would be removed.")
-            
             else: log10_ftr_per_umi_mask = np.ones(init_samples).astype(bool)
                 
                 
@@ -261,8 +273,8 @@ class QualityControl(object):
                 
                 if not sum(mt_mask): 
                     raise ValueError("MT ratio threshold too low, all samples would be removed.")
-
             else: mt_mask = np.ones(init_samples).astype(bool)
+            
             
             if remove_cell_cycle:
                 idx_cc = self.get_cc_idx(TEMP_genes)
@@ -274,6 +286,7 @@ class QualityControl(object):
             if verbose: 
                 print(f'''{init_samples - TEMP_mtx_df.shape[0]} samples and {init_genes - TEMP_mtx_df.shape[1]} features
                       dropped ({np.round(1 - (TEMP_mtx_df.shape[0]+TEMP_mtx_df.shape[1])/(init_genes+init_samples),3)*100}% of matrix).''')
+            
 
             mask_all = mask_umi & mask_ftr & ftr_per_umi_mask & log10_ftr_per_umi_mask  & mt_mask
             TEMP_mtx_df = TEMP_mtx_df[mask_all]   
