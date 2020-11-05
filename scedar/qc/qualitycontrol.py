@@ -40,7 +40,7 @@ class QualityControl(object):
         
     """
     
-    def __init__(self, mtx_df=None,genes=None, barcodes=None): # ,nprocs=1,verbose=False):
+    def __init__(self, mtx_df=None,genes=None, barcodes=None):
         super().__init__()
         
         self._mtx_df  = mtx_df
@@ -56,7 +56,6 @@ class QualityControl(object):
 
                 elif not isinstance(self._mtx_df,spsp.csc.csc_matrix):
                     self._mtx_df = self.mat_to_csc(self._mtx_df)
-                    
 
         if not self._mtx_df.shape[0]: 
             raise ValueError('Empty matrix found!')
@@ -76,7 +75,7 @@ class QualityControl(object):
                 
 
         self._init_samples = self._mtx_df.shape[0]
-        
+
         
     def metrics(self,filter_count_matrix=False,remove_cell_cycle=False,UMI_thresh  = 0,Features_thresh = 0,
                    log10FeaturesPerUMI_thresh = 0.0,FeaturesPerUMI_thresh = 0.0,mtRatio_thresh = 1.0, df_out=False,verbose=False):
@@ -127,7 +126,6 @@ class QualityControl(object):
         QC_metaobj['log10FeaturesPerUMI'] = np.divide(np.log10(QC_metaobj['nFeatures']), np.log10(QC_metaobj['nUMI']))
         QC_metaobj['mtUMI'] = self._mtx_df[:,idx].sum(axis=1).astype(int)
         QC_metaobj['mitoRatio'] = QC_metaobj['mtUMI']/QC_metaobj['nUMI']       
-        
 
         if filter_count_matrix:  
             filtered_data, genes, barcodes  = self.filter_count_matrix(QC_metaobj=QC_metaobj,
@@ -141,7 +139,6 @@ class QualityControl(object):
             if df_out: return pd.DataFrame(filtered_data.toarray()), genes, barcodes, QC_metaobj
             else:      return  filtered_data, genes, barcodes, QC_metaobj  
         else: 
-            #if not df_out: return mat_to_csc(QC_metaobj) else: return QC_metaobj
             return QC_metaobj
 
     def filter_count_matrix(self,QC_metaobj=None,remove_cell_cycle=False,UMI_thresh  = 0,Features_thresh = 0,
@@ -208,13 +205,13 @@ class QualityControl(object):
                 
                 TEMP_mtx_df = TEMP_mtx_df[:,to_keep] # remove self
                 TEMP_genes =   [TEMP_genes[i] for i in to_keep]  # remove self
-                
+
             TEMP_mtx_df =  TEMP_mtx_df[mask_all]
             TEMP_barcodes = list(np.array(TEMP_barcodes)[mask_all])
 
             return TEMP_mtx_df, TEMP_genes, TEMP_barcodes
 
-        else: # compute QC_metaobj stats and filter by cutoffs now (because QC_metaobj wasnt passed)
+        else: # compute QC_metaobj stats and filter by cutoffs now if QC_metaobj isnt passed
             
             init_samples, init_genes = TEMP_mtx_df.shape
             TEMP_barcodes = np.array(TEMP_barcodes)
@@ -229,7 +226,7 @@ class QualityControl(object):
                 if not sum(mask_umi): 
                     raise ValueError("UMI threshold too high, all samples would be removed.")
             else: mask_umi = np.ones(init_samples).astype(bool)
-            
+  
             
             if Features_thresh:
                 if not isinstance(Features_thresh,(int,float)): 
@@ -244,7 +241,7 @@ class QualityControl(object):
             
             if FeaturesPerUMI_thresh:
                 if not isinstance(FeaturesPerUMI_thresh,(int,float)):
-                    raise ValueError("FeaturePerUMI threshold must be an integer or float."); 
+                    raise ValueError("FeaturesPerUMI threshold must be an integer or float."); 
                 
                 ftr_per_umi_mask =  np.ravel((np.divide(TEMP_mtx_df.astype(bool).sum(axis=1).astype(int) ,TEMP_mtx_df.sum(axis=1)) > FeaturesPerUMI_thresh).tolist())                
                 
@@ -283,11 +280,12 @@ class QualityControl(object):
                 TEMP_mtx_df  = TEMP_mtx_df[:,to_keep] 
                 TEMP_genes = [TEMP_genes[i] for i in to_keep]
 
+                
             if verbose: 
                 print(f'''{init_samples - TEMP_mtx_df.shape[0]} samples and {init_genes - TEMP_mtx_df.shape[1]} features
                       dropped ({np.round(1 - (TEMP_mtx_df.shape[0]+TEMP_mtx_df.shape[1])/(init_genes+init_samples),3)*100}% of matrix).''')
-            
 
+                
             mask_all = mask_umi & mask_ftr & ftr_per_umi_mask & log10_ftr_per_umi_mask  & mt_mask
             TEMP_mtx_df = TEMP_mtx_df[mask_all]   
             TEMP_barcodes = TEMP_barcodes[mask_all]
@@ -313,21 +311,12 @@ class QualityControl(object):
         """
   
         if isinstance(mat,pd.core.frame.DataFrame):
-            if verbose: 
-                print('DataFrame converted to CSC matrix.')
-                
             return spsp.csc_matrix(mat.values)
         
         elif  isinstance(mat,spsp.csr.csr_matrix):
-            if verbose: 
-                print('CSR matrix converted to CSC matrix.')
-                
             return spsp.csc_matrix(mat)
         
         elif isinstance(mat,spsp.coo.coo_matrix):
-            if verbose: 
-                print('COO matrix converted to CSC matrix.')
-                
             return spsp.csc_matrix(mat) 
 
         
@@ -485,4 +474,3 @@ class QualityControl(object):
                 idx.append(genes.index(i))
                 
         return idx
-   
