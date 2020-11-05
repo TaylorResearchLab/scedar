@@ -37,9 +37,9 @@ def get_test_barcodes():
                        'AAACGCTGATCAGT-1', 'AAACGCGGGTTCTT-1', 'AAAAGCTGTAGCCA-1','AAACTCTGTTTCTG-1']
 
   
-
         
-class TestQCFunctions(object):    #   arg order is mat,genes,  bc  must return order is  mat,bc,genes !!!!!!
+        
+class TestQCFunctions(object):    
     """  Test functions for the Quality Control module of Scedar"""
     
     np.random.seed(123)
@@ -63,11 +63,11 @@ class TestQCFunctions(object):    #   arg order is mat,genes,  bc  must return o
         with pytest.raises(ValueError,match=r"Empty barcode list found!"):
             qc=QualityControl(self.mtx_df_50x40,self.genes,[]) 
             
-        with pytest.raises(TypeError):   
+        with pytest.raises(TypeError):  
             qc=QualityControl([],self.genes,self.barcodes) 
             
     def test_wrong_matrix_type(self):
-        with pytest.raises(TypeError): 
+        with pytest.raises(TypeError):   
             qc=QualityControl(np.asarray(self.mtx_df_50x40),self.genes,self.barcodes)
     
     def test_wrong_gene_length(self):
@@ -76,19 +76,16 @@ class TestQCFunctions(object):    #   arg order is mat,genes,  bc  must return o
     
         with pytest.raises(ValueError):    
             qc=QualityControl(self.mtx_df_50x40,self.genes,self.barcodes[:-5]) 
-
     
+#############################
 ####### TEST metrics ########
-################################
+#############################
     def test_metrics_no_filter_DATAFRAME(self):
-        '''test metrics() and return QC_metaobj only, (no filtered data)'''    # add generate_report() testing here
         qc=QualityControl(self.mtx_df_50x40,self.genes,self.barcodes)
         QC_metaobj_50x40  = qc.metrics(UMI_thresh = 1500,Features_thresh = 39,log10FeaturesPerUMI_thresh = 0.002,
                                             FeaturesPerUMI_thresh = 0.0001,mtRatio_thresh = 0.5,filter_count_matrix=False)
 
-        #assert isinstance(QC_metaobj_50x40,spsp.csc.csc_matrix)
-        #QC_metaobj_50x40 = pd.DataFrame(QC_metaobj_50x40.toarray())
-        
+       
         assert  QC_metaobj_50x40.shape == (len(self.mtx_df_50x40),6)
         assert  np.all(QC_metaobj_50x40.columns == ['nUMI', 'nFeatures', 'FeaturesPerUMI','log10FeaturesPerUMI', 'mtUMI','mitoRatio'])
         assert np.any(QC_metaobj_50x40.isna()) == False 
@@ -100,23 +97,15 @@ class TestQCFunctions(object):    #   arg order is mat,genes,  bc  must return o
 
         qc=QualityControl(self.csc_50x40,self.genes,self.barcodes)
         QC_metaobj_50x40_csc  = qc.metrics(filter_count_matrix=False) # UMI_thresh = 1500,Features_thresh = 39,log10FeaturesPerUMI_thresh = 0.002,FeaturesPerUMI_thresh = 0.0001,mtRatio_thresh = 0.5,
-        
-        #assert isinstance(QC_metaobj_50x40,spsp.csc.csc_matrix)
-        #QC_metaobj_50x40 = pd.DataFrame(QC_metaobj_50x40.toarray())
-                
+       
         assert  QC_metaobj_50x40_csc.shape == (self.csc_50x40.shape[0],6)
         assert  np.all(QC_metaobj_50x40_csc.columns == ['nUMI', 'nFeatures', 'FeaturesPerUMI','log10FeaturesPerUMI', 'mtUMI','mitoRatio'])
         assert np.any(QC_metaobj_50x40_csc.isna()) == False 
         np.testing.assert_approx_equal(sum(sum(QC_metaobj_50x40_csc.values)), 107641.13463,significant=4, err_msg='metrics sum incorrect')  
 
         
-
-    ###### metrics WITH filter #########
     def test_metrics_with_filter_DATAFRAME(self):
-        '''test metrics() and return QC_metaobj AND filtered data'''   # add generate_report() testing here
         qc=QualityControl(self.mtx_df_50x40,self.genes,self.barcodes)
-
-
         fdata,fgenes,fbc, QC_metaobj_50x40  = qc.metrics(UMI_thresh = 1500,Features_thresh = 39,log10FeaturesPerUMI_thresh = 0.002,
                                                         FeaturesPerUMI_thresh = 0.0001,mtRatio_thresh = 0.5, 
                                                                   filter_count_matrix=True, remove_cell_cycle=False)
@@ -147,7 +136,6 @@ class TestQCFunctions(object):    #   arg order is mat,genes,  bc  must return o
                                                'ENSG00000188976','ENSG00000187961']))) == 0
 
     def test_metrics_with_filter_df_verbose(self):
-        '''test metrics() and return QC_metaobj AND filtered data'''   # add generate_report() testing here
         qc=QualityControl(self.mtx_df_50x40,self.genes,self.barcodes)
         
         fdata,fgenes,fbc, QC_metaobj_50x40  = qc.metrics(UMI_thresh = 1500,
@@ -158,14 +146,28 @@ class TestQCFunctions(object):    #   arg order is mat,genes,  bc  must return o
                                                              filter_count_matrix=True, 
                                                              remove_cell_cycle=False,
                                                              verbose=True)
-
-############################
-#### TEST filter_count_matrix ########
-############################
+        
+        
+    def test_metrics_with_filter_dfout(self):
+        qc=QualityControl(self.mtx_df_50x40,self.genes,self.barcodes)
+        
+        fdata,fgenes,fbc, QC_metaobj_50x40  = qc.metrics(UMI_thresh = 1500,
+                                                             Features_thresh = 39,
+                                                             log10FeaturesPerUMI_thresh = 0.002,
+                                                             FeaturesPerUMI_thresh = 0.0001,
+                                                             mtRatio_thresh = 0.5, 
+                                                             filter_count_matrix=True, 
+                                                             remove_cell_cycle=False,
+                                                             verbose=True,df_out=True)
+        assert isinstance(fdata,pd.DataFrame)
+        
+        
+################################
+#### TEST filter_count_matrix ##
+################################
 
     def test_filter_with_QC_Obj(self):
-        '''test QC filter function with QC_metaobj  (call metrics to get QC_metaobj  
-                    and pass it to filter_count_matrix with mtx_df)'''   
+  
         qc=QualityControl(self.mtx_df_50x40,self.genes,self.barcodes)
 
         QC_metaobj_50x40 = qc.metrics(filter_count_matrix=False)
@@ -232,7 +234,7 @@ class TestQCFunctions(object):    #   arg order is mat,genes,  bc  must return o
 
 ###########################################
 ######## Individual Filtering Tests #######
-###########################################  barcodes are now returned...
+###########################################  
 
     def test_filter_umi(self):
             qc=QualityControl(self.mtx_df_50x40,self.genes,self.barcodes)
@@ -264,6 +266,33 @@ class TestQCFunctions(object):    #   arg order is mat,genes,  bc  must return o
             fdata,fgenes,fbc = qc.filter_count_matrix(UMI_thresh=1700,Features_thresh=39,FeaturesPerUMI_thresh=.02,
                                           log10FeaturesPerUMI_thresh=.48,mtRatio_thresh=.1)
             assert fdata.shape == (14, 40)
+            
+    def test_filter_allFilters_compare(self):         ###   self.mtx_df is no longer altered, so skip this test
+            qc=QualityControl(self.mtx_df_50x40,self.genes,self.barcodes)
+            
+            d0,b,a = qc.filter_count_matrix(UMI_thresh=1700)            
+            qc=QualityControl(d0,b,a)
+            
+            d1,b,a = qc.filter_count_matrix(Features_thresh=39)
+            qc=QualityControl(d1,b,a)
+            
+            d2,b,a = qc.filter_count_matrix(FeaturesPerUMI_thresh=.02)
+            qc=QualityControl(d2,b,a)
+            
+            d3,b,a = qc.filter_count_matrix(log10FeaturesPerUMI_thresh=.48)
+            qc=QualityControl(d3,b,a)
+            
+            d4,fgenes4,fbc4 = qc.filter_count_matrix(mtRatio_thresh=.1)
+            qc=QualityControl(d4,fgenes4,fbc4)
+            
+            qc=QualityControl(self.mtx_df_50x40,self.genes,self.barcodes)
+            d_all,fgenes_all,fbc_all = qc.filter_count_matrix(UMI_thresh=1700,Features_thresh=39,FeaturesPerUMI_thresh=.02,
+                                          log10FeaturesPerUMI_thresh=.48,mtRatio_thresh=.1)
+
+            assert (d0.shape[0],d1.shape[0],d2.shape[0],d3.shape[0],d4.shape[0],d_all.shape[0]) == (45, 30, 17, 17, 14, 14)
+            assert np.all(fgenes4 == fgenes_all)
+            assert np.all(fbc4 == fbc_all)
+            assert np.sum(d4) ==  np.sum(d_all) 
             
     def test_log10FeaturesPerUMI_thresh(self):
         qc=QualityControl(self.mtx_df_50x40,self.genes,self.barcodes)
@@ -350,6 +379,7 @@ class TestQCFunctions(object):    #   arg order is mat,genes,  bc  must return o
         qc=QualityControl(self.mtx_df_50x40,self.genes,self.barcodes)
         with pytest.raises(ValueError,match=r"MT ratio threshold too low, all samples would be removed."):
             fdata,fgenes, fbc = qc.filter_count_matrix(mtRatio_thresh=.000001)
+        
         
     def test_filter_umi_threshold_error(self):
         qc=QualityControl(self.mtx_df_50x40,self.genes,self.barcodes)
@@ -445,49 +475,3 @@ class TestQCFunctions(object):    #   arg order is mat,genes,  bc  must return o
         assert np.shape(cc_genes) == (125,)
         assert cc_genes[0] == 'ENSMUSG00000026842'
         assert cc_genes[-1] ==  'ENSMUSG00000006215'
-"""
-###########################################
-######## Matplotlib Tests #################
-###########################################
-
-    @pytest.mark.mpl_image_compare(tolerance=20) # https://stackoverflow.com/questions/27948126/how-can-i-write-unit-tests-against-code-that-uses-matplotlib
-    def test_fig123(self):
-        '''call metrics() with report=True'''
-        qc=QualityControl(self.mtx_df_50x40,self.genes,self.barcodes)
-        QC_metaobj_50x40  = qc.metrics(UMI_thresh  = 1500,Features_thresh = 39,log10FeaturesPerUMI_thresh = 0.002,
-                                                        FeaturesPerUMI_thresh = 0.0001,mtRatio_thresh = 0.5, filter_count_matrix=False,report=True)
-        return qc.plot_fig123(QC_metaobj_50x40)
-
-    @pytest.mark.mpl_image_compare(tolerance=20) 
-    def test_fig4(self):
-        '''call metrics() with report=True'''
-        qc=QualityControl(self.mtx_df_50x40,self.genes,self.barcodes)
-        QC_metaobj_50x40  = qc.metrics(UMI_thresh  = 1500,Features_thresh = 39,log10FeaturesPerUMI_thresh = 0.002,
-                                                        FeaturesPerUMI_thresh = 0.0001,mtRatio_thresh = 0.5, filter_count_matrix=False,report=True)
-        return qc.plot_fig4(QC_metaobj_50x40)
-    
-    @pytest.mark.mpl_image_compare(tolerance=20)    
-    def test_fig5(self):
-        '''call metrics() with report=True'''
-        qc=QualityControl(self.mtx_df_50x40,self.genes,self.barcodes)
-        QC_metaobj_50x40  = qc.metrics(UMI_thresh  = 1500,Features_thresh = 39,log10FeaturesPerUMI_thresh = 0.002,
-                                                        FeaturesPerUMI_thresh = 0.0001,mtRatio_thresh = 0.5, filter_count_matrix=False,report=True)
-        return qc.plot_fig5(QC_metaobj_50x40)
-
-    @pytest.mark.mpl_image_compare(tolerance=20)
-    def test_fig6(self):
-        '''call metrics() with report=True'''
-        qc=QualityControl(self.mtx_df_50x40,self.genes,self.barcodes)
-        QC_metaobj_50x40  = qc.metrics(UMI_thresh  = 1500,Features_thresh = 39,log10FeaturesPerUMI_thresh = 0.002,
-                                                        FeaturesPerUMI_thresh = 0.0001,mtRatio_thresh = 0.5, filter_count_matrix=False,report=True)
-        return qc.plot_fig6(QC_metaobj_50x40)
-
-    @pytest.mark.mpl_image_compare(tolerance=20) 
-    def test_fig7(self):
-        '''call metrics() with report=True'''
-        qc=QualityControl(self.mtx_df_50x40,self.genes,self.barcodes)
-        QC_metaobj_50x40  = qc.metrics(UMI_thresh  = 1500,Features_thresh = 39,log10FeaturesPerUMI_thresh = 0.002,
-                                                        FeaturesPerUMI_thresh = 0.0001,mtRatio_thresh = 0.5, filter_count_matrix=False,report=True)
-        return qc.plot_fig7(QC_metaobj_50x40)
-
-    """
