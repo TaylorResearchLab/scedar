@@ -317,6 +317,13 @@ class TestQCFunctions(object):
                                                            UMI_thresh = 3000,Features_thresh = 39,
                                                            log10FeaturesPerUMI_thresh = 0.002,
                                                            FeaturesPerUMI_thresh = 0.0001,mtRatio_thresh = 0.5)
+    def test_filter_umi_threshold_error_2(self):
+        qc=QualityControl(self.mtx_df_50x40,self.genes,self.barcodes)
+        with pytest.raises(ValueError,match=r"UMI threshold too high, all samples would be removed."):
+            fdata,fbc,fgenes= qc.filter_count_matrix(remove_cell_cycle=True,
+                                                           UMI_thresh = 3000,Features_thresh = 39,
+                                                           log10FeaturesPerUMI_thresh = 0.002,
+                                                           FeaturesPerUMI_thresh = 0.0001,mtRatio_thresh = 0.5)
     def test_metrics_features_threshold_error(self):
         qc=QualityControl(self.mtx_df_50x40,self.genes,self.barcodes)
         with pytest.raises(ValueError,match=r"Feature threshold too high, all samples would be removed."):
