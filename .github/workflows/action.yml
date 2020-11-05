@@ -4,7 +4,7 @@ on:
   push: 
 jobs:
   biopypir_testing:
-    runs-on: ${{ matrix.os }} # ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         python-version: [3.6,3.7] 
@@ -30,14 +30,6 @@ jobs:
     #===============================================#
     - name: Run Tests
       run:  ./scripts/gen_baseline_images.sh &&  ./scripts/pytest_all.sh
-        
-#       coverage run --source=scedar -m pytest --mpl-generate-path=tests/baseline_images \
-#        --color=yes --ignore=tests/test_cluster/test_mirac_large_data.py tests
- #   - name: Run Tests 2
- #     run:  | 
- #        coverage run --source=scedar -m pytest --mpl \
- #         --mpl-baseline-path=tests/baseline_images --color=yes tests
-            
 
     - name: Upload Coverage
       run: coveralls -v
