@@ -28,4 +28,6 @@ Data sources:
 
 ## Paper
 
-Zhang, Y. and Taylor, D. M. (2018) Scedar: a scalable Python package for single-cell RNA-seq data analysis. *bioRxiv*, doi: [https://doi.org/10.1101/375196](https://doi.org/10.1101/375196).
+Final Version: Zhang Y, Kim MS, Reichenberger ER, Stear B, Taylor DM (2020) Scedar: A scalable Python package for single-cell RNA-seq exploratory data analysis. PLOS Computational Biology 16(4): e1007794. (https://doi.org/10.1371/journal.pcbi.1007794)
+
+Original Preprint: Zhang, Y. and Taylor, D. M. (2018) Scedar: a scalable Python package for single-cell RNA-seq data analysis. *bioRxiv*, doi: [https://doi.org/10.1101/375196](https://doi.org/10.1101/375196).
