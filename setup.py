@@ -33,12 +33,13 @@ setup(
         'seaborn<=0.9.0',
         'scikit-learn<=0.21',
         'xgboost',
-        'networkx',
+        'networkx==2.4',
         'fa2',
         'umap-learn',
         'python-igraph',
         'nmslib',
-        'leidenalg'
+        'leidenalg', 
+        'h5py'
     ],
     setup_requires=[
         'coverage',
@@ -51,12 +52,13 @@ setup(
         'seaborn<=0.9.0',
         'scikit-learn<=0.21',
         'xgboost',
-        'networkx',
+        'networkx==2.4',
         'fa2',
         'umap-learn',
         'python-igraph',
         'nmslib',
-        'leidenalg'
+        'leidenalg',
+        'h5py'
     ],
     tests_require=[
         'pytest'
